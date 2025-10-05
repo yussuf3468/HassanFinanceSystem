@@ -11,14 +11,14 @@ interface ProductFormProps {
 
 const categories = [
   "Books",
+  "Backpacks",
+  "Bottles",
+  "Electronics",
   "Pens",
   "Notebooks",
   "Pencils",
   "Erasers",
   "Markers",
-  "Electronics",
-  "Backpacks",
-  "Bottles",
   "Other",
 ];
 
@@ -30,7 +30,7 @@ export default function ProductForm({
   const [formData, setFormData] = useState({
     product_id: "",
     name: "",
-    category: "Books",
+    category: "Electronics",
     image_url: "",
     buying_price: "",
     selling_price: "",
