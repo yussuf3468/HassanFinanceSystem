@@ -23,6 +23,10 @@ export interface Sale {
   profit: number;
   payment_method: string;
   sold_by: string;
+  discount_amount?: number;
+  discount_percentage?: number;
+  original_price?: number;
+  final_price?: number;
   created_at: string;
 }
 

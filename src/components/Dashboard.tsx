@@ -27,13 +27,13 @@ export default function Dashboard() {
         !import.meta.env.VITE_SUPABASE_URL ||
         !import.meta.env.VITE_SUPABASE_ANON_KEY
       ) {
-        console.warn("Supabase not configured - using demo data");
-        // Set demo data when Supabase is not configured
+        console.warn("Supabase not configured - showing empty state");
+        // Show empty state when Supabase is not configured
         setStats({
-          totalSales: 125000,
-          totalProfit: 25000,
-          lowStockCount: 3,
-          totalProducts: 50,
+          totalSales: 0,
+          totalProfit: 0,
+          lowStockCount: 0,
+          totalProducts: 0,
         });
         setLoading(false);
         return;
@@ -82,12 +82,12 @@ export default function Dashboard() {
       setRecentSales(sales.slice(-5).reverse());
     } catch (error) {
       console.error("Error loading dashboard:", error);
-      // Set demo data on error
+      // Show empty state on error
       setStats({
-        totalSales: 125000,
-        totalProfit: 25000,
-        lowStockCount: 3,
-        totalProducts: 50,
+        totalSales: 0,
+        totalProfit: 0,
+        lowStockCount: 0,
+        totalProducts: 0,
       });
     } finally {
       setLoading(false);
