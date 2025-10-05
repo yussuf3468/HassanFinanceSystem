@@ -52,14 +52,14 @@ export default function Sales() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Sales Records</h2>
-          <p className="text-slate-600 mt-1">Track all your bookstore sales</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Sales Records</h2>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Track all your bookstore sales</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg w-full sm:w-auto font-medium"
         >
           <Plus className="w-5 h-5" />
           <span>Record Sale</span>

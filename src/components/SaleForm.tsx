@@ -10,6 +10,7 @@ interface SaleFormProps {
 }
 
 const paymentMethods = ['Cash', 'Mpesa', 'Card', 'Bank Transfer'];
+const staffMembers = ['Zakaria', 'Khaled'];
 
 export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps) {
   const [formData, setFormData] = useState({
@@ -106,9 +107,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h3 className="text-xl font-bold text-slate-800">Record New Sale</h3>
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-800">Record New Sale</h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -117,7 +118,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Select Product *
@@ -169,9 +170,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           )}
 
           {/* Discount Section */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200">
             <h4 className="font-medium text-slate-800 mb-3">Discount (Optional)</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Discount Type
@@ -226,7 +227,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Quantity Sold *
@@ -261,18 +262,23 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Sold By (Staff Name) *
               </label>
-              <input
-                type="text"
+              <select
                 required
                 value={formData.sold_by}
                 onChange={(e) => setFormData({ ...formData, sold_by: e.target.value })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Enter staff name"
-              />
+              >
+                <option value="">-- Select Staff Member --</option>
+                {staffMembers.map((staff) => (
+                  <option key={staff} value={staff}>
+                    {staff}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -295,20 +301,20 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
             </div>
           )}
 
-          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 font-medium"
             >
-              {submitting ? 'Recording...' : 'Record Sale'}
+              {submitting ? 'Recording Sale...' : 'Record Sale'}
             </button>
           </div>
         </form>
