@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import type { Product } from '../types';
+import { useState } from "react";
+import { X } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import type { Product } from "../types";
 
 interface SaleFormProps {
   products: Product[];
@@ -9,36 +9,45 @@ interface SaleFormProps {
   onSuccess: () => void;
 }
 
-const paymentMethods = ['Cash', 'Mpesa', 'Card', 'Bank Transfer'];
-const staffMembers = ['Zakaria', 'Khaled'];
+const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
+const staffMembers = ["Zakaria", "Khaled"];
 
-export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps) {
+export default function SaleForm({
+  products,
+  onClose,
+  onSuccess,
+}: SaleFormProps) {
   const [formData, setFormData] = useState({
-    product_id: '',
-    quantity_sold: '',
-    payment_method: 'Cash',
-    sold_by: '',
-    discount_type: 'none', // 'none', 'percentage', 'amount'
-    discount_value: '',
+    product_id: "",
+    quantity_sold: "",
+    payment_method: "Cash",
+    sold_by: "",
+    discount_type: "none", // 'none', 'percentage', 'amount'
+    discount_value: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
   const selectedProduct = products.find((p) => p.id === formData.product_id);
-  
+
   // Calculate discount and final prices
   const calculatePrices = () => {
     if (!selectedProduct || !formData.quantity_sold) {
-      return { originalTotal: 0, discountAmount: 0, finalTotal: 0, finalPrice: 0 };
+      return {
+        originalTotal: 0,
+        discountAmount: 0,
+        finalTotal: 0,
+        finalPrice: 0,
+      };
     }
 
     const quantity = parseInt(formData.quantity_sold);
     const originalTotal = selectedProduct.selling_price * quantity;
     let discountAmount = 0;
 
-    if (formData.discount_type === 'percentage' && formData.discount_value) {
+    if (formData.discount_type === "percentage" && formData.discount_value) {
       const percentage = parseFloat(formData.discount_value);
       discountAmount = (originalTotal * percentage) / 100;
-    } else if (formData.discount_type === 'amount' && formData.discount_value) {
+    } else if (formData.discount_type === "amount" && formData.discount_value) {
       discountAmount = parseFloat(formData.discount_value);
     }
 
@@ -48,30 +57,36 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
     return { originalTotal, discountAmount, finalTotal, finalPrice };
   };
 
-  const { originalTotal, discountAmount, finalTotal, finalPrice } = calculatePrices();
+  const { originalTotal, discountAmount, finalTotal, finalPrice } =
+    calculatePrices();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!selectedProduct) {
-      alert('Please select a product');
+      alert("Please select a product");
       return;
     }
 
     const quantitySold = parseInt(formData.quantity_sold);
 
     if (quantitySold > selectedProduct.quantity_in_stock) {
-      alert('Insufficient stock. Available: ' + selectedProduct.quantity_in_stock);
+      alert(
+        "Insufficient stock. Available: " + selectedProduct.quantity_in_stock
+      );
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const discountPercentage = formData.discount_type === 'percentage' ? parseFloat(formData.discount_value || '0') : 0;
+      const discountPercentage =
+        formData.discount_type === "percentage"
+          ? parseFloat(formData.discount_value || "0")
+          : 0;
       const profit = (finalPrice - selectedProduct.buying_price) * quantitySold;
 
-      const { error: saleError } = await supabase.from('sales').insert({
+      const { error: saleError } = await supabase.from("sales").insert({
         product_id: formData.product_id,
         quantity_sold: quantitySold,
         selling_price: selectedProduct.selling_price,
@@ -90,16 +105,16 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
       const newStock = selectedProduct.quantity_in_stock - quantitySold;
       const { error: updateError } = await supabase
-        .from('products')
+        .from("products")
         .update({ quantity_in_stock: newStock })
-        .eq('id', formData.product_id);
+        .eq("id", formData.product_id);
 
       if (updateError) throw updateError;
 
       onSuccess();
     } catch (error) {
-      console.error('Error recording sale:', error);
-      alert('Failed to record sale');
+      console.error("Error recording sale:", error);
+      alert("Failed to record sale");
     } finally {
       setSubmitting(false);
     }
@@ -109,7 +124,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-800">Record New Sale</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-800">
+            Record New Sale
+          </h3>
           <button
             onClick={onClose}
             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -118,7 +135,10 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
+        >
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Select Product *
@@ -126,13 +146,16 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
             <select
               required
               value={formData.product_id}
-              onChange={(e) => setFormData({ ...formData, product_id: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, product_id: e.target.value })
+              }
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">-- Select a product --</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.name} ({product.product_id}) - Stock: {product.quantity_in_stock}
+                  {product.name} ({product.product_id}) - Stock:{" "}
+                  {product.quantity_in_stock}
                 </option>
               ))}
             </select>
@@ -149,7 +172,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                   />
                 )}
                 <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-slate-800">{selectedProduct.name}</h4>
+                  <h4 className="font-semibold text-slate-800">
+                    {selectedProduct.name}
+                  </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-600">Selling Price:</span>
@@ -171,7 +196,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
           {/* Discount Section */}
           <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200">
-            <h4 className="font-medium text-slate-800 mb-3">Discount (Optional)</h4>
+            <h4 className="font-medium text-slate-800 mb-3">
+              Discount (Optional)
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -179,7 +206,13 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 </label>
                 <select
                   value={formData.discount_type}
-                  onChange={(e) => setFormData({ ...formData, discount_type: e.target.value, discount_value: '' })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      discount_type: e.target.value,
+                      discount_value: "",
+                    })
+                  }
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="none">No Discount</option>
@@ -188,7 +221,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 </select>
               </div>
 
-              {formData.discount_type !== 'none' && (
+              {formData.discount_type !== "none" && (
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Discount Value
@@ -196,12 +229,25 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                   <input
                     type="number"
                     min="0"
-                    step={formData.discount_type === 'percentage' ? '0.01' : '1'}
-                    max={formData.discount_type === 'percentage' ? '100' : undefined}
+                    step={
+                      formData.discount_type === "percentage" ? "0.01" : "1"
+                    }
+                    max={
+                      formData.discount_type === "percentage"
+                        ? "100"
+                        : undefined
+                    }
                     value={formData.discount_value}
-                    onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        discount_value: e.target.value,
+                      })
+                    }
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder={formData.discount_type === 'percentage' ? '10' : '100'}
+                    placeholder={
+                      formData.discount_type === "percentage" ? "10" : "100"
+                    }
                   />
                 </div>
               )}
@@ -210,12 +256,16 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-600">Original Total:</span>
-                    <span className="font-medium">KES {originalTotal.toLocaleString()}</span>
+                    <span className="font-medium">
+                      KES {originalTotal.toLocaleString()}
+                    </span>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-red-600">
                       <span>Discount:</span>
-                      <span className="font-medium">-KES {discountAmount.toLocaleString()}</span>
+                      <span className="font-medium">
+                        -KES {discountAmount.toLocaleString()}
+                      </span>
                     </div>
                   )}
                   <div className="flex justify-between border-t pt-2 font-bold text-green-600">
@@ -238,7 +288,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 min="1"
                 max={selectedProduct?.quantity_in_stock || undefined}
                 value={formData.quantity_sold}
-                onChange={(e) => setFormData({ ...formData, quantity_sold: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity_sold: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="1"
               />
@@ -251,7 +303,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               <select
                 required
                 value={formData.payment_method}
-                onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, payment_method: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 {paymentMethods.map((method) => (
@@ -269,7 +323,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               <select
                 required
                 value={formData.sold_by}
-                onChange={(e) => setFormData({ ...formData, sold_by: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, sold_by: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 <option value="">-- Select Staff Member --</option>
@@ -288,13 +344,22 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 <div>
                   <span className="text-slate-600">Total Sale:</span>
                   <span className="ml-2 font-bold text-green-700">
-                    KES {(selectedProduct.selling_price * parseInt(formData.quantity_sold)).toLocaleString()}
+                    KES{" "}
+                    {(
+                      selectedProduct.selling_price *
+                      parseInt(formData.quantity_sold)
+                    ).toLocaleString()}
                   </span>
                 </div>
                 <div>
                   <span className="text-slate-600">Profit:</span>
                   <span className="ml-2 font-bold text-green-700">
-                    KES {((selectedProduct.selling_price - selectedProduct.buying_price) * parseInt(formData.quantity_sold)).toLocaleString()}
+                    KES{" "}
+                    {(
+                      (selectedProduct.selling_price -
+                        selectedProduct.buying_price) *
+                      parseInt(formData.quantity_sold)
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -314,7 +379,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               disabled={submitting}
               className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 font-medium"
             >
-              {submitting ? 'Recording Sale...' : 'Record Sale'}
+              {submitting ? "Recording Sale..." : "Record Sale"}
             </button>
           </div>
         </form>

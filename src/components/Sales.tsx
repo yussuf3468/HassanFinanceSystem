@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import type { Sale, Product } from '../types';
-import SaleForm from './SaleForm';
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import type { Sale, Product } from "../types";
+import SaleForm from "./SaleForm";
 
 export default function Sales() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -17,8 +17,11 @@ export default function Sales() {
   async function loadData() {
     try {
       const [salesRes, productsRes] = await Promise.all([
-        supabase.from('sales').select('*').order('sale_date', { ascending: false }),
-        supabase.from('products').select('*'),
+        supabase
+          .from("sales")
+          .select("*")
+          .order("sale_date", { ascending: false }),
+        supabase.from("products").select("*"),
       ]);
 
       if (salesRes.error) throw salesRes.error;
@@ -27,7 +30,7 @@ export default function Sales() {
       setSales(salesRes.data || []);
       setProducts(productsRes.data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -54,8 +57,12 @@ export default function Sales() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Sales Records</h2>
-          <p className="text-slate-600 mt-1 text-sm sm:text-base">Track all your bookstore sales</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+            Sales Records
+          </h2>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">
+            Track all your bookstore sales
+          </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -97,7 +104,10 @@ export default function Sales() {
             <tbody className="divide-y divide-slate-200">
               {sales.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-slate-500"
+                  >
                     No sales yet. Click "Record Sale" to get started.
                   </td>
                 </tr>
@@ -105,7 +115,10 @@ export default function Sales() {
                 sales.map((sale) => {
                   const product = getProductById(sale.product_id);
                   return (
-                    <tr key={sale.id} className="hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={sale.id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
                       <td className="px-6 py-4 text-slate-700">
                         {new Date(sale.sale_date).toLocaleDateString()}
                         <br />
@@ -123,16 +136,24 @@ export default function Sales() {
                             />
                           ) : (
                             <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
-                              <span className="text-slate-400 text-xs">No Image</span>
+                              <span className="text-slate-400 text-xs">
+                                No Image
+                              </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-slate-800">{product?.name || 'Unknown'}</p>
-                            <p className="text-sm text-slate-500">{product?.product_id || '-'}</p>
+                            <p className="font-medium text-slate-800">
+                              {product?.name || "Unknown"}
+                            </p>
+                            <p className="text-sm text-slate-500">
+                              {product?.product_id || "-"}
+                            </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">{sale.quantity_sold}</td>
+                      <td className="px-6 py-4 text-slate-700">
+                        {sale.quantity_sold}
+                      </td>
                       <td className="px-6 py-4 font-semibold text-slate-800">
                         KES {sale.total_sale.toLocaleString()}
                       </td>
@@ -146,7 +167,9 @@ export default function Sales() {
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">{sale.sold_by}</td>
+                      <td className="px-6 py-4 text-slate-700">
+                        {sale.sold_by}
+                      </td>
                     </tr>
                   );
                 })

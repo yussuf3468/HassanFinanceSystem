@@ -1,5 +1,11 @@
-import { ReactNode } from 'react';
-import { LayoutDashboard, Package, ShoppingCart, Search, FileText } from 'lucide-react';
+import { ReactNode } from "react";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Search,
+  FileText,
+} from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -8,14 +14,18 @@ interface LayoutProps {
 }
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'inventory', label: 'Inventory', icon: Package },
-  { id: 'sales', label: 'Sales', icon: ShoppingCart },
-  { id: 'search', label: 'Search', icon: Search },
-  { id: 'reports', label: 'Reports', icon: FileText },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "inventory", label: "Inventory", icon: Package },
+  { id: "sales", label: "Sales", icon: ShoppingCart },
+  { id: "search", label: "Search", icon: Search },
+  { id: "reports", label: "Reports", icon: FileText },
 ];
 
-export default function Layout({ children, activeTab, onTabChange }: LayoutProps) {
+export default function Layout({
+  children,
+  activeTab,
+  onTabChange,
+}: LayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <header className="bg-white shadow-sm border-b border-slate-200">
@@ -26,8 +36,12 @@ export default function Layout({ children, activeTab, onTabChange }: LayoutProps
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Bookstore Manager</h1>
-                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Professional Inventory & Sales System</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
+                  Bookstore Manager
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">
+                  Professional Inventory & Sales System
+                </p>
               </div>
             </div>
           </div>
@@ -45,8 +59,8 @@ export default function Layout({ children, activeTab, onTabChange }: LayoutProps
                   onClick={() => onTabChange(tab.id)}
                   className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-3 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300'
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300"
                   }`}
                 >
                   <Icon className="w-4 h-4" />

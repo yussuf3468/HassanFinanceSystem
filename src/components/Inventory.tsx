@@ -1,8 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Plus, CreditCard as Edit2, Trash2, AlertCircle, Package } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import type { Product } from '../types';
-import ProductForm from './ProductForm';
+import { useEffect, useState } from "react";
+import {
+  Plus,
+  CreditCard as Edit2,
+  Trash2,
+  AlertCircle,
+  Package,
+} from "lucide-react";
+import { supabase } from "../lib/supabase";
+import type { Product } from "../types";
+import ProductForm from "./ProductForm";
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,29 +23,29 @@ export default function Inventory() {
   async function loadProducts() {
     try {
       const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error("Error loading products:", error);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id);
+      const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       await loadProducts();
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Failed to delete product');
+      console.error("Error deleting product:", error);
+      alert("Failed to delete product");
     }
   }
 
@@ -66,8 +72,12 @@ export default function Inventory() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Inventory Management</h2>
-          <p className="text-slate-600 mt-1 text-sm sm:text-base">Manage your bookstore products</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+            Inventory Management
+          </h2>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">
+            Manage your bookstore products
+          </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -107,15 +117,22 @@ export default function Inventory() {
             <tbody className="divide-y divide-slate-200">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-slate-500"
+                  >
                     No products yet. Click "Add Product" to get started.
                   </td>
                 </tr>
               ) : (
                 products.map((product) => {
-                  const isLowStock = product.quantity_in_stock <= product.reorder_level;
+                  const isLowStock =
+                    product.quantity_in_stock <= product.reorder_level;
                   return (
-                    <tr key={product.id} className="hover:bg-slate-50 transition-colors">
+                    <tr
+                      key={product.id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
                           {product.image_url ? (
@@ -126,12 +143,18 @@ export default function Inventory() {
                             />
                           ) : (
                             <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
-                              <span className="text-slate-400 text-xs">No Image</span>
+                              <span className="text-slate-400 text-xs">
+                                No Image
+                              </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-slate-800">{product.name}</p>
-                            <p className="text-sm text-slate-500">{product.product_id}</p>
+                            <p className="font-medium text-slate-800">
+                              {product.name}
+                            </p>
+                            <p className="text-sm text-slate-500">
+                              {product.product_id}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -151,8 +174,8 @@ export default function Inventory() {
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                               isLowStock
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-green-100 text-green-700'
+                                ? "bg-red-100 text-red-700"
+                                : "bg-green-100 text-green-700"
                             }`}
                           >
                             {product.quantity_in_stock}
@@ -198,9 +221,13 @@ export default function Inventory() {
           </div>
         ) : (
           products.map((product) => {
-            const isLowStock = product.quantity_in_stock <= product.reorder_level;
+            const isLowStock =
+              product.quantity_in_stock <= product.reorder_level;
             return (
-              <div key={product.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+              <div
+                key={product.id}
+                className="bg-white rounded-lg shadow-sm border border-slate-200 p-4"
+              >
                 <div className="flex items-start space-x-4">
                   {product.image_url && (
                     <img
@@ -212,9 +239,15 @@ export default function Inventory() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-slate-900 truncate">{product.name}</h3>
-                        <p className="text-sm text-slate-500">ID: {product.product_id}</p>
-                        <p className="text-sm text-slate-600">{product.category}</p>
+                        <h3 className="font-semibold text-slate-900 truncate">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-slate-500">
+                          ID: {product.product_id}
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          {product.category}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2 ml-2">
                         <button
@@ -231,15 +264,19 @@ export default function Inventory() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
                       <div>
                         <p className="text-slate-500">Buy Price</p>
-                        <p className="font-medium">KES {product.buying_price}</p>
+                        <p className="font-medium">
+                          KES {product.buying_price}
+                        </p>
                       </div>
                       <div>
                         <p className="text-slate-500">Sell Price</p>
-                        <p className="font-medium">KES {product.selling_price}</p>
+                        <p className="font-medium">
+                          KES {product.selling_price}
+                        </p>
                       </div>
                       <div>
                         <p className="text-slate-500">Stock</p>
@@ -247,8 +284,8 @@ export default function Inventory() {
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                               isLowStock
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-green-100 text-green-700'
+                                ? "bg-red-100 text-red-700"
+                                : "bg-green-100 text-green-700"
                             }`}
                           >
                             {product.quantity_in_stock}
