@@ -17,6 +17,8 @@ const categories = [
   "Erasers",
   "Markers",
   "Electronics",
+  "Backpacks",
+  "Bottles",
   "Other",
 ];
 
