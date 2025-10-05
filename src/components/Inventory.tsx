@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, CreditCard as Edit2, Trash2, AlertCircle } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, AlertCircle, Package } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../types';
 import ProductForm from './ProductForm';
@@ -64,21 +64,22 @@ export default function Inventory() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Inventory Management</h2>
-          <p className="text-slate-600 mt-1">Manage your bookstore products</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Inventory Management</h2>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Manage your bookstore products</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" />
           <span>Add Product</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
@@ -157,7 +158,7 @@ export default function Inventory() {
                             {product.quantity_in_stock}
                           </span>
                           {isLowStock && (
-                            <AlertCircle className="w-5 h-5 text-red-500" title="Low stock alert" />
+                            <AlertCircle className="w-5 h-5 text-red-500" />
                           )}
                         </div>
                       </td>
@@ -186,6 +187,84 @@ export default function Inventory() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="lg:hidden space-y-4">
+        {products.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            <Package className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+            <p>No products found. Add your first product to get started!</p>
+          </div>
+        ) : (
+          products.map((product) => {
+            const isLowStock = product.quantity_in_stock <= product.reorder_level;
+            return (
+              <div key={product.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+                <div className="flex items-start space-x-4">
+                  {product.image_url && (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-slate-900 truncate">{product.name}</h3>
+                        <p className="text-sm text-slate-500">ID: {product.product_id}</p>
+                        <p className="text-sm text-slate-600">{product.category}</p>
+                      </div>
+                      <div className="flex items-center space-x-2 ml-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <p className="text-slate-500">Buy Price</p>
+                        <p className="font-medium">KES {product.buying_price}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500">Sell Price</p>
+                        <p className="font-medium">KES {product.selling_price}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-500">Stock</p>
+                        <div className="flex items-center space-x-1">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              isLowStock
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-green-100 text-green-700'
+                            }`}
+                          >
+                            {product.quantity_in_stock}
+                          </span>
+                          {isLowStock && (
+                            <AlertCircle className="w-4 h-4 text-red-500" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {showForm && (

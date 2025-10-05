@@ -26,31 +26,32 @@ export default function Layout({ children, activeTab, onTabChange }: LayoutProps
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">Bookstore Manager</h1>
-                <p className="text-sm text-slate-500">Professional Inventory & Sales System</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Bookstore Manager</h1>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">Professional Inventory & Sales System</p>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <nav className="bg-white border-b border-slate-200 shadow-sm">
+      <nav className="bg-white border-b border-slate-200 shadow-sm overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 min-w-max">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 border-b-2 font-medium text-sm transition-colors ${
+                  className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-3 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.substring(0, 4)}</span>
                 </button>
               );
             })}
@@ -58,7 +59,7 @@ export default function Layout({ children, activeTab, onTabChange }: LayoutProps
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {children}
       </main>
     </div>

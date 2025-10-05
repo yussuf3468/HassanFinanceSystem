@@ -117,9 +117,9 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h3 className="text-xl font-bold text-slate-800">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-800">
             {product ? 'Edit Product' : 'Add New Product'}
           </h3>
           <button
@@ -130,8 +130,8 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Product ID *
@@ -287,20 +287,20 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
             </div>
           </div>
 
-          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-slate-200">
+          <div className="flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4 border-t border-slate-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={submitting}
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+              disabled={submitting || uploading}
+              className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
             >
-              {submitting ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
+              {submitting ? 'Saving...' : uploading ? 'Uploading...' : product ? 'Update Product' : 'Add Product'}
             </button>
           </div>
         </form>
