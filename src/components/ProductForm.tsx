@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../types';
 
@@ -23,6 +23,8 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     reorder_level: '5',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -39,16 +41,54 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
     }
   }, [product]);
 
+  async function uploadImage(file: File): Promise<string | null> {
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
 
     try {
+      let imageUrl = formData.image_url;
+
+      // Upload new image if one was selected
+      if (imageFile) {
+        const uploadedUrl = await uploadImage(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
       const data = {
         product_id: formData.product_id,
         name: formData.name,
         category: formData.category,
-        image_url: formData.image_url || null,
+        image_url: imageUrl || null,
         buying_price: parseFloat(formData.buying_price),
         selling_price: parseFloat(formData.selling_price),
         quantity_in_stock: parseInt(formData.quantity_in_stock),
@@ -140,15 +180,48 @@ export default function ProductForm({ product, onClose, onSuccess }: ProductForm
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Image URL
+                Product Image
               </label>
-              <input
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Or paste image URL: https://example.com/image.jpg"
+                />
+                <div className="text-center text-slate-500">OR</div>
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-8 h-8 mb-4 text-slate-500" />
+                      <p className="mb-2 text-sm text-slate-500">
+                        <span className="font-semibold">Click to upload</span> product image
+                      </p>
+                      <p className="text-xs text-slate-500">PNG, JPG or WEBP (MAX. 5MB)</p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setImageFile(file);
+                          // Clear URL if file is selected
+                          setFormData({ ...formData, image_url: '' });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {imageFile && (
+                  <p className="text-sm text-green-600">Selected: {imageFile.name}</p>
+                )}
+                {uploading && (
+                  <p className="text-sm text-blue-600">Uploading image...</p>
+                )}
+              </div>
             </div>
 
             <div>
