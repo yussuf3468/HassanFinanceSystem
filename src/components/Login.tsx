@@ -49,9 +49,9 @@ export default function Login({ onLogin }: LoginProps) {
   }
 
 //   const staffAccounts = [
-//     { name: "Hassan (Owner)", role: "Manager", email: "hassan@bookshop.so" },
-//     { name: "Zakaria", role: "Staff", email: "zakaria@bookshop.so" },
-//     { name: "Khaled", role: "Staff", email: "khaled@bookshop.so" },
+//     { name: "Hassan (Owner)", role: "Manager", email: "hassan@bookshop.ke" },
+//     { name: "Zakaria", role: "Staff", email: "zakaria@bookshop.ke" },
+//     { name: "Khaled", role: "Staff", email: "khaled@bookshop.ke" },
 //   ];
 
   return (

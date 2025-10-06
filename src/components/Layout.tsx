@@ -32,7 +32,8 @@ export default function Layout({
   const { user, signOut } = useAuth();
 
   const getStaffName = (email: string) => {
-    if (email.includes("yussuf") || email.includes("admin")) return "Yussuf Muse (Admin)";
+    if (email.includes("yussuf") || email.includes("admin"))
+      return "Yussuf Muse (Admin)";
     if (email.includes("zakaria")) return "Zakaria";
     if (email.includes("khaled")) return "Khaled";
     return email.split("@")[0];

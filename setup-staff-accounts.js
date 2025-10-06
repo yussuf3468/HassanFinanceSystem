@@ -3,19 +3,19 @@
 
 const staffAccounts = [
   {
-    email: "admin@bookshop.so",
+    email: "admin@bookshop.ke",
     password: "YussufMuse2024@Admin", // Strong password for admin
     name: "Yussuf Muse (Admin)",
     role: "admin",
   },
   {
-    email: "zakaria@bookshop.so",
+    email: "zakaria@bookshop.ke",
     password: "Zakaria2024@Staff", // Strong password for staff
     name: "Zakaria",
     role: "staff",
   },
   {
-    email: "khaled@bookshop.so",
+    email: "khaled@bookshop.ke",
     password: "Khaled2024@Staff", // Strong password for staff
     name: "Khaled",
     role: "staff",

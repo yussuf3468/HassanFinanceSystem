@@ -10,19 +10,19 @@ Here are the secure login credentials for your team:
 
 ### 1. Yussuf Muse (Admin) - Full Access
 
-- **Email:** `admin@bookshop.so`
+- **Email:** `admin@bookshop.ke`
 - **Password:** `YussufMuse2024@Admin`
 - **Role:** Admin (Full permissions)
 
 ### 2. Zakaria (Staff Member)
 
-- **Email:** `zakaria@bookshop.so`
+- **Email:** `zakaria@bookshop.ke`
 - **Password:** `Zakaria2024@Staff`
 - **Role:** Staff (Standard permissions)
 
 ### 3. Khaled (Staff Member)
 
-- **Email:** `khaled@bookshop.so`
+- **Email:** `khaled@bookshop.ke`
 - **Password:** `Khaled2024@Staff`
 - **Role:** Staff (Standard permissions)
 

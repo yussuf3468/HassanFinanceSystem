@@ -6,9 +6,9 @@
 -- In production, use Supabase Dashboard or Admin API
 
 -- Staff accounts to create:
--- 1. Hassan (Owner): hassan@bookshop.so
--- 2. Zakaria (Staff): zakaria@bookshop.so  
--- 3. Khaled (Staff): khaled@bookshop.so
+-- 1. Yussuf Muse (Admin): admin@bookshop.ke
+-- 2. Zakaria (Staff): zakaria@bookshop.ke  
+-- 3. Khaled (Staff): khaled@bookshop.ke
 
 -- Create profiles table to store additional user information
 CREATE TABLE IF NOT EXISTS public.profiles (
