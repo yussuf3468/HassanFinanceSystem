@@ -1,6 +1,12 @@
 # Database Setup Guide for Staff Activity Dashboard
 
-## ⚠️ Important: Your staff activity dashboard shows "0 records" because the database needs to be set up properly.
+## ⚠️ URGENT FIX: Your app is showing infinite recursion error in RLS policies.
+
+## 🚨 Current Error:
+```
+Error: infinite recursion detected in policy for relation "profiles"
+Database connection test failed
+```
 
 ## 🔧 Quick Fix Steps:
 
@@ -8,20 +14,38 @@
 
 1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard
 2. **Open SQL Editor**: Click on "SQL Editor" in the left sidebar
-3. **Run this SQL** to fix the admin access issue:
+3. **Run this SQL** to fix the infinite recursion error:
 
 ```sql
--- Allow admin users to view all profiles for staff monitoring
+-- Fix infinite recursion in RLS policies for profiles table
+-- Drop all existing policies to start fresh
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Admin can view all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 
+-- Create simple, non-recursive policies
+-- Policy 1: Users can view their own profile
+CREATE POLICY "Users can view own profile" ON public.profiles
+  FOR SELECT 
+  USING (auth.uid() = id);
+
+-- Policy 2: Admin users can view all profiles (using auth.jwt() to avoid recursion)
 CREATE POLICY "Admin can view all profiles" ON public.profiles
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE id = auth.uid() 
-      AND role = 'admin'
-    )
+  FOR SELECT 
+  USING (
+    (auth.jwt() ->> 'email')::text LIKE '%admin%' 
+    OR (auth.jwt() ->> 'email')::text LIKE '%yussuf%'
   );
+
+-- Policy 3: Users can update their own profile
+CREATE POLICY "Users can update own profile" ON public.profiles
+  FOR UPDATE 
+  USING (auth.uid() = id);
+
+-- Policy 4: Allow inserts for new user creation
+CREATE POLICY "Allow profile creation" ON public.profiles
+  FOR INSERT 
+  WITH CHECK (auth.uid() = id);
 ```
 
 4. **Check if you have any profiles**: Run this query to see current profiles:
