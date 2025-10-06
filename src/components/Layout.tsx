@@ -8,7 +8,7 @@ import {
   LogOut,
   User,
 } from "lucide-react";
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,14 +32,16 @@ export default function Layout({
   const { user, signOut } = useAuth();
 
   const getStaffName = (email: string) => {
-    if (email.includes('hassan')) return 'Hassan (Owner)';
-    if (email.includes('zakaria')) return 'Zakaria';
-    if (email.includes('khaled')) return 'Khaled';
-    return email.split('@')[0];
+    if (email.includes("yussuf") || email.includes("admin")) return "Yussuf Muse (Admin)";
+    if (email.includes("zakaria")) return "Zakaria";
+    if (email.includes("khaled")) return "Khaled";
+    return email.split("@")[0];
   };
 
   const handleLogout = async () => {
-    if (confirm('Ma hubtaa inaad ka baxayso? - Are you sure you want to log out?')) {
+    if (
+      confirm("Ma hubtaa inaad ka baxayso? - Are you sure you want to log out?")
+    ) {
       await signOut();
     }
   };
@@ -67,7 +69,7 @@ export default function Layout({
                 </p>
               </div>
             </div>
-            
+
             {/* User Info and Logout */}
             <div className="flex items-center space-x-4">
               {/* Status Indicator */}
@@ -85,7 +87,7 @@ export default function Layout({
                 <div className="flex items-center space-x-3">
                   <div className="hidden sm:block text-right">
                     <p className="text-sm font-semibold text-slate-800">
-                      {getStaffName(user.email || '')}
+                      {getStaffName(user.email || "")}
                     </p>
                     <p className="text-xs text-slate-500">
                       Shaqaale - Staff Member
@@ -102,7 +104,9 @@ export default function Layout({
                     className="group flex items-center space-x-2 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-all duration-300 border border-red-200 hover:border-red-300"
                   >
                     <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    <span className="hidden sm:inline text-sm font-medium">Ka bax</span>
+                    <span className="hidden sm:inline text-sm font-medium">
+                      Ka bax
+                    </span>
                   </button>
                 </div>
               )}

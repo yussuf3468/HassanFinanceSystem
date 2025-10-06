@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Layout from './components/Layout';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import Inventory from './components/Inventory';
-import Sales from './components/Sales';
-import Search from './components/Search';
-import Reports from './components/Reports';
+import { useState } from "react";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import Layout from "./components/Layout";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import Inventory from "./components/Inventory";
+import Sales from "./components/Sales";
+import Search from "./components/Search";
+import Reports from "./components/Reports";
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -30,11 +30,11 @@ function AppContent() {
 
   return (
     <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-      {activeTab === 'dashboard' && <Dashboard />}
-      {activeTab === 'inventory' && <Inventory />}
-      {activeTab === 'sales' && <Sales />}
-      {activeTab === 'search' && <Search />}
-      {activeTab === 'reports' && <Reports />}
+      {activeTab === "dashboard" && <Dashboard />}
+      {activeTab === "inventory" && <Inventory />}
+      {activeTab === "sales" && <Sales />}
+      {activeTab === "search" && <Search />}
+      {activeTab === "reports" && <Reports />}
     </Layout>
   );
 }

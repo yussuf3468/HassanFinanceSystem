@@ -41,13 +41,13 @@ BEGIN
     new.id,
     new.email,
     CASE 
-      WHEN new.email LIKE '%hassan%' THEN 'Hassan (Owner)'
+      WHEN new.email LIKE '%admin%' OR new.email LIKE '%yussuf%' THEN 'Yussuf Muse (Admin)'
       WHEN new.email LIKE '%zakaria%' THEN 'Zakaria'
       WHEN new.email LIKE '%khaled%' THEN 'Khaled'
       ELSE split_part(new.email, '@', 1)
     END,
     CASE 
-      WHEN new.email LIKE '%hassan%' THEN 'owner'
+      WHEN new.email LIKE '%admin%' OR new.email LIKE '%yussuf%' THEN 'admin'
       ELSE 'staff'
     END
   );
