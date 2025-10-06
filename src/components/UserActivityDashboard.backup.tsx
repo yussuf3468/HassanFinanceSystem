@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   Clock,
@@ -22,108 +22,89 @@ interface UserActivity {
 
 export default function UserActivityDashboard() {
   const [userActivities, setUserActivities] = useState<UserActivity[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [lastFetch, setLastFetch] = useState<number>(0);
   const { user } = useAuth();
 
   // Check if current user is admin
   const isAdmin =
     user?.email?.includes("admin") || user?.email?.includes("yussuf");
 
-  const fetchUserActivities = useCallback(async () => {
-    if (!isAdmin || loading) return;
+  useEffect(() => {
+    if (isAdmin) {
+      fetchUserActivities();
+      // Set up real-time updates
+      const interval = setInterval(fetchUserActivities, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAdmin]);
 
+  async function fetchUserActivities() {
     try {
       setLoading(true);
 
-      // Simplified query with specific fields only
-      const { data: profiles, error } = await supabase
+      // Get user profiles with activity data
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, email, full_name, role, last_login, created_at")
-        .limit(10); // Limit to prevent large data loads
+        .select("*")
+        .order("updated_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching profiles:", error);
-        setUserActivities([]);
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
         return;
       }
 
-      // Type-safe mapping with fallbacks
-      const activities: UserActivity[] = (profiles || []).map(
-        (profile: any) => {
-          const lastLogin = profile.last_login;
-          const isOnline = lastLogin
-            ? Date.now() - new Date(lastLogin).getTime() < 30 * 60 * 1000
-            : false;
-
-          return {
-            id: profile.id || "",
-            email: profile.email || "Unknown",
-            name:
-              profile.full_name ||
-              profile.email?.split("@")[0] ||
-              "Unknown User",
-            role: profile.role || "staff",
-            last_sign_in: lastLogin,
-            created_at: profile.created_at || new Date().toISOString(),
-            is_online: isOnline,
-          };
-        }
-      );
+      // Create activities from profiles data
+      const activities: UserActivity[] =
+        profiles?.map((profile) => ({
+          id: profile.id,
+          email: profile.email,
+          name: profile.full_name || profile.email.split("@")[0],
+          role: profile.role || "staff",
+          last_sign_in: profile.last_login || null,
+          created_at: profile.created_at,
+          is_online: profile.last_login
+            ? new Date().getTime() - new Date(profile.last_login).getTime() <
+              30 * 60 * 1000
+            : false, // Online if logged in within 30 minutes
+        })) || [];
 
       setUserActivities(activities);
     } catch (error) {
-      console.error("Error in fetchUserActivities:", error);
-      setUserActivities([]);
+      console.error("Error fetching user activities:", error);
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, loading]);
-
-  // Reduced frequency and better cleanup
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    // Initial fetch
-    fetchUserActivities();
-
-    // Less frequent updates to reduce performance impact
-    const intervalId = setInterval(fetchUserActivities, 120000); // Every 2 minutes
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [isAdmin, fetchUserActivities]);
+  }
 
   function formatLastSeen(lastSignIn: string | null) {
     if (!lastSignIn) return "Weligiiba ma gelin - Never logged in";
 
-    try {
-      const diffInMinutes = Math.floor(
-        (Date.now() - new Date(lastSignIn).getTime()) / (1000 * 60)
-      );
+    const now = new Date();
+    const signInDate = new Date(lastSignIn);
+    const diffInMinutes = Math.floor(
+      (now.getTime() - signInDate.getTime()) / (1000 * 60)
+    );
 
-      if (diffInMinutes < 1) return "Hadda - Just now";
-      if (diffInMinutes < 60)
-        return `${diffInMinutes} daqiiqo ka hor - ${diffInMinutes} minutes ago`;
+    if (diffInMinutes < 1) return "Hadda - Just now";
+    if (diffInMinutes < 60)
+      return `${diffInMinutes} daqiiqo ka hor - ${diffInMinutes} minutes ago`;
 
-      const diffInHours = Math.floor(diffInMinutes / 60);
-      if (diffInHours < 24)
-        return `${diffInHours} saac ka hor - ${diffInHours} hours ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24)
+      return `${diffInHours} saac ka hor - ${diffInHours} hours ago`;
 
-      const diffInDays = Math.floor(diffInHours / 24);
-      if (diffInDays < 7)
-        return `${diffInDays} maalmood ka hor - ${diffInDays} days ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7)
+      return `${diffInDays} maalmood ka hor - ${diffInDays} days ago`;
 
-      return new Date(lastSignIn).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      return "Invalid date";
-    }
+    return signInDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   function getRoleColor(role: string) {
@@ -160,31 +141,33 @@ export default function UserActivityDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl blur opacity-75"></div>
-              <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl">
-                <Activity className="w-8 h-8 text-white" />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Staff Activity Dashboard
-              </h2>
-              <p className="text-slate-600 font-medium">
-                Faallooyinka Isticmaalayaasha - Staff Login Activities
-              </p>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl blur opacity-75"></div>
+            <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl">
+              <Activity className="w-8 h-8 text-white" />
             </div>
           </div>
-          <button
-            onClick={fetchUserActivities}
-            disabled={loading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 disabled:opacity-50"
-          >
-            <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            <span>Refresh</span>
-          </button>
+          <div>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              User Activity Dashboard
+            </h2>
+            <p className="text-slate-600 font-medium">
+              Faallooyinka Isticmaalayaasha - Staff Login Activities
+            </p>
+          </div>
+          <div className="ml-auto">
+            <button
+              onClick={fetchUserActivities}
+              disabled={loading}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 disabled:opacity-50"
+            >
+              <Activity
+                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -324,7 +307,8 @@ export default function UserActivityDashboard() {
                   userActivities.filter(
                     (u) =>
                       u.last_sign_in &&
-                      Date.now() - new Date(u.last_sign_in).getTime() <
+                      new Date().getTime() -
+                        new Date(u.last_sign_in).getTime() <
                         24 * 60 * 60 * 1000
                   ).length
                 }

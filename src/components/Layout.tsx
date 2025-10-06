@@ -9,7 +9,7 @@ import {
   User,
   Activity,
 } from "lucide-react";
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -25,7 +25,8 @@ export default function Layout({
   const { user, signOut } = useAuth();
 
   // Check if current user is admin
-  const isAdmin = user?.email?.includes('admin') || user?.email?.includes('yussuf');
+  const isAdmin =
+    user?.email?.includes("admin") || user?.email?.includes("yussuf");
 
   // Dynamic tabs based on user role
   const baseTabs = [
