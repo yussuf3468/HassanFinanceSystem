@@ -23,6 +23,7 @@ interface UserActivity {
 export default function UserActivityDashboard() {
   const [userActivities, setUserActivities] = useState<UserActivity[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
   // Check if current user is admin
@@ -30,10 +31,34 @@ export default function UserActivityDashboard() {
     user?.email?.includes("admin") || user?.email?.includes("yussuf");
 
   const fetchUserActivities = useCallback(async () => {
-    if (!isAdmin || loading) return;
+    if (!isAdmin) {
+      console.log("User is not admin, skipping fetch");
+      return;
+    }
+
+    if (loading) {
+      console.log("Already loading, skipping fetch");
+      return;
+    }
+
+    console.log("Starting to fetch user activities...");
 
     try {
       setLoading(true);
+      setError(null);
+
+      // Test connection first
+      const { data: testData, error: testError } = await supabase
+        .from("profiles")
+        .select("count", { count: "exact", head: true });
+
+      if (testError) {
+        console.error("Database connection test failed:", testError);
+        setError(`Database connection failed: ${testError.message}`);
+        return;
+      }
+
+      console.log("Database connection successful, fetching profiles...");
 
       // Simplified query with specific fields only
       const { data: profiles, error } = await supabase
@@ -43,9 +68,16 @@ export default function UserActivityDashboard() {
 
       if (error) {
         console.error("Error fetching profiles:", error);
+        setError(`Failed to fetch profiles: ${error.message}`);
         setUserActivities([]);
         return;
       }
+
+      console.log(
+        "Profiles fetched successfully:",
+        profiles?.length || 0,
+        "records"
+      );
 
       // Type-safe mapping with fallbacks
       const activities: UserActivity[] = (profiles || []).map(
@@ -71,25 +103,42 @@ export default function UserActivityDashboard() {
       );
 
       setUserActivities(activities);
+      console.log("User activities updated successfully");
     } catch (error) {
       console.error("Error in fetchUserActivities:", error);
+      setError(
+        `Unexpected error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
       setUserActivities([]);
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, loading]);
+  }, [isAdmin]); // Removed loading dependency
 
   // Reduced frequency and better cleanup
   useEffect(() => {
-    if (!isAdmin) return;
+    console.log("UserActivityDashboard useEffect triggered, isAdmin:", isAdmin);
+
+    if (!isAdmin) {
+      console.log("User is not admin, skipping initial fetch");
+      return;
+    }
 
     // Initial fetch
+    console.log("Starting initial fetch...");
     fetchUserActivities();
 
     // Less frequent updates to reduce performance impact
-    const intervalId = setInterval(fetchUserActivities, 120000); // Every 2 minutes
+    console.log("Setting up interval for every 2 minutes...");
+    const intervalId = setInterval(() => {
+      console.log("Interval triggered, fetching activities...");
+      fetchUserActivities();
+    }, 120000); // Every 2 minutes
 
     return () => {
+      console.log("Cleaning up interval...");
       clearInterval(intervalId);
     };
   }, [isAdmin, fetchUserActivities]);
@@ -158,6 +207,19 @@ export default function UserActivityDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Debug Panel (remove in production) */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+        <h4 className="font-semibold text-yellow-800 mb-2">Debug Info:</h4>
+        <div className="space-y-1 text-yellow-700">
+          <p>User: {user?.email || "Not logged in"}</p>
+          <p>Is Admin: {isAdmin ? "Yes" : "No"}</p>
+          <p>Loading: {loading ? "Yes" : "No"}</p>
+          <p>Error: {error || "None"}</p>
+          <p>Activities Count: {userActivities.length}</p>
+          <p>Last Check: {new Date().toLocaleTimeString()}</p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
         <div className="flex items-center justify-between">
@@ -197,10 +259,39 @@ export default function UserActivityDashboard() {
           </h3>
         </div>
 
-        {loading ? (
+        {error ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 text-red-400 mx-auto mb-4">
+              <svg
+                className="w-full h-full"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-red-600 mb-2">
+              Error Loading Data
+            </h3>
+            <p className="text-slate-600 mb-4">{error}</p>
+            <button
+              onClick={fetchUserActivities}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : loading ? (
           <div className="text-center py-8">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-slate-600">Loading user activities...</p>
+            <p className="text-xs text-slate-400 mt-2">
+              This may take a few seconds...
+            </p>
           </div>
         ) : userActivities.length === 0 ? (
           <div className="text-center py-8">
