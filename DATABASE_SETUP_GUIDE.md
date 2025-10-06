@@ -9,44 +9,44 @@
 ### Option 1: Add Test Profile Data (Immediate Fix)
 
 1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard
-2. **Open SQL Editor**: Click on "SQL Editor" in the left sidebar  
+2. **Open SQL Editor**: Click on "SQL Editor" in the left sidebar
 3. **Run this SQL** to create test profiles:
 
 ```sql
 -- Create test profiles for Staff Activity Dashboard
 INSERT INTO public.profiles (
-    id, 
-    email, 
-    full_name, 
-    role, 
-    created_at, 
+    id,
+    email,
+    full_name,
+    role,
+    created_at,
     updated_at,
     last_login
-) VALUES 
+) VALUES
 (
-    gen_random_uuid(), 
-    'yussuf.admin@dardaaranbookshop.ke', 
-    'Yussuf Muse (Admin)', 
-    'admin', 
-    NOW() - INTERVAL '5 days', 
+    gen_random_uuid(),
+    'yussuf.admin@dardaaranbookshop.ke',
+    'Yussuf Muse (Admin)',
+    'admin',
+    NOW() - INTERVAL '5 days',
     NOW(),
     NOW() - INTERVAL '10 minutes'
 ),
 (
-    gen_random_uuid(), 
-    'zakaria.staff@dardaaranbookshop.ke', 
-    'Zakaria', 
-    'staff', 
-    NOW() - INTERVAL '3 days', 
+    gen_random_uuid(),
+    'zakaria.staff@dardaaranbookshop.ke',
+    'Zakaria',
+    'staff',
+    NOW() - INTERVAL '3 days',
     NOW(),
     NOW() - INTERVAL '2 hours'
 ),
 (
-    gen_random_uuid(), 
-    'khaled.staff@dardaaranbookshop.ke', 
-    'Khaled', 
-    'staff', 
-    NOW() - INTERVAL '1 day', 
+    gen_random_uuid(),
+    'khaled.staff@dardaaranbookshop.ke',
+    'Khaled',
+    'staff',
+    NOW() - INTERVAL '1 day',
     NOW(),
     NOW() - INTERVAL '30 minutes'
 )
