@@ -28,7 +28,8 @@ export default function Search() {
       );
       setFilteredProducts(filtered);
     } else {
-      setFilteredProducts([]);
+      // Show all products when no search term is entered
+      setFilteredProducts(products);
       setSelectedProduct(null);
       setProductStats(null);
     }
@@ -53,8 +54,8 @@ export default function Search() {
 
   function handleSelectProduct(product: Product) {
     setSelectedProduct(product);
-    setSearchTerm(product.name);
-    setFilteredProducts([]);
+    setSearchTerm(''); // Clear search term to show all products again
+    setFilteredProducts(products); // Show all products again
 
     const productSales = sales.filter((s) => s.product_id === product.id);
     const totalSales = productSales.reduce((sum, s) => sum + s.total_sale, 0);
@@ -89,6 +90,20 @@ export default function Search() {
 
         {filteredProducts.length > 0 && (
           <div className="mt-4 border border-slate-200 rounded-lg divide-y divide-slate-200 max-h-64 overflow-y-auto">
+            {searchTerm && (
+              <div className="p-3 bg-slate-50 border-b border-slate-200">
+                <p className="text-sm text-slate-600">
+                  Found {filteredProducts.length} product(s) matching "{searchTerm}"
+                </p>
+              </div>
+            )}
+            {!searchTerm && (
+              <div className="p-3 bg-blue-50 border-b border-slate-200">
+                <p className="text-sm text-blue-700 font-medium">
+                  Showing all {filteredProducts.length} products - Start typing to search
+                </p>
+              </div>
+            )}
             {filteredProducts.map((product) => (
               <button
                 key={product.id}
