@@ -1,22 +1,23 @@
-// Setup script to create staff accounts
-// Run this in Supabase SQL Editor or use Supabase Admin API
+// TEMPLATE: Setup script to create staff accounts
+// Copy this file to setup-staff-accounts.js and add real passwords
+// Run in Supabase SQL Editor or use Supabase Admin API
 
 const staffAccounts = [
   {
     email: "admin@bookshop.ke",
-    password: "YussufMuse2024@Admin", // Strong password for admin
+    password: "YOUR_ADMIN_PASSWORD_HERE", // Replace with strong password
     name: "Yussuf Muse (Admin)",
     role: "admin",
   },
   {
     email: "zakaria@bookshop.ke",
-    password: "Zakaria2024@Staff", // Strong password for staff
+    password: "YOUR_STAFF_PASSWORD_HERE", // Replace with strong password
     name: "Zakaria",
     role: "staff",
   },
   {
     email: "khaled@bookshop.ke",
-    password: "Khaled2024@Staff", // Strong password for staff
+    password: "YOUR_STAFF_PASSWORD_HERE", // Replace with strong password
     name: "Khaled",
     role: "staff",
   },
@@ -48,5 +49,6 @@ console.log("- Change passwords after first login");
 console.log("- Keep credentials secure and private");
 console.log("- Each staff member should only know their own password");
 console.log("- Yussuf Muse (Admin) has full access to all features");
+console.log("- NEVER commit real passwords to git!");
 
 export { staffAccounts };

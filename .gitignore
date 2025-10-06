@@ -21,3 +21,11 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Security - Keep sensitive files out of git
+setup-staff-accounts.js
+AUTHENTICATION_SETUP.md
+*.secrets
+*.credentials
+staff-credentials.txt
+passwords.txt
