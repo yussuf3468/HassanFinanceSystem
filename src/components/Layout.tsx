@@ -5,7 +5,10 @@ import {
   ShoppingCart,
   Search,
   FileText,
+  LogOut,
+  User,
 } from "lucide-react";
+import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,6 +29,21 @@ export default function Layout({
   activeTab,
   onTabChange,
 }: LayoutProps) {
+  const { user, signOut } = useAuth();
+
+  const getStaffName = (email: string) => {
+    if (email.includes('hassan')) return 'Hassan (Owner)';
+    if (email.includes('zakaria')) return 'Zakaria';
+    if (email.includes('khaled')) return 'Khaled';
+    return email.split('@')[0];
+  };
+
+  const handleLogout = async () => {
+    if (confirm('Ma hubtaa inaad ka baxayso? - Are you sure you want to log out?')) {
+      await signOut();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Enhanced Header with Glass Effect */}
@@ -49,14 +67,45 @@ export default function Layout({
                 </p>
               </div>
             </div>
-            {/* Status Indicator */}
-            <div className="hidden sm:flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-slate-600 font-medium">
-                  Hawlgal - Live
-                </span>
+            
+            {/* User Info and Logout */}
+            <div className="flex items-center space-x-4">
+              {/* Status Indicator */}
+              <div className="hidden sm:flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-slate-600 font-medium">
+                    Hawlgal - Live
+                  </span>
+                </div>
               </div>
+
+              {/* User Info */}
+              {user && (
+                <div className="flex items-center space-x-3">
+                  <div className="hidden sm:block text-right">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {getStaffName(user.email || '')}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Shaqaale - Staff Member
+                    </p>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-blue-500 rounded-full blur opacity-50"></div>
+                    <div className="relative bg-gradient-to-br from-green-400 to-blue-500 p-2 rounded-full">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="group flex items-center space-x-2 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-all duration-300 border border-red-200 hover:border-red-300"
+                  >
+                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span className="hidden sm:inline text-sm font-medium">Ka bax</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

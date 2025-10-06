@@ -37,7 +37,7 @@ export default function Inventory() {
   }
 
   async function handleDelete(id: string) {
-    const product = products.find(p => p.id === id);
+    const product = products.find((p) => p.id === id);
     if (!product) return;
 
     const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete the product completely`;
@@ -50,7 +50,7 @@ export default function Inventory() {
         .from("sales")
         .delete()
         .eq("product_id", id);
-      
+
       if (salesError) {
         console.error("Error deleting sales:", salesError);
         alert("Failed to delete sales records. Please try again.");
@@ -62,7 +62,7 @@ export default function Inventory() {
         .from("products")
         .delete()
         .eq("id", id);
-      
+
       if (productError) {
         console.error("Error deleting product:", productError);
         alert("Failed to delete product. Please try again.");

@@ -51,15 +51,12 @@ export default function Sales() {
 
   async function handleDeleteSale(saleId: string, productName: string) {
     const deleteMessage = `Haqii inaad doonaysid inaad tirtirto iibkan?\n\nDelete this sale record for "${productName}"?\n\nTani kama noqon karto - This cannot be undone!`;
-    
+
     if (!confirm(deleteMessage)) return;
 
     try {
-      const { error } = await supabase
-        .from("sales")
-        .delete()
-        .eq("id", saleId);
-      
+      const { error } = await supabase.from("sales").delete().eq("id", saleId);
+
       if (error) {
         console.error("Error deleting sale:", error);
         alert("Failed to delete sale record. Please try again.");
@@ -200,7 +197,12 @@ export default function Sales() {
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleDeleteSale(sale.id, product?.name || "Unknown Product")}
+                          onClick={() =>
+                            handleDeleteSale(
+                              sale.id,
+                              product?.name || "Unknown Product"
+                            )
+                          }
                           className="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
                           title="Tirtir Iibkan - Delete Sale"
                         >
