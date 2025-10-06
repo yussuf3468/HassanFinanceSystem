@@ -7,8 +7,9 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
-import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";  return (
+    <div className="space-y-6">
+      {/* Header */}h } from "../contexts/AuthContext";
 
 interface UserActivity {
   id: string;

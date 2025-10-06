@@ -1,16 +1,62 @@
 # Database Setup Guide for Staff Activity Dashboard
 
-## ⚠️ URGENT FIX: Your app is showing infinite recursion error in RLS policies.
+## ✅ Recursion Error Fixed! Now showing 0 records because no profiles exist yet.
 
-## 🚨 Current Error:
-```
-Error: infinite recursion detected in policy for relation "profiles"
-Database connection test failed
-```
+## 🎯 Current Issue: Dashboard shows "0 records" - Need to create profile data
 
 ## 🔧 Quick Fix Steps:
 
-### Option 1: Manual SQL Execution (Recommended)
+### Option 1: Add Test Profile Data (Immediate Fix)
+
+1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard
+2. **Open SQL Editor**: Click on "SQL Editor" in the left sidebar  
+3. **Run this SQL** to create test profiles:
+
+```sql
+-- Create test profiles for Staff Activity Dashboard
+INSERT INTO public.profiles (
+    id, 
+    email, 
+    full_name, 
+    role, 
+    created_at, 
+    updated_at,
+    last_login
+) VALUES 
+(
+    gen_random_uuid(), 
+    'yussuf.admin@dardaaranbookshop.ke', 
+    'Yussuf Muse (Admin)', 
+    'admin', 
+    NOW() - INTERVAL '5 days', 
+    NOW(),
+    NOW() - INTERVAL '10 minutes'
+),
+(
+    gen_random_uuid(), 
+    'zakaria.staff@dardaaranbookshop.ke', 
+    'Zakaria', 
+    'staff', 
+    NOW() - INTERVAL '3 days', 
+    NOW(),
+    NOW() - INTERVAL '2 hours'
+),
+(
+    gen_random_uuid(), 
+    'khaled.staff@dardaaranbookshop.ke', 
+    'Khaled', 
+    'staff', 
+    NOW() - INTERVAL '1 day', 
+    NOW(),
+    NOW() - INTERVAL '30 minutes'
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Check if profiles were created
+SELECT email, full_name, role, last_login FROM public.profiles;
+```
+
+### Option 2: Fix RLS Policies (If Not Done Yet)
 
 1. **Go to your Supabase Dashboard**: https://supabase.com/dashboard
 2. **Open SQL Editor**: Click on "SQL Editor" in the left sidebar
@@ -26,32 +72,32 @@ DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 -- Create simple, non-recursive policies
 -- Policy 1: Users can view their own profile
 CREATE POLICY "Users can view own profile" ON public.profiles
-  FOR SELECT 
+  FOR SELECT
   USING (auth.uid() = id);
 
 -- Policy 2: Admin users can view all profiles (using auth.jwt() to avoid recursion)
 CREATE POLICY "Admin can view all profiles" ON public.profiles
-  FOR SELECT 
+  FOR SELECT
   USING (
-    (auth.jwt() ->> 'email')::text LIKE '%admin%' 
+    (auth.jwt() ->> 'email')::text LIKE '%admin%'
     OR (auth.jwt() ->> 'email')::text LIKE '%yussuf%'
   );
 
 -- Policy 3: Users can update their own profile
 CREATE POLICY "Users can update own profile" ON public.profiles
-  FOR UPDATE 
+  FOR UPDATE
   USING (auth.uid() = id);
 
 -- Policy 4: Allow inserts for new user creation
 CREATE POLICY "Allow profile creation" ON public.profiles
-  FOR INSERT 
+  FOR INSERT
   WITH CHECK (auth.uid() = id);
 ```
 
 4. **Check if you have any profiles**: Run this query to see current profiles:
 
 ```sql
-SELECT id, email, full_name, role, last_login, created_at 
+SELECT id, email, full_name, role, last_login, created_at
 FROM public.profiles;
 ```
 
@@ -87,12 +133,12 @@ Share the output of this query from your Supabase SQL Editor:
 
 ```sql
 -- Debug query to check current state
-SELECT 
+SELECT
   'profiles_count' as check_type,
   COUNT(*) as count
 FROM public.profiles
 UNION ALL
-SELECT 
+SELECT
   'auth_users_count' as check_type,
   COUNT(*) as count
 FROM auth.users;
