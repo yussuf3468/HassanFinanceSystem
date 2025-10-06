@@ -37,15 +37,43 @@ export default function Inventory() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete the product completely`;
+
+    if (!confirm(deleteMessage)) return;
 
     try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
+      // First delete all sales records for this product
+      const { error: salesError } = await supabase
+        .from("sales")
+        .delete()
+        .eq("product_id", id);
+      
+      if (salesError) {
+        console.error("Error deleting sales:", salesError);
+        alert("Failed to delete sales records. Please try again.");
+        return;
+      }
+
+      // Then delete the product
+      const { error: productError } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", id);
+      
+      if (productError) {
+        console.error("Error deleting product:", productError);
+        alert("Failed to delete product. Please try again.");
+        return;
+      }
+
+      alert(`✅ Successfully deleted "${product.name}" and all related sales!`);
       await loadProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete product");
+      alert("Failed to delete product. Please try again.");
     }
   }
 

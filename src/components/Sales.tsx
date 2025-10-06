@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Sale, Product } from "../types";
 import SaleForm from "./SaleForm";
@@ -47,6 +47,31 @@ export default function Sales() {
   async function handleFormSuccess() {
     handleCloseForm();
     await loadData();
+  }
+
+  async function handleDeleteSale(saleId: string, productName: string) {
+    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto iibkan?\n\nDelete this sale record for "${productName}"?\n\nTani kama noqon karto - This cannot be undone!`;
+    
+    if (!confirm(deleteMessage)) return;
+
+    try {
+      const { error } = await supabase
+        .from("sales")
+        .delete()
+        .eq("id", saleId);
+      
+      if (error) {
+        console.error("Error deleting sale:", error);
+        alert("Failed to delete sale record. Please try again.");
+        return;
+      }
+
+      alert(`✅ Sale record deleted successfully!`);
+      await loadData();
+    } catch (error) {
+      console.error("Error deleting sale:", error);
+      alert("Failed to delete sale record. Please try again.");
+    }
   }
 
   if (loading) {
@@ -99,13 +124,16 @@ export default function Sales() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Sold By
                 </th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {sales.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-6 py-12 text-center text-slate-500"
                   >
                     No sales yet. Click "Record Sale" to get started.
@@ -169,6 +197,15 @@ export default function Sales() {
                       </td>
                       <td className="px-6 py-4 text-slate-700">
                         {sale.sold_by}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleDeleteSale(sale.id, product?.name || "Unknown Product")}
+                          className="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
+                          title="Tirtir Iibkan - Delete Sale"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   );
