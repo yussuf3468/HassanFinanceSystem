@@ -259,7 +259,7 @@ export default function ProductForm({
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Buying Price (KES) *
+                Qiimaha Iibsiga - Buying Price (KES) *
               </label>
               <input
                 type="number"
@@ -277,7 +277,7 @@ export default function ProductForm({
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Selling Price (KES) *
+                Qiimaha Iibka - Selling Price (KES) *
               </label>
               <input
                 type="number"

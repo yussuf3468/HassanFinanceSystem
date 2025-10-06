@@ -101,10 +101,10 @@ export default function Inventory() {
                   Category
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Buying Price
+                  Qiimaha Iibsiga - Buying Price
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                  Selling Price
+                  Qiimaha Iibka - Selling Price
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Stock

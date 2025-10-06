@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Search as SearchIcon } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import type { Product, Sale } from '../types';
+import { useState, useEffect } from "react";
+import { Search as SearchIcon } from "lucide-react";
+import { supabase } from "../lib/supabase";
+import type { Product, Sale } from "../types";
 
 export default function Search() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -38,8 +38,8 @@ export default function Search() {
   async function loadData() {
     try {
       const [productsRes, salesRes] = await Promise.all([
-        supabase.from('products').select('*'),
-        supabase.from('sales').select('*'),
+        supabase.from("products").select("*"),
+        supabase.from("sales").select("*"),
       ]);
 
       if (productsRes.error) throw productsRes.error;
@@ -48,19 +48,22 @@ export default function Search() {
       setProducts(productsRes.data || []);
       setSales(salesRes.data || []);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     }
   }
 
   function handleSelectProduct(product: Product) {
     setSelectedProduct(product);
-    setSearchTerm(''); // Clear search term to show all products again
+    setSearchTerm(""); // Clear search term to show all products again
     setFilteredProducts(products); // Show all products again
 
     const productSales = sales.filter((s) => s.product_id === product.id);
     const totalSales = productSales.reduce((sum, s) => sum + s.total_sale, 0);
     const totalProfit = productSales.reduce((sum, s) => sum + s.profit, 0);
-    const totalQuantitySold = productSales.reduce((sum, s) => sum + s.quantity_sold, 0);
+    const totalQuantitySold = productSales.reduce(
+      (sum, s) => sum + s.quantity_sold,
+      0
+    );
 
     setProductStats({
       totalSales,
@@ -73,7 +76,9 @@ export default function Search() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-800">Product Search</h2>
-        <p className="text-slate-600 mt-1">Search for products and view detailed information</p>
+        <p className="text-slate-600 mt-1">
+          Search for products and view detailed information
+        </p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
@@ -93,14 +98,16 @@ export default function Search() {
             {searchTerm && (
               <div className="p-3 bg-slate-50 border-b border-slate-200">
                 <p className="text-sm text-slate-600">
-                  Found {filteredProducts.length} product(s) matching "{searchTerm}"
+                  Found {filteredProducts.length} product(s) matching "
+                  {searchTerm}"
                 </p>
               </div>
             )}
             {!searchTerm && (
               <div className="p-3 bg-blue-50 border-b border-slate-200">
                 <p className="text-sm text-blue-700 font-medium">
-                  Showing all {filteredProducts.length} products - Start typing to search
+                  Showing all {filteredProducts.length} products - Start typing
+                  to search
                 </p>
               </div>
             )}
@@ -157,51 +164,80 @@ export default function Search() {
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700 mb-4">
                   {selectedProduct.category}
                 </div>
-                <p className="text-slate-600">Product ID: {selectedProduct.product_id}</p>
+                <p className="text-slate-600">
+                  Product ID: {selectedProduct.product_id}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-              <InfoCard label="Buying Price" value={`KES ${selectedProduct.buying_price.toLocaleString()}`} />
-              <InfoCard label="Selling Price" value={`KES ${selectedProduct.selling_price.toLocaleString()}`} />
-              <InfoCard label="Current Stock" value={selectedProduct.quantity_in_stock.toString()} />
-              <InfoCard label="Reorder Level" value={selectedProduct.reorder_level.toString()} />
+              <InfoCard
+                label="Qiimaha Iibsiga - Buying Price"
+                value={`KES ${selectedProduct.buying_price.toLocaleString()}`}
+              />
+              <InfoCard
+                label="Qiimaha Iibka - Selling Price"
+                value={`KES ${selectedProduct.selling_price.toLocaleString()}`}
+              />
+              <InfoCard
+                label="Current Stock"
+                value={selectedProduct.quantity_in_stock.toString()}
+              />
+              <InfoCard
+                label="Reorder Level"
+                value={selectedProduct.reorder_level.toString()}
+              />
               <InfoCard
                 label="Stock Status"
                 value={
-                  selectedProduct.quantity_in_stock <= selectedProduct.reorder_level
-                    ? 'Low Stock'
-                    : 'In Stock'
+                  selectedProduct.quantity_in_stock <=
+                  selectedProduct.reorder_level
+                    ? "Low Stock"
+                    : "In Stock"
                 }
                 valueColor={
-                  selectedProduct.quantity_in_stock <= selectedProduct.reorder_level
-                    ? 'text-red-600'
-                    : 'text-green-600'
+                  selectedProduct.quantity_in_stock <=
+                  selectedProduct.reorder_level
+                    ? "text-red-600"
+                    : "text-green-600"
                 }
               />
               <InfoCard
                 label="Profit Margin"
-                value={`${(((selectedProduct.selling_price - selectedProduct.buying_price) / selectedProduct.buying_price) * 100).toFixed(1)}%`}
+                value={`${(
+                  ((selectedProduct.selling_price -
+                    selectedProduct.buying_price) /
+                    selectedProduct.buying_price) *
+                  100
+                ).toFixed(1)}%`}
               />
             </div>
 
             <div className="border-t border-slate-200 pt-6">
-              <h5 className="text-lg font-semibold text-slate-800 mb-4">Sales Statistics</h5>
+              <h5 className="text-lg font-semibold text-slate-800 mb-4">
+                Sales Statistics
+              </h5>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                  <p className="text-sm text-blue-700 font-medium mb-1">Total Sales Revenue</p>
+                  <p className="text-sm text-blue-700 font-medium mb-1">
+                    Total Sales Revenue
+                  </p>
                   <p className="text-2xl font-bold text-blue-900">
                     KES {productStats.totalSales.toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                  <p className="text-sm text-green-700 font-medium mb-1">Total Profit</p>
+                  <p className="text-sm text-green-700 font-medium mb-1">
+                    Total Profit
+                  </p>
                   <p className="text-2xl font-bold text-green-900">
                     KES {productStats.totalProfit.toLocaleString()}
                   </p>
                 </div>
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4 border border-slate-200">
-                  <p className="text-sm text-slate-700 font-medium mb-1">Total Quantity Sold</p>
+                  <p className="text-sm text-slate-700 font-medium mb-1">
+                    Total Quantity Sold
+                  </p>
                   <p className="text-2xl font-bold text-slate-900">
                     {productStats.totalQuantitySold}
                   </p>
@@ -221,7 +257,11 @@ interface InfoCardProps {
   valueColor?: string;
 }
 
-function InfoCard({ label, value, valueColor = 'text-slate-800' }: InfoCardProps) {
+function InfoCard({
+  label,
+  value,
+  valueColor = "text-slate-800",
+}: InfoCardProps) {
   return (
     <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
       <p className="text-sm text-slate-600 mb-1">{label}</p>

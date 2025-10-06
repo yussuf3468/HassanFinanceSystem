@@ -27,45 +27,70 @@ export default function Layout({
   onTabChange,
 }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <header className="bg-white shadow-sm border-b border-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Enhanced Header with Glass Effect */}
+      <header className="backdrop-blur-md bg-white/90 shadow-lg border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg">
-                <Package className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl blur opacity-75"></div>
+                <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg">
+                  <Package className="w-7 h-7 text-white" />
+                </div>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
-                  Bookstore Manager
+                <h1 className="text-xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  Hassan Muse BookShop
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">
-                  Professional Inventory & Sales System
+                <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                  ✨ Nidaamka Maamulka Dukaamada - Professional Management
+                  System
                 </p>
+              </div>
+            </div>
+            {/* Status Indicator */}
+            <div className="hidden sm:flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-slate-600 font-medium">
+                  Hawlgal - Live
+                </span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <nav className="bg-white border-b border-slate-200 shadow-sm overflow-x-auto">
+      {/* Enhanced Navigation with Modern Tabs */}
+      <nav className="mt-2 backdrop-blur-md bg-white/80 border-b border-white/30 shadow-sm overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-1 min-w-max">
+          <div className="flex space-x-2 min-w-max py-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
-                  className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-3 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-slate-600 hover:text-slate-800 hover:border-slate-300"
+                  className={`group relative flex items-center space-x-2 px-4 sm:px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 whitespace-nowrap ${
+                    isActive
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105"
+                      : "text-slate-700 hover:bg-white/60 hover:shadow-md hover:scale-102"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label.substring(0, 4)}</span>
+                  {isActive && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl blur opacity-30"></div>
+                  )}
+                  <Icon
+                    className={`w-5 h-5 transition-all duration-300 ${
+                      isActive ? "animate-pulse" : "group-hover:scale-110"
+                    }`}
+                  />
+                  <span className="relative font-bold">{tab.label}</span>
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>
+                  )}
                 </button>
               );
             })}
@@ -73,8 +98,9 @@ export default function Layout({
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {children}
+      {/* Enhanced Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="animate-fadeIn">{children}</div>
       </main>
     </div>
   );

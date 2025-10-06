@@ -99,50 +99,102 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Sales"
-          value={`KES ${stats.totalSales.toLocaleString()}`}
-          icon={DollarSign}
-          color="blue"
-        />
-        <StatCard
-          title="Total Profit"
-          value={`KES ${stats.totalProfit.toLocaleString()}`}
-          icon={TrendingUp}
-          color="green"
-        />
-        <StatCard
-          title="Total Products"
-          value={stats.totalProducts.toString()}
-          icon={Package}
-          color="purple"
-        />
-        <StatCard
-          title="Low Stock Items"
-          value={stats.lowStockCount.toString()}
-          icon={AlertTriangle}
-          color="orange"
-        />
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div className="text-center space-y-3">
+        <h1 className="text-4xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Tusmada Guud - Dashboard Overview
+        </h1>
+        <p className="text-slate-600 font-medium">
+          Warbixin degdeg ah oo ku saabsan Hassan Muse BookShop
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">
-            Top Selling Products
-          </h3>
-          <div className="space-y-3">
+      {/* Stats Grid with Staggered Animation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="animate-slideInLeft" style={{ animationDelay: "0.1s" }}>
+          <StatCard
+            title="Iibka Guud - Total Sales"
+            value={`KES ${stats.totalSales.toLocaleString()}`}
+            icon={DollarSign}
+            color="blue"
+          />
+        </div>
+        <div className="animate-slideInLeft" style={{ animationDelay: "0.2s" }}>
+          <StatCard
+            title="Faa'iidada - Total Profit"
+            value={`KES ${stats.totalProfit.toLocaleString()}`}
+            icon={TrendingUp}
+            color="green"
+          />
+        </div>
+        <div className="animate-slideInLeft" style={{ animationDelay: "0.3s" }}>
+          <StatCard
+            title="Alaabta Guud - Total Products"
+            value={stats.totalProducts.toString()}
+            icon={Package}
+            color="purple"
+          />
+        </div>
+        <div className="animate-slideInLeft" style={{ animationDelay: "0.4s" }}>
+          <StatCard
+            title="Alaab Yaraatay - Low Stock"
+            value={stats.lowStockCount.toString()}
+            icon={AlertTriangle}
+            color="orange"
+          />
+        </div>
+      </div>
+
+      {/* Enhanced Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Top Products Card */}
+        <div className="group bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-300">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              🏆 Alaabta Ugu Iibka Badan - Top Products
+            </h3>
+          </div>
+          <div className="space-y-4">
             {topProducts.length === 0 ? (
-              <p className="text-slate-500 text-sm">No sales data yet</p>
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
+                  <Package className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-slate-500 font-medium">
+                  Wali iib ma jirin - No sales data yet
+                </p>
+                <p className="text-slate-400 text-sm">
+                  Bilow iibka si aad u aragto alaabta ugu iibka badan!
+                </p>
+              </div>
             ) : (
               topProducts.map((item, index) => (
                 <div
                   key={item.product.id}
-                  className="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"
+                  className="group/item flex items-center space-x-4 p-4 bg-gradient-to-r from-white to-slate-50 rounded-xl border border-slate-100 hover:shadow-lg hover:scale-105 transition-all duration-300"
                 >
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
-                    {index + 1}
+                  <div
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
+                      index === 0
+                        ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                        : index === 1
+                        ? "bg-gradient-to-br from-slate-400 to-slate-600"
+                        : index === 2
+                        ? "bg-gradient-to-br from-orange-400 to-orange-600"
+                        : "bg-gradient-to-br from-blue-400 to-blue-600"
+                    }`}
+                  >
+                    {index === 0
+                      ? "🥇"
+                      : index === 1
+                      ? "🥈"
+                      : index === 2
+                      ? "🥉"
+                      : index + 1}
                   </div>
                   {item.product.image_url && (
                     <img
@@ -216,25 +268,73 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
   const colorClasses = {
-    blue: "from-blue-500 to-blue-600",
-    green: "from-green-500 to-green-600",
-    purple: "from-slate-500 to-slate-600",
-    orange: "from-orange-500 to-orange-600",
+    blue: {
+      gradient: "from-blue-500 to-blue-600",
+      bg: "from-blue-50 to-blue-100",
+      text: "text-blue-700",
+      shadow: "shadow-blue-200",
+      glow: "shadow-blue-500/25",
+    },
+    green: {
+      gradient: "from-green-500 to-green-600",
+      bg: "from-green-50 to-green-100",
+      text: "text-green-700",
+      shadow: "shadow-green-200",
+      glow: "shadow-green-500/25",
+    },
+    purple: {
+      gradient: "from-purple-500 to-purple-600",
+      bg: "from-purple-50 to-purple-100",
+      text: "text-purple-700",
+      shadow: "shadow-purple-200",
+      glow: "shadow-purple-500/25",
+    },
+    orange: {
+      gradient: "from-orange-500 to-orange-600",
+      bg: "from-orange-50 to-orange-100",
+      text: "text-orange-700",
+      shadow: "shadow-orange-200",
+      glow: "shadow-orange-500/25",
+    },
   };
 
+  const colors = colorClasses[color];
+
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-600">{title}</p>
-          <p className="text-2xl font-bold text-slate-800 mt-2">{value}</p>
+    <div
+      className={`group relative bg-gradient-to-br ${colors.bg} backdrop-blur-sm rounded-2xl shadow-lg ${colors.shadow} border border-white/50 p-6 hover:shadow-xl hover:${colors.glow} transition-all duration-300 hover:scale-105 cursor-pointer`}
+    >
+      {/* Floating Background Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <div className="relative flex items-center justify-between">
+        <div className="flex-1">
+          <p
+            className={`text-sm font-bold ${colors.text} uppercase tracking-wide`}
+          >
+            {title}
+          </p>
+          <p className="text-3xl font-black text-slate-800 mt-3 group-hover:scale-110 transition-transform duration-300">
+            {value}
+          </p>
         </div>
-        <div
-          className={`bg-gradient-to-br ${colorClasses[color]} p-3 rounded-lg`}
-        >
-          <Icon className="w-6 h-6 text-white" />
+        <div className="relative">
+          {/* Glow Effect */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300`}
+          ></div>
+          <div
+            className={`relative bg-gradient-to-br ${colors.gradient} p-4 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
+          >
+            <Icon className="w-7 h-7 text-white group-hover:animate-pulse" />
+          </div>
         </div>
       </div>
+
+      {/* Animated Bottom Bar */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${colors.gradient} rounded-b-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}
+      ></div>
     </div>
   );
 }

@@ -121,27 +121,34 @@ export default function SaleForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-800">
-            Record New Sale
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <div className="fixed inset-0 bg-gradient-to-br from-black/80 to-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
+        {/* Enhanced Header */}
+        <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-t-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-400/50 to-emerald-500/50 rounded-t-2xl"></div>
+          <div className="relative flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-black text-white">
+                💰 Diiwaan Gali Iib Cusub - Record New Sale
+              </h3>
+              <p className="text-green-100 text-sm font-medium">
+                Si sahlan oo dhaqso ah u diiwaan gali iibka
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="p-4 sm:p-6 space-y-4 sm:space-y-6"
-        >
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Select Product *
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Enhanced Product Selection */}
+          <div className="space-y-3">
+            <label className="block text-base font-bold text-slate-800">
+              📦 Dooro Alaabta - Select Product *
             </label>
             <select
               required
@@ -149,9 +156,9 @@ export default function SaleForm({
               onChange={(e) =>
                 setFormData({ ...formData, product_id: e.target.value })
               }
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-green-500/25 focus:border-green-500 transition-all duration-300 bg-white shadow-sm"
             >
-              <option value="">-- Select a product --</option>
+              <option value="">🔍 Dooro alaab - Choose a product...</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
                   {product.name} ({product.product_id}) - Stock:{" "}
@@ -162,31 +169,40 @@ export default function SaleForm({
           </div>
 
           {selectedProduct && (
-            <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border-2 border-blue-100 shadow-lg animate-fadeIn">
               <div className="flex items-start space-x-4">
                 {selectedProduct.image_url && (
-                  <img
-                    src={selectedProduct.image_url}
-                    alt={selectedProduct.name}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+                  <div className="relative">
+                    <img
+                      src={selectedProduct.image_url}
+                      alt={selectedProduct.name}
+                      className="w-24 h-24 object-cover rounded-xl shadow-lg border-2 border-white"
+                    />
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">✓</span>
+                    </div>
+                  </div>
                 )}
-                <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-slate-800">
+                <div className="flex-1 space-y-3">
+                  <h4 className="text-xl font-bold text-slate-800">
                     {selectedProduct.name}
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-slate-600">Selling Price:</span>
-                      <span className="ml-2 font-medium text-slate-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-white/60 rounded-lg p-3">
+                      <span className="text-slate-600 text-sm font-medium">
+                        💰 Qiimaha mid - Price per item
+                      </span>
+                      <div className="text-lg font-black text-green-600">
                         KES {selectedProduct.selling_price.toLocaleString()}
-                      </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-600">Available Stock:</span>
-                      <span className="ml-2 font-medium text-slate-800">
-                        {selectedProduct.quantity_in_stock}
+                    <div className="bg-white/60 rounded-lg p-3">
+                      <span className="text-slate-600 text-sm font-medium">
+                        📦 Alaab Jira - Available Stock
                       </span>
+                      <div className="text-lg font-black text-blue-600">
+                        {selectedProduct.quantity_in_stock} cutub
+                      </div>
                     </div>
                   </div>
                 </div>
