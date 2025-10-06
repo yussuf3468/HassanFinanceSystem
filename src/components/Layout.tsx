@@ -7,8 +7,9 @@ import {
   FileText,
   LogOut,
   User,
+  Activity,
 } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,20 +17,30 @@ interface LayoutProps {
   onTabChange: (tab: string) => void;
 }
 
-const tabs = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "inventory", label: "Inventory", icon: Package },
-  { id: "sales", label: "Sales", icon: ShoppingCart },
-  { id: "search", label: "Search", icon: Search },
-  { id: "reports", label: "Reports", icon: FileText },
-];
-
 export default function Layout({
   children,
   activeTab,
   onTabChange,
 }: LayoutProps) {
   const { user, signOut } = useAuth();
+
+  // Check if current user is admin
+  const isAdmin = user?.email?.includes('admin') || user?.email?.includes('yussuf');
+
+  // Dynamic tabs based on user role
+  const baseTabs = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "inventory", label: "Inventory", icon: Package },
+    { id: "sales", label: "Sales", icon: ShoppingCart },
+    { id: "search", label: "Search", icon: Search },
+    { id: "reports", label: "Reports", icon: FileText },
+  ];
+
+  const adminTabs = [
+    { id: "user-activity", label: "Staff Activity", icon: Activity },
+  ];
+
+  const tabs = isAdmin ? [...baseTabs, ...adminTabs] : baseTabs;
 
   const getStaffName = (email: string) => {
     if (email.includes("yussuf") || email.includes("admin"))

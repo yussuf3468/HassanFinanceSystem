@@ -1,22 +1,27 @@
 # 🔐 Hassan Muse BookShop - Secure Authentication Setup
 
 ## 🌟 Overview
+
 Your Hassan Muse BookShop has a complete authentication system with bilingual support (English/Somali). Staff members need to log in before accessing the management system.
 
 ## 👥 Staff Accounts Structure
+
 Your team should have these account types:
 
 ### 1. Yussuf Muse (Admin) - Full Access
+
 - **Email:** `admin@bookshop.ke`
 - **Password:** `[CONTACT YUSSUF PRIVATELY]`
 - **Role:** Admin (Full permissions)
 
 ### 2. Zakaria (Staff Member)
+
 - **Email:** `zakaria@bookshop.ke`
 - **Password:** `[CONTACT YUSSUF PRIVATELY]`
 - **Role:** Staff (Standard permissions)
 
 ### 3. Khaled (Staff Member)
+
 - **Email:** `khaled@bookshop.ke`
 - **Password:** `[CONTACT YUSSUF PRIVATELY]`
 - **Role:** Staff (Standard permissions)
@@ -24,6 +29,7 @@ Your team should have these account types:
 ## 🚀 Setup Instructions
 
 ### Step 1: Create User Accounts in Supabase
+
 1. Go to your Supabase Dashboard: https://supabase.com/dashboard
 2. Select your Hassan Muse BookShop project
 3. Navigate to **Authentication** → **Users**
@@ -36,6 +42,7 @@ Your team should have these account types:
 6. Repeat for all three accounts
 
 ### Step 2: Run Database Migration
+
 1. In Supabase Dashboard, go to **SQL Editor**
 2. Copy and paste the content from: `supabase/migrations/20251006000000_setup_authentication.sql`
 3. Click **"Run"** to execute the migration
@@ -45,6 +52,7 @@ Your team should have these account types:
    - Automatic role assignment
 
 ### Step 3: Deploy Updated Application
+
 ```bash
 # Build and deploy
 npm run build
@@ -59,6 +67,7 @@ vercel --prod
 ## 🔒 Security Features
 
 ### ✅ What's Protected Now:
+
 - **Login Required:** All features require authentication
 - **Secure Passwords:** Strong password requirements
 - **Role-Based Access:** Admin vs Staff permissions
@@ -67,6 +76,7 @@ vercel --prod
 - **No Secrets in Git:** All passwords are kept private
 
 ### 🛡️ Security Policies:
+
 - Only authenticated users can view/modify data
 - User sessions are automatically managed
 - Passwords are encrypted by Supabase Auth
@@ -76,12 +86,14 @@ vercel --prod
 ## 📱 How Staff Will Use It
 
 ### Login Process:
+
 1. Staff opens the bookshop website
 2. Sees the beautiful bilingual login screen
 3. Enters their email and password (received privately)
 4. Gets access to the management system
 
 ### Features Available After Login:
+
 - ✅ Dashboard with real-time stats
 - ✅ Inventory management (add/edit/delete products)
 - ✅ Sales recording with discounts
@@ -89,6 +101,7 @@ vercel --prod
 - ✅ Logout when finished
 
 ### Logout:
+
 - Click the red "Ka bax" (Logout) button in the header
 - Confirms logout in both Somali and English
 - Securely ends the session
@@ -96,6 +109,7 @@ vercel --prod
 ## 📋 Staff Instructions Template
 
 ### For Zakaria and Khaled:
+
 ```
 🏪 Hassan Muse BookShop - Staff Login
 
@@ -119,18 +133,21 @@ vercel --prod
 ## 🎨 Authentication Features
 
 ### 🌟 Beautiful Login Screen:
+
 - Glass morphism design with floating animations
 - Bilingual labels (English/Somali)
 - Show/hide password functionality
 - Responsive mobile design
 
 ### 👤 User Management:
+
 - User profile display in header
 - Staff name recognition (Yussuf, Zakaria, Khaled)
 - Role-based welcome messages
 - Secure logout with confirmation
 
 ### 🔐 Enhanced Security:
+
 - Database-level protection
 - Automatic session management
 - Password strength requirements
@@ -139,6 +156,7 @@ vercel --prod
 ## 🚨 Important Security Notes
 
 ### For Yussuf (Admin):
+
 1. **Never share admin credentials** - only you should have admin access
 2. **Monitor staff usage** - you can see login activity in Supabase Dashboard
 3. **Change passwords regularly** - update passwords every 3-6 months
@@ -146,12 +164,14 @@ vercel --prod
 5. **Keep passwords private** - share through secure channels only
 
 ### For Staff:
+
 1. **Keep passwords secure** - don't share with anyone
 2. **Always logout** - especially on shared computers
 3. **Report issues immediately** - contact Yussuf for any problems
 4. **Use strong passwords** - if changing, use complex passwords
 
 ### For Developers:
+
 1. **Never commit passwords** - use environment variables or private files
 2. **Use .gitignore** - keep sensitive files out of version control
 3. **Regular security audits** - monitor for exposed secrets
@@ -160,6 +180,7 @@ vercel --prod
 ## 📞 Support Information
 
 If anyone has trouble logging in:
+
 1. Check email/password spelling carefully
 2. Ensure caps lock is off
 3. Try refreshing the page
@@ -168,6 +189,7 @@ If anyone has trouble logging in:
 ## 🎉 Deployment Status
 
 Your secure Hassan Muse BookShop is ready with:
+
 - ✅ Complete authentication system
 - ✅ Bilingual user interface
 - ✅ Role-based access control
@@ -177,6 +199,7 @@ Your secure Hassan Muse BookShop is ready with:
 - ✅ GitGuardian-safe (no secrets in git)
 
 **Next Steps:**
+
 1. Get real passwords from Yussuf privately
 2. Create the user accounts in Supabase
 3. Deploy the updated application
@@ -185,5 +208,5 @@ Your secure Hassan Muse BookShop is ready with:
 
 ---
 
-*Built with ❤️ for Hassan Muse BookShop - Professional Business Management System*
-*Security-first approach - No secrets exposed in version control*
+_Built with ❤️ for Hassan Muse BookShop - Professional Business Management System_
+_Security-first approach - No secrets exposed in version control_

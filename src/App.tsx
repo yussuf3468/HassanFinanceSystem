@@ -7,6 +7,7 @@ import Inventory from "./components/Inventory";
 import Sales from "./components/Sales";
 import Search from "./components/Search";
 import Reports from "./components/Reports";
+import UserActivityDashboard from "./components/UserActivityDashboard";
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -35,6 +36,7 @@ function AppContent() {
       {activeTab === "sales" && <Sales />}
       {activeTab === "search" && <Search />}
       {activeTab === "reports" && <Reports />}
+      {activeTab === "user-activity" && <UserActivityDashboard />}
     </Layout>
   );
 }

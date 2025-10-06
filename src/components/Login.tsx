@@ -48,11 +48,11 @@ export default function Login({ onLogin }: LoginProps) {
     }
   }
 
-//   const staffAccounts = [
-//     { name: "Hassan (Owner)", role: "Manager", email: "hassan@bookshop.ke" },
-//     { name: "Zakaria", role: "Staff", email: "zakaria@bookshop.ke" },
-//     { name: "Khaled", role: "Staff", email: "khaled@bookshop.ke" },
-//   ];
+  //   const staffAccounts = [
+  //     { name: "Hassan (Owner)", role: "Manager", email: "hassan@bookshop.ke" },
+  //     { name: "Zakaria", role: "Staff", email: "zakaria@bookshop.ke" },
+  //     { name: "Khaled", role: "Staff", email: "khaled@bookshop.ke" },
+  //   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center p-4">
