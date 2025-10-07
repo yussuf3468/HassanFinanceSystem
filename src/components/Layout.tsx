@@ -81,7 +81,9 @@ export default function Layout({
                   Hassan Muse BookShop
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium truncate">
-                  <span className="hidden sm:inline">✨ Nidaamka Maamulka Dukaamada - </span>
+                  <span className="hidden sm:inline">
+                    ✨ Nidaamka Maamulka Dukaamada -{" "}
+                  </span>
                   Professional System
                 </p>
               </div>
@@ -111,7 +113,7 @@ export default function Layout({
                       Shaqaale - Staff Member
                     </p>
                   </div>
-                  
+
                   {/* User Avatar */}
                   <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-blue-500 rounded-full blur opacity-50"></div>
@@ -119,7 +121,7 @@ export default function Layout({
                       <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                   </div>
-                  
+
                   {/* Logout Button - Mobile Optimized */}
                   <button
                     onClick={handleLogout}

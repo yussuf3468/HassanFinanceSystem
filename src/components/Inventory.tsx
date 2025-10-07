@@ -5,6 +5,13 @@ import {
   Trash2,
   AlertCircle,
   Package,
+  Eye,
+  X,
+  Calendar,
+  DollarSign,
+  Hash,
+  Tag,
+  TrendingUp,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
@@ -15,6 +22,7 @@ export default function Inventory() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -80,6 +88,14 @@ export default function Inventory() {
   function handleEdit(product: Product) {
     setEditingProduct(product);
     setShowForm(true);
+  }
+
+  function handleView(product: Product) {
+    setViewingProduct(product);
+  }
+
+  function handleCloseView() {
+    setViewingProduct(null);
   }
 
   function handleCloseForm() {
@@ -164,22 +180,33 @@ export default function Inventory() {
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
                           {product.image_url ? (
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className="w-12 h-12 object-cover rounded-lg"
-                            />
+                            <button
+                              onClick={() => handleView(product)}
+                              className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                            >
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded-lg"
+                              />
+                            </button>
                           ) : (
-                            <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                            <button
+                              onClick={() => handleView(product)}
+                              className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center hover:bg-slate-300 transition-colors"
+                            >
                               <span className="text-slate-400 text-xs">
                                 No Image
                               </span>
-                            </div>
+                            </button>
                           )}
                           <div>
-                            <p className="font-medium text-slate-800">
+                            <button
+                              onClick={() => handleView(product)}
+                              className="font-medium text-slate-800 hover:text-blue-600 transition-colors text-left"
+                            >
                               {product.name}
-                            </p>
+                            </button>
                             <p className="text-sm text-slate-500">
                               {product.product_id}
                             </p>
@@ -215,6 +242,13 @@ export default function Inventory() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleView(product)}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleEdit(product)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -258,18 +292,26 @@ export default function Inventory() {
               >
                 <div className="flex items-start space-x-4">
                   {product.image_url && (
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
+                    <button
+                      onClick={() => handleView(product)}
+                      className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                    >
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    </button>
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-slate-900 truncate">
+                        <button
+                          onClick={() => handleView(product)}
+                          className="font-semibold text-slate-900 hover:text-blue-600 transition-colors text-left"
+                        >
                           {product.name}
-                        </h3>
+                        </button>
                         <p className="text-sm text-slate-500">
                           ID: {product.product_id}
                         </p>
@@ -278,6 +320,13 @@ export default function Inventory() {
                         </p>
                       </div>
                       <div className="flex items-center space-x-2 ml-2">
+                        <button
+                          onClick={() => handleView(product)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => handleEdit(product)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -331,6 +380,259 @@ export default function Inventory() {
           })
         )}
       </div>
+
+      {/* Product View Modal */}
+      {viewingProduct && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {viewingProduct.name}
+                  </h3>
+                  <p className="text-slate-600 mt-1">
+                    Product ID: {viewingProduct.product_id}
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseView}
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6 text-slate-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Product Image */}
+                <div className="space-y-4">
+                  <div className="relative group">
+                    {viewingProduct.image_url ? (
+                      <img
+                        src={viewingProduct.image_url}
+                        alt={viewingProduct.name}
+                        className="w-full h-80 lg:h-96 object-cover rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+                        <div className="text-center">
+                          <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                          <p className="text-slate-500 font-medium">
+                            No Image Available
+                          </p>
+                          <p className="text-slate-400 text-sm">
+                            Upload an image to enhance product display
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {/* Image Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                </div>
+
+                {/* Product Details */}
+                <div className="space-y-6">
+                  {/* Category Badge */}
+                  <div>
+                    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300">
+                      <Tag className="w-4 h-4 mr-2" />
+                      {viewingProduct.category}
+                    </span>
+                  </div>
+
+                  {/* Price Information */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <DollarSign className="w-5 h-5 text-green-600" />
+                        <h4 className="font-semibold text-green-800">
+                          Buying Price
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-green-700">
+                        KES {viewingProduct.buying_price.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-green-600 mt-1">
+                        Cost per unit
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <TrendingUp className="w-5 h-5 text-blue-600" />
+                        <h4 className="font-semibold text-blue-800">
+                          Selling Price
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-blue-700">
+                        KES {viewingProduct.selling_price.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-blue-600 mt-1">
+                        Price per unit
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Profit Margin */}
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-purple-800 mb-1">
+                          Profit Margin
+                        </h4>
+                        <p className="text-2xl font-bold text-purple-700">
+                          KES{" "}
+                          {(
+                            viewingProduct.selling_price -
+                            viewingProduct.buying_price
+                          ).toLocaleString()}
+                        </p>
+                        <p className="text-sm text-purple-600">
+                          {(
+                            ((viewingProduct.selling_price -
+                              viewingProduct.buying_price) /
+                              viewingProduct.selling_price) *
+                            100
+                          ).toFixed(1)}
+                          % margin
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-purple-600">
+                          Per unit profit
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stock Information */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Hash className="w-5 h-5 text-slate-600" />
+                        <h4 className="font-semibold text-slate-800">
+                          Current Stock
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-slate-700">
+                        {viewingProduct.quantity_in_stock}
+                      </p>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Units available
+                      </p>
+                    </div>
+
+                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <AlertCircle className="w-5 h-5 text-orange-600" />
+                        <h4 className="font-semibold text-orange-800">
+                          Reorder Level
+                        </h4>
+                      </div>
+                      <p className="text-2xl font-bold text-orange-700">
+                        {viewingProduct.reorder_level}
+                      </p>
+                      <p className="text-sm text-orange-600 mt-1">
+                        Minimum stock alert
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stock Status */}
+                  <div className="p-4 rounded-xl border-2 border-dashed">
+                    {viewingProduct.quantity_in_stock <=
+                    viewingProduct.reorder_level ? (
+                      <div className="flex items-center space-x-3 text-red-700">
+                        <AlertCircle className="w-6 h-6" />
+                        <div>
+                          <p className="font-semibold">Low Stock Alert!</p>
+                          <p className="text-sm">
+                            This product needs to be restocked soon.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-3 text-green-700">
+                        <Package className="w-6 h-6" />
+                        <div>
+                          <p className="font-semibold">Stock Level: Good</p>
+                          <p className="text-sm">Product is well stocked.</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Information */}
+                  {viewingProduct.description && (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <h4 className="font-semibold text-slate-800 mb-2">
+                        Description
+                      </h4>
+                      <p className="text-slate-700 leading-relaxed">
+                        {viewingProduct.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Timestamps */}
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Calendar className="w-5 h-5 text-slate-600" />
+                      <h4 className="font-semibold text-slate-800">
+                        Product Information
+                      </h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-slate-600">Created:</p>
+                        <p className="font-medium text-slate-800">
+                          {new Date(
+                            viewingProduct.created_at
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-600">Last Updated:</p>
+                        <p className="font-medium text-slate-800">
+                          {new Date(
+                            viewingProduct.updated_at
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button
+                      onClick={() => {
+                        handleCloseView();
+                        handleEdit(viewingProduct);
+                      }}
+                      className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                      <span>Edit Product</span>
+                    </button>
+                    <button
+                      onClick={handleCloseView}
+                      className="flex items-center justify-center space-x-2 bg-slate-200 text-slate-700 px-6 py-3 rounded-xl hover:bg-slate-300 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                      <span>Close</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <ProductForm
