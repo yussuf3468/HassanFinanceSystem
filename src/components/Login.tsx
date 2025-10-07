@@ -55,16 +55,16 @@ export default function Login({ onLogin }: LoginProps) {
   //   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center p-4">
-      {/* Floating Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center p-3 sm:p-4">
+      {/* Floating Background Elements - Hidden on mobile for performance */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
+        <div className="hidden sm:block absolute top-1/4 left-1/4 w-32 sm:w-64 h-32 sm:h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
         <div
-          className="absolute top-3/4 right-1/4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
+          className="hidden sm:block absolute top-3/4 right-1/4 w-36 sm:w-72 h-36 sm:h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
           style={{ animationDelay: "2s" }}
         ></div>
         <div
-          className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
+          className="hidden sm:block absolute bottom-1/4 left-1/3 w-40 sm:w-80 h-40 sm:h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"
           style={{ animationDelay: "4s" }}
         ></div>
       </div>
