@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
+  ClipboardList,
   Search,
   FileText,
   LogOut,
@@ -36,6 +37,7 @@ export default function Layout({
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "inventory", label: "Inventory", icon: Package },
     { id: "sales", label: "Sales", icon: ShoppingCart },
+    { id: "orders", label: "Orders", icon: ClipboardList },
     { id: "search", label: "Search", icon: Search },
     { id: "reports", label: "Reports", icon: FileText },
   ];
