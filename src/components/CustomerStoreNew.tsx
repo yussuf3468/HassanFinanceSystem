@@ -5,6 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+import { ProductSkeleton } from "./LoadingSkeletons";
+import { useDebounceValue } from "../hooks/usePerformance";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import CartSidebar from "./CartSidebar";
@@ -12,6 +14,7 @@ import AuthModal from "./AuthModal";
 import ProductQuickView from "./ProductQuickView";
 import LoadingSkeleton from "./LoadingSkeleton";
 import CheckoutModal from "./CheckoutModal";
+import OptimizedImage from "./OptimizedImage";
 import type { Product } from "../types";
 import type { Database } from "../lib/database.types";
 
@@ -73,18 +76,14 @@ const ProductCard = memo(
           className="relative overflow-hidden cursor-pointer"
           onClick={handleQuickView}
         >
-          {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100 flex items-center justify-center group-hover:from-blue-100 group-hover:to-purple-200 transition-all duration-500">
-              <Package className="w-12 h-12 text-slate-400 group-hover:text-blue-500 transition-colors duration-300" />
-            </div>
-          )}
+          <OptimizedImage
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+            fallbackClassName="w-full h-48"
+            onClick={handleQuickView}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
 
           {/* Quick View Overlay */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -188,12 +187,19 @@ export default function CustomerStore({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );
+
+  // Pagination constants
+  const PRODUCTS_PER_PAGE = 12;
+
+  // Debounced search term for performance
+  const debouncedSearchTerm = useDebounceValue(searchTerm, 300);
 
   const cart = useCart();
   const { user } = useAuth();
@@ -242,12 +248,16 @@ export default function CustomerStore({
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
-    // Filter by search term
-    if (searchTerm) {
+    // Filter by search term (using debounced value)
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(
         (product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchTerm.toLowerCase())
+          product.name
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()) ||
+          product.category
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase())
       );
     }
 
@@ -259,7 +269,17 @@ export default function CustomerStore({
     }
 
     return filtered;
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, debouncedSearchTerm, selectedCategory]);
+
+  // Paginated products
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, currentPage, PRODUCTS_PER_PAGE]);
+
+  // Total pages
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
   const handleAddToCart = useCallback(
     (product: Product) => {
@@ -292,6 +312,12 @@ export default function CustomerStore({
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page on search
+  }, []);
+
+  const handleCategoryChange = useCallback((category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1); // Reset to first page on category change
   }, []);
 
   const handleCartClick = useCallback(() => {
@@ -365,7 +391,7 @@ export default function CustomerStore({
           </div>
 
           {/* Products Skeleton */}
-          <LoadingSkeleton count={8} variant="product" />
+          <ProductSkeleton count={8} />
         </div>
       </div>
     );
@@ -426,7 +452,7 @@ export default function CustomerStore({
                 {categories.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => handleCategoryChange(category)}
                     className={`px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
                       selectedCategory === category
                         ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105"
@@ -448,7 +474,7 @@ export default function CustomerStore({
                 {categories.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => handleCategoryChange(category)}
                     className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
                       selectedCategory === category
                         ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl transform scale-105"
@@ -476,7 +502,7 @@ export default function CustomerStore({
               <button
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCategory("all");
+                  handleCategoryChange("all");
                 }}
                 className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 font-semibold"
               >
@@ -486,7 +512,7 @@ export default function CustomerStore({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
+            {paginatedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -494,6 +520,46 @@ export default function CustomerStore({
                 onQuickView={handleQuickViewMain}
               />
             ))}
+          </div>
+        )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-4 mt-12">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            <div className="flex space-x-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded-lg ${
+                      page === currentPage
+                        ? "bg-blue-500 text-white"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         )}
       </section>

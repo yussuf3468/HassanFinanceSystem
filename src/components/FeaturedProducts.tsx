@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { supabase } from "../lib/supabase";
+import OptimizedImage from "./OptimizedImage";
 import type { Product } from "../types";
 
 interface FeaturedProductsProps {
@@ -150,19 +151,15 @@ const FeaturedProducts = memo(
               className="relative overflow-hidden rounded-t-xl sm:rounded-t-2xl lg:rounded-t-3xl cursor-pointer"
               onClick={handleQuickViewClick}
             >
-              {product.image_url ? (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="w-full h-40 sm:h-48 lg:h-56 xl:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-40 sm:h-48 lg:h-56 xl:h-64 bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100 flex items-center justify-center group-hover:from-blue-100 group-hover:to-purple-200 transition-all duration-500">
-                  <Package className="w-12 h-12 text-slate-400 group-hover:text-blue-500 transition-colors duration-300" />
-                </div>
-              )}
-
+              <OptimizedImage
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-40 sm:h-48 lg:h-56 xl:h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                fallbackClassName="w-full h-40 sm:h-48 lg:h-56 xl:h-64"
+                onClick={handleQuickViewClick}
+                priority={index < 2} // Prioritize first 2 featured products
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              />{" "}
               {/* Quick View Overlay */}
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <button
@@ -175,7 +172,6 @@ const FeaturedProducts = memo(
                   Quick View
                 </button>
               </div>
-
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
             </div>
 
