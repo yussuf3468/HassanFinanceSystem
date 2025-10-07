@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DollarSign, TrendingUp, Package, AlertTriangle } from "lucide-react";
+import { Banknote, TrendingUp, Package, AlertTriangle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { DashboardStats, Product, Sale } from "../types";
 
@@ -116,7 +116,7 @@ export default function Dashboard() {
           <StatCard
             title="Iibka Guud - Total Sales"
             value={`KES ${stats.totalSales.toLocaleString()}`}
-            icon={DollarSign}
+            icon={Banknote}
             color="blue"
           />
         </div>
