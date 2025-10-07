@@ -90,7 +90,7 @@ const HeroSection = memo(
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-slate-600">
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>Call: +254 123 456 789</span>
+                  <span>Call: +254 722 979 547</span>
                 </div>
                 <div className="hidden sm:block w-1 h-1 bg-slate-400 rounded-full"></div>
                 <span>Free delivery in Nairobi</span>
