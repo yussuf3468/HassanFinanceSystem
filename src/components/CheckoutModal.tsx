@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import DeliveryCalculator from "./DeliveryCalculator";
+import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 import type { Database } from "../lib/database.types";
 
@@ -58,19 +59,35 @@ const CheckoutModal = memo(
 
     const validateForm = useCallback(() => {
       if (!formData.customer_name.trim()) {
-        toast.error("Please enter your name");
+        toast.error("Please enter your name", {
+          className:
+            "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+          progressClassName: "!bg-red-500",
+        });
         return false;
       }
       if (!formData.phone_number.trim()) {
-        toast.error("Please enter your phone number");
+        toast.error("Please enter your phone number", {
+          className:
+            "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+          progressClassName: "!bg-red-500",
+        });
         return false;
       }
       if (!formData.delivery_address.trim()) {
-        toast.error("Please enter your delivery address");
+        toast.error("Please enter your delivery address", {
+          className:
+            "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+          progressClassName: "!bg-red-500",
+        });
         return false;
       }
       if (formData.phone_number.length < 10) {
-        toast.error("Please enter a valid phone number");
+        toast.error("Please enter a valid phone number", {
+          className:
+            "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+          progressClassName: "!bg-red-500",
+        });
         return false;
       }
       return true;
@@ -82,7 +99,11 @@ const CheckoutModal = memo(
 
         if (!validateForm()) return;
         if (cart.items.length === 0) {
-          toast.error("Your cart is empty");
+          toast.error("Your cart is empty", {
+            className:
+              "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+            progressClassName: "!bg-red-500",
+          });
           return;
         }
 
@@ -154,26 +175,27 @@ const CheckoutModal = memo(
           cart.clearCart();
 
           toast.success(
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-              <div>
-                <p className="font-semibold text-green-900">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-green-900 text-sm">
                   Order Placed Successfully!
                 </p>
-                <p className="text-sm text-green-700">
+                <p className="text-xs text-green-700">
                   Order #{order.order_number}
                 </p>
               </div>
             </div>,
             {
               position: "top-center",
-              autoClose: 5000,
+              autoClose: 4000,
               hideProgressBar: false,
               closeOnClick: true,
               pauseOnHover: true,
               draggable: true,
               className:
-                "!bg-green-50 !text-green-900 !border !border-green-200",
+                "!bg-green-50 !text-green-900 !border !border-green-200 !rounded-lg !shadow-lg !min-h-12",
+              progressClassName: "!bg-green-500",
             }
           );
 
@@ -181,7 +203,11 @@ const CheckoutModal = memo(
           onClose();
         } catch (error) {
           console.error("Checkout error:", error);
-          toast.error("Failed to place order. Please try again.");
+          toast.error("Failed to place order. Please try again.", {
+            className:
+              "!bg-white !text-slate-900 !border !border-red-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+            progressClassName: "!bg-red-500",
+          });
         } finally {
           setIsSubmitting(false);
         }
@@ -344,33 +370,15 @@ const CheckoutModal = memo(
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     Delivery Address *
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                    <textarea
-                      value={formData.delivery_address}
-                      onChange={(e) =>
-                        handleInputChange("delivery_address", e.target.value)
-                      }
-                      className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      placeholder="Enter your full delivery address"
-                      rows={3}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
+                  <DeliveryAddressSelector
+                    value={formData.delivery_address}
+                    onChange={(address) =>
+                      handleInputChange("delivery_address", address)
+                    }
+                    onDeliveryFeeChange={handleDeliveryFeeChange}
+                    disabled={isSubmitting}
+                  />
                 </div>
-              </div>
-
-              {/* Delivery Calculator */}
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-                  <Truck className="w-5 h-5" />
-                  <span>Delivery Information</span>
-                </h3>
-                <DeliveryCalculator
-                  onDeliveryChange={handleDeliveryFeeChange}
-                  cartTotal={cart.totalPrice}
-                />
               </div>
 
               {/* Payment Method */}

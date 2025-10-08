@@ -101,6 +101,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) throw error;
+
+      // Update last_login time in profiles table
+      try {
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        if (authUser) {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .upsert({
+              id: authUser.id,
+              email: authUser.email,
+              last_login: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+
+          if (updateError) {
+            console.warn("Failed to update last login time:", updateError);
+          }
+        }
+      } catch (updateError) {
+        console.warn("Error updating last login:", updateError);
+      }
     } catch (error) {
       console.error("Error signing in:", error);
       throw error;

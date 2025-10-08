@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
+import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 
 interface CheckoutProps {
@@ -22,6 +23,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [deliveryFee, setDeliveryFee] = useState(0);
   const [formData, setFormData] = useState<CheckoutForm>({
     customer_name: "",
     phone_number: "",
@@ -78,11 +80,14 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          total_amount: cart.totalPrice,
-          status: "pending",
-          delivery_address: formData.delivery_address,
-          phone_number: formData.phone_number,
           customer_name: formData.customer_name,
+          customer_email: formData.email || null,
+          customer_phone: formData.phone_number,
+          delivery_address: formData.delivery_address,
+          delivery_fee: deliveryFee,
+          subtotal: cart.totalPrice,
+          total_amount: cart.totalPrice + deliveryFee,
+          status: "pending",
           notes: formData.notes || null,
         })
         .select()
@@ -295,18 +300,13 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   <MapPin className="w-4 h-4 inline mr-1" />
                   Delivery Address / Ciwaanka Gaarsiinta
                 </label>
-                <textarea
-                  rows={3}
+                <DeliveryAddressSelector
                   value={formData.delivery_address}
-                  onChange={(e) =>
-                    handleInputChange("delivery_address", e.target.value)
+                  onChange={(address) =>
+                    handleInputChange("delivery_address", address)
                   }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none ${
-                    errors.delivery_address
-                      ? "border-red-500"
-                      : "border-slate-300"
-                  }`}
-                  placeholder="Enter your delivery address with clear landmarks"
+                  onDeliveryFeeChange={setDeliveryFee}
+                  disabled={loading}
                 />
                 {errors.delivery_address && (
                   <p className="text-red-500 text-sm mt-1">
@@ -368,7 +368,8 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   <>
                     <ShoppingBag className="w-5 h-5" />
                     <span>
-                      Place Order - KES {cart.totalPrice.toLocaleString()}
+                      Place Order - KES{" "}
+                      {(cart.totalPrice + deliveryFee).toLocaleString()}
                     </span>
                   </>
                 )}
@@ -433,12 +434,14 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Delivery Fee</span>
-                <span className="font-medium text-green-600">FREE</span>
+                <span className="font-medium text-green-600">
+                  {deliveryFee > 0 ? `KES ${deliveryFee}` : "FREE"}
+                </span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total</span>
                 <span className="text-blue-600">
-                  KES {cart.totalPrice.toLocaleString()}
+                  KES {(cart.totalPrice + deliveryFee).toLocaleString()}
                 </span>
               </div>
             </div>

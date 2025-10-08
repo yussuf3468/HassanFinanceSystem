@@ -58,6 +58,9 @@ const ProductCard = memo(
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
+          className:
+            "!bg-white !text-slate-900 !border !border-pink-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
+          progressClassName: "!bg-pink-500",
         });
       }
     }, [isLiked]);
@@ -287,23 +290,27 @@ export default function CustomerStore({
 
       // Show success toast notification
       toast.success(
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           <div className="flex-shrink-0">
-            <ShoppingCart className="w-5 h-5 text-green-600" />
+            <ShoppingCart className="w-4 h-4 text-green-600" />
           </div>
-          <div>
-            <p className="font-semibold text-slate-900">Added to cart!</p>
-            <p className="text-sm text-slate-600">{product.name}</p>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-slate-900 text-sm truncate">
+              Added to cart!
+            </p>
+            <p className="text-xs text-slate-600 truncate">{product.name}</p>
           </div>
         </div>,
         {
           position: "bottom-right",
-          autoClose: 3000,
+          autoClose: 2500,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
-          className: "!bg-white !text-slate-900 !border !border-green-200",
+          className:
+            "!bg-white !text-slate-900 !border !border-green-200 !rounded-lg !shadow-lg !min-h-12",
+          progressClassName: "!bg-green-500",
         }
       );
     },
@@ -360,7 +367,14 @@ export default function CustomerStore({
   const handleOrderComplete = useCallback(
     (order: Order) => {
       console.log("Order completed:", order.order_number);
-      toast.success(`Order ${order.order_number} placed successfully!`);
+      toast.success(`Order ${order.order_number} placed successfully!`, {
+        position: "bottom-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        className:
+          "!bg-white !text-slate-900 !border !border-green-200 !rounded-lg !shadow-lg !min-h-12 !text-sm !font-medium",
+        progressClassName: "!bg-green-500",
+      });
       onCheckout?.();
     },
     [onCheckout]
@@ -653,17 +667,21 @@ export default function CustomerStore({
       {/* Toast Container */}
       <ToastContainer
         position="bottom-right"
-        autoClose={3000}
+        autoClose={2500}
         hideProgressBar={false}
         newestOnTop
         closeOnClick
         rtl={false}
-        pauseOnFocusLoss
+        pauseOnFocusLoss={false}
         draggable
         pauseOnHover
         theme="light"
         className="!z-50"
-        toastClassName="!rounded-xl !shadow-xl"
+        toastClassName="!rounded-lg !shadow-lg !min-h-12 !text-sm !p-2"
+        progressClassName="!bg-gradient-to-r !from-blue-500 !to-purple-500"
+        style={{
+          fontSize: "14px",
+        }}
       />
     </div>
   );

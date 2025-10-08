@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import Layout from "./components/Layout";
@@ -17,6 +17,18 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
   const { user, loading } = useAuth();
+
+  // Auto-redirect to admin for admin/staff users
+  useEffect(() => {
+    if (
+      user &&
+      (user.email?.includes("admin") ||
+        user.email?.includes("yussuf") ||
+        user.email?.includes("staff"))
+    ) {
+      setViewMode("admin");
+    }
+  }, [user]);
 
   if (loading) {
     return (
