@@ -208,7 +208,7 @@ export default function UserActivityDashboard() {
   return (
     <div className="space-y-6">
       {/* Debug Panel (remove in production) */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
+      {/* <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm">
         <h4 className="font-semibold text-yellow-800 mb-2">Debug Info:</h4>
         <div className="space-y-1 text-yellow-700">
           <p>User: {user?.email || "Not logged in"}</p>
@@ -218,7 +218,7 @@ export default function UserActivityDashboard() {
           <p>Activities Count: {userActivities.length}</p>
           <p>Last Check: {new Date().toLocaleTimeString()}</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
