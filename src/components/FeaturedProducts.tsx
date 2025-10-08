@@ -150,16 +150,17 @@ const FeaturedProducts = memo(
 
             {/* Elegant Product Image */}
             <div
-              className="relative overflow-hidden cursor-pointer bg-slate-50/30"
+              className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-slate-50 to-slate-100"
               onClick={handleQuickViewClick}
             >
               <OptimizedImage
                 src={product.image_url}
                 alt={product.name}
-                className="w-full h-48 sm:h-52 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                fallbackClassName="w-full h-48 sm:h-52"
+                className="w-full h-44 sm:h-48 md:h-52 object-contain p-2 sm:p-3 transition-transform duration-700 ease-out group-hover:scale-105"
+                fallbackClassName="w-full h-44 sm:h-48 md:h-52"
                 onClick={handleQuickViewClick}
                 priority={index < 2}
+                preload={index < 4}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {/* Elegant Quick View Overlay */}

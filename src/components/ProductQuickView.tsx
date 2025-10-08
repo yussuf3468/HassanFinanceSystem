@@ -83,7 +83,7 @@ const ProductQuickView = memo(
               <div className="relative">
                 {product.image_url ? (
                   <div
-                    className={`relative overflow-hidden rounded-xl cursor-zoom-in ${
+                    className={`relative overflow-hidden rounded-xl cursor-zoom-in bg-gradient-to-br from-slate-50 to-slate-100 ${
                       imageZoomed ? "transform scale-150" : ""
                     } transition-transform duration-300`}
                     onClick={() => setImageZoomed(!imageZoomed)}
@@ -91,14 +91,14 @@ const ProductQuickView = memo(
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="w-full h-80 object-cover"
+                      className="w-full h-64 sm:h-72 md:h-80 object-contain p-3"
                     />
                     <div className="absolute top-3 right-3 bg-black/20 backdrop-blur-sm rounded-full p-2">
                       <ZoomIn className="w-4 h-4 text-white" />
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-80 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+                  <div className="w-full h-64 sm:h-72 md:h-80 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
                     <Package className="w-16 h-16 text-slate-400" />
                   </div>
                 )}

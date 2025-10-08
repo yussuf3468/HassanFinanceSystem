@@ -389,12 +389,12 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   key={item.product.id}
                   className="flex items-center space-x-3 bg-slate-50 rounded-lg p-3"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
                     {item.product.image_url ? (
                       <img
                         src={item.product.image_url}
                         alt={item.product.name}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-full h-full object-contain rounded-lg"
                       />
                     ) : (
                       <ShoppingBag className="w-4 h-4 text-slate-400" />

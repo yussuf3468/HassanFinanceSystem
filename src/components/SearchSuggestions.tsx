@@ -149,12 +149,12 @@ const SearchSuggestions = memo(
                     onClick={() => handleSelectProduct(product)}
                     className="w-full text-left px-3 py-3 hover:bg-slate-50 rounded-lg transition-colors flex items-center space-x-3"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
                       {product.image_url ? (
                         <img
                           src={product.image_url}
                           alt={product.name}
-                          className="w-full h-full object-cover rounded-lg"
+                          className="w-full h-full object-contain rounded-lg"
                         />
                       ) : (
                         <Search className="w-4 h-4 text-slate-400" />

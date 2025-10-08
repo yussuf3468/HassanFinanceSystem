@@ -31,10 +31,12 @@ const ProductCard = memo(
     product,
     onAddToCart,
     onQuickView,
+    index = 0,
   }: {
     product: Product;
     onAddToCart: (product: Product) => void;
     onQuickView?: (product: Product) => void;
+    index?: number;
   }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -67,15 +69,17 @@ const ProductCard = memo(
       >
         {/* Product Image */}
         <div
-          className="relative overflow-hidden cursor-pointer bg-slate-50/30"
+          className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-slate-50 to-slate-100"
           onClick={handleQuickView}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            fallbackClassName="w-full h-56"
+            className="w-full h-48 sm:h-52 md:h-56 object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-700 ease-out"
+            fallbackClassName="w-full h-48 sm:h-52 md:h-56"
             onClick={handleQuickView}
+            priority={index < 3}
+            preload={index < 6}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
 
@@ -493,12 +497,13 @@ export default function CustomerStore({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedProducts.map((product) => (
+            {paginatedProducts.map((product, index) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 onAddToCart={handleAddToCart}
                 onQuickView={handleQuickViewMain}
+                index={index}
               />
             ))}
           </div>

@@ -61,12 +61,12 @@ export default function CartSidebar({
                   >
                     <div className="flex items-start space-x-3">
                       {/* Product Image */}
-                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
                         {item.product.image_url ? (
                           <img
                             src={item.product.image_url}
                             alt={item.product.name}
-                            className="w-full h-full object-cover rounded-lg"
+                            className="w-full h-full object-contain rounded-lg"
                           />
                         ) : (
                           <ShoppingBag className="w-6 h-6 text-slate-400" />
