@@ -7,7 +7,7 @@ import {
   Flame,
   TrendingUp,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
 import OptimizedImage from "./OptimizedImage";
 import type { Product } from "../types";
@@ -82,14 +82,7 @@ const FeaturedProducts = memo(
         const toggleLike = useCallback(() => {
           setIsLiked((prev) => !prev);
           if (!isLiked) {
-            toast.success("Added to wishlist", {
-              position: "bottom-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              className:
-                "!bg-white !text-slate-900 !border !border-pink-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
-              progressClassName: "!bg-pink-500",
-            });
+            compactToast.addToWishlist();
           }
         }, [isLiked]);
 

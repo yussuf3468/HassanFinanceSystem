@@ -14,7 +14,7 @@ import {
   Calendar,
   DollarSign,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
 import type { Order, OrderItem } from "../types";
 
@@ -49,14 +49,14 @@ const Orders = () => {
 
       if (error) {
         console.error("Error loading orders:", error);
-        toast.error("Failed to load orders");
+        compactToast.error("Failed to load orders");
         return;
       }
 
       setOrders(data || []);
     } catch (error) {
       console.error("Error loading orders:", error);
-      toast.error("Failed to load orders");
+      compactToast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }

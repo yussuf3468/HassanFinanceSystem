@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { Filter, Star, Package, ShoppingCart, Heart } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
@@ -15,6 +15,7 @@ import ProductQuickView from "./ProductQuickView";
 import LoadingSkeleton from "./LoadingSkeleton";
 import CheckoutModal from "./CheckoutModal";
 import OptimizedImage from "./OptimizedImage";
+import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
 import type { Database } from "../lib/database.types";
 
@@ -51,17 +52,7 @@ const ProductCard = memo(
     const toggleLike = useCallback(() => {
       setIsLiked((prev) => !prev);
       if (!isLiked) {
-        toast.success("Added to wishlist! ❤️", {
-          position: "bottom-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          className:
-            "!bg-white !text-slate-900 !border !border-pink-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
-          progressClassName: "!bg-pink-500",
-        });
+        compactToast.addToWishlist();
       }
     }, [isLiked]);
 
@@ -288,31 +279,8 @@ export default function CustomerStore({
     (product: Product) => {
       cart.addItem(product);
 
-      // Show success toast notification
-      toast.success(
-        <div className="flex items-center space-x-2">
-          <div className="flex-shrink-0">
-            <ShoppingCart className="w-4 h-4 text-green-600" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-medium text-slate-900 text-sm truncate">
-              Added to cart!
-            </p>
-            <p className="text-xs text-slate-600 truncate">{product.name}</p>
-          </div>
-        </div>,
-        {
-          position: "bottom-right",
-          autoClose: 2500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          className:
-            "!bg-white !text-slate-900 !border !border-green-200 !rounded-lg !shadow-lg !min-h-12",
-          progressClassName: "!bg-green-500",
-        }
-      );
+      // Show success toast notification with feedback
+      compactToast.addToCart(product.name);
     },
     [cart]
   );
@@ -367,14 +335,7 @@ export default function CustomerStore({
   const handleOrderComplete = useCallback(
     (order: Order) => {
       console.log("Order completed:", order.order_number);
-      toast.success(`Order ${order.order_number} placed successfully!`, {
-        position: "bottom-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        className:
-          "!bg-white !text-slate-900 !border !border-green-200 !rounded-lg !shadow-lg !min-h-12 !text-sm !font-medium",
-        progressClassName: "!bg-green-500",
-      });
+      compactToast.orderSuccess(order.order_number);
       onCheckout?.();
     },
     [onCheckout]
