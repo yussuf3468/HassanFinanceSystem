@@ -15,10 +15,11 @@ import type { Product } from "../types";
 interface FeaturedProductsProps {
   onAddToCart?: (product: Product) => void;
   onQuickView?: (product: Product) => void;
+  onViewAllProducts?: () => void;
 }
 
 const FeaturedProducts = memo(
-  ({ onAddToCart, onQuickView }: FeaturedProductsProps) => {
+  ({ onAddToCart, onQuickView, onViewAllProducts }: FeaturedProductsProps) => {
     const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -74,6 +75,21 @@ const FeaturedProducts = memo(
       [onQuickView]
     );
 
+    const handleViewAllProducts = useCallback(() => {
+      if (onViewAllProducts) {
+        onViewAllProducts();
+      } else {
+        // Default behavior: scroll to products section or top of page
+        const productsSection = document.getElementById("products-section");
+        if (productsSection) {
+          productsSection.scrollIntoView({ behavior: "smooth" });
+        } else {
+          // If no products section found, scroll to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+    }, [onViewAllProducts]);
+
     const FeaturedProductCard = memo(
       ({ product, index }: { product: Product; index: number }) => {
         const [isLiked, setIsLiked] = useState(false);
@@ -101,115 +117,124 @@ const FeaturedProducts = memo(
         return (
           <div
             key={product.id}
-            className="group relative bg-white rounded-lg shadow-md hover:shadow-lg transition-transform duration-200 overflow-hidden border border-transparent hover:border-slate-200 transform hover:-translate-y-1"
+            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-400 overflow-hidden border border-slate-100/60 backdrop-blur-sm"
           >
-            {/* Badge */}
-            <div className="absolute top-3 left-3 z-10">
-              <div className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold">
+            {/* Minimal Badge */}
+            <div className="absolute top-4 left-4 z-10">
+              <div className="bg-amber-400/95 backdrop-blur-sm text-amber-900 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm">
                 {badges[index % badges.length]}
               </div>
             </div>
 
-            {/* Stock Badge */}
+            {/* Subtle Stock Badge */}
             {product.quantity_in_stock < 10 && (
-              <div className="absolute top-3 right-3 z-10">
-                <div className="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
+              <div className="absolute top-4 right-16 z-10">
+                <div className="bg-orange-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
                   Only {product.quantity_in_stock} left
                 </div>
               </div>
             )}
 
-            {/* Wishlist Button */}
+            {/* Refined Wishlist Button */}
             <button
               onClick={toggleLike}
-              className={`absolute top-3 right-3 z-20 p-1 rounded-full backdrop-blur-sm transition-colors duration-150 ${
+              className={`absolute top-4 right-4 z-20 w-10 h-10 rounded-full backdrop-blur-md transition-all duration-300 flex items-center justify-center ${
                 isLiked
-                  ? "bg-red-600 text-white"
-                  : "bg-white text-slate-600 border border-slate-100"
+                  ? "bg-rose-500/90 text-white shadow-lg shadow-rose-500/25"
+                  : "bg-white/80 text-slate-400 hover:bg-white/95 hover:text-rose-500 hover:shadow-md"
               }`}
               aria-label="Add to wishlist"
             >
-              <Heart className="w-4 h-4" />
+              <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
             </button>
 
-            {/* Product Image */}
+            {/* Elegant Product Image */}
             <div
-              className="relative overflow-hidden cursor-pointer"
+              className="relative overflow-hidden cursor-pointer bg-slate-50/30"
               onClick={handleQuickViewClick}
             >
               <OptimizedImage
                 src={product.image_url}
                 alt={product.name}
-                className="w-full h-44 sm:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                fallbackClassName="w-full h-44 sm:h-48"
+                className="w-full h-48 sm:h-52 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                fallbackClassName="w-full h-48 sm:h-52"
                 onClick={handleQuickViewClick}
                 priority={index < 2}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
-              {/* Quick View Overlay (subtle) */}
-              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+              {/* Elegant Quick View Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleQuickViewClick();
                   }}
-                  className="bg-white text-slate-900 px-3 py-1 rounded-md text-sm font-medium"
+                  className="bg-white/95 backdrop-blur-md text-slate-800 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:shadow-xl border border-white/20"
                 >
                   Quick View
                 </button>
               </div>
             </div>
 
-            {/* Product Info */}
-            <div className="p-4 space-y-2">
-              <h4 className="text-sm sm:text-base font-semibold text-slate-900 line-clamp-2">
+            {/* Elegant Product Info */}
+            <div className="p-5 space-y-4">
+              {/* Category Tag */}
+              <div>
+                <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  {product.category}
+                </span>
+              </div>
+
+              {/* Product Name */}
+              <h4 className="text-sm sm:text-base font-semibold text-slate-900 line-clamp-2 leading-tight group-hover:text-slate-700 transition-colors duration-300">
                 {product.name}
               </h4>
 
-              <p className="text-xs sm:text-sm text-slate-600 inline-block bg-slate-50 px-2 py-1 rounded">
-                {product.category}
-              </p>
-
+              {/* Refined Rating */}
               <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
+                <div className="flex space-x-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500"
+                      className="w-3 h-3 text-amber-400 fill-current"
                     />
                   ))}
                 </div>
-                <span className="text-xs text-slate-600">(4.9)</span>
+                <span className="text-xs text-slate-400">(4.9)</span>
               </div>
 
+              {/* Price & Stock Info */}
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-lg sm:text-xl font-extrabold text-slate-900">
-                    KSH {product.selling_price?.toLocaleString()}
+                <div className="flex flex-col">
+                  <div className="text-lg sm:text-xl font-light text-slate-900">
+                    KES {product.selling_price?.toLocaleString()}
                   </div>
                   {product.buying_price &&
                     product.buying_price < product.selling_price && (
-                      <div className="text-xs text-slate-500 line-through">
-                        KSH {product.buying_price.toLocaleString()}
+                      <div className="text-xs text-slate-400 line-through">
+                        KES {product.buying_price.toLocaleString()}
                       </div>
                     )}
-                  <div className="text-xs text-slate-500 flex items-center mt-1">
-                    <Package className="w-3 h-3 mr-1" />
-                    Stock: {product.quantity_in_stock}
+                  <div className="text-xs text-slate-400 flex items-center mt-1">
+                    <Package className="w-3 h-3 mr-1.5" />
+                    {product.quantity_in_stock} in stock
                   </div>
                 </div>
               </div>
 
+              {/* Refined Add to Cart Button */}
               <button
                 onClick={handleAddToCartClick}
                 disabled={isAddingToCart}
-                className={`w-full font-medium py-2 px-3 rounded-md transition-colors duration-150 flex items-center justify-center space-x-2 ${
+                className={`w-full font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 ${
                   isAddingToCart
-                    ? "bg-slate-300 text-slate-700 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                    : "bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-900/25 active:bg-slate-700"
                 }`}
               >
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart
+                  className={`w-4 h-4 ${isAddingToCart ? "animate-pulse" : ""}`}
+                />
                 <span>{isAddingToCart ? "Adding..." : "Add to Cart"}</span>
               </button>
             </div>
@@ -295,7 +320,10 @@ const FeaturedProducts = memo(
           </div>
 
           <div className="mt-8 text-center">
-            <button className="inline-flex items-center space-x-3 bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-150">
+            <button
+              onClick={handleViewAllProducts}
+              className="inline-flex items-center space-x-3 bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-150"
+            >
               <span>View All Products</span>
             </button>
           </div>

@@ -34,5 +34,17 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+    // Force reload on file changes
+    watch: {
+      usePolling: true,
+    },
+  },
+  // Better cache control
+  preview: {
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
   },
 });

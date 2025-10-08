@@ -8,7 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { ProductSkeleton } from "./LoadingSkeletons";
 import { useDebounceValue } from "../hooks/usePerformance";
 import Navbar from "./Navbar";
-import HeroSection from "./HeroSection";
+import HeroSection from "./HeroSectionNew";
 import CartSidebar from "./CartSidebar";
 import AuthModal from "./AuthModal";
 import ProductQuickView from "./ProductQuickView";
@@ -63,99 +63,104 @@ const ProductCard = memo(
     return (
       <div
         data-product-id={product.id}
-        className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-500 hover:scale-105 overflow-hidden group border border-slate-100 ring-highlight-target"
+        className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-400 overflow-hidden group border border-slate-100/60 ring-highlight-target backdrop-blur-sm"
       >
         {/* Product Image */}
         <div
-          className="relative overflow-hidden cursor-pointer"
+          className="relative overflow-hidden cursor-pointer bg-slate-50/30"
           onClick={handleQuickView}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-            fallbackClassName="w-full h-48"
+            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            fallbackClassName="w-full h-56"
             onClick={handleQuickView}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
 
-          {/* Quick View Overlay */}
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          {/* Elegant Quick View Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white text-slate-900 px-4 py-2 rounded-lg font-medium transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300"
+              className="bg-white/95 backdrop-blur-md text-slate-800 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:shadow-xl border border-white/20"
             >
               Quick View
             </button>
           </div>
 
-          {/* Wishlist Button */}
+          {/* Refined Wishlist Button */}
           <button
             onClick={toggleLike}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm transition-all duration-300 ${
+            className={`absolute top-4 right-4 w-10 h-10 rounded-full backdrop-blur-md transition-all duration-300 flex items-center justify-center ${
               isLiked
-                ? "bg-red-500 text-white shadow-lg scale-110"
-                : "bg-white/80 text-slate-600 hover:bg-red-50 hover:text-red-500"
+                ? "bg-rose-500/90 text-white shadow-lg shadow-rose-500/25"
+                : "bg-white/80 text-slate-400 hover:bg-white/95 hover:text-rose-500 hover:shadow-md"
             }`}
           >
             <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
           </button>
 
-          {/* Featured Badge */}
+          {/* Minimal Featured Badge */}
           {product.featured && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-lg">
+            <div className="absolute top-4 left-4 bg-amber-400/95 backdrop-blur-sm text-amber-900 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
               <Star className="w-3 h-3 fill-current" />
-              <span>FEATURED</span>
+              <span>Featured</span>
             </div>
           )}
 
-          {/* Low Stock Warning */}
+          {/* Subtle Low Stock Warning */}
           {product.quantity_in_stock <= product.reorder_level && (
-            <div className="absolute bottom-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-              Only {product.quantity_in_stock} left!
+            <div className="absolute bottom-4 left-4 bg-orange-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+              Only {product.quantity_in_stock} left
             </div>
           )}
         </div>
 
-        {/* Product Info */}
-        <div className="p-5">
-          <h3 className="font-bold text-slate-900 text-lg mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+        {/* Elegant Product Info */}
+        <div className="p-6">
+          {/* Category Tag */}
+          <div className="mb-3">
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              {product.category}
+            </span>
+          </div>
+
+          {/* Product Name */}
+          <h3 className="font-semibold text-slate-900 text-lg mb-4 line-clamp-2 leading-tight group-hover:text-slate-700 transition-colors duration-300">
             {product.name}
           </h3>
-          <p className="text-slate-500 text-sm mb-3 bg-slate-50 px-2 py-1 rounded-lg inline-block">
-            {product.category}
-          </p>
 
-          {/* Price & Stock */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-2xl font-black text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+          {/* Price & Stock Info */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col">
+              <p className="text-2xl font-light text-slate-900 mb-1">
                 KES {product.selling_price.toLocaleString()}
               </p>
-              <p className="text-sm text-slate-500 flex items-center">
-                <Package className="w-3 h-3 mr-1" />
-                Stock: {product.quantity_in_stock}
+              <p className="text-xs text-slate-400 flex items-center">
+                <Package className="w-3 h-3 mr-1.5" />
+                {product.quantity_in_stock} in stock
               </p>
             </div>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Refined Add to Cart Button */}
           <button
             onClick={handleAddToCart}
             disabled={product.quantity_in_stock === 0 || isAddingToCart}
-            className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
+            className={`w-full py-3.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
               product.quantity_in_stock === 0
-                ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                 : isAddingToCart
-                ? "bg-green-500 text-white transform scale-95"
-                : "bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 text-white hover:from-blue-600 hover:via-purple-600 hover:to-blue-700 hover:shadow-xl hover:shadow-blue-500/25 hover:scale-105 active:scale-95"
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                : "bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-900/25 active:bg-slate-700"
             }`}
           >
             <ShoppingCart
-              className={`w-4 h-4 ${isAddingToCart ? "animate-bounce" : ""}`}
+              className={`w-4 h-4 ${isAddingToCart ? "animate-pulse" : ""}`}
             />
             <span>
               {product.quantity_in_stock === 0
@@ -406,7 +411,7 @@ export default function CustomerStore({
           <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-slate-900 via-blue-600 to-purple-600 bg-clip-text mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-slate-600 mb-2">Alaabteenna</p>
+          <p className="text-xl text-slate-600 mb-2 font-somali">Alaabteenna</p>
           <p className="text-slate-500 max-w-2xl mx-auto">
             Discover our carefully curated collection of books, stationery, and
             electronics. Quality guaranteed, prices unmatched.
@@ -456,7 +461,7 @@ export default function CustomerStore({
                         : "text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:scale-105"
                     }`}
                   >
-                    {category === "all" ? "All / Dhammaan" : category}
+                    {category === "all" ? "All" : category}
                   </button>
                 ))}
               </div>
@@ -472,7 +477,8 @@ export default function CustomerStore({
                 No products found
               </h3>
               <p className="text-slate-500 mb-6">
-                Ma jiro alaab la helay - Try adjusting your search or filters
+                Try adjusting your search or filters to find what you're looking
+                for
               </p>
               <button
                 onClick={() => {
