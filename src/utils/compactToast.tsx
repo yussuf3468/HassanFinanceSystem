@@ -8,7 +8,13 @@ interface CompactToastOptions
   enableFeedback?: boolean;
   soundVolume?: number;
   enableVibration?: boolean;
-  vibrationType?: "light" | "medium" | "heavy" | "success" | "error" | "warning";
+  vibrationType?:
+    | "light"
+    | "medium"
+    | "heavy"
+    | "success"
+    | "error"
+    | "warning";
 }
 
 const getToastConfig = (
@@ -59,7 +65,7 @@ const triggerToastFeedback = (
   options: CompactToastOptions = {}
 ) => {
   const { enableFeedback = true, soundVolume, enableVibration } = options;
-  
+
   if (enableFeedback) {
     playFeedback[variant]({
       enableSound: true,
@@ -100,7 +106,7 @@ export const compactToast = {
   addToCart: (productName: string, options?: CompactToastOptions) => {
     // Trigger success feedback with slightly higher volume for cart actions
     triggerToastFeedback("success", { ...options, soundVolume: 0.12 });
-    
+
     return toast.success(
       <div className="flex items-center space-x-2">
         <div className="flex-shrink-0">
@@ -133,7 +139,7 @@ export const compactToast = {
 
   addToWishlist: (options?: CompactToastOptions) => {
     triggerToastFeedback("success", { ...options, vibrationType: "light" });
-    
+
     return toast.success("Added to wishlist! ❤️", {
       ...getToastConfig("success"),
       autoClose: 2000,
@@ -146,12 +152,12 @@ export const compactToast = {
 
   orderSuccess: (orderNumber: string, options?: CompactToastOptions) => {
     // Special celebration feedback for successful orders
-    triggerToastFeedback("success", { 
-      ...options, 
-      soundVolume: 0.15, 
-      vibrationType: "success" 
+    triggerToastFeedback("success", {
+      ...options,
+      soundVolume: 0.15,
+      vibrationType: "success",
     });
-    
+
     return toast.success(`Order ${orderNumber} placed successfully!`, {
       ...getToastConfig("success"),
       autoClose: 4000,
@@ -162,28 +168,40 @@ export const compactToast = {
 
   // Quiet variants (no feedback)
   quiet: {
-    success: (message: string | React.ReactNode, options?: CompactToastOptions) => {
-      return toast.success(message, { 
-        ...getToastConfig("success"), 
-        ...options
+    success: (
+      message: string | React.ReactNode,
+      options?: CompactToastOptions
+    ) => {
+      return toast.success(message, {
+        ...getToastConfig("success"),
+        ...options,
       });
     },
-    error: (message: string | React.ReactNode, options?: CompactToastOptions) => {
-      return toast.error(message, { 
-        ...getToastConfig("error"), 
-        ...options
+    error: (
+      message: string | React.ReactNode,
+      options?: CompactToastOptions
+    ) => {
+      return toast.error(message, {
+        ...getToastConfig("error"),
+        ...options,
       });
     },
-    warning: (message: string | React.ReactNode, options?: CompactToastOptions) => {
-      return toast.warning(message, { 
-        ...getToastConfig("warning"), 
-        ...options
+    warning: (
+      message: string | React.ReactNode,
+      options?: CompactToastOptions
+    ) => {
+      return toast.warning(message, {
+        ...getToastConfig("warning"),
+        ...options,
       });
     },
-    info: (message: string | React.ReactNode, options?: CompactToastOptions) => {
-      return toast.info(message, { 
-        ...getToastConfig("info"), 
-        ...options
+    info: (
+      message: string | React.ReactNode,
+      options?: CompactToastOptions
+    ) => {
+      return toast.info(message, {
+        ...getToastConfig("info"),
+        ...options,
       });
     },
   },
