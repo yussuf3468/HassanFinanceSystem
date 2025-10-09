@@ -10,10 +10,30 @@ interface OptimizedImageProps {
   priority?: boolean;
   sizes?: string;
   preload?: boolean;
+  forceFresh?: boolean; // New prop to force cache bypass
 }
 
-// Image cache to store loaded images
-const imageCache = new Set<string>();
+// Image cache to store loaded images with timestamps
+const imageCache = new Map<string, { timestamp: number; url: string }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
+
+// Generate cache-busting URL
+const getCacheBustedUrl = (url: string, forceFresh: boolean = false): string => {
+  if (!url) return url;
+  
+  // If forcing fresh or cache is expired, add timestamp
+  const cached = imageCache.get(url);
+  const now = Date.now();
+  
+  if (forceFresh || !cached || (now - cached.timestamp) > CACHE_DURATION) {
+    const separator = url.includes('?') ? '&' : '?';
+    const bustUrl = `${url}${separator}_t=${now}&_v=${Math.random().toString(36).substr(2, 9)}`;
+    imageCache.set(url, { timestamp: now, url: bustUrl });
+    return bustUrl;
+  }
+  
+  return cached.url;
+};
 
 const OptimizedImage = memo(
   ({
@@ -25,6 +45,7 @@ const OptimizedImage = memo(
     priority = false,
     sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
     preload = false,
+    forceFresh = true, // Default to true for always fresh images
   }: OptimizedImageProps) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -33,6 +54,9 @@ const OptimizedImage = memo(
     const imgRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement | null>(null);
 
+    // Get cache-busted URL
+    const imageUrl = src ? getCacheBustedUrl(src, forceFresh) : null;
+    
     // Check if image is already cached
     const isCached = src ? imageCache.has(src) : false;
 
@@ -42,22 +66,29 @@ const OptimizedImage = memo(
       return new Promise<void>((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-          imageCache.add(imageUrl);
+          if (src) {
+            const now = Date.now();
+            imageCache.set(src, { timestamp: now, url: imageUrl });
+          }
           resolve();
         };
         img.onerror = reject;
         img.src = imageUrl;
+        
+        // Add cache control headers
+        img.crossOrigin = "anonymous";
       });
-    }, []);
+    }, [src]);
 
     const handleLoad = useCallback(() => {
-      if (src) {
-        imageCache.add(src);
+      if (src && imageUrl) {
+        const now = Date.now();
+        imageCache.set(src, { timestamp: now, url: imageUrl });
       }
       setIsLoaded(true);
       // Small delay for smooth transition
       setTimeout(() => setShowImage(true), 50);
-    }, [src]);
+    }, [src, imageUrl]);
 
     const handleError = useCallback(() => {
       setHasError(true);
@@ -76,12 +107,12 @@ const OptimizedImage = memo(
 
     // Preload critical images
     useEffect(() => {
-      if ((priority || preload) && src && !imageCache.has(src)) {
-        preloadImage(src).catch(() => {
+      if ((priority || preload) && imageUrl && !imageCache.has(src || '')) {
+        preloadImage(imageUrl).catch(() => {
           // Ignore preload errors
         });
       }
-    }, [src, priority, preload, preloadImage]);
+    }, [imageUrl, priority, preload, preloadImage, src]);
 
     // Set up intersection observer for lazy loading
     useEffect(() => {
@@ -135,7 +166,7 @@ const OptimizedImage = memo(
         {(isInView || priority) && (
           <img
             ref={imageRef}
-            src={src}
+            src={imageUrl || src}
             alt={alt}
             className={`transition-all duration-500 ease-out ${
               showImage ? "opacity-100 scale-100" : "opacity-0 scale-105"
@@ -149,6 +180,7 @@ const OptimizedImage = memo(
             style={{
               contentVisibility: "auto",
               containIntrinsicSize: "300px 200px",
+              imageRendering: 'crisp-edges',
             }}
           />
         )}
