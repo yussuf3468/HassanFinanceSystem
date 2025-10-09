@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Search, Package } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
 
@@ -26,8 +26,41 @@ export default function SaleForm({
     discount_value: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const selectedProduct = products.find((p) => p.id === formData.product_id);
+
+  // Filter products based on search term
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.product_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Handle product selection
+  const handleProductSelect = (product: Product) => {
+    setFormData({ ...formData, product_id: product.id });
+    setSearchTerm(product.name);
+    setShowDropdown(false);
+  };
 
   // Calculate discount and final prices
   const calculatePrices = () => {
@@ -145,27 +178,83 @@ export default function SaleForm({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Enhanced Product Selection */}
+          {/* Enhanced Product Selection with Search */}
           <div className="space-y-3">
             <label className="block text-base font-bold text-slate-800">
               📦 Dooro Alaabta - Select Product *
             </label>
-            <select
-              required
-              value={formData.product_id}
-              onChange={(e) =>
-                setFormData({ ...formData, product_id: e.target.value })
-              }
-              className="w-full px-4 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-green-500/25 focus:border-green-500 transition-all duration-300 bg-white shadow-sm"
-            >
-              <option value="">🔍 Dooro alaab - Choose a product...</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name} ({product.product_id}) - Stock:{" "}
-                  {product.quantity_in_stock}
-                </option>
-              ))}
-            </select>
+            <div className="relative" ref={searchRef}>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  required
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setShowDropdown(true);
+                    if (!e.target.value) {
+                      setFormData({ ...formData, product_id: "" });
+                    }
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  placeholder="🔍 Raadi alaab - Search for products..."
+                  className="w-full pl-12 pr-4 py-4 text-lg border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-green-500/25 focus:border-green-500 transition-all duration-300 bg-white shadow-sm"
+                />
+              </div>
+
+              {/* Search Results Dropdown */}
+              {showDropdown && searchTerm && filteredProducts.length > 0 && (
+                <div className="absolute z-10 w-full mt-2 bg-white border-2 border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                  {filteredProducts.slice(0, 10).map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() => handleProductSelect(product)}
+                      className="w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-200 border-b border-slate-100 last:border-b-0 group"
+                    >
+                      <div className="flex items-center space-x-3">
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-10 h-10 object-cover rounded-lg shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center">
+                            <Package className="w-5 h-5 text-slate-400" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-800 group-hover:text-green-700 transition-colors truncate">
+                            {product.name}
+                          </p>
+                          <p className="text-sm text-slate-600 truncate">
+                            ID: {product.product_id} • Stock:{" "}
+                            {product.quantity_in_stock} • KES{" "}
+                            {product.selling_price.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                  {filteredProducts.length > 10 && (
+                    <div className="px-4 py-2 text-sm text-slate-500 bg-slate-50 border-t border-slate-200">
+                      Showing first 10 of {filteredProducts.length} results
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* No results message */}
+              {showDropdown && searchTerm && filteredProducts.length === 0 && (
+                <div className="absolute z-10 w-full mt-2 bg-white border-2 border-slate-200 rounded-xl shadow-xl p-4 text-center">
+                  <p className="text-slate-500">
+                    No products found matching "{searchTerm}"
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {selectedProduct && (
