@@ -36,6 +36,7 @@ export default function ProductForm({
     selling_price: "",
     quantity_in_stock: "",
     reorder_level: "5",
+    description: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -52,6 +53,7 @@ export default function ProductForm({
         selling_price: product.selling_price.toString(),
         quantity_in_stock: product.quantity_in_stock.toString(),
         reorder_level: product.reorder_level.toString(),
+        description: product.description || "",
       });
     }
     // Scroll to top for better UX when modal opens
@@ -112,6 +114,7 @@ export default function ProductForm({
         selling_price: parseFloat(formData.selling_price),
         quantity_in_stock: parseInt(formData.quantity_in_stock),
         reorder_level: parseInt(formData.reorder_level),
+        description: formData.description || null,
       };
 
       if (product) {
@@ -137,8 +140,8 @@ export default function ProductForm({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
       <div className="min-h-screen py-4 px-4 flex justify-center">
-        <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full h-fit my-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
+        <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full h-fit my-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 sticky top-0 bg-white z-10">
             <h3 className="text-lg sm:text-xl font-bold text-slate-800">
               {product ? "Edit Product" : "Add New Product"}
             </h3>
@@ -332,6 +335,25 @@ export default function ProductForm({
                   placeholder="5"
                 />
               </div>
+            </div>
+
+            {/* Full-width Product Description Field */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Product Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={3}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                placeholder="e.g., Sold in packets of 10, Bulk item, Premium quality, etc."
+              />
+              <p className="text-xs text-slate-500">
+                Add details like package size, special features, or clarifications for customers
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4 border-t border-slate-200">

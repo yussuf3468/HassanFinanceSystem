@@ -448,6 +448,19 @@ export default function Inventory() {
                       </span>
                     </div>
 
+                    {/* Product Description */}
+                    {viewingProduct.description && (
+                      <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-4 rounded-xl border border-slate-200">
+                        <h4 className="font-semibold text-slate-800 mb-2 flex items-center">
+                          <Eye className="w-4 h-4 mr-2 text-slate-600" />
+                          Product Description
+                        </h4>
+                        <p className="text-slate-700 leading-relaxed">
+                          {viewingProduct.description}
+                        </p>
+                      </div>
+                    )}
+
                     {/* Price Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">

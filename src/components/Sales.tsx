@@ -170,6 +170,11 @@ export default function Sales() {
                             <p className="font-medium text-slate-800">
                               {product?.name || "Unknown"}
                             </p>
+                            {product?.description && (
+                              <p className="text-xs text-slate-600 truncate max-w-[200px]">
+                                {product.description}
+                              </p>
+                            )}
                             <p className="text-sm text-slate-500">
                               {product?.product_id || "-"}
                             </p>

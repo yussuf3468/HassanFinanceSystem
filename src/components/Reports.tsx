@@ -250,6 +250,11 @@ export default function Reports() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-slate-800 truncate">{product.name}</p>
+                  {product.description && (
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                      {product.description}
+                    </p>
+                  )}
                   <p className="text-sm text-slate-500">{product.product_id}</p>
                   <p className="text-sm font-semibold text-orange-600">
                     Stock: {product.quantity_in_stock}

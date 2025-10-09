@@ -19,19 +19,22 @@ if ("serviceWorker" in navigator) {
           "Enhanced Service Worker registered successfully:",
           registration.scope
         );
-        
+
         // Force immediate activation
         if (registration.waiting) {
-          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          registration.waiting.postMessage({ type: "SKIP_WAITING" });
         }
-        
+
         // Listen for service worker updates
-        registration.addEventListener('updatefound', () => {
+        registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New service worker installed, forcing refresh...');
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                console.log("New service worker installed, forcing refresh...");
                 window.location.reload();
               }
             });
@@ -42,17 +45,18 @@ if ("serviceWorker" in navigator) {
         console.log("Enhanced Service Worker registration failed:", error);
       });
   });
-  
+
   // Listen for service worker messages
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'IMAGES_CACHE_CLEARED') {
-      console.log('Images cache cleared, refreshing...');
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "IMAGES_CACHE_CLEARED") {
+      console.log("Images cache cleared, refreshing...");
       // Force a hard refresh of all images
-      const images = document.querySelectorAll('img');
-      images.forEach(img => {
+      const images = document.querySelectorAll("img");
+      images.forEach((img) => {
         const src = img.src;
-        img.src = '';
-        img.src = src + (src.includes('?') ? '&' : '?') + '_refresh=' + Date.now();
+        img.src = "";
+        img.src =
+          src + (src.includes("?") ? "&" : "?") + "_refresh=" + Date.now();
       });
     }
   });

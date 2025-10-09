@@ -134,9 +134,16 @@ const ProductCard = memo(
           </div>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-slate-900 text-lg mb-4 line-clamp-2 leading-tight group-hover:text-slate-700 transition-colors duration-300">
+          <h3 className="font-semibold text-slate-900 text-lg mb-3 line-clamp-2 leading-tight group-hover:text-slate-700 transition-colors duration-300">
             {product.name}
           </h3>
+
+          {/* Product Description */}
+          {product.description && (
+            <p className="text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed">
+              {product.description}
+            </p>
+          )}
 
           {/* Price & Stock Info */}
           <div className="flex items-center justify-between mb-6">

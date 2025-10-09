@@ -34,7 +34,10 @@ export default function Search() {
       const filtered = products.filter(
         (p) =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.product_id.toLowerCase().includes(searchTerm.toLowerCase())
+          p.product_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (p.description &&
+            p.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredProducts(filtered);
     } else {
@@ -140,7 +143,7 @@ export default function Search() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search products, ID, category..."
+                    placeholder="Search products, ID, category, description..."
                     className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 bg-white border-2 border-slate-200 rounded-xl sm:rounded-2xl focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 text-base sm:text-lg placeholder:text-slate-400 shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 font-medium"
                   />
                 </div>
@@ -218,6 +221,11 @@ export default function Search() {
                             <p className="text-xs sm:text-sm text-slate-500 group-hover:text-slate-600 transition-colors duration-300 truncate">
                               ID: {product.product_id}
                             </p>
+                            {product.description && (
+                              <p className="text-xs text-slate-500 line-clamp-1 mt-1">
+                                {product.description}
+                              </p>
+                            )}
                             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mt-1 sm:mt-2 space-y-1 sm:space-y-0">
                               <span className="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 group-hover:bg-blue-200 transition-colors duration-300 w-fit">
                                 {product.category}

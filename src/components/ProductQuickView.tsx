@@ -135,6 +135,13 @@ const ProductQuickView = memo(
                   {product.name}
                 </h1>
 
+                {/* Description */}
+                {product.description && (
+                  <p className="text-slate-600 text-sm leading-relaxed mb-4 bg-slate-50 p-3 rounded-lg border-l-4 border-blue-500">
+                    {product.description}
+                  </p>
+                )}
+
                 {/* Rating */}
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center">

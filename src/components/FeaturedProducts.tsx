@@ -191,6 +191,13 @@ const FeaturedProducts = memo(
                 {product.name}
               </h4>
 
+              {/* Product Description */}
+              {product.description && (
+                <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                  {product.description}
+                </p>
+              )}
+
               {/* Refined Rating */}
               <div className="flex items-center space-x-2">
                 <div className="flex space-x-0.5">
