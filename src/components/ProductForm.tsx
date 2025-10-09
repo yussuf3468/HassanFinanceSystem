@@ -352,7 +352,8 @@ export default function ProductForm({
                 placeholder="e.g., Sold in packets of 10, Bulk item, Premium quality, etc."
               />
               <p className="text-xs text-slate-500">
-                Add details like package size, special features, or clarifications for customers
+                Add details like package size, special features, or
+                clarifications for customers
               </p>
             </div>
 

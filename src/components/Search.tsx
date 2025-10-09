@@ -8,6 +8,10 @@ import {
   BarChart3,
   Eye,
   Sparkles,
+  X,
+  ShoppingCart,
+  Tag,
+  Info,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product, Sale } from "../types";
@@ -19,6 +23,7 @@ export default function Search() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
   const [productStats, setProductStats] = useState<{
     totalSales: number;
     totalProfit: number;
@@ -82,6 +87,11 @@ export default function Search() {
       totalProfit,
       totalQuantitySold,
     });
+  }
+
+  function handleViewProduct(product: Product, e: React.MouseEvent) {
+    e.stopPropagation();
+    setViewingProduct(product);
   }
 
   return (
@@ -235,8 +245,12 @@ export default function Search() {
                               </span>
                             </div>
                           </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-shrink-0">
-                            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                          <div
+                            onClick={(e) => handleViewProduct(product, e)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-shrink-0 p-2 hover:bg-blue-50 rounded-lg cursor-pointer"
+                            title="View Product Details"
+                          >
+                            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 hover:text-blue-600" />
                           </div>
                         </div>
                       </button>
@@ -247,6 +261,137 @@ export default function Search() {
             </div>
           </div>
         </div>
+
+        {/* Product View Modal */}
+        {viewingProduct && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-white rounded-t-2xl border-b border-slate-200 p-4 sm:p-6 flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+                  Product Details
+                </h2>
+                <button
+                  onClick={() => setViewingProduct(null)}
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors duration-200"
+                >
+                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
+                </button>
+              </div>
+
+              <div className="p-4 sm:p-6 space-y-6">
+                {/* Product Image */}
+                <div className="flex justify-center">
+                  {viewingProduct.image_url ? (
+                    <div className="relative bg-slate-50 rounded-2xl p-4">
+                      <OptimizedImage
+                        src={viewingProduct.image_url}
+                        alt={viewingProduct.name}
+                        className="w-48 h-48 sm:w-64 sm:h-64 object-contain rounded-xl shadow-lg"
+                        fallbackClassName="w-48 h-48 sm:w-64 sm:h-64"
+                        priority={true}
+                        sizes="256px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
+                      <Package className="w-16 h-16 sm:w-20 sm:h-20 text-slate-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Information */}
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">
+                      {viewingProduct.name}
+                    </h3>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                        <Tag className="w-4 h-4 mr-1" />
+                        {viewingProduct.category}
+                      </span>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        KES {viewingProduct.selling_price.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {viewingProduct.description && (
+                    <div className="bg-slate-50 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Info className="w-5 h-5 text-slate-600" />
+                        <h4 className="font-semibold text-slate-800">
+                          Description
+                        </h4>
+                      </div>
+                      <p className="text-slate-600 leading-relaxed">
+                        {viewingProduct.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Product Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Package className="w-5 h-5 text-blue-600" />
+                        <span className="font-semibold text-blue-800">
+                          Product ID
+                        </span>
+                      </div>
+                      <p className="text-blue-700 font-mono text-lg">
+                        {viewingProduct.product_id}
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <ShoppingCart className="w-5 h-5 text-purple-600" />
+                        <span className="font-semibold text-purple-800">
+                          Stock Quantity
+                        </span>
+                      </div>
+                      <p className="text-purple-700 font-semibold text-lg">
+                        {viewingProduct.quantity_in_stock} units
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <DollarSign className="w-5 h-5 text-emerald-600" />
+                        <span className="font-semibold text-emerald-800">
+                          Cost Price
+                        </span>
+                      </div>
+                      <p className="text-emerald-700 font-semibold text-lg">
+                        KES{" "}
+                        {(viewingProduct.buying_price || 0).toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <BarChart3 className="w-5 h-5 text-orange-600" />
+                        <span className="font-semibold text-orange-800">
+                          Profit Margin
+                        </span>
+                      </div>
+                      <p className="text-orange-700 font-semibold text-lg">
+                        KES{" "}
+                        {(
+                          (viewingProduct.selling_price || 0) -
+                          (viewingProduct.buying_price || 0)
+                        ).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

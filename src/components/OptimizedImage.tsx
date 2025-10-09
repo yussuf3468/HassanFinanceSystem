@@ -183,7 +183,6 @@ const OptimizedImage = memo(
             onError={handleError}
             loading={priority ? "eager" : "lazy"}
             decoding="async"
-            fetchPriority={priority ? "high" : "auto"}
             sizes={sizes}
             style={{
               contentVisibility: "auto",
