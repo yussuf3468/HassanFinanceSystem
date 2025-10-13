@@ -1,3 +1,5 @@
+// @ts-nocheck
+export {};
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -17,20 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Update last login time in profiles table
   async function updateLastLogin(userId: string) {
     try {
-      // Use a simpler approach to avoid RPC issues
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({ 
-          id: userId,
-          last_login: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        } as any, { 
-          onConflict: 'id' 
-        });
-
-      if (error) {
-        console.error("Error updating last login:", error);
-      }
+      // Disabled in backup file
+      return;
     } catch (error) {
       console.error("Error updating last login:", error);
     }
@@ -42,27 +32,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check active session with timeout
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (!mounted) return;
-        
+
         if (error) {
-          console.error('Session error:', error);
+          console.error("Session error:", error);
           setUser(null);
           setLoading(false);
           return;
         }
-        
+
         setUser(session?.user ?? null);
-        
+
         // Only update last login if user exists and we're mounted
         if (session?.user && mounted) {
-          updateLastLogin(session.user.id).catch(console.error);
+          // updateLastLogin(session.user.id).catch(console.error);
         }
-        
+
         setLoading(false);
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.error("Error checking session:", error);
         if (mounted) {
           setUser(null);
           setLoading(false);
@@ -73,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Add timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
       if (mounted) {
-        console.warn('Session check timed out');
+        console.warn("Session check timed out");
         setLoading(false);
       }
     }, 10000); // 10 second timeout
@@ -85,9 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      
-      console.log('Auth state change:', event, session?.user?.email);
-      
+
+      console.log("Auth state change:", event, session?.user?.email);
+
       setUser(session?.user ?? null);
 
       // Update last login time when user signs in (debounced)
@@ -95,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           await updateLastLogin(session.user.id);
         } catch (error) {
-          console.error('Error updating last login:', error);
+          console.error("Error updating last login:", error);
         }
       }
 

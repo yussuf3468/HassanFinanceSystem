@@ -95,7 +95,7 @@ export class PerformanceMonitor {
 
       console.log("🎯 Largest Contentful Paint:", {
         time: `${lastEntry.startTime.toFixed(2)}ms`,
-        element: lastEntry.element?.tagName || "Unknown",
+        element: (lastEntry as any)?.element?.tagName || "Unknown",
       });
     });
 
@@ -109,7 +109,9 @@ export class PerformanceMonitor {
       const firstInput = entries[0];
 
       console.log("⚡ First Input Delay:", {
-        delay: `${firstInput.processingStart - firstInput.startTime}ms`,
+        delay: `${
+          (firstInput as any).processingStart - firstInput.startTime
+        }ms`,
         duration: `${firstInput.duration}ms`,
       });
     });

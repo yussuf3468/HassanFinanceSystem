@@ -1,3 +1,4 @@
+export {};
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
@@ -15,21 +16,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Simplified last login update with error handling
-  async function updateLastLogin(userId: string) {
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ last_login: new Date().toISOString() })
-        .eq("id", userId);
-
-      if (error && error.code !== "PGRST116") {
-        // Ignore "not found" errors
-        console.error("Error updating last login:", error);
-      }
-    } catch (error) {
-      // Silently fail to prevent app crashes
-      console.warn("Could not update last login:", error);
-    }
+  async function updateLastLogin(_userId: string) {
+    // no-op in this build
+    return;
   }
 
   useEffect(() => {

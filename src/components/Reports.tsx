@@ -102,68 +102,78 @@ export default function Reports() {
   );
 
   if (loading) {
-    return <div className="text-center py-12">Loading reports...</div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-white text-base font-medium">
+          Loading reports...
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-800">Reports & Export</h2>
-        <p className="text-slate-600 mt-1">
+        <h2 className="text-2xl md:text-3xl font-black text-white">
+          Reports & Export
+        </h2>
+        <p className="text-slate-300 mt-1 text-sm md:text-base">
           Generate and export detailed reports
         </p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Calendar className="w-5 h-5 text-slate-600" />
-            <span className="font-medium text-slate-700">Date Range:</span>
-            <div className="flex space-x-2">
-              {(["today", "week", "month", "all"] as const).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setDateRange(range)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    dateRange === range
-                      ? "bg-blue-500 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {range === "today"
-                    ? "Today"
-                    : range === "week"
-                    ? "Last 7 Days"
-                    : range === "month"
-                    ? "Last 30 Days"
-                    : "All Time"}
-                </button>
-              ))}
+      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-purple-600/20 rounded-lg border border-purple-500/30">
+              <Calendar className="w-5 h-5 text-purple-400" />
             </div>
+            <span className="font-bold text-white">Date Range:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(["today", "week", "month", "all"] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setDateRange(range)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                  dateRange === range
+                    ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg scale-105"
+                    : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-white/20"
+                }`}
+              >
+                {range === "today"
+                  ? "Today"
+                  : range === "week"
+                  ? "Last 7 Days"
+                  : range === "month"
+                  ? "Last 30 Days"
+                  : "All Time"}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
-            <p className="text-sm text-blue-700 font-medium mb-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="bg-gradient-to-br from-blue-600/20 to-blue-500/10 backdrop-blur-xl rounded-xl p-5 border border-blue-500/30 hover:-translate-y-1 transition-all duration-300">
+            <p className="text-xs md:text-sm text-blue-300 font-semibold mb-2 uppercase tracking-wide">
               Total Revenue
             </p>
-            <p className="text-3xl font-bold text-blue-900">
+            <p className="text-2xl md:text-3xl font-black text-white">
               KES {totalRevenue.toLocaleString()}
             </p>
-            <p className="text-sm text-blue-600 mt-2">
+            <p className="text-xs md:text-sm text-blue-400 mt-2 font-medium">
               {filteredSales.length} transactions
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
-            <p className="text-sm text-green-700 font-medium mb-2">
+          <div className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 backdrop-blur-xl rounded-xl p-5 border border-emerald-500/30 hover:-translate-y-1 transition-all duration-300">
+            <p className="text-xs md:text-sm text-emerald-300 font-semibold mb-2 uppercase tracking-wide">
               Total Profit
             </p>
-            <p className="text-3xl font-bold text-green-900">
+            <p className="text-2xl md:text-3xl font-black text-white">
               KES {totalProfit.toLocaleString()}
             </p>
-            <p className="text-sm text-green-600 mt-2">
+            <p className="text-xs md:text-sm text-emerald-400 mt-2 font-medium">
               {totalRevenue > 0
                 ? ((totalProfit / totalRevenue) * 100).toFixed(1)
                 : 0}
@@ -171,14 +181,14 @@ export default function Reports() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200">
-            <p className="text-sm text-orange-700 font-medium mb-2">
+          <div className="bg-gradient-to-br from-orange-600/20 to-amber-500/10 backdrop-blur-xl rounded-xl p-5 border border-orange-500/30 hover:-translate-y-1 transition-all duration-300">
+            <p className="text-xs md:text-sm text-orange-300 font-semibold mb-2 uppercase tracking-wide">
               Low Stock Alerts
             </p>
-            <p className="text-3xl font-bold text-orange-900">
+            <p className="text-2xl md:text-3xl font-black text-white">
               {lowStockProducts.length}
             </p>
-            <p className="text-sm text-orange-600 mt-2">
+            <p className="text-xs md:text-sm text-orange-400 mt-2 font-medium">
               {products.length} total products
             </p>
           </div>
@@ -186,14 +196,12 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Inventory Report
-            </h3>
+            <h3 className="text-lg font-bold text-white">Inventory Report</h3>
             <button
               onClick={() => exportToCSV("inventory")}
-              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm hover:shadow-md text-sm"
+              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-sm font-bold"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
@@ -243,14 +251,12 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Sales Report
-            </h3>
+            <h3 className="text-lg font-bold text-white">Sales Report</h3>
             <button
               onClick={() => exportToCSV("sales")}
-              className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-sm hover:shadow-md text-sm"
+              className="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 text-sm font-bold"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
@@ -298,9 +304,9 @@ export default function Reports() {
       </div>
 
       {lowStockProducts.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-2">
-            <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm">
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-orange-500/30 p-6">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+            <span className="bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full text-sm font-bold">
               {lowStockProducts.length}
             </span>
             <span>Low Stock Products - Reorder Needed</span>
@@ -309,26 +315,26 @@ export default function Reports() {
             {lowStockProducts.map((product) => (
               <div
                 key={product.id}
-                className="flex items-center space-x-3 p-4 bg-orange-50 rounded-lg border border-orange-200"
+                className="flex items-center space-x-3 p-4 bg-orange-600/10 rounded-xl border border-orange-500/30 hover:bg-orange-600/20 transition-all"
               >
                 {product.image_url && (
                   <img
                     src={product.image_url}
                     alt={product.name}
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-cover rounded-lg border border-white/20"
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-800 truncate">
+                  <p className="font-bold text-white truncate text-sm">
                     {product.name}
                   </p>
                   {product.description && (
-                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">
                       {product.description}
                     </p>
                   )}
-                  <p className="text-sm text-slate-500">{product.product_id}</p>
-                  <p className="text-sm font-semibold text-orange-600">
+                  <p className="text-xs text-slate-500">{product.product_id}</p>
+                  <p className="text-sm font-bold text-orange-400">
                     Stock: {product.quantity_in_stock}
                   </p>
                 </div>
@@ -350,12 +356,12 @@ interface ReportRowProps {
 function ReportRow({
   label,
   value,
-  valueColor = "text-slate-800",
+  valueColor = "text-white",
 }: ReportRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-      <span className="text-slate-600">{label}</span>
-      <span className={`font-semibold ${valueColor}`}>{value}</span>
+    <div className="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
+      <span className="text-slate-300 text-sm">{label}</span>
+      <span className={`font-bold text-sm ${valueColor}`}>{value}</span>
     </div>
   );
 }

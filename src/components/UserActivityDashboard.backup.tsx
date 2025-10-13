@@ -1,3 +1,5 @@
+// @ts-nocheck
+export {};
 import { useState, useEffect } from "react";
 import {
   Users,

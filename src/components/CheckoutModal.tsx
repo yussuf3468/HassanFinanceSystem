@@ -3,7 +3,6 @@ import {
   X,
   CreditCard,
   Truck,
-  MapPin,
   Phone,
   Mail,
   User,
@@ -14,7 +13,7 @@ import {
 import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
-import DeliveryCalculator from "./DeliveryCalculator";
+// import DeliveryCalculator from "./DeliveryCalculator";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 import type { Database } from "../lib/database.types";
@@ -182,10 +181,10 @@ const CheckoutModal = memo(
     const total = subtotal + deliveryFee;
 
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-white/20">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <CreditCard className="w-6 h-6" />
@@ -199,25 +198,23 @@ const CheckoutModal = memo(
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-blue-100 mt-2">Complete your order</p>
+            <p className="text-purple-100 mt-2">Complete your order</p>
           </div>
 
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             {/* Order Summary */}
-            <div className="p-6 border-b bg-slate-50">
-              <h3 className="font-semibold text-slate-900 mb-4">
-                Order Summary
-              </h3>
+            <div className="p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
+              <h3 className="font-semibold text-white mb-4">Order Summary</h3>
               <div className="space-y-2">
                 {cart.items.map((item) => (
                   <div
                     key={item.product.id}
                     className="flex justify-between items-center text-sm"
                   >
-                    <span className="text-slate-600">
+                    <span className="text-slate-300">
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-white">
                       KES{" "}
                       {(
                         item.product.selling_price * item.quantity
@@ -225,23 +222,23 @@ const CheckoutModal = memo(
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between items-center text-sm pt-2 border-t">
-                  <span className="text-slate-600">Subtotal:</span>
-                  <span className="font-medium">
+                <div className="flex justify-between items-center text-sm pt-2 border-t border-white/20">
+                  <span className="text-slate-300">Subtotal:</span>
+                  <span className="font-medium text-white">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Delivery Fee:</span>
-                  <span className="font-medium">
+                  <span className="text-slate-300">Delivery Fee:</span>
+                  <span className="font-medium text-white">
                     {deliveryFee === 0
                       ? "FREE"
                       : `KES ${deliveryFee.toLocaleString()}`}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-slate-300">
-                  <span className="text-slate-900">Total:</span>
-                  <span className="text-blue-600">
+                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-white/20">
+                  <span className="text-white">Total:</span>
+                  <span className="text-purple-400">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
@@ -249,16 +246,19 @@ const CheckoutModal = memo(
             </div>
 
             {/* Checkout Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-6 bg-white/5 backdrop-blur-xl"
+            >
               {/* Customer Information */}
               <div>
-                <h3 className="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-white mb-4 flex items-center space-x-2">
                   <User className="w-5 h-5" />
                   <span>Customer Information</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Full Name *
                     </label>
                     <input
@@ -267,14 +267,14 @@ const CheckoutModal = memo(
                       onChange={(e) =>
                         handleInputChange("customer_name", e.target.value)
                       }
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
                       placeholder="Enter your full name"
                       required
                       disabled={isSubmitting}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Phone Number *
                     </label>
                     <div className="relative">
@@ -285,7 +285,7 @@ const CheckoutModal = memo(
                         onChange={(e) =>
                           handleInputChange("phone_number", e.target.value)
                         }
-                        className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
                         placeholder="+254 700 000 000"
                         required
                         disabled={isSubmitting}
@@ -294,7 +294,7 @@ const CheckoutModal = memo(
                   </div>
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Email Address (Optional)
                   </label>
                   <div className="relative">
@@ -305,7 +305,7 @@ const CheckoutModal = memo(
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
                       placeholder="your@email.com"
                       disabled={isSubmitting}
                     />
@@ -315,12 +315,12 @@ const CheckoutModal = memo(
 
               {/* Delivery Information */}
               <div>
-                <h3 className="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-white mb-4 flex items-center space-x-2">
                   <Truck className="w-5 h-5" />
                   <span>Delivery Information</span>
                 </h3>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Delivery Address *
                   </label>
                   <DeliveryAddressSelector
@@ -336,7 +336,7 @@ const CheckoutModal = memo(
 
               {/* Payment Method */}
               <div>
-                <h3 className="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-white mb-4 flex items-center space-x-2">
                   <CreditCard className="w-5 h-5" />
                   <span>Payment Method</span>
                 </h3>
@@ -359,8 +359,8 @@ const CheckoutModal = memo(
                       }
                       className={`p-3 border-2 rounded-lg text-center transition-all ${
                         paymentMethod === method.id
-                          ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-purple-500 bg-purple-500/20 text-purple-300"
+                          : "border-white/20 bg-white/5 text-white hover:border-white/30"
                       }`}
                       disabled={isSubmitting}
                     >
@@ -373,7 +373,7 @@ const CheckoutModal = memo(
 
               {/* Order Notes */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Order Notes (Optional)
                 </label>
                 <div className="relative">
@@ -381,7 +381,7 @@ const CheckoutModal = memo(
                   <textarea
                     value={formData.notes}
                     onChange={(e) => handleInputChange("notes", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-white placeholder-slate-400"
                     placeholder="Any special instructions or notes for your order..."
                     rows={3}
                     disabled={isSubmitting}
@@ -394,7 +394,7 @@ const CheckoutModal = memo(
                 <button
                   type="submit"
                   disabled={isSubmitting || cart.items.length === 0}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-3"
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg"
                 >
                   {isSubmitting ? (
                     <>

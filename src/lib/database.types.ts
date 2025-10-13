@@ -9,6 +9,36 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          full_name: string | null;
+          role: string | null;
+          last_login: string | null;
+          created_at: string | null;
+          updated_at?: string | null;
+        };
+        Insert: {
+          id?: string;
+          email?: string | null;
+          full_name?: string | null;
+          role?: string | null;
+          last_login?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          email?: string | null;
+          full_name?: string | null;
+          role?: string | null;
+          last_login?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       products: {
         Row: {
           id: string;
@@ -257,9 +287,212 @@ export interface Database {
         };
         Relationships: [];
       };
+      expense_categories: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      expenses: {
+        Row: {
+          id: string;
+          category_id: string | null;
+          title: string;
+          amount: number;
+          incurred_on: string; // date
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          category_id?: string | null;
+          title: string;
+          amount: number;
+          incurred_on?: string;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          category_id?: string | null;
+          title?: string;
+          amount?: number;
+          incurred_on?: string;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "expense_categories";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      initial_investments: {
+        Row: {
+          id: string;
+          source: string;
+          amount: number;
+          invested_on: string; // date
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          source: string;
+          amount: number;
+          invested_on?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          source?: string;
+          amount?: number;
+          invested_on?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      debts: {
+        Row: {
+          id: string;
+          lender: string;
+          principal: number;
+          interest_rate: number | null;
+          started_on: string; // date
+          due_on: string | null; // date
+          status: "active" | "closed" | "defaulted";
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lender: string;
+          principal: number;
+          interest_rate?: number | null;
+          started_on?: string;
+          due_on?: string | null;
+          status?: "active" | "closed" | "defaulted";
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lender?: string;
+          principal?: number;
+          interest_rate?: number | null;
+          started_on?: string;
+          due_on?: string | null;
+          status?: "active" | "closed" | "defaulted";
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      debt_payments: {
+        Row: {
+          id: string;
+          debt_id: string;
+          amount: number;
+          paid_on: string; // date
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          debt_id: string;
+          amount: number;
+          paid_on?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          debt_id?: string;
+          amount?: number;
+          paid_on?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "debt_payments_debt_id_fkey";
+            columns: ["debt_id"];
+            isOneToOne: false;
+            referencedRelation: "debts";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
-      [_ in never]: never;
+      vw_today_revenue_profit: {
+        Row: { today_revenue: number; today_profit: number };
+        Relationships: [];
+      };
+      vw_monthly_profit: {
+        Row: { monthly_profit: number };
+        Relationships: [];
+      };
+      vw_net_worth: {
+        Row: { net_worth: number };
+        Relationships: [];
+      };
+      vw_outstanding_debt: {
+        Row: { outstanding_debt: number };
+        Relationships: [];
+      };
+      vw_debts_with_balance: {
+        Row: {
+          id: string;
+          lender: string;
+          principal: number;
+          interest_rate: number | null;
+          started_on: string;
+          due_on: string | null;
+          status: "active" | "closed" | "defaulted";
+          notes: string | null;
+          created_at: string;
+          total_paid: number;
+          outstanding: number;
+        };
+        Relationships: [];
+      };
+      vw_monthly_expenses: {
+        Row: { ym: string; month: string; total: number };
+        Relationships: [];
+      };
+      vw_monthly_investments: {
+        Row: { ym: string; month: string; total: number };
+        Relationships: [];
+      };
+      vw_expense_by_category_month: {
+        Row: { category: string | null; total: number };
+        Relationships: [];
+      };
     };
     Functions: {
       [_ in never]: never;

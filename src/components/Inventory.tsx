@@ -118,16 +118,16 @@ export default function Inventory() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             Inventory Management
           </h2>
-          <p className="text-slate-600 mt-1 text-sm sm:text-base">
+          <p className="text-slate-300 mt-1 text-sm sm:text-base">
             Manage your bookstore products
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg w-full sm:w-auto"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-6 py-3 rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto font-semibold"
         >
           <Plus className="w-5 h-5" />
           <span>Add Product</span>
@@ -135,37 +135,37 @@ export default function Inventory() {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="hidden lg:block bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibsiga - Buying Price
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibka - Selling Price
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-white/5">
               {products.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-slate-500"
+                    className="px-6 py-12 text-center text-slate-400"
                   >
                     No products yet. Click "Add Product" to get started.
                   </td>
@@ -177,7 +177,7 @@ export default function Inventory() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-white/5 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
@@ -195,50 +195,48 @@ export default function Inventory() {
                           ) : (
                             <button
                               onClick={() => handleView(product)}
-                              className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center hover:bg-slate-300 transition-colors"
+                              className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                             >
-                              <span className="text-slate-400 text-xs">
-                                No Image
-                              </span>
+                              <Package className="w-5 h-5 text-slate-400" />
                             </button>
                           )}
                           <div>
                             <button
                               onClick={() => handleView(product)}
-                              className="font-medium text-slate-800 hover:text-blue-600 transition-colors text-left"
+                              className="font-medium text-white hover:text-purple-400 transition-colors text-left"
                             >
                               {product.name}
                             </button>
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-slate-400">
                               {product.product_id}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-600/20 text-blue-400 border border-blue-500/30">
                           {product.category}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">
+                      <td className="px-6 py-4 text-slate-200 font-semibold">
                         KES {product.buying_price.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-slate-700">
+                      <td className="px-6 py-4 text-white font-bold">
                         KES {product.selling_price.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
                               isLowStock
-                                ? "bg-red-100 text-red-700"
-                                : "bg-green-100 text-green-700"
+                                ? "bg-red-600/20 text-red-400 border border-red-500/30"
+                                : "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
                             }`}
                           >
                             {product.quantity_in_stock}
                           </span>
                           {isLowStock && (
-                            <AlertCircle className="w-5 h-5 text-red-500" />
+                            <AlertCircle className="w-5 h-5 text-red-400" />
                           )}
                         </div>
                       </td>
@@ -246,21 +244,21 @@ export default function Inventory() {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleView(product)}
-                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            className="p-2 text-emerald-400 hover:bg-emerald-600/20 rounded-lg transition-colors border border-transparent hover:border-emerald-500/30"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleEdit(product)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-blue-400 hover:bg-blue-600/20 rounded-lg transition-colors border border-transparent hover:border-blue-500/30"
                             title="Edit"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(product.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-rose-400 hover:bg-rose-600/20 rounded-lg transition-colors border border-transparent hover:border-rose-500/30"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -279,7 +277,7 @@ export default function Inventory() {
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
         {products.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <p>No products found. Add your first product to get started!</p>
           </div>
@@ -290,10 +288,10 @@ export default function Inventory() {
             return (
               <div
                 key={product.id}
-                className="bg-white rounded-lg shadow-sm border border-slate-200 p-4"
+                className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 p-4 hover:bg-white/15 transition-all"
               >
                 <div className="flex items-start space-x-4">
-                  {product.image_url && (
+                  {product.image_url ? (
                     <button
                       onClick={() => handleView(product)}
                       className="flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -301,8 +299,15 @@ export default function Inventory() {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-16 h-16 object-cover rounded-xl border-2 border-white/20"
                       />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleView(product)}
+                      className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
+                    >
+                      <Package className="w-7 h-7 text-slate-400" />
                     </button>
                   )}
                   <div className="flex-1 min-w-0">
@@ -310,34 +315,34 @@ export default function Inventory() {
                       <div>
                         <button
                           onClick={() => handleView(product)}
-                          className="font-semibold text-slate-900 hover:text-blue-600 transition-colors text-left"
+                          className="font-semibold text-white hover:text-purple-400 transition-colors text-left"
                         >
                           {product.name}
                         </button>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-400">
                           ID: {product.product_id}
                         </p>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-slate-300">
                           {product.category}
                         </p>
                       </div>
                       <div className="flex items-center space-x-2 ml-2">
                         <button
                           onClick={() => handleView(product)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          className="p-2 text-emerald-400 hover:bg-emerald-600/20 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEdit(product)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-blue-400 hover:bg-blue-600/20 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-rose-400 hover:bg-rose-600/20 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -346,8 +351,8 @@ export default function Inventory() {
 
                     <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
                       <div>
-                        <p className="text-slate-500">Buy Price</p>
-                        <p className="font-medium">
+                        <p className="text-slate-400">Buy Price</p>
+                        <p className="font-bold text-white">
                           KES {product.buying_price}
                         </p>
                       </div>
@@ -385,25 +390,25 @@ export default function Inventory() {
 
       {/* Product View Modal */}
       {viewingProduct && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
           <div className="min-h-screen py-4 px-4 flex justify-center">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full h-fit my-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+            <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-4xl w-full h-fit my-4 max-h-[calc(100vh-2rem)] overflow-y-auto border border-white/20">
               {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 rounded-t-2xl">
+              <div className="sticky top-0 bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-4 rounded-t-2xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900">
+                    <h3 className="text-2xl font-bold text-white">
                       {viewingProduct.name}
                     </h3>
-                    <p className="text-slate-600 mt-1">
+                    <p className="text-slate-300 mt-1">
                       Product ID: {viewingProduct.product_id}
                     </p>
                   </div>
                   <button
                     onClick={handleCloseView}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    <X className="w-6 h-6 text-slate-400" />
+                    <X className="w-6 h-6 text-slate-300" />
                   </button>
                 </div>
               </div>
@@ -421,10 +426,10 @@ export default function Inventory() {
                           className="w-full h-80 lg:h-96 object-cover rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
                         />
                       ) : (
-                        <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+                        <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center border border-white/20">
                           <div className="text-center">
                             <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                            <p className="text-slate-500 font-medium">
+                            <p className="text-slate-300 font-medium">
                               No Image Available
                             </p>
                             <p className="text-slate-400 text-sm">
@@ -442,7 +447,7 @@ export default function Inventory() {
                   <div className="space-y-6">
                     {/* Category Badge */}
                     <div>
-                      <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300">
+                      <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
                         <Tag className="w-4 h-4 mr-2" />
                         {viewingProduct.category}
                       </span>
@@ -450,12 +455,12 @@ export default function Inventory() {
 
                     {/* Product Description */}
                     {viewingProduct.description && (
-                      <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-4 rounded-xl border border-slate-200">
-                        <h4 className="font-semibold text-slate-800 mb-2 flex items-center">
-                          <Eye className="w-4 h-4 mr-2 text-slate-600" />
+                      <div className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/20">
+                        <h4 className="font-semibold text-white mb-2 flex items-center">
+                          <Eye className="w-4 h-4 mr-2 text-slate-300" />
                           Product Description
                         </h4>
-                        <p className="text-slate-700 leading-relaxed">
+                        <p className="text-slate-300 leading-relaxed">
                           {viewingProduct.description}
                         </p>
                       </div>
@@ -463,52 +468,52 @@ export default function Inventory() {
 
                     {/* Price Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                      <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-4 rounded-xl border border-green-500/30">
                         <div className="flex items-center space-x-2 mb-2">
-                          <DollarSign className="w-5 h-5 text-green-600" />
-                          <h4 className="font-semibold text-green-800">
+                          <DollarSign className="w-5 h-5 text-green-400" />
+                          <h4 className="font-semibold text-green-300">
                             Buying Price
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-green-700">
+                        <p className="text-2xl font-bold text-green-400">
                           KES {viewingProduct.buying_price.toLocaleString()}
                         </p>
-                        <p className="text-sm text-green-600 mt-1">
+                        <p className="text-sm text-green-300 mt-1">
                           Cost per unit
                         </p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                      <div className="bg-gradient-to-br from-blue-500/20 to-indigo-500/20 p-4 rounded-xl border border-blue-500/30">
                         <div className="flex items-center space-x-2 mb-2">
-                          <TrendingUp className="w-5 h-5 text-blue-600" />
-                          <h4 className="font-semibold text-blue-800">
+                          <TrendingUp className="w-5 h-5 text-blue-400" />
+                          <h4 className="font-semibold text-blue-300">
                             Selling Price
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-blue-700">
+                        <p className="text-2xl font-bold text-blue-400">
                           KES {viewingProduct.selling_price.toLocaleString()}
                         </p>
-                        <p className="text-sm text-blue-600 mt-1">
+                        <p className="text-sm text-blue-300 mt-1">
                           Price per unit
                         </p>
                       </div>
                     </div>
 
                     {/* Profit Margin */}
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
+                    <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-4 rounded-xl border border-purple-500/30">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-purple-800 mb-1">
+                          <h4 className="font-semibold text-purple-300 mb-1">
                             Profit Margin
                           </h4>
-                          <p className="text-2xl font-bold text-purple-700">
+                          <p className="text-2xl font-bold text-purple-400">
                             KES{" "}
                             {(
                               viewingProduct.selling_price -
                               viewingProduct.buying_price
                             ).toLocaleString()}
                           </p>
-                          <p className="text-sm text-purple-600">
+                          <p className="text-sm text-purple-300">
                             {(
                               ((viewingProduct.selling_price -
                                 viewingProduct.buying_price) /
@@ -519,7 +524,7 @@ export default function Inventory() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-purple-600">
+                          <p className="text-sm text-purple-300">
                             Per unit profit
                           </p>
                         </div>
@@ -528,81 +533,83 @@ export default function Inventory() {
 
                     {/* Stock Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/20">
                         <div className="flex items-center space-x-2 mb-2">
-                          <Hash className="w-5 h-5 text-slate-600" />
-                          <h4 className="font-semibold text-slate-800">
+                          <Hash className="w-5 h-5 text-slate-300" />
+                          <h4 className="font-semibold text-white">
                             Current Stock
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-slate-700">
+                        <p className="text-2xl font-bold text-white">
                           {viewingProduct.quantity_in_stock}
                         </p>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-300 mt-1">
                           Units available
                         </p>
                       </div>
 
-                      <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
+                      <div className="bg-orange-500/20 p-4 rounded-xl border border-orange-500/30">
                         <div className="flex items-center space-x-2 mb-2">
-                          <AlertCircle className="w-5 h-5 text-orange-600" />
-                          <h4 className="font-semibold text-orange-800">
+                          <AlertCircle className="w-5 h-5 text-orange-400" />
+                          <h4 className="font-semibold text-orange-300">
                             Reorder Level
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-orange-700">
+                        <p className="text-2xl font-bold text-orange-400">
                           {viewingProduct.reorder_level}
                         </p>
-                        <p className="text-sm text-orange-600 mt-1">
+                        <p className="text-sm text-orange-300 mt-1">
                           Minimum stock alert
                         </p>
                       </div>
                     </div>
 
                     {/* Stock Status */}
-                    <div className="p-4 rounded-xl border-2 border-dashed">
+                    <div className="p-4 rounded-xl border-2 border-dashed border-white/20">
                       {viewingProduct.quantity_in_stock <=
                       viewingProduct.reorder_level ? (
-                        <div className="flex items-center space-x-3 text-red-700">
+                        <div className="flex items-center space-x-3 text-red-400">
                           <AlertCircle className="w-6 h-6" />
                           <div>
                             <p className="font-semibold">Low Stock Alert!</p>
-                            <p className="text-sm">
+                            <p className="text-sm text-red-300">
                               This product needs to be restocked soon.
                             </p>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center space-x-3 text-green-700">
+                        <div className="flex items-center space-x-3 text-green-400">
                           <Package className="w-6 h-6" />
                           <div>
                             <p className="font-semibold">Stock Level: Good</p>
-                            <p className="text-sm">Product is well stocked.</p>
+                            <p className="text-sm text-green-300">
+                              Product is well stocked.
+                            </p>
                           </div>
                         </div>
                       )}
                     </div>
 
                     {/* Timestamps */}
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/20">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Calendar className="w-5 h-5 text-slate-600" />
-                        <h4 className="font-semibold text-slate-800">
+                        <Calendar className="w-5 h-5 text-slate-300" />
+                        <h4 className="font-semibold text-white">
                           Product Information
                         </h4>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-slate-600">Created:</p>
-                          <p className="font-medium text-slate-800">
+                          <p className="text-slate-300">Created:</p>
+                          <p className="font-medium text-white">
                             {new Date(
                               viewingProduct.created_at
                             ).toLocaleDateString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600">Last Updated:</p>
-                          <p className="font-medium text-slate-800">
+                          <p className="text-slate-300">Last Updated:</p>
+                          <p className="font-medium text-white">
                             {new Date(
                               viewingProduct.updated_at
                             ).toLocaleDateString()}
@@ -618,14 +625,14 @@ export default function Inventory() {
                           handleCloseView();
                           handleEdit(viewingProduct);
                         }}
-                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
                       >
                         <Edit2 className="w-5 h-5" />
                         <span>Edit Product</span>
                       </button>
                       <button
                         onClick={handleCloseView}
-                        className="flex items-center justify-center space-x-2 bg-slate-200 text-slate-700 px-6 py-3 rounded-xl hover:bg-slate-300 transition-colors"
+                        className="flex items-center justify-center space-x-2 bg-white/10 text-slate-300 px-6 py-3 rounded-xl hover:bg-white/20 transition-colors border border-white/20"
                       >
                         <X className="w-5 h-5" />
                         <span>Close</span>

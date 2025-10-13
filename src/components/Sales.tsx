@@ -72,66 +72,70 @@ export default function Sales() {
   }
 
   if (loading) {
-    return <div className="text-center py-12">Loading sales...</div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-white text-base font-medium">Loading sales...</div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
             Sales Records
           </h2>
-          <p className="text-slate-600 mt-1 text-sm sm:text-base">
+          <p className="text-slate-300 mt-1 text-sm sm:text-base">
             Track all your bookstore sales
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg w-full sm:w-auto font-medium"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-5 py-3 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 w-full sm:w-auto font-bold"
         >
           <Plus className="w-5 h-5" />
           <span>Record Sale</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Quantity
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Total Sale
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Profit
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Sold By
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-white/5">
               {sales.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-6 py-12 text-center text-slate-500"
+                    className="px-6 py-12 text-center text-slate-400"
                   >
                     No sales yet. Click "Record Sale" to get started.
                   </td>
@@ -142,12 +146,12 @@ export default function Sales() {
                   return (
                     <tr
                       key={sale.id}
-                      className="hover:bg-slate-50 transition-colors"
+                      className="hover:bg-white/5 transition-colors"
                     >
-                      <td className="px-6 py-4 text-slate-700">
+                      <td className="px-6 py-4 text-slate-200">
                         {new Date(sale.sale_date).toLocaleDateString()}
                         <br />
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-400">
                           {new Date(sale.sale_date).toLocaleTimeString()}
                         </span>
                       </td>
@@ -157,47 +161,47 @@ export default function Sales() {
                             <img
                               src={product.image_url}
                               alt={product.name}
-                              className="w-12 h-12 object-cover rounded-lg"
+                              className="w-10 h-10 object-cover rounded-lg border border-white/20"
                             />
                           ) : (
-                            <div className="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
                               <span className="text-slate-400 text-xs">
                                 No Image
                               </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-slate-800">
+                            <p className="font-bold text-white text-sm">
                               {product?.name || "Unknown"}
                             </p>
                             {product?.description && (
-                              <p className="text-xs text-slate-600 truncate max-w-[200px]">
+                              <p className="text-xs text-slate-400 truncate max-w-[200px]">
                                 {product.description}
                               </p>
                             )}
-                            <p className="text-sm text-slate-500">
+                            <p className="text-xs text-slate-500">
                               {product?.product_id || "-"}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">
+                      <td className="px-6 py-4 text-slate-200 font-semibold">
                         {sale.quantity_sold}
                       </td>
-                      <td className="px-6 py-4 font-semibold text-slate-800">
+                      <td className="px-6 py-4 font-bold text-white">
                         KES {sale.total_sale.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30">
                           +KES {sale.profit.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30">
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">
+                      <td className="px-6 py-4 text-slate-200 font-medium">
                         {sale.sold_by}
                       </td>
                       <td className="px-6 py-4">
@@ -208,7 +212,7 @@ export default function Sales() {
                               product?.name || "Unknown Product"
                             )
                           }
-                          className="inline-flex items-center justify-center w-8 h-8 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors duration-200"
+                          className="inline-flex items-center justify-center w-8 h-8 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 rounded-lg transition-all duration-200 border border-rose-500/30 hover:border-rose-500/50"
                           title="Tirtir Iibkan - Delete Sale"
                         >
                           <Trash2 className="w-4 h-4" />

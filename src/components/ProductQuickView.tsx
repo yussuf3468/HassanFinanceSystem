@@ -64,14 +64,14 @@ const ProductQuickView = memo(
     if (!isOpen || !product) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-900">Quick View</h2>
+          <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
+            <h2 className="text-2xl font-bold text-white">Quick View</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
             >
               <X className="w-6 h-6" />
             </button>
@@ -83,7 +83,7 @@ const ProductQuickView = memo(
               <div className="relative">
                 {product.image_url ? (
                   <div
-                    className={`relative overflow-hidden rounded-xl cursor-zoom-in bg-gradient-to-br from-slate-50 to-slate-100 ${
+                    className={`relative overflow-hidden rounded-xl cursor-zoom-in bg-gradient-to-br from-white/5 to-white/10 ${
                       imageZoomed ? "transform scale-150" : ""
                     } transition-transform duration-300`}
                     onClick={() => setImageZoomed(!imageZoomed)}
@@ -93,12 +93,12 @@ const ProductQuickView = memo(
                       alt={product.name}
                       className="w-full h-64 sm:h-72 md:h-80 object-contain p-3"
                     />
-                    <div className="absolute top-3 right-3 bg-black/20 backdrop-blur-sm rounded-full p-2">
+                    <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm rounded-full p-2">
                       <ZoomIn className="w-4 h-4 text-white" />
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-64 sm:h-72 md:h-80 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center">
+                  <div className="w-full h-64 sm:h-72 md:h-80 bg-gradient-to-br from-white/5 to-white/10 rounded-xl flex items-center justify-center border border-white/20">
                     <Package className="w-16 h-16 text-slate-400" />
                   </div>
                 )}
@@ -117,9 +117,9 @@ const ProductQuickView = memo(
                 {[1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className="w-16 h-16 bg-slate-100 rounded-lg border-2 border-transparent hover:border-blue-500 cursor-pointer transition-colors"
+                    className="w-16 h-16 bg-white/10 rounded-lg border-2 border-white/20 hover:border-purple-500 cursor-pointer transition-colors"
                   >
-                    <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-md"></div>
+                    <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/10 rounded-md"></div>
                   </div>
                 ))}
               </div>
@@ -128,16 +128,16 @@ const ProductQuickView = memo(
             {/* Product Details */}
             <div className="space-y-6">
               <div>
-                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <span className="text-sm font-medium text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-1 rounded-full">
                   {product.category}
                 </span>
-                <h1 className="text-3xl font-bold text-slate-900 mt-3 mb-2">
+                <h1 className="text-3xl font-bold text-white mt-3 mb-2">
                   {product.name}
                 </h1>
 
                 {/* Description */}
                 {product.description && (
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4 bg-slate-50 p-3 rounded-lg border-l-4 border-blue-500">
+                  <p className="text-slate-300 text-sm leading-relaxed mb-4 bg-white/5 backdrop-blur-xl p-3 rounded-lg border-l-4 border-purple-500">
                     {product.description}
                   </p>
                 )}
@@ -152,7 +152,7 @@ const ProductQuickView = memo(
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-slate-300">
                     (4.8) • 142 reviews
                   </span>
                 </div>
@@ -161,17 +161,17 @@ const ProductQuickView = memo(
               {/* Price */}
               <div className="space-y-2">
                 <div className="flex items-baseline space-x-3">
-                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">
                     KES {product.selling_price.toLocaleString()}
                   </span>
                   <span className="text-lg text-slate-400 line-through">
                     KES {(product.selling_price * 1.2).toLocaleString()}
                   </span>
-                  <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-red-500/20 border border-red-500/30 text-red-300 px-2 py-1 rounded-full text-sm font-bold">
                     Save 20%
                   </span>
                 </div>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-400">
                   Including all taxes • Free shipping over KES 2,000
                 </p>
               </div>
@@ -187,7 +187,7 @@ const ProductQuickView = memo(
                       : "bg-red-500"
                   }`}
                 ></div>
-                <span className="font-medium">
+                <span className="font-medium text-white">
                   {product.quantity_in_stock > 10
                     ? "In Stock"
                     : product.quantity_in_stock > 0
@@ -198,30 +198,32 @@ const ProductQuickView = memo(
 
               {/* Quantity Selector */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-slate-700">
+                <label className="block text-sm font-medium text-slate-300">
                   Quantity
                 </label>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center border border-slate-300 rounded-lg">
+                  <div className="flex items-center border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 hover:bg-slate-50 transition-colors"
+                      className="p-2 hover:bg-white/10 transition-colors text-white"
                     >
                       -
                     </button>
-                    <span className="px-4 py-2 font-medium">{quantity}</span>
+                    <span className="px-4 py-2 font-medium text-white">
+                      {quantity}
+                    </span>
                     <button
                       onClick={() =>
                         setQuantity(
                           Math.min(product.quantity_in_stock, quantity + 1)
                         )
                       }
-                      className="p-2 hover:bg-slate-50 transition-colors"
+                      className="p-2 hover:bg-white/10 transition-colors text-white"
                     >
                       +
                     </button>
                   </div>
-                  <span className="text-sm text-slate-600">
+                  <span className="text-sm text-slate-400">
                     {product.quantity_in_stock} available
                   </span>
                 </div>
@@ -232,7 +234,7 @@ const ProductQuickView = memo(
                 <button
                   onClick={handleAddToCart}
                   disabled={product.quantity_in_stock === 0}
-                  className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-600 hover:via-purple-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/25"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>
@@ -246,8 +248,8 @@ const ProductQuickView = memo(
                     onClick={toggleLike}
                     className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
                       isLiked
-                        ? "bg-red-50 text-red-600 border-2 border-red-200"
-                        : "bg-slate-50 text-slate-600 border-2 border-slate-200 hover:bg-red-50 hover:text-red-600"
+                        ? "bg-red-500/20 text-red-300 border-2 border-red-500/30"
+                        : "bg-white/10 text-slate-300 border-2 border-white/20 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30"
                     }`}
                   >
                     <Heart
@@ -258,7 +260,7 @@ const ProductQuickView = memo(
 
                   <button
                     onClick={handleShare}
-                    className="flex-1 bg-slate-50 text-slate-600 py-3 px-4 rounded-xl hover:bg-slate-100 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-slate-200"
+                    className="flex-1 bg-white/10 text-slate-300 py-3 px-4 rounded-xl hover:bg-white/20 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-white/20"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
@@ -267,20 +269,24 @@ const ProductQuickView = memo(
               </div>
 
               {/* Product Details */}
-              <div className="space-y-4 pt-6 border-t border-slate-200">
-                <h3 className="font-bold text-slate-900">Product Details</h3>
+              <div className="space-y-4 pt-6 border-t border-white/20">
+                <h3 className="font-bold text-white">Product Details</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Category:</span>
-                    <span className="font-medium">{product.category}</span>
+                    <span className="text-slate-400">Category:</span>
+                    <span className="font-medium text-white">
+                      {product.category}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Product ID:</span>
-                    <span className="font-medium">{product.product_id}</span>
+                    <span className="text-slate-400">Product ID:</span>
+                    <span className="font-medium text-white">
+                      {product.product_id}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Availability:</span>
-                    <span className="font-medium text-green-600">In Stock</span>
+                    <span className="text-slate-400">Availability:</span>
+                    <span className="font-medium text-green-400">In Stock</span>
                   </div>
                 </div>
               </div>

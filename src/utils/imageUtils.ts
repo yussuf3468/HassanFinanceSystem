@@ -26,9 +26,9 @@ export const preloadImages = async (urls: string[]): Promise<void> => {
  */
 export const getOptimizedImageUrl = (
   url: string,
-  width?: number,
-  height?: number,
-  quality = 85
+  _width?: number,
+  _height?: number,
+  _quality = 85
 ): string => {
   // For future integration with image optimization services
   // Currently returns the original URL
@@ -80,10 +80,8 @@ export const loadImageWithRetry = (
           );
         }
       };
-
       img.src = src;
     };
-
     tryLoad();
   });
 };

@@ -26,21 +26,25 @@ export default function DeliveryAddressSelector({
   const [useCustom, setUseCustom] = useState(false);
 
   // Update delivery fee when location changes
+  // Note: don't include onDeliveryFeeChange in deps to avoid identity-change loops
   useEffect(() => {
     if (selectedLocation && onDeliveryFeeChange) {
       const fee = getDeliveryFee(selectedLocation);
       onDeliveryFeeChange(fee);
     }
-  }, [selectedLocation, onDeliveryFeeChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocation]);
 
   // Update form value when selections change
+  // Avoid putting onChange in deps; only emit when derived value actually changes
   useEffect(() => {
-    if (useCustom) {
-      onChange(customAddress);
-    } else if (selectedLocation) {
-      onChange(selectedLocation);
+    const nextValue = useCustom ? customAddress : selectedLocation;
+    // Only notify parent if value actually changed to prevent loops
+    if (nextValue !== undefined && nextValue !== value) {
+      onChange(nextValue);
     }
-  }, [selectedLocation, customAddress, useCustom, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocation, customAddress, useCustom, value]);
 
   const handleAreaChange = (area: string) => {
     setSelectedArea(area);

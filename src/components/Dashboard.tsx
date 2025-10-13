@@ -1,7 +1,30 @@
 import { useEffect, useState } from "react";
-import { Banknote, TrendingUp, Package, AlertTriangle } from "lucide-react";
+import {
+  Banknote,
+  TrendingUp,
+  Package,
+  AlertTriangle,
+  Receipt,
+} from "lucide-react";
 import { supabase } from "../lib/supabase";
-import type { DashboardStats, Product, Sale } from "../types";
+import type { Database } from "../lib/database.types";
+
+type Product = Database["public"]["Tables"]["products"]["Row"];
+type Sale = Database["public"]["Tables"]["sales"]["Row"];
+
+interface DashboardStats {
+  totalSales: number;
+  totalProfit: number;
+  lowStockCount: number;
+  totalProducts: number;
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-KE", {
+    style: "currency",
+    currency: "KES",
+  }).format(value);
+}
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -39,6 +62,7 @@ export default function Dashboard() {
         return;
       }
 
+      // Load business data (sales, products) - single-tenant (no filtering)
       const [salesRes, productsRes] = await Promise.all([
         supabase.from("sales").select("*"),
         supabase.from("products").select("*"),
@@ -99,122 +123,156 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="text-center space-y-3">
-        <h1 className="text-4xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Tusmada Guud - Dashboard Overview
-        </h1>
-        <p className="text-slate-600 font-medium">
-          Warbixin degdeg ah oo ku saabsan Hassan Muse BookShop
-        </p>
-      </div>
-
-      {/* Stats Grid with Staggered Animation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="animate-slideInLeft" style={{ animationDelay: "0.1s" }}>
-          <StatCard
-            title="Iibka Guud - Total Sales"
-            value={`KES ${stats.totalSales.toLocaleString()}`}
-            icon={Banknote}
-            color="blue"
-          />
-        </div>
-        <div className="animate-slideInLeft" style={{ animationDelay: "0.2s" }}>
-          <StatCard
-            title="Faa'iidada - Total Profit"
-            value={`KES ${stats.totalProfit.toLocaleString()}`}
-            icon={TrendingUp}
-            color="green"
-          />
-        </div>
-        <div className="animate-slideInLeft" style={{ animationDelay: "0.3s" }}>
-          <StatCard
-            title="Alaabta Guud - Total Products"
-            value={stats.totalProducts.toString()}
-            icon={Package}
-            color="purple"
-          />
-        </div>
-        <div className="animate-slideInLeft" style={{ animationDelay: "0.4s" }}>
-          <StatCard
-            title="Alaab Yaraatay - Low Stock"
-            value={stats.lowStockCount.toString()}
-            icon={AlertTriangle}
-            color="orange"
-          />
-        </div>
-      </div>
-
-      {/* Enhanced Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top Products Card */}
-        <div className="group bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-300">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
+      {/* Hero Section - Premium */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
+        <div className="relative">
+          <div className="text-center space-y-3">
+            <div className="inline-block">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
+                Hassan Muse BookShop
+              </h1>
             </div>
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              🏆 Alaabta Ugu Iibka Badan - Top Products
+            <p className="text-sm md:text-base text-slate-200 font-medium max-w-3xl mx-auto">
+              ✨ Premium ERP Dashboard • Real-Time Analytics
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-emerald-400">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+              <span className="text-xs font-semibold">Live System Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Grid - Premium with High Contrast */}
+      <div>
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
+          <h2 className="text-xl md:text-2xl font-bold text-white">
+            Business Overview
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div
+            className="group animate-slideInLeft"
+            style={{ animationDelay: "0.1s" }}
+          >
+            <StatCard
+              title="Iibka Guud - Total Sales"
+              value={formatCurrency(stats.totalSales)}
+              icon={Banknote}
+              color="blue"
+            />
+          </div>
+          <div
+            className="group animate-slideInLeft"
+            style={{ animationDelay: "0.2s" }}
+          >
+            <StatCard
+              title="Faa'iidada - Total Profit"
+              value={formatCurrency(stats.totalProfit)}
+              icon={TrendingUp}
+              color="green"
+            />
+          </div>
+          <div
+            className="group animate-slideInLeft"
+            style={{ animationDelay: "0.3s" }}
+          >
+            <StatCard
+              title="Alaabta Guud - Total Products"
+              value={stats.totalProducts.toString()}
+              icon={Package}
+              color="purple"
+            />
+          </div>
+          <div
+            className="group animate-slideInLeft"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <StatCard
+              title="Alaab Yaraatay - Low Stock"
+              value={stats.lowStockCount.toString()}
+              icon={AlertTriangle}
+              color="orange"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Content Grid - Premium Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        {/* Top Products Card */}
+        <div className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-1">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-2.5 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl shadow-xl">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-base md:text-lg font-bold text-white">
+              🏆 Top Products
             </h3>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {topProducts.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center">
-                  <Package className="w-8 h-8 text-slate-400" />
+                <div className="w-12 h-12 mx-auto mb-3 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20">
+                  <Package className="w-6 h-6 text-slate-400" />
                 </div>
-                <p className="text-slate-500 font-medium">
-                  Wali iib ma jirin - No sales data yet
+                <p className="text-sm font-bold text-white">
+                  No sales data yet
                 </p>
-                <p className="text-slate-400 text-sm">
-                  Bilow iibka si aad u aragto alaabta ugu iibka badan!
+                <p className="text-xs text-slate-400 mt-1">
+                  Start making sales to see analytics here
                 </p>
               </div>
             ) : (
               topProducts.map((item, index) => (
                 <div
                   key={item.product.id}
-                  className="group/item flex items-center space-x-4 p-4 bg-gradient-to-r from-white to-slate-50 rounded-xl border border-slate-100 hover:shadow-lg hover:scale-105 transition-all duration-300"
+                  className="group/item bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all duration-300 hover:scale-[1.01]"
                 >
-                  <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
-                      index === 0
-                        ? "bg-gradient-to-br from-yellow-400 to-yellow-600"
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg ${
+                        index === 0
+                          ? "bg-gradient-to-br from-yellow-500 to-orange-600"
+                          : index === 1
+                          ? "bg-gradient-to-br from-slate-500 to-slate-700"
+                          : index === 2
+                          ? "bg-gradient-to-br from-amber-600 to-orange-700"
+                          : "bg-gradient-to-br from-blue-500 to-cyan-600"
+                      }`}
+                    >
+                      {index === 0
+                        ? "🥇"
                         : index === 1
-                        ? "bg-gradient-to-br from-slate-400 to-slate-600"
+                        ? "🥈"
                         : index === 2
-                        ? "bg-gradient-to-br from-orange-400 to-orange-600"
-                        : "bg-gradient-to-br from-blue-400 to-blue-600"
-                    }`}
-                  >
-                    {index === 0
-                      ? "🥇"
-                      : index === 1
-                      ? "🥈"
-                      : index === 2
-                      ? "🥉"
-                      : index + 1}
-                  </div>
-                  {item.product.image_url && (
-                    <img
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 truncate">
-                      {item.product.name}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {item.product.category}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-slate-800">
-                      KES {item.total.toLocaleString()}
-                    </p>
+                        ? "🥉"
+                        : index + 1}
+                    </div>
+                    {item.product.image_url && (
+                      <img
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        className="w-10 h-10 object-cover rounded-lg border border-white/20"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white truncate text-sm">
+                        {item.product.name}
+                      </p>
+                      <p className="text-xs text-slate-400 font-medium">
+                        {item.product.category}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-white text-sm md:text-base">
+                        {formatCurrency(item.total)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))
@@ -222,32 +280,46 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">
-            Recent Sales
-          </h3>
+        {/* Recent Sales Card */}
+        <div className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl shadow-xl">
+              <Receipt className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-base md:text-lg font-bold text-white">
+              📊 Recent Sales
+            </h3>
+          </div>
           <div className="space-y-3">
             {recentSales.length === 0 ? (
-              <p className="text-slate-500 text-sm">No sales recorded yet</p>
+              <div className="text-center py-8">
+                <p className="text-sm font-bold text-white">
+                  No sales recorded yet
+                </p>
+              </div>
             ) : (
               recentSales.map((sale) => (
                 <div
                   key={sale.id}
-                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                  className="bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all duration-300 hover:scale-[1.01]"
                 >
-                  <div>
-                    <p className="font-medium text-slate-800">
-                      {new Date(sale.sale_date).toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-slate-500">{sale.sold_by}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-slate-800">
-                      KES {sale.total_sale.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-green-600">
-                      +KES {sale.profit.toLocaleString()}
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white text-xs md:text-sm">
+                        {new Date(sale.sale_date).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-slate-400 font-medium truncate">
+                        {sale.sold_by}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-4">
+                      <p className="font-black text-white text-sm md:text-base">
+                        {formatCurrency(sale.total_sale)}
+                      </p>
+                      <p className="text-xs text-emerald-400 font-bold">
+                        +{formatCurrency(sale.profit)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))
@@ -263,78 +335,78 @@ interface StatCardProps {
   title: string;
   value: string;
   icon: React.ElementType;
-  color: "blue" | "green" | "purple" | "orange";
+  color: "blue" | "green" | "purple" | "orange" | "red";
+  subtitle?: string;
 }
 
-function StatCard({ title, value, icon: Icon, color }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  color,
+  subtitle,
+}: StatCardProps) {
   const colorClasses = {
     blue: {
-      gradient: "from-blue-500 to-blue-600",
-      bg: "from-blue-50 to-blue-100",
-      text: "text-blue-700",
-      shadow: "shadow-blue-200",
-      glow: "shadow-blue-500/25",
+      gradient: "from-blue-600 to-cyan-600",
+      glow: "shadow-blue-500/50",
+      text: "text-blue-400",
     },
     green: {
-      gradient: "from-green-500 to-green-600",
-      bg: "from-green-50 to-green-100",
-      text: "text-green-700",
-      shadow: "shadow-green-200",
-      glow: "shadow-green-500/25",
+      gradient: "from-green-600 to-emerald-600",
+      glow: "shadow-emerald-500/50",
+      text: "text-emerald-400",
     },
     purple: {
-      gradient: "from-purple-500 to-purple-600",
-      bg: "from-purple-50 to-purple-100",
-      text: "text-purple-700",
-      shadow: "shadow-purple-200",
-      glow: "shadow-purple-500/25",
+      gradient: "from-purple-600 to-pink-600",
+      glow: "shadow-purple-500/50",
+      text: "text-purple-400",
     },
     orange: {
-      gradient: "from-orange-500 to-orange-600",
-      bg: "from-orange-50 to-orange-100",
-      text: "text-orange-700",
-      shadow: "shadow-orange-200",
-      glow: "shadow-orange-500/25",
+      gradient: "from-orange-600 to-amber-600",
+      glow: "shadow-orange-500/50",
+      text: "text-orange-400",
+    },
+    red: {
+      gradient: "from-red-600 to-rose-600",
+      glow: "shadow-rose-500/50",
+      text: "text-rose-400",
     },
   };
 
   const colors = colorClasses[color];
 
   return (
-    <div
-      className={`group relative bg-gradient-to-br ${colors.bg} backdrop-blur-sm rounded-2xl shadow-lg ${colors.shadow} border border-white/50 p-6 hover:shadow-xl hover:${colors.glow} transition-all duration-300 hover:scale-105 cursor-pointer`}
-    >
-      {/* Floating Background Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <div className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 md:p-6 shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
+      {/* Animated gradient background on hover */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+      ></div>
 
       <div className="relative flex items-center justify-between">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0 pr-4">
           <p
-            className={`text-sm font-bold ${colors.text} uppercase tracking-wide`}
+            className={`text-xs font-bold uppercase tracking-wider mb-2 ${colors.text}`}
           >
             {title}
           </p>
-          <p className="text-3xl font-black text-slate-800 mt-3 group-hover:scale-110 transition-transform duration-300">
+          <p className="text-xl sm:text-2xl font-black text-white truncate leading-tight">
             {value}
           </p>
+          {subtitle && (
+            <p className="text-xs text-slate-400 mt-1 truncate font-medium">
+              {subtitle}
+            </p>
+          )}
         </div>
-        <div className="relative">
-          {/* Glow Effect */}
+        <div className="flex-shrink-0">
           <div
-            className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300`}
-          ></div>
-          <div
-            className={`relative bg-gradient-to-br ${colors.gradient} p-4 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
+            className={`bg-gradient-to-br ${colors.gradient} p-2.5 md:p-3 rounded-2xl shadow-2xl ${colors.glow} group-hover:scale-110 transition-transform duration-300`}
           >
-            <Icon className="w-7 h-7 text-white group-hover:animate-pulse" />
+            <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
           </div>
         </div>
       </div>
-
-      {/* Animated Bottom Bar */}
-      <div
-        className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${colors.gradient} rounded-b-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}
-      ></div>
     </div>
   );
 }

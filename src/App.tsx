@@ -12,6 +12,10 @@ import UserActivityDashboard from "./components/UserActivityDashboard";
 import Orders from "./components/Orders";
 import CustomerStoreNew from "./components/CustomerStoreNew";
 import { Store, Settings } from "lucide-react";
+import FinancialDashboard from "./components/FinancialDashboard";
+import ExpenseManagement from "./components/ExpenseManagement";
+import InitialInvestment from "./components/InitialInvestment";
+import DebtManagement from "./components/DebtManagement";
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -95,6 +99,10 @@ function AppContent() {
         {activeTab === "search" && <Search />}
         {activeTab === "reports" && <Reports />}
         {activeTab === "user-activity" && <UserActivityDashboard />}
+        {activeTab === "financial-dashboard" && <FinancialDashboard />}
+        {activeTab === "expenses" && <ExpenseManagement />}
+        {activeTab === "investments" && <InitialInvestment />}
+        {activeTab === "debts" && <DebtManagement />}
       </Layout>
     </div>
   );
