@@ -1,6 +1,6 @@
 # Hassan Financial System 💼
 
-A comprehensive financial management system for Hassan Muse BookShop with a modern dark glassmorphic UI.
+A comprehensive financial management system for Hassan Muse BookShop & Cyber Café with a modern dark glassmorphic UI and collapsible sidebar navigation.
 
 ## ✨ Features
 
@@ -8,26 +8,35 @@ A comprehensive financial management system for Hassan Muse BookShop with a mode
 
 - **Inventory Management** - Track products, stock levels, and reorder alerts
 - **Sales Management** - Process sales, manage orders, and track revenue
+- **Cyber Services** - Track income from cyber café services (photocopy, printing, scanning, editing, etc.)
 - **Financial Tracking**
   - Initial Investment tracking
+  - Automatic dividend calculation for investors
   - Debt Management with payment schedules
   - Expense Management and categorization
   - Comprehensive financial reports
 - **Customer Portal** - Modern e-commerce interface for customers
 - **Order Management** - Track orders from placement to delivery
 - **User Authentication** - Secure login and role-based access
+- **User Activity Dashboard** - Monitor staff activities and system usage
 
 ### 🎨 Modern Dark Glassmorphic UI
 
 - Beautiful dark theme with glassmorphic effects
-- Smooth animations and transitions
-- Responsive design for all devices
+- **Collapsible Sidebar Navigation** (Desktop) - Default collapsed for maximum screen space
+  - Smooth expand/collapse transitions
+  - Icon-only view when collapsed
+  - Enhanced toggle button with glow effects
+- **Responsive Design** - Optimized for mobile, tablet, and desktop
+- **Compact Layout** - Reduced spacing and padding for better content density
 - Component-specific color theming:
-  - Emerald/Green for investments
+  - Emerald/Green for investments & profits
+  - Cyan/Blue for cyber services
   - Red/Rose for debts
-  - Purple/Blue for general UI
+  - Purple/Pink for general UI
 - Backdrop blur and translucent panels
 - Gradient accents and hover effects
+- Hidden scrollbars for cleaner appearance
 
 ## 🚀 Tech Stack
 
@@ -37,14 +46,15 @@ A comprehensive financial management system for Hassan Muse BookShop with a mode
 - **Build Tool:** Vite
 - **Icons:** Lucide React
 - **State Management:** React Context API
+- **Date Formatting:** Custom utility functions for dd/mm/yyyy format
 
 ## 📦 Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yussuf3468/HassanFinanceSystem.git
-cd HassanFinanceSystem/bookStore
+git clone https://github.com/yussuf3468/TopGearLandingPage.git
+cd TopGearLandingPage/bookStore
 ```
 
 2. Install dependencies:
@@ -138,9 +148,10 @@ bookStore/
   - Secondary: `text-slate-300`
   - Tertiary: `text-slate-400`
 - **Accents:**
-  - Investment: Emerald/Green
+  - Investment/Profit: Emerald/Green
+  - Cyber Services: Cyan/Blue
   - Debts: Red/Rose
-  - General: Purple/Blue
+  - General: Purple/Pink
 
 ### Components
 
@@ -148,13 +159,94 @@ bookStore/
 - Gradient buttons and badges
 - Smooth hover transitions
 - Responsive layouts
+- Collapsible sidebar navigation
+- Compact spacing for optimal screen utilization
+
+## 🚀 Deployment
+
+### Prerequisites
+
+- Node.js 18+ installed
+- Supabase account with project created
+- Database tables created and configured
+
+### Deploy to Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project to Vercel:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+3. Configure environment variables:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Click "Deploy"
+
+### Deploy to Netlify
+
+1. Build the project:
+```bash
+npm run build
+```
+
+2. Deploy to Netlify:
+   - Drag and drop the `dist` folder to [Netlify Drop](https://app.netlify.com/drop)
+   - Or use Netlify CLI:
+```bash
+npm install -g netlify-cli
+netlify deploy --prod
+```
+
+### Manual Deployment
+
+1. Build the production bundle:
+```bash
+npm run build
+```
+
+2. The `dist` folder contains all static files ready for deployment
+3. Upload to any static hosting service (AWS S3, Azure, etc.)
+
+### Environment Variables
+
+Required for production:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 ## 🔐 Security
 
 - Row Level Security (RLS) policies on all tables
 - Secure authentication with Supabase Auth
-- Role-based access control
+- Role-based access control (Admin/Staff)
 - Protected admin routes
+- Secure environment variables
+
+## 📱 Browser Support
+
+- Chrome (recommended)
+- Firefox
+- Safari
+- Edge
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## 🎯 Performance
+
+- Lazy loading for images
+- Code splitting with Vite
+- Optimized bundle size
+- Fast refresh during development
+- Production-ready build with minification
+
+## 📈 Recent Updates (Latest Commit)
+
+✅ **UI Enhancement: Compact Layout**
+- Collapsible sidebar navigation (default collapsed)
+- Reduced spacing and font sizes across all components
+- Fixed mobile navbar overlap
+- Enhanced toggle button visibility
+- Improved text display in stat cards
 
 ## 📈 Future Enhancements
 
@@ -165,6 +257,7 @@ bookStore/
 - [ ] Multi-language support (Somali/English)
 - [ ] PDF report generation
 - [ ] Integration with payment gateways
+- [ ] Offline mode with PWA
 
 ## 🤝 Contributing
 
@@ -176,9 +269,10 @@ This project is private and proprietary to Hassan Muse BookShop.
 
 ## 👨‍💻 Developer
 
-Created by Yussuf
+Created by Yussuf Hassan Muse
 
 - GitHub: [@yussuf3468](https://github.com/yussuf3468)
+- Email: yussufhassan3468@gmail.com
 
 ## 🙏 Acknowledgments
 
