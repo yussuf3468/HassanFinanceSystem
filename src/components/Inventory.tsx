@@ -89,7 +89,9 @@ export default function Inventory() {
         return;
       }
 
-      alert(`✅ Successfully deleted "${product.name}" and all related records!`);
+      alert(
+        `✅ Successfully deleted "${product.name}" and all related records!`
+      );
       await loadProducts();
     } catch (error) {
       console.error("Error deleting product:", error);

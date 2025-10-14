@@ -5,6 +5,7 @@ A comprehensive financial management system for Hassan Muse BookShop with a mode
 ## ✨ Features
 
 ### 📊 Core Functionality
+
 - **Inventory Management** - Track products, stock levels, and reorder alerts
 - **Sales Management** - Process sales, manage orders, and track revenue
 - **Financial Tracking**
@@ -17,6 +18,7 @@ A comprehensive financial management system for Hassan Muse BookShop with a mode
 - **User Authentication** - Secure login and role-based access
 
 ### 🎨 Modern Dark Glassmorphic UI
+
 - Beautiful dark theme with glassmorphic effects
 - Smooth animations and transitions
 - Responsive design for all devices
@@ -39,30 +41,35 @@ A comprehensive financial management system for Hassan Muse BookShop with a mode
 ## 📦 Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yussuf3468/HassanFinanceSystem.git
 cd HassanFinanceSystem/bookStore
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 4. Set up the database:
+
 - Run the SQL scripts in order:
   1. `SUPABASE_FULL_BOOTSTRAP.sql` - Main database schema
   2. `SUPABASE_FINANCIALS.sql` - Financial tables
   3. `SUPABASE_PATCH_*.sql` - Any patches as needed
 
 5. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -92,11 +99,13 @@ bookStore/
 ## 📱 Key Components
 
 ### Admin Dashboard
+
 - **StatCards** - Real-time financial metrics
 - **Reports** - Comprehensive financial reports
 - **User Activity** - Track system usage
 
 ### Inventory Management
+
 - Product CRUD operations
 - Image upload and management
 - Stock level alerts
@@ -104,12 +113,14 @@ bookStore/
 - Detailed product view modal
 
 ### Financial Management
+
 - **Initial Investment** - Track startup capital and sources
 - **Debt Management** - Monitor loans and repayment schedules
 - **Expense Management** - Categorize and track business expenses
 - Real-time financial analytics
 
 ### Customer Store
+
 - Beautiful product showcase
 - Advanced search with suggestions
 - Shopping cart with glassmorphic design
@@ -119,9 +130,10 @@ bookStore/
 ## 🎨 Design System
 
 ### Colors
+
 - **Background:** Dark gradient (`from-slate-900 via-purple-900 to-slate-900`)
 - **Glass Panels:** `bg-white/10 backdrop-blur-xl border-white/20`
-- **Text Hierarchy:** 
+- **Text Hierarchy:**
   - Primary: `text-white`
   - Secondary: `text-slate-300`
   - Tertiary: `text-slate-400`
@@ -131,6 +143,7 @@ bookStore/
   - General: Purple/Blue
 
 ### Components
+
 - Glassmorphic cards with backdrop blur
 - Gradient buttons and badges
 - Smooth hover transitions
@@ -164,6 +177,7 @@ This project is private and proprietary to Hassan Muse BookShop.
 ## 👨‍💻 Developer
 
 Created by Yussuf
+
 - GitHub: [@yussuf3468](https://github.com/yussuf3468)
 
 ## 🙏 Acknowledgments

@@ -361,29 +361,22 @@ export default function Search() {
                     <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-xl p-4 border border-emerald-500/30">
                       <div className="flex items-center space-x-2 mb-2">
                         <DollarSign className="w-5 h-5 text-emerald-400" />
-                        <span className="font-semibold text-white">
-                          Cost Price
-                        </span>
+                        <span className="font-semibold text-white">Price</span>
                       </div>
                       <p className="text-emerald-300 font-semibold text-lg">
-                        KES{" "}
-                        {(viewingProduct.buying_price || 0).toLocaleString()}
+                        KES {viewingProduct.selling_price.toLocaleString()}
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-xl p-4 border border-orange-500/30">
+                    <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 rounded-xl p-4 border border-orange-500/30">
                       <div className="flex items-center space-x-2 mb-2">
-                        <BarChart3 className="w-5 h-5 text-orange-400" />
+                        <Tag className="w-5 h-5 text-orange-400" />
                         <span className="font-semibold text-white">
-                          Profit Margin
+                          Category
                         </span>
                       </div>
                       <p className="text-orange-300 font-semibold text-lg">
-                        KES{" "}
-                        {(
-                          (viewingProduct.selling_price || 0) -
-                          (viewingProduct.buying_price || 0)
-                        ).toLocaleString()}
+                        {viewingProduct.category}
                       </p>
                     </div>
                   </div>

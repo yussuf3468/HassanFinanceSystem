@@ -472,7 +472,9 @@ const Orders = () => {
                         <span>View</span>
                       </button>
                       <button
-                        onClick={() => deleteOrder(order.id, order.order_number)}
+                        onClick={() =>
+                          deleteOrder(order.id, order.order_number)
+                        }
                         className="text-red-400 hover:text-red-300 flex items-center space-x-1 hover:bg-red-600/20 px-3 py-1.5 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -714,7 +716,9 @@ const Orders = () => {
               {/* Delete Order Button */}
               <div className="pt-4 border-t border-white/20">
                 <button
-                  onClick={() => deleteOrder(selectedOrder.id, selectedOrder.order_number)}
+                  onClick={() =>
+                    deleteOrder(selectedOrder.id, selectedOrder.order_number)
+                  }
                   className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   <Trash2 className="w-4 h-4" />
