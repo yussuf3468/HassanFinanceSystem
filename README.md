@@ -54,6 +54,7 @@ A comprehensive financial management system for Hassan Muse BookShop & Cyber Caf
 This project includes **automated nightly backups** of your Supabase database using GitHub Actions.
 
 ### Features:
+
 - ⏰ **Scheduled Backups** - Runs every night at 2:00 AM UTC
 - 📦 **Triple Backup** - Schema, data, and full backups
 - 💾 **30-Day Retention** - Stored as GitHub artifacts
@@ -62,6 +63,7 @@ This project includes **automated nightly backups** of your Supabase database us
 - ☁️ **Optional Cloud Storage** - Supports AWS S3, Google Cloud, Azure
 
 ### Quick Setup:
+
 1. Add these secrets to your GitHub repository:
    - `SUPABASE_ACCESS_TOKEN`
    - `SUPABASE_PROJECT_ID`
@@ -208,6 +210,7 @@ bookStore/
 ### Deploy to Netlify
 
 1. Build the project:
+
 ```bash
 npm run build
 ```
@@ -215,6 +218,7 @@ npm run build
 2. Deploy to Netlify:
    - Drag and drop the `dist` folder to [Netlify Drop](https://app.netlify.com/drop)
    - Or use Netlify CLI:
+
 ```bash
 npm install -g netlify-cli
 netlify deploy --prod
@@ -223,6 +227,7 @@ netlify deploy --prod
 ### Manual Deployment
 
 1. Build the production bundle:
+
 ```bash
 npm run build
 ```
@@ -233,6 +238,7 @@ npm run build
 ### Environment Variables
 
 Required for production:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -265,6 +271,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## 📈 Recent Updates (Latest Commit)
 
 ✅ **UI Enhancement: Compact Layout**
+
 - Collapsible sidebar navigation (default collapsed)
 - Reduced spacing and font sizes across all components
 - Fixed mobile navbar overlap

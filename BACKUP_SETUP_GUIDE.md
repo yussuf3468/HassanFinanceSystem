@@ -32,11 +32,11 @@ Automated nightly backups of your Supabase database using GitHub Actions. Backup
 3. Click **New repository secret**
 4. Add these three secrets:
 
-| Secret Name | Description | Example |
-|------------|-------------|---------|
-| `SUPABASE_ACCESS_TOKEN` | Your Supabase access token | `sbp_abc123...` |
-| `SUPABASE_PROJECT_ID` | Your project reference ID | `abcdefghijklmnop` |
-| `SUPABASE_DB_PASSWORD` | Your database password | `your-db-password` |
+| Secret Name             | Description                | Example            |
+| ----------------------- | -------------------------- | ------------------ |
+| `SUPABASE_ACCESS_TOKEN` | Your Supabase access token | `sbp_abc123...`    |
+| `SUPABASE_PROJECT_ID`   | Your project reference ID  | `abcdefghijklmnop` |
+| `SUPABASE_DB_PASSWORD`  | Your database password     | `your-db-password` |
 
 ---
 
@@ -48,10 +48,11 @@ Edit `.github/workflows/database-backup.yml`:
 
 ```yaml
 schedule:
-  - cron: '0 2 * * *'  # Default: 2:00 AM UTC daily
+  - cron: "0 2 * * *" # Default: 2:00 AM UTC daily
 ```
 
 Common schedules:
+
 - `'0 2 * * *'` - Every day at 2:00 AM UTC
 - `'0 */6 * * *'` - Every 6 hours
 - `'0 2 * * 0'` - Every Sunday at 2:00 AM UTC
@@ -62,7 +63,7 @@ Common schedules:
 Change `retention-days` in the workflow:
 
 ```yaml
-retention-days: 30  # Default: 30 days
+retention-days: 30 # Default: 30 days
 # Options: 1-90 days (GitHub Free)
 #         1-400 days (GitHub Pro/Team/Enterprise)
 ```
@@ -74,12 +75,14 @@ retention-days: 30  # Default: 30 days
 The backup system creates three files:
 
 1. **Schema Backup** (`schema_*.sql`)
+
    - Database structure
    - Tables, views, functions
    - Indexes and constraints
    - RLS policies
 
 2. **Data Backup** (`data_*.sql`)
+
    - All table data
    - No schema definitions
 
@@ -137,6 +140,7 @@ gh workflow run database-backup.yml
 ## 📊 Backup Report
 
 Each backup includes a detailed report showing:
+
 - Backup timestamp
 - Status (success/failure)
 - File sizes
@@ -181,6 +185,7 @@ For longer retention or compliance, you can upload backups to cloud storage.
 ### AWS S3
 
 Uncomment the S3 section in the workflow and add these secrets:
+
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_REGION`
@@ -289,23 +294,28 @@ Before relying on automated backups:
 ## 🚨 Troubleshooting
 
 ### Error: "Invalid access token"
+
 - Verify `SUPABASE_ACCESS_TOKEN` is correct
 - Token may have expired - generate a new one
 
 ### Error: "Project not found"
+
 - Check `SUPABASE_PROJECT_ID` matches your project
 - Ensure you're using the Reference ID, not the project name
 
 ### Error: "Authentication failed"
+
 - Verify `SUPABASE_DB_PASSWORD` is correct
 - Try resetting password in Supabase Dashboard
 
 ### Backup file is empty
+
 - Check workflow logs for errors
 - Ensure database has data to backup
 - Verify Supabase CLI version is compatible
 
 ### Artifact not found
+
 - Check workflow run completed successfully
 - Artifacts expire after retention period
 - Verify artifact name matches date format
@@ -315,19 +325,23 @@ Before relying on automated backups:
 ## 📈 Best Practices
 
 1. **Test Restores Regularly**
+
    - Monthly restore tests to a development environment
    - Verify data integrity after restore
 
 2. **Monitor Backup Size**
+
    - Large databases may hit GitHub's limits
    - Consider external storage for large backups
 
 3. **Secure Your Secrets**
+
    - Never commit secrets to Git
    - Rotate access tokens periodically
    - Use least-privilege access
 
 4. **Document Recovery Procedures**
+
    - Keep restore instructions accessible
    - Train team members on recovery process
 
@@ -341,11 +355,13 @@ Before relying on automated backups:
 ## 📞 Support
 
 **Issues with this backup system?**
+
 - Check workflow logs in GitHub Actions
 - Review Supabase CLI documentation
 - Contact: yussufhassan3468@gmail.com
 
 **Supabase Support:**
+
 - [Supabase Docs](https://supabase.com/docs)
 - [Supabase Discord](https://discord.supabase.com)
 

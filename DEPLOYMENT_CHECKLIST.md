@@ -3,6 +3,7 @@
 ## Pre-Deployment
 
 ### ✅ Code Quality
+
 - [x] All features tested locally
 - [x] No console errors in production build
 - [x] Mobile responsiveness verified
@@ -10,6 +11,7 @@
 - [x] Code committed to Git
 
 ### ✅ Environment Setup
+
 - [ ] Supabase project created
 - [ ] Database tables created (run SQL migrations)
 - [ ] RLS policies enabled on all tables
@@ -19,14 +21,16 @@
 ### ✅ Database Setup (Supabase)
 
 1. **Run Migrations:**
+
    - `create_cyber_services_table.sql` in `supabase/migrations/`
    - Verify all other tables exist (products, sales, orders, etc.)
 
 2. **Enable RLS:**
+
    ```sql
    -- Verify RLS is enabled on all tables
-   SELECT tablename, rowsecurity 
-   FROM pg_tables 
+   SELECT tablename, rowsecurity
+   FROM pg_tables
    WHERE schemaname = 'public';
    ```
 
@@ -38,6 +42,7 @@
 ### ✅ Configuration Files
 
 1. **Environment Variables (.env)**
+
    ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -53,6 +58,7 @@
 ### Option 1: Vercel (Recommended) 🎯
 
 1. **Push to GitHub:**
+
    ```bash
    git add .
    git commit -m "Ready for deployment"
@@ -60,6 +66,7 @@
    ```
 
 2. **Deploy to Vercel:**
+
    - Go to [vercel.com](https://vercel.com)
    - Click "New Project"
    - Import GitHub repository
@@ -75,11 +82,13 @@
 ### Option 2: Netlify
 
 1. **Build Project:**
+
    ```bash
    npm run build
    ```
 
 2. **Deploy:**
+
    - Drag `dist` folder to [Netlify Drop](https://app.netlify.com/drop)
    - Or use CLI:
      ```bash
@@ -95,6 +104,7 @@
 ### Option 3: Manual (Any Static Host)
 
 1. **Build:**
+
    ```bash
    npm run build
    ```
@@ -108,6 +118,7 @@
 ## Post-Deployment
 
 ### ✅ Testing Checklist
+
 - [ ] Application loads successfully
 - [ ] Login/Authentication works
 - [ ] Dashboard displays correctly
@@ -122,12 +133,14 @@
 - [ ] No JavaScript errors in console
 
 ### ✅ Performance
+
 - [ ] Page load time < 3 seconds
 - [ ] Images optimized
 - [ ] No unnecessary network requests
 - [ ] Bundle size reasonable
 
 ### ✅ Security
+
 - [ ] HTTPS enabled
 - [ ] Supabase RLS policies active
 - [ ] No API keys exposed in client
@@ -137,11 +150,13 @@
 ## Monitoring
 
 ### Set Up Analytics (Optional)
+
 - Google Analytics
 - Vercel Analytics
 - Supabase Analytics
 
 ### Error Tracking (Optional)
+
 - Sentry
 - LogRocket
 - Rollbar
@@ -151,6 +166,7 @@
 If deployment fails:
 
 1. **Vercel/Netlify:**
+
    - Use built-in rollback to previous deployment
 
 2. **Manual:**
