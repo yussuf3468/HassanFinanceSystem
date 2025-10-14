@@ -47,6 +47,29 @@ A comprehensive financial management system for Hassan Muse BookShop & Cyber Caf
 - **Icons:** Lucide React
 - **State Management:** React Context API
 - **Date Formatting:** Custom utility functions for dd/mm/yyyy format
+- **Automated Backups:** GitHub Actions (nightly database backups)
+
+## 🔐 Automated Database Backups
+
+This project includes **automated nightly backups** of your Supabase database using GitHub Actions.
+
+### Features:
+- ⏰ **Scheduled Backups** - Runs every night at 2:00 AM UTC
+- 📦 **Triple Backup** - Schema, data, and full backups
+- 💾 **30-Day Retention** - Stored as GitHub artifacts
+- 🔄 **Manual Trigger** - Run backups anytime via GitHub Actions
+- 📊 **Backup Reports** - Detailed logs for each backup
+- ☁️ **Optional Cloud Storage** - Supports AWS S3, Google Cloud, Azure
+
+### Quick Setup:
+1. Add these secrets to your GitHub repository:
+   - `SUPABASE_ACCESS_TOKEN`
+   - `SUPABASE_PROJECT_ID`
+   - `SUPABASE_DB_PASSWORD`
+2. Backups run automatically every night
+3. Download backups from GitHub Actions → Artifacts
+
+📖 **Full Documentation:** See [`BACKUP_SETUP_GUIDE.md`](./BACKUP_SETUP_GUIDE.md) for detailed setup instructions, restore procedures, and best practices.
 
 ## 📦 Installation
 
