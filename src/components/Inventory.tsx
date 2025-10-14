@@ -48,7 +48,7 @@ export default function Inventory() {
     const product = products.find((p) => p.id === id);
     if (!product) return;
 
-    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete the product completely`;
+    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka dhammaan order items ee ku saabsan alaabtan\n3. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete ALL order items for this product\n3. Delete the product completely\n\nThis action cannot be undone!`;
 
     if (!confirm(deleteMessage)) return;
 
@@ -65,7 +65,19 @@ export default function Inventory() {
         return;
       }
 
-      // Then delete the product
+      // Then delete all order items for this product
+      const { error: orderItemsError } = await supabase
+        .from("order_items")
+        .delete()
+        .eq("product_id", id);
+
+      if (orderItemsError) {
+        console.error("Error deleting order items:", orderItemsError);
+        alert("Failed to delete order items. Please try again.");
+        return;
+      }
+
+      // Finally delete the product
       const { error: productError } = await supabase
         .from("products")
         .delete()
@@ -77,7 +89,7 @@ export default function Inventory() {
         return;
       }
 
-      alert(`✅ Successfully deleted "${product.name}" and all related sales!`);
+      alert(`✅ Successfully deleted "${product.name}" and all related records!`);
       await loadProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
