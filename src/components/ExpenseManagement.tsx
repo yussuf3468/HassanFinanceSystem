@@ -11,6 +11,7 @@ import { supabase } from "../lib/supabase";
 import type { Database } from "../lib/database.types";
 import DatabaseSetupNotice from "./DatabaseSetupNotice.tsx";
 import ModalPortal from "./ModalPortal.tsx";
+import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
 type DbExpense = Database["public"]["Tables"]["expenses"]["Row"];
 type DbCategory = Database["public"]["Tables"]["expense_categories"]["Row"];
@@ -47,7 +48,7 @@ export default function ExpenseManagement() {
     category: "",
     description: "",
     amount: 0,
-    date: new Date().toISOString().split("T")[0],
+    date: getCurrentDateForInput(),
     notes: "",
   });
 
@@ -233,7 +234,7 @@ export default function ExpenseManagement() {
       category: "",
       description: "",
       amount: 0,
-      date: new Date().toISOString().split("T")[0],
+      date: getCurrentDateForInput(),
       notes: "",
     });
   }
@@ -475,7 +476,7 @@ export default function ExpenseManagement() {
                         className="hover:bg-white/5 transition-colors"
                       >
                         <td className="px-6 py-4 text-sm text-slate-300">
-                          {new Date(expense.date).toLocaleDateString()}
+                          {formatDate(expense.date)}
                         </td>
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
@@ -549,7 +550,7 @@ export default function ExpenseManagement() {
                             {expense.description}
                           </h4>
                           <p className="text-xs text-slate-400">
-                            {new Date(expense.date).toLocaleDateString()}
+                            {formatDate(expense.date)}
                           </p>
                         </div>
                         <div className="text-right">

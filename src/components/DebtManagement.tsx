@@ -14,6 +14,7 @@ import {
 import { supabase } from "../lib/supabase";
 // Multitenancy removed
 import ModalPortal from "./ModalPortal.tsx";
+import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
 interface Debt {
   id: string;
@@ -94,7 +95,7 @@ export default function DebtManagement() {
     debt_type: "Personal Loan",
     principal_amount: 0,
     interest_rate: 0,
-    borrowed_date: new Date().toISOString().split("T")[0],
+    borrowed_date: getCurrentDateForInput(),
     due_date: "",
     purpose: "",
     notes: "",
@@ -103,7 +104,7 @@ export default function DebtManagement() {
   const [paymentForm, setPaymentForm] = useState<PaymentForm>({
     debt_id: "",
     payment_amount: 0,
-    payment_date: new Date().toISOString().split("T")[0],
+    payment_date: getCurrentDateForInput(),
     payment_method: "Cash",
     notes: "",
   });
@@ -333,7 +334,7 @@ export default function DebtManagement() {
       debt_type: "Personal Loan",
       principal_amount: 0,
       interest_rate: 0,
-      borrowed_date: new Date().toISOString().split("T")[0],
+      borrowed_date: getCurrentDateForInput(),
       due_date: "",
       purpose: "",
       notes: "",
@@ -344,7 +345,7 @@ export default function DebtManagement() {
     setPaymentForm({
       debt_id: "",
       payment_amount: 0,
-      payment_date: new Date().toISOString().split("T")[0],
+      payment_date: getCurrentDateForInput(),
       payment_method: "Cash",
       notes: "",
     });
@@ -578,7 +579,7 @@ export default function DebtManagement() {
                           KES {debt.current_balance.toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-300">
-                          {new Date(debt.due_date).toLocaleDateString()}
+                          {formatDate(debt.due_date)}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
@@ -668,10 +669,7 @@ export default function DebtManagement() {
                               Principal: KES{" "}
                               {debt.principal_amount.toLocaleString()}
                             </span>
-                            <span>
-                              Due:{" "}
-                              {new Date(debt.due_date).toLocaleDateString()}
-                            </span>
+                            <span>Due: {formatDate(debt.due_date)}</span>
                             {debt.interest_rate > 0 && (
                               <span>Interest: {debt.interest_rate}%</span>
                             )}

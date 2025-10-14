@@ -16,6 +16,7 @@ import {
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
 import ProductForm from "./ProductForm";
+import { formatDate } from "../utils/dateFormatter";
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -129,21 +130,21 @@ export default function Inventory() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white">
+          <h2 className="text-lg sm:text-xl font-bold text-white">
             Inventory Management
           </h2>
-          <p className="text-slate-300 mt-1 text-sm sm:text-base">
+          <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
             Manage your bookstore products
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-6 py-3 rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto font-semibold"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-5 py-2.5 rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto font-semibold text-sm"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           <span>Add Product</span>
         </button>
       </div>
@@ -154,19 +155,19 @@ export default function Inventory() {
           <table className="w-full">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibsiga - Buying Price
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibka - Selling Price
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Stock
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
@@ -193,7 +194,7 @@ export default function Inventory() {
                       key={product.id}
                       className="hover:bg-white/5 transition-colors"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div className="flex items-center space-x-3">
                           {product.image_url ? (
                             <button
@@ -203,15 +204,15 @@ export default function Inventory() {
                               <img
                                 src={product.image_url}
                                 alt={product.name}
-                                className="w-12 h-12 object-cover rounded-lg"
+                                className="w-10 h-10 object-cover rounded-lg"
                               />
                             </button>
                           ) : (
                             <button
                               onClick={() => handleView(product)}
-                              className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
+                              className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                             >
-                              <Package className="w-5 h-5 text-slate-400" />
+                              <Package className="w-4 h-4 text-slate-400" />
                             </button>
                           )}
                           <div>
@@ -616,17 +617,13 @@ export default function Inventory() {
                         <div>
                           <p className="text-slate-300">Created:</p>
                           <p className="font-medium text-white">
-                            {new Date(
-                              viewingProduct.created_at
-                            ).toLocaleDateString()}
+                            {formatDate(viewingProduct.created_at)}
                           </p>
                         </div>
                         <div>
                           <p className="text-slate-300">Last Updated:</p>
                           <p className="font-medium text-white">
-                            {new Date(
-                              viewingProduct.updated_at
-                            ).toLocaleDateString()}
+                            {formatDate(viewingProduct.updated_at)}
                           </p>
                         </div>
                       </div>

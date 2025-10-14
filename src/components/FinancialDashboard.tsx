@@ -14,8 +14,11 @@ import {
   BarChart3,
   Download,
   Sun,
+  Users,
+  Percent,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
   totalSales: number;
@@ -40,6 +43,20 @@ interface ExpenseByCategory {
   percentage: number;
 }
 
+interface InvestorDividend {
+  id: string;
+  investor_name: string;
+  amount: number;
+  date: string;
+  category: string;
+  ownership_percentage: number;
+  months_since_investment: number;
+  payout_cycles: number;
+  dividend_per_cycle: number;
+  total_dividends: number;
+  next_payout_date: string;
+}
+
 export default function FinancialDashboard() {
   const [stats, setStats] = useState<FinancialStats>({
     totalSales: 0,
@@ -60,6 +77,9 @@ export default function FinancialDashboard() {
   const [expenseBreakdown, setExpenseBreakdown] = useState<ExpenseByCategory[]>(
     []
   );
+  const [investorDividends, setInvestorDividends] = useState<
+    InvestorDividend[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +90,7 @@ export default function FinancialDashboard() {
     const today = new Date();
     const reportData = {
       generatedAt: today.toISOString(),
-      reportDate: today.toLocaleDateString(),
+      reportDate: formatDate(today),
       businessName: "Lenzro ERP",
 
       // Executive Summary
@@ -470,11 +490,93 @@ export default function FinancialDashboard() {
         .sort((a, b) => b.amount - a.amount);
 
       setExpenseBreakdown(breakdown);
+
+      // Calculate investor dividends
+      calculateInvestorDividends(investments, totalProfit, totalInvestment);
     } catch (error) {
       console.error("Error loading financial data:", error);
     } finally {
       setLoading(false);
     }
+  }
+
+  function calculateInvestorDividends(
+    investments: any[],
+    totalProfit: number,
+    totalInvestmentAmount: number
+  ) {
+    const today = new Date();
+    const dividendData: InvestorDividend[] = [];
+
+    investments.forEach((investment) => {
+      // Validate investment date - check both 'date' and 'invested_on' fields
+      const dateValue = investment.date || investment.invested_on;
+      if (!dateValue) {
+        console.log("Skipping investment without date:", investment);
+        return;
+      }
+
+      const investmentDate = new Date(dateValue);
+
+      // Check if date is valid
+      if (isNaN(investmentDate.getTime())) {
+        console.log("Invalid investment date:", dateValue);
+        return;
+      }
+
+      const monthsSinceInvestment = Math.floor(
+        (today.getTime() - investmentDate.getTime()) /
+          (1000 * 60 * 60 * 24 * 30)
+      );
+
+      // Calculate ownership percentage
+      const ownershipPercentage =
+        totalInvestmentAmount > 0
+          ? (investment.amount / totalInvestmentAmount) * 100
+          : 0;
+
+      // Calculate payout cycles (every 6 months)
+      const payoutCycles = Math.max(0, Math.floor(monthsSinceInvestment / 6));
+
+      // Calculate dividend per cycle (based on ownership percentage of profit)
+      const dividendPerCycle = (totalProfit * ownershipPercentage) / 100 / 2; // Divided by 2 for bi-annual payments
+
+      // Calculate total dividends earned so far
+      const totalDividends = dividendPerCycle * payoutCycles;
+
+      // Calculate next payout date
+      const nextPayoutDate = new Date(investmentDate.getTime());
+      const monthsToAdd = (payoutCycles + 1) * 6;
+      nextPayoutDate.setMonth(investmentDate.getMonth() + monthsToAdd);
+
+      // Ensure next payout date is valid
+      let nextPayoutDateStr = today.toISOString().split("T")[0]; // fallback to today
+      if (!isNaN(nextPayoutDate.getTime())) {
+        nextPayoutDateStr = nextPayoutDate.toISOString().split("T")[0];
+      }
+
+      dividendData.push({
+        id: investment.id,
+        investor_name:
+          investment.investor_name ||
+          investment.notes ||
+          investment.description ||
+          investment.source ||
+          "Unknown Investor",
+        amount: investment.amount,
+        date: dateValue,
+        category:
+          investment.category || investment.source || "General Investment",
+        ownership_percentage: ownershipPercentage,
+        months_since_investment: monthsSinceInvestment,
+        payout_cycles: payoutCycles,
+        dividend_per_cycle: dividendPerCycle,
+        total_dividends: totalDividends,
+        next_payout_date: nextPayoutDateStr,
+      });
+    });
+
+    setInvestorDividends(dividendData);
   }
 
   if (loading) {
@@ -917,6 +1019,216 @@ export default function FinancialDashboard() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Investor Dividends Section */}
+      <div className="bg-white/10 backdrop-blur-2xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white flex items-center space-x-2">
+            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
+            <span>Investor Dividends</span>
+          </h3>
+          <div className="bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+            <span className="text-xs sm:text-sm font-semibold text-emerald-300">
+              {investorDividends.length} Investors
+            </span>
+          </div>
+        </div>
+
+        {investorDividends.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {investorDividends.map((investor) => (
+              <div
+                key={investor.id}
+                className="bg-white/5 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/20 hover:border-emerald-500/30 transition-all duration-300 hover:shadow-lg"
+              >
+                {/* Investor Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h4 className="text-base sm:text-lg font-bold text-white mb-1">
+                      {investor.investor_name}
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      {investor.category}
+                    </p>
+                  </div>
+                  <div className="bg-emerald-500/20 px-2 py-1 rounded-lg border border-emerald-500/30">
+                    <div className="flex items-center space-x-1">
+                      <Percent className="w-3 h-3 text-emerald-400" />
+                      <span className="text-xs font-bold text-emerald-300">
+                        {investor.ownership_percentage.toFixed(2)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Investment Details */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <p className="text-xs text-slate-400 mb-1">
+                      Initial Investment
+                    </p>
+                    <p className="text-sm sm:text-base font-bold text-white">
+                      KES {investor.amount.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <p className="text-xs text-slate-400 mb-1">
+                      Investment Date
+                    </p>
+                    <p className="text-sm sm:text-base font-semibold text-white">
+                      {formatDate(investor.date)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Dividend Information */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-2 border-t border-white/10">
+                    <span className="text-xs sm:text-sm text-slate-300">
+                      Months Since Investment:
+                    </span>
+                    <span className="text-sm font-semibold text-white">
+                      {investor.months_since_investment} months
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-t border-white/10">
+                    <span className="text-xs sm:text-sm text-slate-300">
+                      Payout Cycles Completed:
+                    </span>
+                    <span className="text-sm font-bold text-emerald-400">
+                      {investor.payout_cycles} cycles
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-t border-white/10">
+                    <span className="text-xs sm:text-sm text-slate-300">
+                      Dividend Per Cycle:
+                    </span>
+                    <span className="text-sm font-semibold text-white">
+                      KES{" "}
+                      {investor.dividend_per_cycle.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-lg p-3 border border-emerald-500/30 mt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs sm:text-sm font-semibold text-emerald-300">
+                        Total Dividends Earned:
+                      </span>
+                      <span className="text-base sm:text-lg font-black text-emerald-400">
+                        KES{" "}
+                        {investor.total_dividends.toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Next Payout Information - Always Show */}
+                  <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-3 border border-blue-500/30 mt-2">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-blue-300">
+                          Next Payout Date:
+                        </span>
+                        <span className="text-sm font-bold text-blue-400">
+                          {formatDate(investor.next_payout_date)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-blue-500/20">
+                        <span className="text-xs font-semibold text-purple-300">
+                          Estimated Dividend:
+                        </span>
+                        <span className="text-sm font-bold text-purple-400">
+                          KES{" "}
+                          {investor.dividend_per_cycle.toLocaleString(
+                            undefined,
+                            {
+                              maximumFractionDigits: 2,
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {investor.months_since_investment < 6 && (
+                    <div className="bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/30 mt-2">
+                      <p className="text-xs text-yellow-300 text-center">
+                        ⏳ First payout eligible in{" "}
+                        {6 - investor.months_since_investment} months
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Users className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+            <p className="text-slate-400">No investor data available</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Add investors in the Initial Investment section
+            </p>
+          </div>
+        )}
+
+        {/* Summary Statistics */}
+        {investorDividends.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/20">
+            <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-xl p-4 border border-emerald-500/30">
+              <div className="flex items-center space-x-2 mb-2">
+                <DollarSign className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm font-semibold text-white">
+                  Total Dividends Paid
+                </span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-emerald-400">
+                KES{" "}
+                {investorDividends
+                  .reduce((sum, inv) => sum + inv.total_dividends, 0)
+                  .toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl p-4 border border-blue-500/30">
+              <div className="flex items-center space-x-2 mb-2">
+                <Calendar className="w-5 h-5 text-blue-400" />
+                <span className="text-sm font-semibold text-white">
+                  Active Investors
+                </span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-blue-400">
+                {investorDividends.length}
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4 border border-purple-500/30">
+              <div className="flex items-center space-x-2 mb-2">
+                <TrendingUp className="w-5 h-5 text-purple-400" />
+                <span className="text-sm font-semibold text-white">
+                  Avg. Ownership
+                </span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-purple-400">
+                {investorDividends.length > 0
+                  ? (
+                      investorDividends.reduce(
+                        (sum, inv) => sum + inv.ownership_percentage,
+                        0
+                      ) / investorDividends.length
+                    ).toFixed(2)
+                  : 0}
+                %
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}

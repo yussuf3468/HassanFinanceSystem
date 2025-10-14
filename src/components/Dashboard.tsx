@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Database } from "../lib/database.types";
+import { formatDate } from "../utils/dateFormatter";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Sale = Database["public"]["Tables"]["sales"]["Row"];
@@ -123,18 +124,18 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeIn">
+    <div className="space-y-4 md:space-y-6 animate-fadeIn">
       {/* Hero Section - Premium */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 md:p-6 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
         <div className="relative">
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-2">
             <div className="inline-block">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
                 Hassan Muse BookShop
               </h1>
             </div>
-            <p className="text-sm md:text-base text-slate-200 font-medium max-w-3xl mx-auto">
+            <p className="text-xs md:text-sm text-slate-200 font-medium max-w-3xl mx-auto">
               ✨ Premium ERP Dashboard • Real-Time Analytics
             </p>
             <div className="flex items-center justify-center space-x-2 text-emerald-400">
@@ -147,14 +148,14 @@ export default function Dashboard() {
 
       {/* Stats Grid - Premium with High Contrast */}
       <div>
-        <div className="flex items-center space-x-3 mb-6">
+        <div className="flex items-center space-x-3 mb-4">
           <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
-          <h2 className="text-xl md:text-2xl font-bold text-white">
+          <h2 className="text-lg md:text-xl font-bold text-white">
             Business Overview
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <div
             className="group animate-slideInLeft"
             style={{ animationDelay: "0.1s" }}
@@ -306,7 +307,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-white text-xs md:text-sm">
-                        {new Date(sale.sale_date).toLocaleDateString()}
+                        {formatDate(sale.sale_date)}
                       </p>
                       <p className="text-xs text-slate-400 font-medium truncate">
                         {sale.sold_by}
@@ -377,33 +378,33 @@ function StatCard({
   const colors = colorClasses[color];
 
   return (
-    <div className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-2xl p-5 md:p-6 shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
+    <div className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
       {/* Animated gradient background on hover */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}
       ></div>
 
       <div className="relative flex items-center justify-between">
-        <div className="flex-1 min-w-0 pr-4">
+        <div className="flex-1 min-w-0 pr-2">
           <p
-            className={`text-xs font-bold uppercase tracking-wider mb-2 ${colors.text}`}
+            className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${colors.text}`}
           >
             {title}
           </p>
-          <p className="text-xl sm:text-2xl font-black text-white truncate leading-tight">
+          <p className="text-base sm:text-lg font-black text-white leading-tight whitespace-nowrap">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-slate-400 mt-1 truncate font-medium">
+            <p className="text-xs text-slate-400 mt-0.5 font-medium whitespace-nowrap">
               {subtitle}
             </p>
           )}
         </div>
         <div className="flex-shrink-0">
           <div
-            className={`bg-gradient-to-br ${colors.gradient} p-2.5 md:p-3 rounded-2xl shadow-2xl ${colors.glow} group-hover:scale-110 transition-transform duration-300`}
+            className={`bg-gradient-to-br ${colors.gradient} p-2 md:p-2.5 rounded-2xl shadow-2xl ${colors.glow} group-hover:scale-110 transition-transform duration-300`}
           >
-            <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </div>
         </div>
       </div>

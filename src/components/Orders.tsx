@@ -19,6 +19,7 @@ import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
 import type { Order } from "../types";
 import { toast } from "react-toastify";
+import { formatDate } from "../utils/dateFormatter";
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -268,75 +269,75 @@ const Orders = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-black text-white mb-2">
+        <h1 className="text-lg md:text-xl font-black text-white mb-1">
           Orders Management
         </h1>
-        <p className="text-slate-300 text-sm md:text-base">
+        <p className="text-slate-300 text-xs md:text-sm">
           Manage and track customer orders
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/10 backdrop-blur-2xl p-5 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs md:text-sm font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
                 Total Orders
               </p>
-              <p className="text-2xl md:text-3xl font-black text-white mt-2">
+              <p className="text-lg md:text-xl font-black text-white mt-1.5">
                 {orderStats.total}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
-              <Package className="w-6 h-6 text-white" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
+              <Package className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-5 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs md:text-sm font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
                 Pending
               </p>
-              <p className="text-2xl md:text-3xl font-black text-amber-400 mt-2">
+              <p className="text-lg md:text-xl font-black text-amber-400 mt-1.5">
                 {orderStats.pending}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
-              <Clock className="w-6 h-6 text-white" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
+              <Clock className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-5 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs md:text-sm font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
                 Delivered
               </p>
-              <p className="text-2xl md:text-3xl font-black text-emerald-400 mt-2">
+              <p className="text-lg md:text-xl font-black text-emerald-400 mt-1.5">
                 {orderStats.delivered}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30">
-              <CheckCircle className="w-6 h-6 text-white" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30">
+              <CheckCircle className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-5 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs md:text-sm font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
                 Revenue
               </p>
-              <p className="text-xl md:text-2xl font-black text-white mt-2">
+              <p className="text-base md:text-lg font-black text-white mt-1.5">
                 KES {orderStats.totalRevenue.toLocaleString()}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -397,22 +398,22 @@ const Orders = () => {
           <table className="min-w-full divide-y divide-white/10">
             <thead className="bg-white/5">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Order
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -457,7 +458,7 @@ const Orders = () => {
                     KES {order.total_amount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                    {new Date(order.created_at).toLocaleDateString()}
+                    {formatDate(order.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">

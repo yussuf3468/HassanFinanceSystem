@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import ModalPortal from "./ModalPortal.tsx";
+import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
 interface Investment {
   id: string;
@@ -57,7 +58,7 @@ export default function InitialInvestment() {
   const [formData, setFormData] = useState<InvestmentForm>({
     source: "Initial Capital",
     amount: 0,
-    invested_on: new Date().toISOString().split("T")[0],
+    invested_on: getCurrentDateForInput(),
     notes: "",
   });
 
@@ -167,7 +168,7 @@ export default function InitialInvestment() {
     setFormData({
       source: "Initial Capital",
       amount: 0,
-      invested_on: new Date().toISOString().split("T")[0],
+      invested_on: getCurrentDateForInput(),
       notes: "",
     });
   }
@@ -338,7 +339,7 @@ export default function InitialInvestment() {
                     className="hover:bg-white/5 transition-colors"
                   >
                     <td className="px-6 py-4 text-sm text-slate-300">
-                      {new Date(inv.invested_on).toLocaleDateString()}
+                      {formatDate(inv.invested_on)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">

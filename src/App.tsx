@@ -16,6 +16,7 @@ import FinancialDashboard from "./components/FinancialDashboard";
 import ExpenseManagement from "./components/ExpenseManagement";
 import InitialInvestment from "./components/InitialInvestment";
 import DebtManagement from "./components/DebtManagement";
+import CyberServices from "./components/CyberServices";
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -82,15 +83,6 @@ function AppContent() {
 
   return (
     <div className="relative">
-      {/* View Toggle Button */}
-      <button
-        onClick={() => setViewMode("customer")}
-        className="fixed top-4 right-20 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 shadow-lg"
-      >
-        <Store className="w-4 h-4" />
-        <span className="hidden sm:inline">Customer Store</span>
-      </button>
-
       <Layout activeTab={activeTab} onTabChange={setActiveTab}>
         {activeTab === "dashboard" && <Dashboard />}
         {activeTab === "inventory" && <Inventory />}
@@ -103,6 +95,7 @@ function AppContent() {
         {activeTab === "expenses" && <ExpenseManagement />}
         {activeTab === "investments" && <InitialInvestment />}
         {activeTab === "debts" && <DebtManagement />}
+        {activeTab === "cyber-services" && <CyberServices />}
       </Layout>
     </div>
   );

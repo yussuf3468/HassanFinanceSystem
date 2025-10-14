@@ -15,6 +15,8 @@ import {
   PiggyBank,
   Banknote,
   ChevronRight,
+  Monitor,
+  ChevronLeft,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -31,6 +33,8 @@ export default function Layout({
 }: LayoutProps) {
   const { user, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] =
+    useState(true);
 
   // Check if current user is admin
   const isAdmin =
@@ -49,6 +53,12 @@ export default function Layout({
       label: "Inventory",
       icon: Package,
       color: "from-blue-600 to-cyan-600",
+    },
+    {
+      id: "cyber-services",
+      label: "Cyber Services",
+      icon: Monitor,
+      color: "from-cyan-600 to-blue-600",
     },
     {
       id: "sales",
@@ -141,15 +151,177 @@ export default function Layout({
         ></div>
       </div>
 
-      {/* Glassmorphic Top Navbar - Mobile First */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-2xl border-b border-white/20 shadow-2xl shadow-black/50">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+      {/* Desktop Sidebar - Modern Elegant Design with Collapse */}
+      <aside
+        className={`hidden lg:block fixed left-0 top-0 bottom-0 z-40 transition-all duration-300 ${
+          isDesktopSidebarCollapsed ? "w-20" : "w-72 xl:w-80"
+        }`}
+      >
+        <div className="h-full bg-gradient-to-b from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl border-r border-white/20 shadow-2xl overflow-y-auto scrollbar-hide relative">
+          {/* Collapse Toggle Button - Enhanced Visibility */}
+          <button
+            onClick={() =>
+              setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)
+            }
+            className="fixed bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 p-2 rounded-full shadow-2xl shadow-purple-500/50 hover:shadow-purple-400/70 hover:scale-125 transition-all duration-200 z-50 ring-2 ring-white/30 hover:ring-white/50"
+            style={{
+              top: isDesktopSidebarCollapsed ? "50%" : "24px",
+              left: isDesktopSidebarCollapsed ? "68px" : "calc(18rem - 12px)",
+              transform: isDesktopSidebarCollapsed
+                ? "translateY(-50%)"
+                : "none",
+            }}
+            aria-label={
+              isDesktopSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            }
+          >
+            {isDesktopSidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4 text-white drop-shadow-lg" />
+            ) : (
+              <ChevronLeft className="w-4 h-4 text-white drop-shadow-lg" />
+            )}
+          </button>
+
+          {/* Brand Header */}
+          <div className="p-6 border-b border-white/10">
+            {!isDesktopSidebarCollapsed ? (
+              <>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-3 rounded-2xl shadow-xl">
+                      <Package className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-black text-white">
+                      Hassan Muse
+                    </h1>
+                    <p className="text-xs text-purple-300 font-medium">
+                      BookShop & Cyber
+                    </p>
+                  </div>
+                </div>
+
+                {/* User Info Card */}
+                {user && (
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur opacity-75"></div>
+                        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 p-2 rounded-full border-2 border-white/20">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white truncate">
+                          {getStaffName(user.email || "")}
+                        </p>
+                        <p className="text-xs text-purple-300">
+                          {isAdmin ? "Administrator" : "Staff"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-3 rounded-2xl shadow-xl">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Menu */}
+          <div className="p-4 space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`
+                    group w-full flex items-center ${
+                      isDesktopSidebarCollapsed
+                        ? "justify-center"
+                        : "justify-between"
+                    } px-4 py-3 rounded-xl font-semibold text-sm
+                    transition-all duration-300 relative overflow-hidden
+                    ${
+                      isActive
+                        ? "text-white shadow-xl"
+                        : "text-slate-300 hover:text-white hover:bg-white/5"
+                    }
+                  `}
+                  title={isDesktopSidebarCollapsed ? tab.label : undefined}
+                >
+                  {/* Active Background Gradient */}
+                  {isActive && (
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-r ${tab.color} opacity-100`}
+                    ></div>
+                  )}
+
+                  {/* Hover Effect */}
+                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-300"></div>
+
+                  {/* Content */}
+                  <div
+                    className={`relative flex items-center ${
+                      isDesktopSidebarCollapsed ? "" : "space-x-3"
+                    }`}
+                  >
+                    <div
+                      className={`${
+                        isActive
+                          ? "bg-white/20"
+                          : "bg-white/10 group-hover:bg-white/15"
+                      } p-2 rounded-lg transition-colors duration-300`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    {!isDesktopSidebarCollapsed && <span>{tab.label}</span>}
+                  </div>
+
+                  {/* Arrow Indicator */}
+                  {isActive && !isDesktopSidebarCollapsed && (
+                    <ChevronRight className="relative w-4 h-4 animate-pulse" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Logout Button */}
+          <div className="p-4 border-t border-white/10 mt-auto">
+            <button
+              onClick={handleLogout}
+              className={`w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl hover:shadow-rose-500/50 flex items-center ${
+                isDesktopSidebarCollapsed
+                  ? "justify-center"
+                  : "justify-center space-x-2"
+              }`}
+              title={isDesktopSidebarCollapsed ? "Logout" : undefined}
+            >
+              <LogOut className="w-4 h-4" />
+              {!isDesktopSidebarCollapsed && <span>Logout</span>}
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Top Navbar */}
+      <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-2xl border-b border-white/20 shadow-2xl shadow-black/50">
+        <div className="px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
             {/* Logo & Brand */}
-            <div className="flex items-center space-x-3 md:space-x-4">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="lg:hidden bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 p-2 rounded-xl transition-all duration-300 hover:scale-105"
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 p-2 rounded-xl transition-all duration-300 hover:scale-105"
               >
                 {isSidebarOpen ? (
                   <X className="w-5 h-5 text-white" />
@@ -158,89 +330,40 @@ export default function Layout({
                 )}
               </button>
 
-              <div className="flex items-center space-x-3">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-2.5 md:p-3 rounded-2xl shadow-xl">
-                    <Package className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl blur opacity-75"></div>
+                  <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-2 rounded-xl shadow-xl">
+                    <Package className="w-4 h-4 text-white" />
                   </div>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-lg md:text-xl font-black text-white">
+                  <h1 className="text-sm font-black text-white">
                     Hassan Muse BookShop
                   </h1>
                   <p className="text-xs text-purple-300 font-medium">
-                    Premium ERP System
+                    ERP System
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Desktop Navigation - Scrollable */}
-            <div className="hidden lg:flex items-center flex-1 mx-4 xl:mx-8 overflow-hidden">
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide w-full">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => onTabChange(tab.id)}
-                      className={`
-                        flex items-center gap-2 px-3 py-2 rounded-xl font-semibold text-xs
-                        transition-all duration-300 whitespace-nowrap flex-shrink-0
-                        ${
-                          isActive
-                            ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
-                            : "text-slate-300 hover:bg-white/10 hover:text-white"
-                        }
-                      `}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* User Section */}
-            <div className="flex items-center space-x-2 md:space-x-3">
+            <div className="flex items-center space-x-2">
               {user && (
                 <>
-                  {/* User Info - Hidden on mobile */}
-                  <div className="hidden md:flex items-center space-x-3">
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-white">
-                        {getStaffName(user.email || "")}
-                      </p>
-                      <p className="text-xs text-purple-300">
-                        {isAdmin ? "Administrator" : "Staff Member"}
-                      </p>
-                    </div>
-                    <div className="relative group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 p-2.5 rounded-full border-2 border-white/20">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mobile user avatar */}
-                  <div className="md:hidden relative group">
+                  <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur opacity-75"></div>
                     <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 p-2 rounded-full border-2 border-white/20">
                       <User className="w-4 h-4 text-white" />
                     </div>
                   </div>
 
-                  {/* Logout Button */}
                   <button
                     onClick={handleLogout}
-                    className="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white px-3 md:px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl hover:shadow-rose-500/50"
+                    className="bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white px-3 py-2 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105 shadow-xl"
                   >
-                    <LogOut className="w-4 h-4 md:hidden" />
-                    <span className="hidden md:inline">Logout</span>
+                    <LogOut className="w-4 h-4" />
                   </button>
                 </>
               )}
@@ -265,7 +388,7 @@ export default function Layout({
         )}
 
         {/* Sidebar Content */}
-        <div className="relative h-full bg-gradient-to-b from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl border-r border-white/20 shadow-2xl overflow-y-auto">
+        <div className="relative h-full bg-gradient-to-b from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl border-r border-white/20 shadow-2xl overflow-y-auto scrollbar-hide">
           <div className="p-6 space-y-6">
             {/* User Info in Sidebar */}
             {user && (
@@ -328,8 +451,12 @@ export default function Layout({
       </div>
 
       {/* Main Content Area */}
-      <main className="relative pt-16 md:pt-20 min-h-screen">
-        <div className="px-4 sm:px-6 lg:px-8 py-6 md:py-8 lg:py-10 max-w-[1600px] mx-auto">
+      <main
+        className={`relative pt-20 lg:pt-0 min-h-screen transition-all duration-300 ${
+          isDesktopSidebarCollapsed ? "lg:ml-20" : "lg:ml-72 xl:ml-80"
+        }`}
+      >
+        <div className="px-3 sm:px-4 lg:px-6 py-4 md:py-6 lg:py-8 max-w-[1600px] mx-auto">
           {children}
         </div>
       </main>

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { formatDate } from "../utils/dateFormatter";
 
 interface UserActivity {
   id: string;
@@ -361,10 +362,7 @@ export default function UserActivityDashboard() {
                   </p>
                   <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
                     <Calendar className="w-3 h-3" />
-                    <span>
-                      Joined:{" "}
-                      {new Date(activity.created_at).toLocaleDateString()}
-                    </span>
+                    <span>Joined: {formatDate(activity.created_at)}</span>
                   </div>
                 </div>
               </div>

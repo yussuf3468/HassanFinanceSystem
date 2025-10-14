@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Sale, Product } from "../types";
 import SaleForm from "./SaleForm";
+import { formatDate } from "../utils/dateFormatter";
 
 export default function Sales() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -80,21 +81,21 @@ export default function Sales() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white">
+          <h2 className="text-lg sm:text-xl font-black text-white">
             Sales Records
           </h2>
-          <p className="text-slate-300 mt-1 text-sm sm:text-base">
+          <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
             Track all your bookstore sales
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-5 py-3 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 w-full sm:w-auto font-bold"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 w-full sm:w-auto font-bold text-sm"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           <span>Record Sale</span>
         </button>
       </div>
@@ -104,19 +105,19 @@ export default function Sales() {
           <table className="w-full">
             <thead className="bg-white/5 border-b border-white/10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Quantity
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Total Sale
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Profit
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
@@ -149,7 +150,7 @@ export default function Sales() {
                       className="hover:bg-white/5 transition-colors"
                     >
                       <td className="px-6 py-4 text-slate-200">
-                        {new Date(sale.sale_date).toLocaleDateString()}
+                        {formatDate(sale.sale_date)}
                         <br />
                         <span className="text-xs text-slate-400">
                           {new Date(sale.sale_date).toLocaleTimeString()}
