@@ -27,8 +27,8 @@ INSERT INTO public.profiles (
 ),
 (
     gen_random_uuid(), 
-    'zakaria.staff@dardaaranbookshop.ke', 
-    'Zakaria', 
+    'yussuf.staff@dardaaranbookshop.ke', 
+    'Yussuf', 
     'staff', 
     NOW() - INTERVAL '3 days', 
     NOW(),
