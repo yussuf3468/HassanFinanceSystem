@@ -13,6 +13,7 @@ import {
   MapPin,
   Calendar,
   DollarSign,
+  Trash2,
 } from "lucide-react";
 import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
@@ -107,6 +108,57 @@ const Orders = () => {
       } catch (error) {
         console.error("Error updating order status:", error);
         toast.error("Failed to update order status");
+      }
+    },
+    [selectedOrder]
+  );
+
+  const deleteOrder = useCallback(
+    async (orderId: string, orderNumber: string) => {
+      const confirmDelete = window.confirm(
+        `Are you sure you want to delete order ${orderNumber}?\n\nThis will:\n1. Delete all order items\n2. Delete the order permanently\n\nThis action cannot be undone!`
+      );
+
+      if (!confirmDelete) return;
+
+      try {
+        // First delete order items
+        const { error: itemsError } = await supabase
+          .from("order_items")
+          .delete()
+          .eq("order_id", orderId);
+
+        if (itemsError) {
+          console.error("Error deleting order items:", itemsError);
+          toast.error("Failed to delete order items");
+          return;
+        }
+
+        // Then delete the order
+        const { error: orderError } = await supabase
+          .from("orders")
+          .delete()
+          .eq("id", orderId);
+
+        if (orderError) {
+          console.error("Error deleting order:", orderError);
+          toast.error("Failed to delete order");
+          return;
+        }
+
+        // Update local state
+        setOrders((prev) => prev.filter((order) => order.id !== orderId));
+
+        // Close modal if this order was open
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setShowOrderDetails(false);
+          setSelectedOrder(null);
+        }
+
+        toast.success(`Order ${orderNumber} deleted successfully`);
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        toast.error("Failed to delete order");
       }
     },
     [selectedOrder]
@@ -408,16 +460,25 @@ const Orders = () => {
                     {new Date(order.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setShowOrderDetails(true);
-                      }}
-                      className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 hover:bg-blue-600/20 px-3 py-1.5 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>View</span>
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setShowOrderDetails(true);
+                        }}
+                        className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 hover:bg-blue-600/20 px-3 py-1.5 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>View</span>
+                      </button>
+                      <button
+                        onClick={() => deleteOrder(order.id, order.order_number)}
+                        className="text-red-400 hover:text-red-300 flex items-center space-x-1 hover:bg-red-600/20 px-3 py-1.5 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -638,7 +699,7 @@ const Orders = () => {
 
               {/* Notes */}
               {selectedOrder.notes && (
-                <div>
+                <div className="mb-6">
                   <h3 className="text-lg font-bold text-white mb-2">
                     Order Notes
                   </h3>
@@ -649,6 +710,17 @@ const Orders = () => {
                   </div>
                 </div>
               )}
+
+              {/* Delete Order Button */}
+              <div className="pt-4 border-t border-white/20">
+                <button
+                  onClick={() => deleteOrder(selectedOrder.id, selectedOrder.order_number)}
+                  className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Order</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
