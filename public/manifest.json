@@ -1,7 +1,7 @@
 {
-  "name": "Hassan Muse BookShop Management",
-  "short_name": "Hassan BookShop",
-  "description": "Professional inventory and sales management system for Hassan Muse BookShop",
+  "name": "Lenzro ERP",
+  "short_name": "Lenzro ERP",
+  "description": "Lenzro ERP — Inventory, sales, orders, and financial management system",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",

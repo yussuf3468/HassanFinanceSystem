@@ -1,16 +1,21 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "lenzro-erp",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+  "build:mobile": "vite build && npx cap copy",
+  "android": "npm run build && npx cap copy android && npx cap open android",
+  "android:sync": "npm run build && npx cap sync android",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.57.4",
     "date-fns": "^4.1.0",
@@ -25,6 +30,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
     "@eslint/js": "^9.9.1",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^18.3.5",
