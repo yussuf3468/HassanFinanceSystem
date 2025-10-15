@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-  "build:mobile": "vite build && npx cap copy",
-  "android": "npm run build && npx cap copy android && npx cap open android",
-  "android:sync": "npm run build && npx cap sync android",
-  "android:bundle": "npm run build && npx cap copy android && cd android && ./gradlew bundleRelease",
-  "android:keystore:hint": "echo Use keytool to create keystore: keytool -genkeypair -v -keystore hassan-lenzro.keystore -alias lenzro -keyalg RSA -keysize 2048 -validity 10000",
+    "build:mobile": "vite build && npx cap copy",
+    "android": "npm run build && npx cap copy android && npx cap open android",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:bundle": "npm run build && npx cap copy android && cd android && ./gradlew bundleRelease",
+    "android:keystore:hint": "echo Use keytool to create keystore: keytool -genkeypair -v -keystore hassan-lenzro.keystore -alias lenzro -keyalg RSA -keysize 2048 -validity 10000",
+  "assets:generate": "npx capacitor-assets generate android --iconBackgroundColor=#0B0B14 --splashBackgroundColor=#0B0B14",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
@@ -32,6 +33,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.4.3",
     "@eslint/js": "^9.9.1",
     "@types/papaparse": "^5.3.16",
