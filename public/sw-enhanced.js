@@ -1,6 +1,6 @@
 // Enhanced Service Worker for Cache Management with Image Cache Busting
-const CACHE_NAME = "hassan-bookshop-v3";
-const IMAGE_CACHE_NAME = "hassan-bookshop-images-v3";
+const CACHE_NAME = "lenzro-erp-v1";
+const IMAGE_CACHE_NAME = "lenzro-erp-images-v1";
 
 // Install event - cache core assets
 self.addEventListener("install", (event) => {
@@ -8,7 +8,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Service Worker: Caching core assets...");
-      return cache.addAll(["/", "/index.html", "/src/main.tsx"]);
+  // Precache minimal shell; Vite assets are fingerprinted and cached on demand
+  return cache.addAll(["/", "/index.html"]);
     })
   );
   self.skipWaiting();
