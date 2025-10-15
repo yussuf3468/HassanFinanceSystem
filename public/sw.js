@@ -1,10 +1,8 @@
-const CACHE_NAME = "hassan-bookshop-v1";
+const CACHE_NAME = "lenzro-erp-v1";
+// Precache only stable, top-level assets; Vite will fingerprint JS/CSS
 const ASSETS_TO_CACHE = [
   "/",
-  "/index.html",
-  "/src/main.tsx",
-  "/src/App.tsx",
-  // Add other critical assets
+  "/index.html"
 ];
 
 // Install event - cache assets
