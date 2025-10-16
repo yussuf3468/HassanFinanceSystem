@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -19,6 +19,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 
 interface LayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export default function Layout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] =
     useState(true);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
 
   // Check if current user is admin
   const isAdmin =
@@ -120,6 +122,50 @@ export default function Layout({
   ];
 
   const tabs = isAdmin ? [...baseTabs, ...adminTabs] : baseTabs;
+
+  // Fetch pending orders count (pending + confirmed = unread/new orders)
+  useEffect(() => {
+    const fetchPendingOrdersCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from("orders")
+          .select("*", { count: "exact", head: true })
+          .in("status", ["pending", "confirmed"]);
+
+        if (!error && count !== null) {
+          console.log("📦 New orders count:", count);
+          setPendingOrdersCount(count);
+        } else if (error) {
+          console.error("Error fetching orders count:", error);
+        }
+      } catch (error) {
+        console.error("Error fetching pending orders count:", error);
+      }
+    };
+
+    fetchPendingOrdersCount();
+
+    // Set up real-time subscription for order updates
+    const channel = supabase
+      .channel("orders-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        (payload) => {
+          console.log("📦 Order changed:", payload);
+          fetchPendingOrdersCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const getStaffName = (email: string) => {
     if (email.includes("yussuf") || email.includes("admin"))
@@ -239,6 +285,7 @@ export default function Layout({
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const showBadge = tab.id === "orders" && pendingOrdersCount > 0;
               return (
                 <button
                   key={tab.id}
@@ -279,12 +326,27 @@ export default function Layout({
                         isActive
                           ? "bg-white/20"
                           : "bg-white/10 group-hover:bg-white/15"
-                      } p-2 rounded-lg transition-colors duration-300`}
+                      } p-2 rounded-lg transition-colors duration-300 relative`}
                     >
                       <Icon className="w-4 h-4" />
+                      {/* Notification Badge */}
+                      {showBadge && (
+                        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-lg animate-pulse">
+                          {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
+                        </span>
+                      )}
                     </div>
                     {!isDesktopSidebarCollapsed && <span>{tab.label}</span>}
                   </div>
+
+                  {/* Badge for expanded sidebar */}
+                  {!isDesktopSidebarCollapsed && showBadge && (
+                    <div className="relative">
+                      <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                        {pendingOrdersCount}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Arrow Indicator */}
                   {isActive && !isDesktopSidebarCollapsed && (
@@ -352,6 +414,21 @@ export default function Layout({
             <div className="flex items-center space-x-2">
               {user && (
                 <>
+                  {/* Order Notification Badge - Mobile Navbar */}
+                  {pendingOrdersCount > 0 && (
+                    <div className="relative">
+                      <button
+                        onClick={() => onTabChange("orders")}
+                        className="relative bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 p-2 rounded-xl transition-all duration-300 hover:scale-105 shadow-xl"
+                      >
+                        <ClipboardList className="w-4 h-4 text-white" />
+                        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse">
+                          {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                  
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur opacity-75"></div>
                     <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 p-2 rounded-full border-2 border-white/20">
@@ -420,6 +497,7 @@ export default function Layout({
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
+                const showBadge = tab.id === "orders" && pendingOrdersCount > 0;
                 return (
                   <button
                     key={tab.id}
@@ -429,7 +507,7 @@ export default function Layout({
                     }}
                     className={`
                       w-full flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-sm
-                      transition-all duration-300
+                      transition-all duration-300 relative
                       ${
                         isActive
                           ? `bg-gradient-to-r ${tab.color} text-white shadow-xl`
@@ -438,8 +516,21 @@ export default function Layout({
                     `}
                   >
                     <div className="flex items-center space-x-3">
-                      <Icon className="w-5 h-5" />
+                      <div className="relative">
+                        <Icon className="w-5 h-5" />
+                        {/* Notification Badge for mobile */}
+                        {showBadge && (
+                          <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-lg animate-pulse">
+                            {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
+                          </span>
+                        )}
+                      </div>
                       <span>{tab.label}</span>
+                      {showBadge && (
+                        <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg animate-pulse ml-auto">
+                          {pendingOrdersCount}
+                        </span>
+                      )}
                     </div>
                     {isActive && <ChevronRight className="w-4 h-4" />}
                   </button>

@@ -192,9 +192,9 @@ export default function Login({ onLogin }: LoginProps) {
             ))}
           </div>
           <div className="mt-4 text-center text-sm text-slate-600">
-            <p>📱 Contact Hassan for password details</p>
+            <p>📱 Contact Zakaria for password details</p>
             <p className="text-xs mt-1">
-              La xiriir Hassan si aad u hesho furaha sirta ah
+              La xiriir Zakaria si aad u hesho furaha sirta ah
             </p>
           </div>
         </div> */}

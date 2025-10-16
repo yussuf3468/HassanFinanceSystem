@@ -10,7 +10,7 @@ interface SaleFormProps {
 }
 
 const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
-const staffMembers = ["Yussuf", "Khaled"];
+const staffMembers = ["Yussuf", "Khaled", "Zakaria"];
 
 export default function SaleForm({
   products,
@@ -232,10 +232,12 @@ export default function SaleForm({
                           <p className="font-semibold text-white group-hover:text-purple-300 transition-colors truncate">
                             {product.name}
                           </p>
-                          <p className="text-sm text-slate-400 truncate">
+                          <p className="text-sm text-slate-300 truncate">
                             ID: {product.product_id} • Stock:{" "}
-                            {product.quantity_in_stock} • KES{" "}
-                            {product.selling_price.toLocaleString()}
+                            {product.quantity_in_stock} •{" "}
+                            <span className="text-purple-300 font-semibold">
+                              KES {product.selling_price.toLocaleString()}
+                            </span>
                           </p>
                         </div>
                       </div>

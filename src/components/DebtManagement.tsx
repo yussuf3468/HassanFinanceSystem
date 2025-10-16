@@ -397,7 +397,7 @@ export default function DebtManagement() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-300">Loading debt records...</p>
+            <p className="text-white">Loading debt records...</p>
           </div>
         </div>
       </div>

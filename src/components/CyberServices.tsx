@@ -206,7 +206,7 @@ export default function CyberServices() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-300">Loading cyber services...</p>
+          <p className="text-white">Loading cyber services...</p>
         </div>
       </div>
     );
@@ -252,7 +252,7 @@ export default function CyberServices() {
             </span>
           </div>
           <p className="text-xs text-green-300 mb-1">Total Income</p>
-          <p className="text-lg md:text-xl font-black text-white">
+          <p className="text-2xl md:text-3xl font-black text-white">
             KES {totalIncome.toLocaleString()}
           </p>
         </div>

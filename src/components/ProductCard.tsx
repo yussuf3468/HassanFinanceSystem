@@ -12,7 +12,7 @@ export default function ProductCard({
   return (
     <div className="p-3 border rounded-xl bg-white">
       <div className="font-semibold truncate">{product.name}</div>
-      <div className="text-slate-600 text-sm">
+      <div className="text-purple-600 font-semibold text-sm">
         KES {product.selling_price.toLocaleString()}
       </div>
       <div className="mt-2 flex items-center gap-2">

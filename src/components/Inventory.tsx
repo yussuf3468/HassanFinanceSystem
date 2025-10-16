@@ -126,7 +126,9 @@ export default function Inventory() {
   }
 
   if (loading) {
-    return <div className="text-center py-12">Loading inventory...</div>;
+    return (
+      <div className="text-center py-12 text-white">Loading inventory...</div>
+    );
   }
 
   return (
@@ -372,19 +374,21 @@ export default function Inventory() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-slate-500">Sell Price</p>
-                        <p className="font-medium">
+                        <p className="text-white sm:text-slate-500">
+                          Sell Price
+                        </p>
+                        <p className="font-medium text-white sm:text-slate-300">
                           KES {product.selling_price}
                         </p>
                       </div>
                       <div>
-                        <p className="text-slate-500">Stock</p>
+                        <p className="text-white sm:text-slate-500">Stock</p>
                         <div className="flex items-center space-x-1">
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                               isLowStock
-                                ? "bg-red-100 text-red-700"
-                                : "bg-green-100 text-green-700"
+                                ? "bg-red-600/20 text-red-400 border border-red-500/30"
+                                : "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
                             }`}
                           >
                             {product.quantity_in_stock}

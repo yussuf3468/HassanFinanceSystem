@@ -184,13 +184,38 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
             </div>
           </div>
 
-          <div className="space-y-3 text-sm text-slate-600 mb-6">
-            <p>✅ Order confirmed and being processed</p>
-            <p>📞 We'll call you to confirm delivery details</p>
-            <p>🚚 Expected delivery: 1-3 business days</p>
-            {formData.email && (
-              <p>📧 Order updates will be sent to {formData.email}</p>
-            )}
+          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-4 mb-6 border border-green-200">
+            <h3 className="font-semibold text-green-800 mb-3 text-sm">
+              📋 Next Steps / Tallaabada Xigta
+            </h3>
+            <div className="space-y-2.5 text-sm">
+              <div className="flex items-start space-x-2">
+                <span className="text-green-600 flex-shrink-0 mt-0.5">✅</span>
+                <p className="text-slate-700 font-medium">
+                  Order confirmed and being processed
+                </p>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-blue-600 flex-shrink-0 mt-0.5">📞</span>
+                <p className="text-slate-700 font-medium">
+                  We'll call you to confirm delivery details
+                </p>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="text-orange-600 flex-shrink-0 mt-0.5">🚚</span>
+                <p className="text-slate-700 font-medium">
+                  Expected delivery: 1-3 business days
+                </p>
+              </div>
+              {formData.email && (
+                <div className="flex items-start space-x-2">
+                  <span className="text-purple-600 flex-shrink-0 mt-0.5">📧</span>
+                  <p className="text-slate-700 font-medium">
+                    Order updates will be sent to {formData.email}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-3">

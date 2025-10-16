@@ -288,9 +288,9 @@ export default function UserActivityDashboard() {
           </div>
         ) : loading ? (
           <div className="text-center py-8">
-            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-600">Loading user activities...</p>
-            <p className="text-xs text-slate-400 mt-2">
+            <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white">Loading user activities...</p>
+            <p className="text-xs text-slate-300 mt-2">
               This may take a few seconds...
             </p>
           </div>

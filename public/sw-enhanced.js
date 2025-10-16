@@ -8,8 +8,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Service Worker: Caching core assets...");
-  // Precache minimal shell; Vite assets are fingerprinted and cached on demand
-  return cache.addAll(["/", "/index.html"]);
+      // Precache minimal shell; Vite assets are fingerprinted and cached on demand
+      return cache.addAll(["/", "/index.html"]);
     })
   );
   self.skipWaiting();

@@ -148,13 +148,13 @@ export default function Search() {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl sm:rounded-2xl blur-lg sm:blur-xl group-focus-within:blur-md sm:group-focus-within:blur-lg transition-all duration-300"></div>
                 <div className="relative">
-                  <SearchIcon className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-slate-400 group-focus-within:text-purple-400 transition-colors duration-300" />
+                  <SearchIcon className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-slate-300 group-focus-within:text-purple-300 transition-colors duration-300" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search products, ID, category, description..."
-                    className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 bg-white/10 backdrop-blur-xl border-2 border-white/20 text-white placeholder:text-slate-400 rounded-xl sm:rounded-2xl focus:ring-2 sm:focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-base sm:text-lg shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 font-medium"
+                    className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 bg-white/15 backdrop-blur-xl border-2 border-white/30 text-white placeholder:text-slate-300 rounded-xl sm:rounded-2xl focus:ring-2 sm:focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400 text-base sm:text-lg shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl hover:border-white/40 transition-all duration-300 font-medium"
                   />
                 </div>
               </div>

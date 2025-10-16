@@ -50,10 +50,11 @@ A comprehensive financial management system for Hassan Muse BookShop & Cyber Caf
 - **Automated Backups:** GitHub Actions (nightly database backups)
 
 ### Compliance & Store Readiness
+
 - **Privacy Policy:** [public/privacy.html](./public/privacy.html) and [PRIVACY_POLICY.md](./PRIVACY_POLICY.md)
 - **Android Assets:** Generated via @capacitor/assets (icons/splash)
 - **Release Guides:** ANDROID_QUICK_START.md, ANDROID_RELEASE_GUIDE.md
- - **Hosted Domain:** finance.lenzro.com (Vercel)
+- **Hosted Domain:** finance.lenzro.com (Vercel)
 
 ## 🔐 Automated Database Backups
 

@@ -13,6 +13,13 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.lenzro.erp"
     compileSdk rootProject.ext.compileSdkVersion
+
+    // Use Java 21 for compilation (required by @capacitor/android 7.x)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
@@ -23,6 +30,7 @@ android {
             }
         }
     }
+
     defaultConfig {
         applicationId "com.lenzro.erp"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -30,12 +38,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        aaptOptions {
-             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
-        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -48,8 +52,23 @@ android {
     }
 }
 
+// aaptOptions should be configured at the android level (not inside defaultConfig)
+android {
+    // Ensure Gradle toolchain uses JDK 21 if available (and auto-download via Foojay plugin)
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+    aaptOptions {
+        // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+        // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
 repositories {
-    flatDir{
+    flatDir {
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
 }
