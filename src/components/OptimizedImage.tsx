@@ -32,7 +32,7 @@ const getProcessedUrl = (
   // Check if we already have this URL cached
   const cacheKey = `${url}_${preset}`;
   const cached = imageCache.get(cacheKey);
-  
+
   if (cached && !forceFresh) {
     return cached; // Return cached URL immediately
   }
@@ -43,7 +43,7 @@ const getProcessedUrl = (
 
   // Store in cache forever (browser will handle caching with proper headers)
   imageCache.set(cacheKey, optimizedUrl);
-  
+
   return optimizedUrl;
 };
 

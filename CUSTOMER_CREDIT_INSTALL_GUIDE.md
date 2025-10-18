@@ -46,28 +46,34 @@ You should see messages like:
 ## ✅ What This Script Creates
 
 ### 1. **customer_credits** Table
+
 - Tracks money customers owe you
 - Fields: customer name, phone, email, amount, due date, status
 - **Status values**: `active`, `paid`, `overdue`, `partial`
 
 ### 2. **credit_payments** Table
+
 - Tracks payments received from customers
 - Fields: payment amount, date, method, notes
 - Linked to customer_credits with foreign key
 
 ### 3. **Indexes** for Fast Queries
+
 - Speeds up searches by name, phone, status, date
 - No impact on existing data
 
 ### 4. **Row Level Security (RLS)**
+
 - Only authenticated users can access
 - Protects your data
 
 ### 5. **Helper View** (vw_customer_credit_summary)
+
 - Shows credit totals, payments, and balances
 - Makes reporting easier
 
 ### 6. **Auto-Update Trigger**
+
 - Automatically updates `updated_at` timestamp
 - Tracks when credits are modified
 
@@ -114,19 +120,25 @@ After running the script, your React app will automatically work! The tables are
 ## ❓ Troubleshooting
 
 ### Error: "permission denied for table customer_credits"
+
 **Solution:** The RLS policies should fix this. Make sure you're logged in to your app.
 
 ### Error: "relation customer_credits already exists"
+
 **Solution:** This is OK! The script uses `IF NOT EXISTS`, so it won't create duplicates.
 
 ### No errors but CustomerCredit component shows errors
-**Solution:** 
+
+**Solution:**
+
 1. Hard refresh your browser (Ctrl+F5)
 2. Clear browser cache
 3. Restart dev server
 
 ### Tables exist but no data showing
+
 **Solution:**
+
 1. Check browser console for errors (F12)
 2. Verify you're logged in
 3. Check Supabase logs for RLS policy issues
@@ -136,6 +148,7 @@ After running the script, your React app will automatically work! The tables are
 ## 📊 What Each Table Does
 
 ### customer_credits (Deemaha Table)
+
 ```
 ┌─────────────────┬──────────┬─────────────────────────────┐
 │ Field           │ Type     │ Description                 │
@@ -155,6 +168,7 @@ After running the script, your React app will automatically work! The tables are
 ```
 
 ### credit_payments (Payments Table)
+
 ```
 ┌─────────────────┬──────────┬─────────────────────────────┐
 │ Field           │ Type     │ Description                 │
@@ -174,9 +188,11 @@ After running the script, your React app will automatically work! The tables are
 ## 💡 Key Features
 
 1. **Safe Foreign Key**: `credit_payments.credit_id` references `customer_credits.id`
+
    - When you delete a credit, all its payments are automatically deleted (CASCADE)
 
 2. **Status Auto-Update**: Component automatically updates status:
+
    - `active`: No payments yet
    - `partial`: Some payments, balance remaining
    - `paid`: Fully paid off
@@ -193,6 +209,7 @@ After running the script, your React app will automatically work! The tables are
 The Customer Credit (Deemaha) system is now set up and ready to use!
 
 **Next Steps:**
+
 1. Start your React app: `npm run dev`
 2. Log in to your admin account
 3. Click on "Accounts Receivable" in the navigation
@@ -203,6 +220,7 @@ The Customer Credit (Deemaha) system is now set up and ready to use!
 ## 📞 Support
 
 If you get any errors:
+
 1. Copy the EXACT error message
 2. Check which line failed
 3. Make sure you're in the correct Supabase project

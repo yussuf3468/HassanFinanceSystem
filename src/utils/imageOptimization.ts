@@ -44,7 +44,7 @@ export function optimizeSupabaseImage(
 
   // Check if URL already has query parameters
   const separator = url.includes("?") ? "&" : "?";
-  
+
   return `${url}${separator}${params.toString()}`;
 }
 

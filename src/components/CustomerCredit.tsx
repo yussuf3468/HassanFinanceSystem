@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
@@ -16,7 +16,10 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
-import { useCustomerCredits, useCreditPayments } from "../hooks/useSupabaseQuery";
+import {
+  useCustomerCredits,
+  useCreditPayments,
+} from "../hooks/useSupabaseQuery";
 import { supabase } from "../lib/supabase";
 import ModalPortal from "./ModalPortal.tsx";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
@@ -49,7 +52,6 @@ interface CreditPayment {
 interface CreditForm {
   customer_name: string;
   customer_phone: string;
-  customer_email: string;
   total_amount: number;
   credit_date: string;
   due_date: string;
@@ -75,10 +77,27 @@ const PAYMENT_METHODS = [
 
 export default function CustomerCredit() {
   const queryClient = useQueryClient();
-  const { data: credits = [], isLoading: creditsLoading } = useCustomerCredits();
-  const { data: payments = [], isLoading: paymentsLoading } = useCreditPayments();
+  const { data: rawCredits = [], isLoading: creditsLoading } =
+    useCustomerCredits();
+  const { data: payments = [], isLoading: paymentsLoading } =
+    useCreditPayments();
   const loading = creditsLoading || paymentsLoading;
-  
+
+  // Calculate balance and amount_paid for each credit
+  const credits = useMemo(() => {
+    return rawCredits.map((credit: any) => {
+      const creditPayments = payments.filter(
+        (p: any) => p.credit_id === credit.id
+      );
+      const amount_paid = creditPayments.reduce(
+        (sum: number, p: any) => sum + (p.payment_amount || 0),
+        0
+      );
+      const balance = credit.total_amount - amount_paid;
+      return { ...credit, amount_paid, balance };
+    });
+  }, [rawCredits, payments]);
+
   const [showCreditForm, setShowCreditForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingCredit, setEditingCredit] = useState<CustomerCredit | null>(
@@ -92,7 +111,6 @@ export default function CustomerCredit() {
   const [creditForm, setCreditForm] = useState<CreditForm>({
     customer_name: "",
     customer_phone: "",
-    customer_email: "",
     total_amount: 0,
     credit_date: getCurrentDateForInput(),
     due_date: "",
@@ -106,6 +124,19 @@ export default function CustomerCredit() {
     payment_method: "Cash",
     notes: "",
   });
+
+  // Memoize close handlers to prevent re-renders
+  const handleCloseCreditForm = useCallback(() => {
+    setShowCreditForm(false);
+  }, []);
+
+  const handleClosePaymentForm = useCallback(() => {
+    setShowPaymentForm(false);
+  }, []);
+
+  const handleClosePaymentHistory = useCallback(() => {
+    setShowPaymentHistory(false);
+  }, []);
 
   useEffect(() => {
     createTableIfNotExist();
@@ -129,10 +160,9 @@ export default function CustomerCredit() {
       const payload = {
         customer_name: creditForm.customer_name,
         customer_phone: creditForm.customer_phone,
-        customer_email: creditForm.customer_email || null,
         total_amount: creditForm.total_amount,
         credit_date: creditForm.credit_date,
-        due_date: creditForm.due_date || null,
+        due_date: creditForm.due_date || null, // Make optional
         status: "active" as const,
         notes: creditForm.notes || null,
       };
@@ -154,9 +184,9 @@ export default function CustomerCredit() {
       setShowCreditForm(false);
       setEditingCredit(null);
       resetCreditForm();
-      
+
       // Invalidate cache to refetch data
-      queryClient.invalidateQueries({ queryKey: ['customer-credits'] });
+      queryClient.invalidateQueries({ queryKey: ["customer-credits"] });
     } catch (error) {
       console.error("Error saving customer credit:", error);
       alert("Failed to save customer credit. Please try again.");
@@ -182,7 +212,7 @@ export default function CustomerCredit() {
       if (paymentError) throw paymentError;
 
       // Update credit status
-      const credit = credits.find((c) => c.id === paymentForm.credit_id);
+      const credit = credits.find((c: any) => c.id === paymentForm.credit_id);
       if (credit) {
         const newBalance = Math.max(
           0,
@@ -205,10 +235,10 @@ export default function CustomerCredit() {
 
       setShowPaymentForm(false);
       resetPaymentForm();
-      
+
       // Invalidate cache to refetch data
-      queryClient.invalidateQueries({ queryKey: ['customer-credits'] });
-      queryClient.invalidateQueries({ queryKey: ['credit-payments'] });
+      queryClient.invalidateQueries({ queryKey: ["customer-credits"] });
+      queryClient.invalidateQueries({ queryKey: ["credit-payments"] });
     } catch (error) {
       console.error("Error processing payment:", error);
       alert("Failed to process payment. Please try again.");
@@ -236,8 +266,8 @@ export default function CustomerCredit() {
       if (error) throw error;
 
       // Invalidate cache to refetch data
-      queryClient.invalidateQueries({ queryKey: ['customer-credits'] });
-      queryClient.invalidateQueries({ queryKey: ['credit-payments'] });
+      queryClient.invalidateQueries({ queryKey: ["customer-credits"] });
+      queryClient.invalidateQueries({ queryKey: ["credit-payments"] });
     } catch (error) {
       console.error("Error deleting customer credit:", error);
       alert("Failed to delete customer credit. Please try again.");
@@ -248,7 +278,6 @@ export default function CustomerCredit() {
     setCreditForm({
       customer_name: "",
       customer_phone: "",
-      customer_email: "",
       total_amount: 0,
       credit_date: getCurrentDateForInput(),
       due_date: "",
@@ -271,10 +300,9 @@ export default function CustomerCredit() {
     setCreditForm({
       customer_name: credit.customer_name,
       customer_phone: credit.customer_phone,
-      customer_email: credit.customer_email || "",
       total_amount: credit.total_amount,
       credit_date: credit.credit_date,
-      due_date: credit.due_date,
+      due_date: credit.due_date || "",
       notes: credit.notes || "",
     });
     setShowCreditForm(true);
@@ -321,12 +349,21 @@ export default function CustomerCredit() {
   };
 
   // Calculate totals
-  const totalReceivable = credits.reduce((sum, c) => sum + c.balance, 0);
-  const totalCreditGiven = credits.reduce((sum, c) => sum + c.total_amount, 0);
-  const totalCollected = credits.reduce((sum, c) => sum + c.amount_paid, 0);
-  const overdueCredits = credits.filter((c) => c.status === "overdue");
+  const totalReceivable = credits.reduce(
+    (sum: number, c: any) => sum + c.balance,
+    0
+  );
+  const totalCreditGiven = credits.reduce(
+    (sum: number, c: any) => sum + c.total_amount,
+    0
+  );
+  const totalCollected = credits.reduce(
+    (sum: number, c: any) => sum + c.amount_paid,
+    0
+  );
+  const overdueCredits = credits.filter((c: any) => c.status === "overdue");
   const activeCredits = credits.filter(
-    (c) => c.status === "active" || c.status === "partial"
+    (c: any) => c.status === "active" || c.status === "partial"
   );
 
   if (loading) {
@@ -344,11 +381,9 @@ export default function CustomerCredit() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
-              💳 Store Credit / Deymaha Macaamiisha
+              💳 Deymaha Macaamiisha
             </h1>
-            <p className="text-slate-300 mt-1">
-              Money we owe to customers • Lacagta aan macaamiisha ugu qabno
-            </p>
+            <p className="text-slate-300 mt-1">Lacagta aan ku leenahay macaamiisha</p>
           </div>
           <button
             onClick={() => {
@@ -371,9 +406,7 @@ export default function CustomerCredit() {
             <AlertCircle className="w-8 h-8 text-red-400" />
             <TrendingUp className="w-5 h-5 text-red-300" />
           </div>
-          <p className="text-slate-300 text-sm">
-            Total Credits / Wadarta Deynmaha
-          </p>
+          <p className="text-slate-300 text-sm">Total Credits</p>
           <p className="text-2xl font-bold text-red-400 mt-1">
             KES {totalReceivable.toLocaleString()}
           </p>
@@ -385,7 +418,7 @@ export default function CustomerCredit() {
             <CheckCircle className="w-8 h-8 text-emerald-400" />
             <HandCoins className="w-5 h-5 text-emerald-300" />
           </div>
-          <p className="text-slate-300 text-sm">Total Paid Back / Bixiyay</p>
+          <p className="text-slate-300 text-sm">Total Paid Back</p>
           <p className="text-2xl font-bold text-emerald-400 mt-1">
             KES {totalCollected.toLocaleString()}
           </p>
@@ -425,7 +458,7 @@ export default function CustomerCredit() {
       <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
           <Users className="w-6 h-6" />
-          <span>Store Credits / Deymaha Macaamiisha ({credits.length})</span>
+          <span>Store Credits ({credits.length})</span>
         </h2>
 
         {credits.length === 0 ? (
@@ -433,8 +466,7 @@ export default function CustomerCredit() {
             <CreditCard className="w-16 h-16 text-slate-500 mx-auto mb-4" />
             <p className="text-slate-400">No store credits recorded yet.</p>
             <p className="text-slate-500 text-sm mt-2">
-              Start tracking money you owe to customers / Billow in aad qorto
-              lacagta aad macaamiisha ugu qabto
+              Start tracking money you owe to customers
             </p>
           </div>
         ) : (
@@ -443,33 +475,33 @@ export default function CustomerCredit() {
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="text-left py-3 px-4 text-slate-300 font-semibold">
-                    Customer / Macmiil
+                    Customer
                   </th>
                   <th className="text-left py-3 px-4 text-slate-300 font-semibold">
-                    Contact / Lambarka
+                    Contact
                   </th>
                   <th className="text-right py-3 px-4 text-slate-300 font-semibold">
-                    Total / Wadarta
+                    Total
                   </th>
                   <th className="text-right py-3 px-4 text-slate-300 font-semibold">
-                    Paid Back / Bixiyay
+                    Paid Back
                   </th>
                   <th className="text-right py-3 px-4 text-slate-300 font-semibold">
-                    Balance / Haray
+                    Balance
                   </th>
                   <th className="text-left py-3 px-4 text-slate-300 font-semibold">
-                    Due Date / Taariikhda
+                    Due Date
                   </th>
                   <th className="text-center py-3 px-4 text-slate-300 font-semibold">
-                    Status / Xaalad
+                    Status
                   </th>
                   <th className="text-center py-3 px-4 text-slate-300 font-semibold">
-                    Actions / Tallaabo
+                    Actions
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {credits.map((credit) => (
+                {credits.map((credit: any) => (
                   <tr
                     key={credit.id}
                     className="border-b border-white/5 hover:bg-white/5 transition-colors"
@@ -577,7 +609,7 @@ export default function CustomerCredit() {
 
       {/* Add/Edit Credit Form Modal */}
       {showCreditForm && (
-        <ModalPortal onClose={() => setShowCreditForm(false)}>
+        <ModalPortal onClose={handleCloseCreditForm}>
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-white mb-6">
               {editingCredit
@@ -588,7 +620,7 @@ export default function CustomerCredit() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Customer Name / Magaca Macmiilka *
+                    Customer Name *
                   </label>
                   <input
                     type="text"
@@ -607,7 +639,7 @@ export default function CustomerCredit() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Phone Number / Lambarka Telefoonka *
+                    Phone Number *
                   </label>
                   <input
                     type="tel"
@@ -626,25 +658,7 @@ export default function CustomerCredit() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Email (Optional / Ikhtiyaari)
-                  </label>
-                  <input
-                    type="email"
-                    value={creditForm.customer_email}
-                    onChange={(e) =>
-                      setCreditForm({
-                        ...creditForm,
-                        customer_email: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    placeholder="customer@email.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Total Amount (KES) / Wadarta Lacagta *
+                    Total Amount (KES) *
                   </label>
                   <input
                     type="number"
@@ -714,7 +728,7 @@ export default function CustomerCredit() {
               <div className="flex items-center justify-end space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowCreditForm(false)}
+                  onClick={handleCloseCreditForm}
                   className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
                 >
                   Cancel / Jooji
@@ -735,7 +749,7 @@ export default function CustomerCredit() {
 
       {/* Payment Form Modal */}
       {showPaymentForm && (
-        <ModalPortal onClose={() => setShowPaymentForm(false)}>
+        <ModalPortal onClose={handleClosePaymentForm}>
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-lg w-full">
             <h2 className="text-2xl font-bold text-white mb-6">
               Pay Back Customer / Macmiilka U Bixiso
@@ -821,7 +835,7 @@ export default function CustomerCredit() {
               <div className="flex items-center justify-end space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowPaymentForm(false)}
+                  onClick={handleClosePaymentForm}
                   className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
                 >
                   Cancel / Jooji
@@ -840,7 +854,7 @@ export default function CustomerCredit() {
 
       {/* Payment History Modal */}
       {showPaymentHistory && selectedCredit && (
-        <ModalPortal onClose={() => setShowPaymentHistory(false)}>
+        <ModalPortal onClose={handleClosePaymentHistory}>
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-white mb-4">
               Payment History / Taariikhda Bixinta -{" "}
@@ -873,8 +887,8 @@ export default function CustomerCredit() {
 
             <div className="space-y-3">
               {payments
-                .filter((p) => p.credit_id === selectedCredit.id)
-                .map((payment) => (
+                .filter((p: any) => p.credit_id === selectedCredit.id)
+                .map((payment: any) => (
                   <div
                     key={payment.id}
                     className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
@@ -901,7 +915,7 @@ export default function CustomerCredit() {
                   </div>
                 ))}
 
-              {payments.filter((p) => p.credit_id === selectedCredit.id)
+              {payments.filter((p: any) => p.credit_id === selectedCredit.id)
                 .length === 0 && (
                 <div className="text-center py-8 text-slate-400">
                   No payments recorded yet. / Weli ma jiro bixin la diiwaan
@@ -912,7 +926,7 @@ export default function CustomerCredit() {
 
             <div className="flex justify-end mt-6">
               <button
-                onClick={() => setShowPaymentHistory(false)}
+                onClick={handleClosePaymentHistory}
                 className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
               >
                 Close / Xir

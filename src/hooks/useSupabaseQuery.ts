@@ -20,7 +20,36 @@ export function useSupabaseQuery<T = any>(
     queryFn: async () => {
       const { data, error } = await queryFn();
       if (error) throw error;
+      // Ensure we never return undefined - return empty array for null array data
+      if (data === null || data === undefined) {
+        return [] as T; // For array queries, return empty array
+      }
       return data as T;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+}
+
+/**
+ * Custom hook for queries that return data directly (not wrapped in {data, error})
+ * Use this for custom queries that handle errors internally
+ */
+export function useSupabaseQueryDirect<T = any>(
+  key: string | string[],
+  queryFn: () => Promise<T>,
+  options?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">
+) {
+  return useQuery<T, Error>({
+    queryKey: Array.isArray(key) ? key : [key],
+    queryFn: async () => {
+      const data = await queryFn();
+      // Ensure we never return undefined
+      if (data === null || data === undefined) {
+        return [] as T; // For array queries, return empty array
+      }
+      return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -54,10 +83,10 @@ export function useOrders() {
 }
 
 /**
- * Hook for pending orders count (MAXIMUM cache - reduce egress)
+ * Hook for pending orders count (NO AUTO-REFETCH - save egress!)
  */
 export function usePendingOrdersCount() {
-  return useSupabaseQuery(
+  return useSupabaseQueryDirect(
     "pending-orders-count",
     async () => {
       const { count, error } = await supabase
@@ -65,12 +94,16 @@ export function usePendingOrdersCount() {
         .select("*", { count: "exact", head: true })
         .in("status", ["pending", "confirmed"]);
 
-      if (error) throw error;
-      return count || 0;
+      if (error) {
+        console.error("Error fetching pending orders count:", error);
+        return 0; // Return 0 on error instead of undefined
+      }
+
+      return count ?? 0; // Use nullish coalescing to ensure never undefined
     },
     {
-      staleTime: 10 * 60 * 1000, // 10 minutes (was 1 minute - 90% less requests!)
-      refetchInterval: 10 * 60 * 1000, // Auto-refetch every 10 minutes (was 2 minutes - 80% less requests!)
+      staleTime: Infinity, // NEVER refetch automatically - infinite cache!
+      refetchInterval: false, // ❌ DISABLED auto-polling - saves 100+ requests/day!
     }
   );
 }
@@ -79,24 +112,30 @@ export function usePendingOrdersCount() {
  * Hook for customer credits with caching
  */
 export function useCustomerCredits() {
-  return useSupabaseQuery("customer-credits", () =>
-    supabase
-      .from("customer_credits")
+  return useSupabaseQueryDirect("customer-credits", async () => {
+    const { data: credits, error } = await supabase
+      .from("customer_credits" as any)
       .select("*")
-      .order("created_at", { ascending: false })
-  );
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return credits || [];
+  });
 }
 
 /**
  * Hook for credit payments with caching
  */
 export function useCreditPayments() {
-  return useSupabaseQuery("credit-payments", () =>
-    supabase
-      .from("credit_payments")
+  return useSupabaseQueryDirect("credit-payments", async () => {
+    const { data: payments, error } = await supabase
+      .from("credit_payments" as any)
       .select("*")
-      .order("payment_date", { ascending: false })
-  );
+      .order("payment_date", { ascending: false });
+
+    if (error) throw error;
+    return payments || [];
+  });
 }
 
 /**

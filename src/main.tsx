@@ -82,15 +82,30 @@ if ("serviceWorker" in navigator) {
 }
 */
 
-// 🧹 CLEANUP: Unregister existing service workers
+// 🧹 AGGRESSIVE CLEANUP: Force unregister service workers immediately
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
+  // Unregister ASAP - don't wait for load event
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    if (registrations.length > 0) {
+      console.warn("⚠️ Found active service workers, unregistering...");
       registrations.forEach((registration) => {
-        registration.unregister();
-        console.log("🗑️ Unregistered problematic service worker");
+        registration.unregister().then(() => {
+          console.log("🗑️ Unregistered service worker:", registration.scope);
+        });
       });
-    });
+
+      // Clear all caches created by service worker
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          caches.delete(cacheName);
+          console.log("🗑️ Deleted cache:", cacheName);
+        });
+      });
+
+      console.log(
+        "✅ Service worker cleanup complete. Refresh page if you still see errors."
+      );
+    }
   });
 }
 

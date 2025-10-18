@@ -14,11 +14,13 @@ https://...supabase.co/storage/.../image.jpg?_bust=1760764875147&_v=xoz5qkfc5
 In `src/utils/imageOptimization.ts`, the `optimizeSupabaseImage()` function was always appending query parameters with `?`, even if the URL already had query parameters. This created invalid URLs.
 
 **Bug:**
+
 ```typescript
 return `${url}?${params.toString()}`; // ❌ Always uses "?"
 ```
 
 **Fix:**
+
 ```typescript
 const separator = url.includes("?") ? "&" : "?";
 return `${url}${separator}${params.toString()}`; // ✅ Checks for existing params
@@ -36,10 +38,12 @@ https://...supabase.co/storage/.../image.jpg?width=100&quality=70&format=webp&_t
 ## 🧪 How to Test
 
 ### 1. Clear Browser Cache
+
 - Open DevTools (F12)
 - Right-click refresh → "Empty Cache and Hard Reload"
 
 ### 2. Inspect Network Requests
+
 1. Open DevTools → Network tab
 2. Filter by "supabase.co"
 3. Navigate to Dashboard or Inventory
@@ -52,10 +56,12 @@ https://...supabase.co/storage/.../image.jpg?width=100&quality=70&format=webp&_t
 ### 3. Check Image Sizes
 
 Before optimization:
+
 - Thumbnail images: ~500KB each
 - Product images: ~2MB each
 
 After optimization:
+
 - Thumbnail (100px): ~50KB (90% smaller)
 - Small (200px): ~100KB (85% smaller)
 - Medium (400px): ~200KB (80% smaller)
@@ -64,6 +70,7 @@ After optimization:
 ### 4. Visual Verification
 
 Images should:
+
 - ✅ Load faster
 - ✅ Look sharp (not blurry)
 - ✅ Use WebP format (check Network tab → Type column)
@@ -73,19 +80,21 @@ Images should:
 
 ### Bandwidth Reduction per Image Load:
 
-| Image Type | Before | After | Savings |
-|-----------|--------|-------|---------|
-| Thumbnail | 500KB | 50KB | 90% |
-| Product List | 2MB | 150KB | 92.5% |
-| Product Detail | 2MB | 300KB | 85% |
+| Image Type     | Before | After | Savings |
+| -------------- | ------ | ----- | ------- |
+| Thumbnail      | 500KB  | 50KB  | 90%     |
+| Product List   | 2MB    | 150KB | 92.5%   |
+| Product Detail | 2MB    | 300KB | 85%     |
 
 ### Daily Traffic Example:
+
 - 100 product views/day
 - Before: 100 × 2MB = 200MB/day
 - After: 100 × 150KB = 15MB/day
 - **Savings: 185MB/day (92.5%)**
 
 ### Monthly Cost Impact:
+
 - Before: ~$50-100/month
 - After: ~$5-10/month
 - **Savings: ~$45-90/month**
@@ -107,6 +116,7 @@ Images should:
 ### Wrong Image Sizes?
 
 **Check preset usage:**
+
 ```tsx
 // Dashboard thumbnails (100px)
 <OptimizedImage src={url} preset="thumbnail" />
@@ -150,6 +160,7 @@ avatar: { width: 150, quality: 75 }        // ~75KB  - User avatars
 ## 📞 Support
 
 If images still aren't optimizing:
+
 1. Share a failing URL from Network tab
 2. Check if URL contains `width=`, `quality=`, and `format=webp`
 3. Verify it's a Supabase Storage URL (contains `supabase.co/storage`)

@@ -98,7 +98,7 @@ STEP 3: Second Payment (Ali pays remaining balance)
 
 ```
 🟢 active   - Credit given, no payments yet
-🟡 partial  - Some payments received, balance remaining  
+🟡 partial  - Some payments received, balance remaining
 ✅ paid     - Fully paid off, no balance
 🔴 overdue  - Past due date with outstanding balance
 ```
@@ -157,6 +157,7 @@ Returns:
 ```
 
 **Columns:**
+
 - `total_amount`: Original credit amount
 - `amount_paid`: Sum of all payments (calculated)
 - `balance`: What customer still owes (calculated)
@@ -167,34 +168,38 @@ Returns:
 ## 🚀 API Usage in Your App
 
 ### Fetch all credits with payments:
+
 ```typescript
 const { data: credits } = useCustomerCredits();
 // Returns: All customer credits with calculated balances
 ```
 
 ### Fetch payments for a credit:
+
 ```typescript
 const { data: payments } = useCreditPayments();
 // Returns: All payment records
 ```
 
 ### Create new credit:
+
 ```typescript
 await supabase.from("customer_credits").insert({
   customer_name: "Ali Mohamed",
   customer_phone: "+252612345678",
-  total_amount: 150.00,
+  total_amount: 150.0,
   due_date: "2025-11-18",
-  notes: "3 textbooks"
+  notes: "3 textbooks",
 });
 ```
 
 ### Record a payment:
+
 ```typescript
 await supabase.from("credit_payments").insert({
   credit_id: "uuid-of-credit",
-  payment_amount: 50.00,
-  payment_method: "M-Pesa"
+  payment_amount: 50.0,
+  payment_method: "M-Pesa",
 });
 ```
 
@@ -278,6 +283,7 @@ Mobile View:
 ## ✅ Setup Complete!
 
 After running `SAFE_CUSTOMER_CREDIT_SETUP.sql`:
+
 - ✅ 2 tables created
 - ✅ Indexes added for performance
 - ✅ RLS security enabled

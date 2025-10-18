@@ -93,6 +93,12 @@ export default function Layout({
 
   const adminTabs = [
     {
+      id: "customer-credit",
+      label: "Store Credit",
+      icon: CreditCard,
+      color: "from-teal-600 to-cyan-600",
+    },
+    {
       id: "user-activity",
       label: "Staff Activity",
       icon: Activity,
@@ -121,12 +127,6 @@ export default function Layout({
       label: "Debts",
       icon: Banknote,
       color: "from-amber-600 to-yellow-600",
-    },
-    {
-      id: "customer-credit",
-      label: "Store Credit",
-      icon: CreditCard,
-      color: "from-teal-600 to-cyan-600",
     },
   ];
 
