@@ -39,15 +39,7 @@ interface CustomerCredit {
   created_at: string;
 }
 
-interface CreditPayment {
-  id: string;
-  credit_id: string;
-  payment_amount: number;
-  payment_date: string;
-  payment_method: string;
-  notes?: string;
-  created_at: string;
-}
+// Removed unused CreditPayment interface
 
 interface CreditForm {
   customer_name: string;
@@ -144,8 +136,8 @@ export default function CustomerCredit() {
 
   async function createTableIfNotExist() {
     try {
-      await supabase.from("customer_credits").select("id").limit(1);
-      await supabase.from("credit_payments").select("id").limit(1);
+      await supabase.from("customer_credits" as any).select("id").limit(1);
+      await supabase.from("credit_payments" as any).select("id").limit(1);
     } catch (error) {
       console.log(
         "Customer credit tables need to be created. Please run database migrations."
@@ -169,14 +161,14 @@ export default function CustomerCredit() {
 
       if (editingCredit) {
         const { error } = await supabase
-          .from("customer_credits")
+          .from("customer_credits" as any)
           .update(payload)
           .eq("id", editingCredit.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from("customer_credits")
+          .from("customer_credits" as any)
           .insert([payload]);
         if (error) throw error;
       }
@@ -198,7 +190,7 @@ export default function CustomerCredit() {
 
     try {
       const { error: paymentError } = await supabase
-        .from("credit_payments")
+        .from("credit_payments" as any)
         .insert([
           {
             credit_id: paymentForm.credit_id,
@@ -226,8 +218,8 @@ export default function CustomerCredit() {
             : "active";
 
         const { error: updateError } = await supabase
-          .from("customer_credits")
-          .update({ status: newStatus })
+          .from("customer_credits" as any)
+          .update({ status: newStatus } as any)
           .eq("id", paymentForm.credit_id);
 
         if (updateError) throw updateError;
@@ -256,11 +248,11 @@ export default function CustomerCredit() {
 
     try {
       // Delete associated payments first
-      await supabase.from("credit_payments").delete().eq("credit_id", id);
+      await supabase.from("credit_payments" as any).delete().eq("credit_id", id);
 
       // Then delete the credit
       const { error } = await supabase
-        .from("customer_credits")
+        .from("customer_credits" as any)
         .delete()
         .eq("id", id);
       if (error) throw error;
@@ -362,9 +354,6 @@ export default function CustomerCredit() {
     0
   );
   const overdueCredits = credits.filter((c: any) => c.status === "overdue");
-  const activeCredits = credits.filter(
-    (c: any) => c.status === "active" || c.status === "partial"
-  );
 
   if (loading) {
     return (

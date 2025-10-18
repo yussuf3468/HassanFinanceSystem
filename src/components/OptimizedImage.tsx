@@ -81,8 +81,7 @@ const OptimizedImage = memo(
           const img = new Image();
           img.onload = () => {
             if (src) {
-              const now = Date.now();
-              imageCache.set(src, { timestamp: now, url: imageUrl });
+              imageCache.set(imageUrl, imageUrl); // Fixed: Cache just the URL
             }
             resolve();
           };
@@ -98,8 +97,7 @@ const OptimizedImage = memo(
 
     const handleLoad = useCallback(() => {
       if (src && imageUrl) {
-        const now = Date.now();
-        imageCache.set(src, { timestamp: now, url: imageUrl });
+        imageCache.set(imageUrl, imageUrl); // Fixed: Cache just the URL
       }
       setIsLoaded(true);
       // Small delay for smooth transition

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Plus,
   CreditCard as Edit2,
@@ -305,7 +305,6 @@ export default function Inventory() {
                   ) : (
                     <button
                       onClick={() => handleView(product)}
-                      className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                       className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                     >
                       <Package className="w-7 h-7 text-slate-400" />
