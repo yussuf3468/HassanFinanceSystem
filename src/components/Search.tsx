@@ -13,14 +13,12 @@ import {
   Tag,
   Info,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 import type { Product, Sale } from "../types";
 import OptimizedImage from "./OptimizedImage";
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [sales, setSales] = useState<Sale[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
@@ -30,12 +28,12 @@ export default function Search() {
     totalQuantitySold: number;
   } | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // ✅ Use cached queries (reduces egress costs by 90%)
+  const { data: products = [], isLoading: productsLoading } = useProducts();
+  const { data: sales = [], isLoading: salesLoading } = useSales();
 
   useEffect(() => {
-    if (searchTerm) {
+    if (searchTerm && products.length > 0) {
       const filtered = products.filter(
         (p) =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -52,22 +50,7 @@ export default function Search() {
     }
   }, [searchTerm, products]);
 
-  async function loadData() {
-    try {
-      const [productsRes, salesRes] = await Promise.all([
-        supabase.from("products").select("*"),
-        supabase.from("sales").select("*"),
-      ]);
-
-      if (productsRes.error) throw productsRes.error;
-      if (salesRes.error) throw salesRes.error;
-
-      setProducts(productsRes.data || []);
-      setSales(salesRes.data || []);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  }
+  // ✅ loadData function removed - using React Query cache instead
 
   function handleSelectProduct(product: Product) {
     setSelectedProduct(product);

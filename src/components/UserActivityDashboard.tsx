@@ -136,7 +136,7 @@ export default function UserActivityDashboard() {
     const intervalId = setInterval(() => {
       console.log("Interval triggered, fetching activities...");
       fetchUserActivities();
-    }, 120000); // Every 2 minutes
+    }, 5 * 60 * 1000); // Every 2 minutes
 
     return () => {
       console.log("Cleaning up interval...");

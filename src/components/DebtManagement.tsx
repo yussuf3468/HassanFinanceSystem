@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   Edit2,
@@ -11,6 +12,7 @@ import {
   CreditCard,
   HandCoins,
 } from "lucide-react";
+import { useDebts } from "../hooks/useSupabaseQuery";
 import { supabase } from "../lib/supabase";
 // Multitenancy removed
 import ModalPortal from "./ModalPortal.tsx";
@@ -83,9 +85,10 @@ const PAYMENT_METHODS = [
 ];
 
 export default function DebtManagement() {
-  const [debts, setDebts] = useState<Debt[]>([]);
+  const queryClient = useQueryClient();
+  const { data: debtsData = [], isLoading: loading } = useDebts();
+  const debts = debtsData as unknown as Debt[];
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showDebtForm, setShowDebtForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
@@ -110,7 +113,6 @@ export default function DebtManagement() {
   });
 
   useEffect(() => {
-    loadData();
     createTablesIfNotExist();
   }, []);
 
@@ -124,95 +126,12 @@ export default function DebtManagement() {
     }
   }
 
-  async function loadData() {
-    try {
-      setLoading(true);
-
-      // Load debts and payments in parallel (map DB schema to UI shape)
-      const [debtsResponse, paymentsResponse] = await Promise.all([
-        supabase
-          .from("debts")
-          .select("*")
-          .order("started_on", { ascending: false }),
-        supabase
-          .from("debt_payments")
-          .select("*")
-          .order("paid_on", { ascending: false }),
-      ]);
-
-      if (debtsResponse.error && debtsResponse.error.code === "42P01") {
-        console.log(
-          "Debt tables not found. Please run the database setup from FINANCIAL_SETUP.md"
-        );
-        setDebts([]);
-        setPayments([]);
-        return;
-      }
-
-      if (debtsResponse.error) throw debtsResponse.error;
-      if (paymentsResponse.error) throw paymentsResponse.error;
-
-      const rawDebts = (debtsResponse.data || []) as any[];
-      const rawPayments = (paymentsResponse.data || []) as any[];
-
-      // Sum payments per debt
-      const totalPaidByDebt = rawPayments.reduce<Record<string, number>>(
-        (acc, p) => {
-          const id = p.debt_id as string;
-          const amt = Number(p.amount || 0);
-          acc[id] = (acc[id] || 0) + amt;
-          return acc;
-        },
-        {}
-      );
-
-      // Map DB rows to UI Debt shape
-      const processedDebts: Debt[] = rawDebts.map((d) => {
-        const principal = Number(d.principal || 0);
-        const paid = totalPaidByDebt[d.id] || 0;
-        const balance = Math.max(0, principal - paid);
-        const uiStatus: Debt["status"] =
-          d.status === "closed"
-            ? "paid"
-            : d.status === "defaulted"
-            ? "overdue"
-            : "active";
-        return {
-          id: d.id,
-          creditor_name: d.lender || "",
-          debt_type: "Other",
-          principal_amount: principal,
-          interest_rate: Number(d.interest_rate || 0),
-          borrowed_date: (d.started_on as string) || "",
-          due_date: (d.due_on as string) || "",
-          current_balance: balance,
-          status: uiStatus,
-          purpose: d.notes || "",
-          notes: d.notes || "",
-          created_at: (d.created_at as string) || "",
-        };
-      });
-
-      const processedPayments: Payment[] = rawPayments.map((p) => ({
-        id: p.id,
-        debt_id: p.debt_id,
-        payment_amount: Number(p.amount || 0),
-        payment_date: (p.paid_on as string) || "",
-        payment_method: "Cash",
-        notes: p.notes || "",
-        created_at: (p.created_at as string) || "",
-      }));
-
-      setDebts(processedDebts);
-      setPayments(processedPayments);
-    } catch (error) {
-      console.error("Error loading debt data:", error);
-      setDebts([]); // Set empty arrays on error
-      setPayments([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Stats calculations moved to component body
+  const stats = {
+    totalDebt: debts.reduce((sum, d) => sum + d.current_balance, 0),
+    activeDebts: debts.filter((d) => d.status === "active").length,
+    overdueDebts: debts.filter((d) => d.status === "overdue").length,
+  };
 
   async function handleDebtSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -244,7 +163,9 @@ export default function DebtManagement() {
       setShowDebtForm(false);
       setEditingDebt(null);
       resetDebtForm();
-      await loadData();
+
+      // Invalidate cache to refetch data
+      queryClient.invalidateQueries({ queryKey: ["debts"] });
     } catch (error) {
       console.error("Error saving debt:", error);
       alert("Failed to save debt. Please try again.");
@@ -288,7 +209,9 @@ export default function DebtManagement() {
 
       setShowPaymentForm(false);
       resetPaymentForm();
-      await loadData();
+
+      // Invalidate cache to refetch data
+      queryClient.invalidateQueries({ queryKey: ["debts"] });
     } catch (error) {
       console.error("Error processing payment:", error);
       alert("Failed to process payment. Please try again.");
@@ -307,7 +230,9 @@ export default function DebtManagement() {
       const { error } = await supabase.from("debts").delete().eq("id", id);
 
       if (error) throw error;
-      await loadData();
+
+      // Invalidate cache to refetch data
+      queryClient.invalidateQueries({ queryKey: ["debts"] });
     } catch (error) {
       console.error("Error deleting debt:", error);
     }

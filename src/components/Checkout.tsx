@@ -13,6 +13,7 @@ import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
+import OptimizedImage from "./OptimizedImage";
 
 interface CheckoutProps {
   onBack: () => void;
@@ -209,7 +210,9 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
               </div>
               {formData.email && (
                 <div className="flex items-start space-x-2">
-                  <span className="text-purple-600 flex-shrink-0 mt-0.5">📧</span>
+                  <span className="text-purple-600 flex-shrink-0 mt-0.5">
+                    📧
+                  </span>
                   <p className="text-slate-700 font-medium">
                     Order updates will be sent to {formData.email}
                   </p>
@@ -416,10 +419,10 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                 >
                   <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
                     {item.product.image_url ? (
-                      <img
+                      <OptimizedImage
                         src={item.product.image_url}
                         alt={item.product.name}
-                        className="w-full h-full object-contain rounded-lg"
+                        preset="small"
                       />
                     ) : (
                       <ShoppingBag className="w-4 h-4 text-slate-400" />

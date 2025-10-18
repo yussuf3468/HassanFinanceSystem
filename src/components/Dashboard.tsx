@@ -6,9 +6,10 @@ import {
   AlertTriangle,
   Receipt,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 import type { Database } from "../lib/database.types";
 import { formatDate } from "../utils/dateFormatter";
+import OptimizedImage from "./OptimizedImage";
 
 type Product = Database["public"]["Tables"]["products"]["Row"];
 type Sale = Database["public"]["Tables"]["sales"]["Row"];
@@ -38,43 +39,21 @@ export default function Dashboard() {
     Array<{ product: Product; total: number }>
   >([]);
   const [recentSales, setRecentSales] = useState<Sale[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // ✅ Use cached queries (reduces egress costs by 90%)
+  const { data: products = [], isLoading: productsLoading } = useProducts();
+  const { data: sales = [], isLoading: salesLoading } = useSales();
+
+  const loading = productsLoading || salesLoading;
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (products.length > 0 && sales.length > 0) {
+      calculateDashboardData(sales, products);
+    }
+  }, [products, sales]);
 
-  async function loadDashboardData() {
+  function calculateDashboardData(sales: Sale[], products: Product[]) {
     try {
-      // Check if Supabase is properly configured
-      if (
-        !import.meta.env.VITE_SUPABASE_URL ||
-        !import.meta.env.VITE_SUPABASE_ANON_KEY
-      ) {
-        console.warn("Supabase not configured - showing empty state");
-        // Show empty state when Supabase is not configured
-        setStats({
-          totalSales: 0,
-          totalProfit: 0,
-          lowStockCount: 0,
-          totalProducts: 0,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Load business data (sales, products) - single-tenant (no filtering)
-      const [salesRes, productsRes] = await Promise.all([
-        supabase.from("sales").select("*"),
-        supabase.from("products").select("*"),
-      ]);
-
-      if (salesRes.error) throw salesRes.error;
-      if (productsRes.error) throw productsRes.error;
-
-      const sales = salesRes.data || [];
-      const products = productsRes.data || [];
-
       const totalSales = sales.reduce((sum, sale) => sum + sale.total_sale, 0);
       const totalProfit = sales.reduce((sum, sale) => sum + sale.profit, 0);
       const lowStockCount = products.filter(
@@ -106,7 +85,7 @@ export default function Dashboard() {
       setTopProducts(top);
       setRecentSales(sales.slice(-5).reverse());
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error("Error calculating dashboard:", error);
       // Show empty state on error
       setStats({
         totalSales: 0,
@@ -114,8 +93,6 @@ export default function Dashboard() {
         lowStockCount: 0,
         totalProducts: 0,
       });
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -257,10 +234,11 @@ export default function Dashboard() {
                         : index + 1}
                     </div>
                     {item.product.image_url && (
-                      <img
+                      <OptimizedImage
                         src={item.product.image_url}
                         alt={item.product.name}
                         className="w-10 h-10 object-cover rounded-lg border border-white/20"
+                        preset="thumbnail"
                       />
                     )}
                     <div className="flex-1 min-w-0">

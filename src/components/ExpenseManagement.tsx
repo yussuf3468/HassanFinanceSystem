@@ -7,6 +7,7 @@ import {
   Calendar,
   TrendingDown,
 } from "lucide-react";
+import { useExpenses } from "../hooks/useSupabaseQuery";
 import { supabase } from "../lib/supabase";
 import type { Database } from "../lib/database.types";
 import DatabaseSetupNotice from "./DatabaseSetupNotice.tsx";
@@ -34,6 +35,7 @@ interface ExpenseForm {
 }
 
 export default function ExpenseManagement() {
+  const { data: expensesData = [] } = useExpenses();
   const [expenses, setExpenses] = useState<ExpenseUI[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseUI | null>(null);
@@ -52,9 +54,23 @@ export default function ExpenseManagement() {
     notes: "",
   });
 
+  // Filter expenses by selected month from cached data
   useEffect(() => {
-    loadCategoriesAndExpenses();
-  }, [selectedMonth]);
+    if (expensesData.length === 0) return;
+
+    const startDate = selectedMonth + "-01";
+    const endDate = new Date(selectedMonth + "-01");
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    const filtered = expensesData.filter((exp) => {
+      const expDate = exp.incurred_on;
+      return (
+        expDate >= startDate && expDate < endDate.toISOString().split("T")[0]
+      );
+    });
+
+    setExpenses(filtered);
+  }, [expensesData, selectedMonth]);
 
   const categoryNameToId = useMemo(() => {
     const map = new Map<string, string>();

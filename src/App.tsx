@@ -16,6 +16,7 @@ import FinancialDashboard from "./components/FinancialDashboard";
 import ExpenseManagement from "./components/ExpenseManagement";
 import InitialInvestment from "./components/InitialInvestment";
 import DebtManagement from "./components/DebtManagement";
+import CustomerCredit from "./components/CustomerCredit";
 import CyberServices from "./components/CyberServices";
 
 function AppContent() {
@@ -95,6 +96,7 @@ function AppContent() {
         {activeTab === "expenses" && <ExpenseManagement />}
         {activeTab === "investments" && <InitialInvestment />}
         {activeTab === "debts" && <DebtManagement />}
+        {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
       </Layout>
     </div>

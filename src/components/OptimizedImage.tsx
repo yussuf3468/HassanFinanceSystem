@@ -1,5 +1,9 @@
 import { useState, useCallback, memo, useRef, useEffect } from "react";
 import { Package } from "lucide-react";
+import {
+  getOptimizedImageUrl,
+  IMAGE_PRESETS,
+} from "../utils/imageOptimization";
 
 interface OptimizedImageProps {
   src: string | null;
@@ -10,34 +14,37 @@ interface OptimizedImageProps {
   priority?: boolean;
   sizes?: string;
   preload?: boolean;
-  forceFresh?: boolean; // New prop to force cache bypass
+  forceFresh?: boolean;
+  preset?: keyof typeof IMAGE_PRESETS; // Add preset option
 }
 
-// Image cache to store loaded images with timestamps
-const imageCache = new Map<string, { timestamp: number; url: string }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
+// Image cache to store loaded images (NO timestamps - cache forever until manual refresh)
+const imageCache = new Map<string, string>();
 
-// Generate cache-busting URL
-const getCacheBustedUrl = (
+// Generate optimized URL (NO cache-busting for maximum caching)
+const getProcessedUrl = (
   url: string,
-  forceFresh: boolean = false
+  forceFresh: boolean = false,
+  preset: keyof typeof IMAGE_PRESETS = "medium"
 ): string => {
   if (!url) return url;
 
-  // If forcing fresh or cache is expired, add timestamp
-  const cached = imageCache.get(url);
-  const now = Date.now();
-
-  if (forceFresh || !cached || now - cached.timestamp > CACHE_DURATION) {
-    const separator = url.includes("?") ? "&" : "?";
-    const bustUrl = `${url}${separator}_t=${now}&_v=${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
-    imageCache.set(url, { timestamp: now, url: bustUrl });
-    return bustUrl;
+  // Check if we already have this URL cached
+  const cacheKey = `${url}_${preset}`;
+  const cached = imageCache.get(cacheKey);
+  
+  if (cached && !forceFresh) {
+    return cached; // Return cached URL immediately
   }
 
-  return cached.url;
+  // Apply image optimization (resize, format conversion) - NO cache-busting parameters
+  const optimizedUrl = getOptimizedImageUrl(url, preset);
+  if (!optimizedUrl) return url;
+
+  // Store in cache forever (browser will handle caching with proper headers)
+  imageCache.set(cacheKey, optimizedUrl);
+  
+  return optimizedUrl;
 };
 
 const OptimizedImage = memo(
@@ -48,9 +55,10 @@ const OptimizedImage = memo(
     fallbackClassName = "",
     onClick,
     priority = false,
+    preset = "medium",
     sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
     preload = false,
-    forceFresh = true, // Default to true for always fresh images
+    forceFresh = false, // Changed to false to use caching by default
   }: OptimizedImageProps) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -59,8 +67,8 @@ const OptimizedImage = memo(
     const imgRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement | null>(null);
 
-    // Get cache-busted URL
-    const imageUrl = src ? getCacheBustedUrl(src, forceFresh) : null;
+    // Get optimized and cache-busted URL
+    const imageUrl = src ? getProcessedUrl(src, forceFresh, preset) : null;
 
     // Check if image is already cached
     const isCached = src ? imageCache.has(src) : false;

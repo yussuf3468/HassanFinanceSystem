@@ -72,10 +72,12 @@ export class CacheManager {
   }
 }
 
+// ❌ DISABLED: This old cache manager conflicts with React Query and OptimizedImage
+// The new system handles caching properly without force-refreshing images
 // Initialize auto-refresh on load
-if (typeof window !== "undefined") {
-  window.addEventListener("load", () => {
-    CacheManager.enableAutoRefresh();
-    console.log("Cache manager initialized with auto-refresh");
-  });
-}
+// if (typeof window !== "undefined") {
+//   window.addEventListener("load", () => {
+//     CacheManager.enableAutoRefresh();
+//     console.log("Cache manager initialized with auto-refresh");
+//   });
+// }

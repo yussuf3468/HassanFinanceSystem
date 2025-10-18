@@ -17,9 +17,10 @@ import {
   ChevronRight,
   Monitor,
   ChevronLeft,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../lib/supabase";
+import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
 
 interface LayoutProps {
   children: ReactNode;
@@ -36,7 +37,9 @@ export default function Layout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] =
     useState(true);
-  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+
+  // ✅ Use cached query for pending orders count (reduces egress costs)
+  const { data: pendingOrdersCount = 0 } = usePendingOrdersCount();
 
   // Check if current user is admin
   const isAdmin =
@@ -119,53 +122,18 @@ export default function Layout({
       icon: Banknote,
       color: "from-amber-600 to-yellow-600",
     },
+    {
+      id: "customer-credit",
+      label: "Store Credit",
+      icon: CreditCard,
+      color: "from-teal-600 to-cyan-600",
+    },
   ];
 
   const tabs = isAdmin ? [...baseTabs, ...adminTabs] : baseTabs;
 
-  // Fetch pending orders count (pending + confirmed = unread/new orders)
-  useEffect(() => {
-    const fetchPendingOrdersCount = async () => {
-      try {
-        const { count, error } = await supabase
-          .from("orders")
-          .select("*", { count: "exact", head: true })
-          .in("status", ["pending", "confirmed"]);
-
-        if (!error && count !== null) {
-          console.log("📦 New orders count:", count);
-          setPendingOrdersCount(count);
-        } else if (error) {
-          console.error("Error fetching orders count:", error);
-        }
-      } catch (error) {
-        console.error("Error fetching pending orders count:", error);
-      }
-    };
-
-    fetchPendingOrdersCount();
-
-    // Set up real-time subscription for order updates
-    const channel = supabase
-      .channel("orders-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-        },
-        (payload) => {
-          console.log("📦 Order changed:", payload);
-          fetchPendingOrdersCount();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  // ✅ Real-time subscription is handled inside usePendingOrdersCount hook
+  // No need for manual fetching - React Query auto-refetches every 2 minutes
 
   const getStaffName = (email: string) => {
     if (email.includes("yussuf") || email.includes("admin"))
@@ -428,7 +396,7 @@ export default function Layout({
                       </button>
                     </div>
                   )}
-                  
+
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur opacity-75"></div>
                     <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 p-2 rounded-full border-2 border-white/20">
@@ -543,11 +511,11 @@ export default function Layout({
 
       {/* Main Content Area */}
       <main
-        className={`relative pt-20 lg:pt-0 min-h-screen transition-all duration-300 ${
+        className={`relative pt-16 lg:pt-0 min-h-screen transition-all duration-300 ${
           isDesktopSidebarCollapsed ? "lg:ml-20" : "lg:ml-72 xl:ml-80"
         }`}
       >
-        <div className="px-3 sm:px-4 lg:px-6 py-4 md:py-6 lg:py-8 max-w-[1600px] mx-auto">
+        <div className="px-3 sm:px-4 lg:px-6 py-3 md:py-4 lg:py-6 max-w-[1600px] mx-auto">
           {children}
         </div>
       </main>

@@ -13,37 +13,18 @@ import {
   Tag,
   TrendingUp,
 } from "lucide-react";
+import { useProducts } from "../hooks/useSupabaseQuery";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
 import ProductForm from "./ProductForm";
+import OptimizedImage from "./OptimizedImage";
 import { formatDate } from "../utils/dateFormatter";
 
 export default function Inventory() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: products = [], isLoading: loading, refetch } = useProducts();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
-
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  async function loadProducts() {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error("Error loading products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleDelete(id: string) {
     const product = products.find((p) => p.id === id);
@@ -93,7 +74,7 @@ export default function Inventory() {
       alert(
         `✅ Successfully deleted "${product.name}" and all related records!`
       );
-      await loadProducts();
+      refetch();
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("Failed to delete product. Please try again.");
@@ -120,9 +101,9 @@ export default function Inventory() {
     setEditingProduct(null);
   }
 
-  async function handleFormSuccess() {
+  function handleFormSuccess() {
     handleCloseForm();
-    await loadProducts();
+    refetch();
   }
 
   if (loading) {
@@ -203,10 +184,11 @@ export default function Inventory() {
                               onClick={() => handleView(product)}
                               className="flex-shrink-0 hover:opacity-80 transition-opacity"
                             >
-                              <img
+                              <OptimizedImage
                                 src={product.image_url}
                                 alt={product.name}
                                 className="w-10 h-10 object-cover rounded-lg"
+                                preset="thumbnail"
                               />
                             </button>
                           ) : (
@@ -313,15 +295,17 @@ export default function Inventory() {
                       onClick={() => handleView(product)}
                       className="flex-shrink-0 hover:opacity-80 transition-opacity"
                     >
-                      <img
+                      <OptimizedImage
                         src={product.image_url}
                         alt={product.name}
                         className="w-16 h-16 object-cover rounded-xl border-2 border-white/20"
+                        preset="thumbnail"
                       />
                     </button>
                   ) : (
                     <button
                       onClick={() => handleView(product)}
+                      className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                       className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-colors border border-white/20"
                     >
                       <Package className="w-7 h-7 text-slate-400" />
@@ -431,7 +415,6 @@ export default function Inventory() {
                   </button>
                 </div>
               </div>
-
               {/* Modal Content */}
               <div className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -439,14 +422,16 @@ export default function Inventory() {
                   <div className="space-y-4">
                     <div className="relative group">
                       {viewingProduct.image_url ? (
-                        <img
+                        <OptimizedImage
                           src={viewingProduct.image_url}
                           alt={viewingProduct.name}
                           className="w-full h-80 lg:h-96 object-cover rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+                          preset="large"
                         />
                       ) : (
                         <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center border border-white/20">
                           <div className="text-center">
+                            <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                             <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                             <p className="text-slate-300 font-medium">
                               No Image Available
