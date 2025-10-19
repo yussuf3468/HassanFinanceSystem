@@ -131,16 +131,17 @@ export default function UserActivityDashboard() {
     console.log("Starting initial fetch...");
     fetchUserActivities();
 
+    // ❌ DISABLED auto-polling to save egress - user can manually refresh if needed
     // Less frequent updates to reduce performance impact
-    console.log("Setting up interval for every 2 minutes...");
-    const intervalId = setInterval(() => {
-      console.log("Interval triggered, fetching activities...");
-      fetchUserActivities();
-    }, 5 * 60 * 1000); // Every 2 minutes
+    // console.log("Setting up interval for every 30 minutes...");
+    // const intervalId = setInterval(() => {
+    //   console.log("Interval triggered, fetching activities...");
+    //   fetchUserActivities();
+    // }, 30 * 60 * 1000); // Every 30 minutes (REDUCED from 5 min to save egress)
 
     return () => {
       console.log("Cleaning up interval...");
-      clearInterval(intervalId);
+      // No interval to clean up - polling disabled
     };
   }, [isAdmin, fetchUserActivities]);
 

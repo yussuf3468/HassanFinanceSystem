@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   CreditCard as Edit2,
@@ -25,6 +25,16 @@ export default function Inventory() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+
+  // Sort products newest-first by created_at (fallback to id)
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
+      const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (aDate !== bDate) return bDate - aDate;
+      return b.id.localeCompare(a.id);
+    });
+  }, [products]);
 
   async function handleDelete(id: string) {
     const product = products.find((p) => p.id === id);
@@ -159,7 +169,7 @@ export default function Inventory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {products.length === 0 ? (
+              {sortedProducts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -169,7 +179,7 @@ export default function Inventory() {
                   </td>
                 </tr>
               ) : (
-                products.map((product) => {
+                sortedProducts.map((product) => {
                   const isLowStock =
                     product.quantity_in_stock <= product.reorder_level;
                   return (
@@ -275,13 +285,13 @@ export default function Inventory() {
 
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
-        {products.length === 0 ? (
+        {sortedProducts.length === 0 ? (
           <div className="text-center py-12 text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <p>No products found. Add your first product to get started!</p>
           </div>
         ) : (
-          products.map((product) => {
+          sortedProducts.map((product) => {
             const isLowStock =
               product.quantity_in_stock <= product.reorder_level;
             return (

@@ -1,41 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Sale, Product } from "../types";
 import SaleForm from "./SaleForm";
 import { formatDate } from "../utils/dateFormatter";
+import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 
 export default function Sales() {
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // ✅ Use cached hooks instead of direct queries - saves egress!
+  const { data: sales = [], refetch: refetchSales } = useSales();
+  const { data: products = [] } = useProducts();
+  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    try {
-      const [salesRes, productsRes] = await Promise.all([
-        supabase
-          .from("sales")
-          .select("*")
-          .order("sale_date", { ascending: false }),
-        supabase.from("products").select("*"),
-      ]);
-
-      if (salesRes.error) throw salesRes.error;
-      if (productsRes.error) throw productsRes.error;
-
-      setSales(salesRes.data || []);
-      setProducts(productsRes.data || []);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // ❌ Removed useEffect - data now comes from cached hooks!
 
   function getProductById(id: string) {
     return products.find((p) => p.id === id);
@@ -47,7 +25,7 @@ export default function Sales() {
 
   async function handleFormSuccess() {
     handleCloseForm();
-    await loadData();
+    refetchSales(); // ✅ Use refetch from hook instead of full reload
   }
 
   async function handleDeleteSale(saleId: string, productName: string) {
@@ -65,20 +43,21 @@ export default function Sales() {
       }
 
       alert(`✅ Sale record deleted successfully!`);
-      await loadData();
+      refetchSales(); // ✅ Use refetch from hook
     } catch (error) {
       console.error("Error deleting sale:", error);
       alert("Failed to delete sale record. Please try again.");
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-white text-base font-medium">Loading sales...</div>
-      </div>
-    );
-  }
+  // ✅ Loading state now comes from React Query
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center py-12">
+  //       <div className="text-white text-base font-medium">Loading sales...</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-4">

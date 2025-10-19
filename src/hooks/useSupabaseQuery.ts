@@ -26,8 +26,11 @@ export function useSupabaseQuery<T = any>(
       }
       return data as T;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: Infinity, // ❌ NEVER auto-refetch - cache forever!
+    gcTime: 60 * 60 * 1000, // 1 hour - keep cache in memory longer
+    refetchOnWindowFocus: false, // ❌ Don't refetch on window focus
+    refetchOnMount: false, // ❌ Don't refetch on mount
+    refetchOnReconnect: false, // ❌ Don't refetch on reconnect
     ...options,
   });
 }
@@ -51,8 +54,11 @@ export function useSupabaseQueryDirect<T = any>(
       }
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: Infinity, // ❌ NEVER auto-refetch - cache forever!
+    gcTime: 60 * 60 * 1000, // 1 hour - keep cache in memory longer
+    refetchOnWindowFocus: false, // ❌ Don't refetch on window focus
+    refetchOnMount: false, // ❌ Don't refetch on mount
+    refetchOnReconnect: false, // ❌ Don't refetch on reconnect
     ...options,
   });
 }

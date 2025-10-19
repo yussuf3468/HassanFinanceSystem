@@ -87,11 +87,11 @@ export default function UserActivityDashboard() {
     // Initial fetch
     fetchUserActivities();
 
-    // Less frequent updates to reduce performance impact
-    const intervalId = setInterval(fetchUserActivities, 120000); // Every 2 minutes
+    // ❌ DISABLED auto-polling to save egress - reduced from every 2 minutes
+    // const intervalId = setInterval(fetchUserActivities, 120000); // Every 2 minutes
 
     return () => {
-      clearInterval(intervalId);
+      // No interval to clean up - polling disabled
     };
   }, [isAdmin, fetchUserActivities]);
 

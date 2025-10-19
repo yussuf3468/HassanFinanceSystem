@@ -1,41 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Download, Calendar } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product, Sale } from "../types";
+import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 
 export default function Reports() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [sales, setSales] = useState<Sale[]>([]);
+  // ✅ Use cached hooks instead of direct queries - saves egress!
+  const { data: products = [] } = useProducts();
+  const { data: sales = [] } = useSales();
   const [dateRange, setDateRange] = useState<
     "today" | "week" | "month" | "all"
   >("all");
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
-    try {
-      const [productsRes, salesRes] = await Promise.all([
-        supabase.from("products").select("*"),
-        supabase
-          .from("sales")
-          .select("*")
-          .order("sale_date", { ascending: false }),
-      ]);
-
-      if (productsRes.error) throw productsRes.error;
-      if (salesRes.error) throw salesRes.error;
-
-      setProducts(productsRes.data || []);
-      setSales(salesRes.data || []);
-    } catch (error) {
-      console.error("Error loading data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // ❌ Removed useEffect and loadData - data now comes from cached hooks!
 
   function getFilteredSales() {
     const now = new Date();
