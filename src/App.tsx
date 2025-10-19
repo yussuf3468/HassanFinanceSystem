@@ -18,6 +18,7 @@ import InitialInvestment from "./components/InitialInvestment";
 import DebtManagement from "./components/DebtManagement";
 import CustomerCredit from "./components/CustomerCredit";
 import CyberServices from "./components/CyberServices";
+import QueryDiagnostics from "./components/QueryDiagnostics";
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -99,6 +100,8 @@ function AppContent() {
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
       </Layout>
+      {/* Dev-only diagnostics (hidden in production) */}
+      {!import.meta.env.PROD && <QueryDiagnostics />}
     </div>
   );
 }

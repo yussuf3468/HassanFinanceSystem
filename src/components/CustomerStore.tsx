@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { Search, ShoppingCart, Filter, Star, Package } from "lucide-react";
-import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
 import CartSidebar from "./CartSidebar";
 import type { Product } from "../types";
+import { usePublicProducts } from "../hooks/useSupabaseQuery";
+import OptimizedImage from "./OptimizedImage";
 
 interface CustomerStoreProps {
   onCheckout?: () => void;
 }
 
 export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { data: products = [], isLoading: loading } = usePublicProducts();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showCart, setShowCart] = useState(false);
@@ -34,31 +34,8 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
   ];
 
   useEffect(() => {
-    loadProducts();
-  }, []);
-
-  useEffect(() => {
     filterProducts();
   }, [products, searchTerm, selectedCategory]);
-
-  async function loadProducts() {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("published", true)
-        .gt("quantity_in_stock", 0)
-        .order("featured", { ascending: false })
-        .order("name");
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error("Error loading products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function filterProducts() {
     let filtered = products;
@@ -66,7 +43,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(
-        (product) =>
+        (product: Product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -75,7 +52,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (product) => product.category === selectedCategory
+        (product: Product) => product.category === selectedCategory
       );
     }
 
@@ -188,10 +165,12 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                 {/* Product Image */}
                 <div className="relative">
                   {product.image_url ? (
-                    <img
+                    <OptimizedImage
                       src={product.image_url}
                       alt={product.name}
                       className="w-full h-48 object-cover"
+                      fallbackClassName="w-full h-48"
+                      preset="product"
                     />
                   ) : (
                     <div className="w-full h-48 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import type { Sale, Product } from "../types";
 import SaleForm from "./SaleForm";
 import { formatDate } from "../utils/dateFormatter";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
@@ -10,7 +9,6 @@ export default function Sales() {
   // ✅ Use cached hooks instead of direct queries - saves egress!
   const { data: sales = [], refetch: refetchSales } = useSales();
   const { data: products = [] } = useProducts();
-  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   // ❌ Removed useEffect - data now comes from cached hooks!

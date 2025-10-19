@@ -1,5 +1,6 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
+import type { Product } from "../types";
 
 /**
  * Custom hook for cached Supabase queries
@@ -67,8 +68,8 @@ export function useSupabaseQueryDirect<T = any>(
  * Hook for products data with caching
  */
 export function useProducts() {
-  return useSupabaseQuery("products", () =>
-    supabase.from("products").select("*")
+  return useSupabaseQuery<Product[]>("products", async () =>
+    await supabase.from("products").select("*")
   );
 }
 
@@ -76,15 +77,17 @@ export function useProducts() {
  * Hook for sales data with caching
  */
 export function useSales() {
-  return useSupabaseQuery("sales", () => supabase.from("sales").select("*"));
+  return useSupabaseQuery<any[]>("sales", async () =>
+    await supabase.from("sales").select("*")
+  );
 }
 
 /**
  * Hook for orders data with caching
  */
 export function useOrders() {
-  return useSupabaseQuery("orders", () =>
-    supabase.from("orders").select("*, order_items(*)")
+  return useSupabaseQuery<any[]>("orders", async () =>
+    await supabase.from("orders").select("*, order_items(*)")
   );
 }
 
@@ -148,8 +151,8 @@ export function useCreditPayments() {
  * Hook for expenses with caching
  */
 export function useExpenses() {
-  return useSupabaseQuery("expenses", () =>
-    supabase.from("expenses").select("*, expense_categories(name)")
+  return useSupabaseQuery<any[]>("expenses", async () =>
+    await supabase.from("expenses").select("*, expense_categories(name)")
   );
 }
 
@@ -157,5 +160,45 @@ export function useExpenses() {
  * Hook for debts with caching
  */
 export function useDebts() {
-  return useSupabaseQuery("debts", () => supabase.from("debts").select("*"));
+  return useSupabaseQuery<any[]>("debts", async () =>
+    await supabase.from("debts").select("*")
+  );
+}
+
+/**
+ * Hook for publicly visible products (published and in stock) with caching
+ */
+export function usePublicProducts() {
+  return useSupabaseQuery<Product[]>("public-products", async () =>
+    await supabase
+      .from("products")
+      .select("*")
+      .eq("published", true)
+      .gt("quantity_in_stock", 0)
+      .order("featured", { ascending: false })
+      .order("name")
+  );
+}
+
+/**
+ * Hook for featured products list (limited) with caching
+ */
+export function useFeaturedProducts(limit = 8) {
+  return useSupabaseQuery<Product[]>("featured-products", async () =>
+    await supabase
+      .from("products")
+      .select("*")
+      .gt("quantity_in_stock", 0)
+      .order("quantity_in_stock", { ascending: true })
+      .limit(limit)
+  );
+}
+
+/**
+ * Hook for initial investments data with caching
+ */
+export function useInitialInvestments() {
+  return useSupabaseQuery<any[]>("initial-investments", async () =>
+    await supabase.from("initial_investments").select("*")
+  );
 }

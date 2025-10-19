@@ -1,14 +1,7 @@
-import { useState, useEffect, memo, useCallback } from "react";
-import {
-  Star,
-  ShoppingCart,
-  Heart,
-  Package,
-  Flame,
-  TrendingUp,
-} from "lucide-react";
+import { useState, memo, useCallback } from "react";
+import { Star, ShoppingCart, Heart, Package, Flame, TrendingUp } from "lucide-react";
 import compactToast from "../utils/compactToast";
-import { supabase } from "../lib/supabase";
+import { useFeaturedProducts } from "../hooks/useSupabaseQuery";
 import OptimizedImage from "./OptimizedImage";
 import type { Product } from "../types";
 
@@ -20,31 +13,7 @@ interface FeaturedProductsProps {
 
 const FeaturedProducts = memo(
   ({ onAddToCart, onQuickView, onViewAllProducts }: FeaturedProductsProps) => {
-    const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-      const fetchFeaturedProducts = async () => {
-        try {
-          const { data, error } = await supabase
-            .from("products")
-            .select("*")
-            .gt("quantity_in_stock", 0)
-            .order("quantity_in_stock", { ascending: true })
-            .limit(8);
-
-          if (error) throw error;
-          setFeaturedProducts(data || []);
-        } catch (error) {
-          console.error("Error fetching featured products:", error);
-          setFeaturedProducts([]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchFeaturedProducts();
-    }, []);
+    const { data: featuredProducts = [], isLoading } = useFeaturedProducts(8);
 
     const badges = [
       "#1 Best Seller",
@@ -59,18 +28,14 @@ const FeaturedProducts = memo(
 
     const handleAddToCart = useCallback(
       (product: Product) => {
-        if (onAddToCart) {
-          onAddToCart(product);
-        }
+        if (onAddToCart) onAddToCart(product);
       },
       [onAddToCart]
     );
 
     const handleQuickView = useCallback(
       (product: Product) => {
-        if (onQuickView) {
-          onQuickView(product);
-        }
+        if (onQuickView) onQuickView(product);
       },
       [onQuickView]
     );
@@ -79,12 +44,10 @@ const FeaturedProducts = memo(
       if (onViewAllProducts) {
         onViewAllProducts();
       } else {
-        // Default behavior: scroll to products section or top of page
         const productsSection = document.getElementById("products-section");
         if (productsSection) {
           productsSection.scrollIntoView({ behavior: "smooth" });
         } else {
-          // If no products section found, scroll to top
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       }
@@ -97,14 +60,11 @@ const FeaturedProducts = memo(
 
         const toggleLike = useCallback(() => {
           setIsLiked((prev) => !prev);
-          if (!isLiked) {
-            compactToast.addToWishlist();
-          }
+          if (!isLiked) compactToast.addToWishlist();
         }, [isLiked]);
 
         const handleAddToCartClick = useCallback(async () => {
           setIsAddingToCart(true);
-          // small delay to show feedback
           await new Promise((resolve) => setTimeout(resolve, 250));
           handleAddToCart(product);
           setIsAddingToCart(false);
@@ -259,10 +219,7 @@ const FeaturedProducts = memo(
               <div className="h-8 bg-white/20 rounded mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-white/10 backdrop-blur-xl rounded shadow border border-white/20 p-4"
-                  >
+                  <div key={i} className="bg-white/10 backdrop-blur-xl rounded shadow border border-white/20 p-4">
                     <div className="h-32 bg-white/20 rounded mb-3" />
                     <div className="h-4 bg-white/20 rounded mb-2" />
                     <div className="h-6 bg-white/20 rounded" />
@@ -321,7 +278,7 @@ const FeaturedProducts = memo(
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {featuredProducts.map((product, index) => (
+            {featuredProducts.map((product: Product, index: number) => (
               <FeaturedProductCard
                 key={product.id}
                 product={product}
@@ -330,9 +287,9 @@ const FeaturedProducts = memo(
             ))}
           </div>
 
-          <div className="mt-8 text-center">
+           <div className="mt-8 text-center">
             <button
-              onClick={handleViewAllProducts}
+               onClick={handleViewAllProducts}
               className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium py-2 px-4 rounded-md hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <span>View All Products</span>

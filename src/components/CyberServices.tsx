@@ -95,13 +95,13 @@ export default function CyberServices() {
       setLoading(true);
 
       const { data, error } = await supabase
-        .from("cyber_services")
+        .from("cyber_services" as any)
         .select("*")
         .order("date", { ascending: false });
 
       if (error) throw error;
 
-      setServices(data || []);
+  setServices((data as unknown as CyberService[]) || []);
     } catch (error) {
       console.error("Error loading cyber services:", error);
     } finally {
@@ -116,7 +116,7 @@ export default function CyberServices() {
       if (editingService) {
         // Update existing service
         const { error } = await supabase
-          .from("cyber_services")
+          .from("cyber_services" as any)
           .update({
             service_name: formData.service_name,
             amount: formData.amount,
@@ -128,7 +128,7 @@ export default function CyberServices() {
         if (error) throw error;
       } else {
         // Create new service
-        const { error } = await supabase.from("cyber_services").insert([
+        const { error } = await supabase.from("cyber_services" as any).insert([
           {
             service_name: formData.service_name,
             amount: formData.amount,
@@ -153,7 +153,7 @@ export default function CyberServices() {
 
     try {
       const { error } = await supabase
-        .from("cyber_services")
+        .from("cyber_services" as any)
         .delete()
         .eq("id", id);
 

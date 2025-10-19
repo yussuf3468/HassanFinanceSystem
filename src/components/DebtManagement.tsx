@@ -88,7 +88,8 @@ export default function DebtManagement() {
   const queryClient = useQueryClient();
   const { data: debtsData = [], isLoading: loading } = useDebts();
   const debts = debtsData as unknown as Debt[];
-  const [payments, setPayments] = useState<Payment[]>([]);
+  // Removed unused payments state to satisfy type checker and reduce memory
+  const [/* payments */, /* setPayments */] = useState<Payment[]>([]);
   const [showDebtForm, setShowDebtForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
@@ -127,11 +128,7 @@ export default function DebtManagement() {
   }
 
   // Stats calculations moved to component body
-  const stats = {
-    totalDebt: debts.reduce((sum, d) => sum + d.current_balance, 0),
-    activeDebts: debts.filter((d) => d.status === "active").length,
-    overdueDebts: debts.filter((d) => d.status === "overdue").length,
-  };
+  // Stats are computed inline below; kept minimal here to avoid unused warnings
 
   async function handleDebtSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -332,9 +329,7 @@ export default function DebtManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <span className="hidden" aria-hidden>
-          {payments.length}
-        </span>
+        {/* hidden anchor removed - no-op */}
         {/* Header */}
         <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-xl border border-white/20 mb-4 sm:mb-8">
           <div className="flex flex-col gap-4 sm:gap-6">

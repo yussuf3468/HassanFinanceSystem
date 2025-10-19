@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Download, Calendar } from "lucide-react";
-import { supabase } from "../lib/supabase";
-import type { Product, Sale } from "../types";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
+import OptimizedImage from "./OptimizedImage";
 
 export default function Reports() {
   // ✅ Use cached hooks instead of direct queries - saves egress!
@@ -297,10 +296,12 @@ export default function Reports() {
                 className="flex items-center space-x-3 p-4 bg-orange-600/10 rounded-xl border border-orange-500/30 hover:bg-orange-600/20 transition-all"
               >
                 {product.image_url && (
-                  <img
+                  <OptimizedImage
                     src={product.image_url}
                     alt={product.name}
                     className="w-12 h-12 object-cover rounded-lg border border-white/20"
+                    fallbackClassName="w-12 h-12"
+                    preset="thumbnail"
                   />
                 )}
                 <div className="flex-1 min-w-0">

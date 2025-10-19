@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Package,
   DollarSign,
-  BarChart3,
   Eye,
   Sparkles,
   X,
@@ -13,24 +12,18 @@ import {
   Tag,
   Info,
 } from "lucide-react";
-import { useProducts, useSales } from "../hooks/useSupabaseQuery";
-import type { Product, Sale } from "../types";
+import { useProducts } from "../hooks/useSupabaseQuery";
+import type { Product } from "../types";
 import OptimizedImage from "./OptimizedImage";
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
-  const [productStats, setProductStats] = useState<{
-    totalSales: number;
-    totalProfit: number;
-    totalQuantitySold: number;
-  } | null>(null);
+  // Removed unused selectedProduct and productStats state
 
   // ✅ Use cached queries (reduces egress costs by 90%)
-  const { data: products = [], isLoading: productsLoading } = useProducts();
-  const { data: sales = [], isLoading: salesLoading } = useSales();
+  const { data: products = [] } = useProducts();
 
   useEffect(() => {
     if (searchTerm && products.length > 0) {
@@ -45,31 +38,17 @@ export default function Search() {
       setFilteredProducts(filtered);
     } else {
       setFilteredProducts(products);
-      setSelectedProduct(null);
-      setProductStats(null);
+  // reset any transient UI state
     }
   }, [searchTerm, products]);
 
   // ✅ loadData function removed - using React Query cache instead
 
   function handleSelectProduct(product: Product) {
-    setSelectedProduct(product);
+    // Selecting product just focuses details now
     setSearchTerm("");
     setFilteredProducts(products);
-
-    const productSales = sales.filter((s) => s.product_id === product.id);
-    const totalSales = productSales.reduce((sum, s) => sum + s.total_sale, 0);
-    const totalProfit = productSales.reduce((sum, s) => sum + s.profit, 0);
-    const totalQuantitySold = productSales.reduce(
-      (sum, s) => sum + s.quantity_sold,
-      0
-    );
-
-    setProductStats({
-      totalSales,
-      totalProfit,
-      totalQuantitySold,
-    });
+    setViewingProduct(product);
   }
 
   function handleViewProduct(product: Product, e: React.MouseEvent) {

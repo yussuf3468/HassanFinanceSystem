@@ -17,7 +17,7 @@ import {
   Users,
   Percent,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { useSales, useExpenses, useDebts, useInitialInvestments } from "../hooks/useSupabaseQuery";
 import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
@@ -82,9 +82,15 @@ export default function FinancialDashboard() {
   >([]);
   const [loading, setLoading] = useState(true);
 
+  const { data: sales = [] } = useSales();
+  const { data: expenses = [] } = useExpenses();
+  const { data: debts = [] } = useDebts();
+  const { data: investments = [] } = useInitialInvestments();
+
   useEffect(() => {
     loadFinancialData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sales, expenses, debts, investments]);
 
   const generateFinancialReport = () => {
     const today = new Date();
@@ -308,72 +314,32 @@ export default function FinancialDashboard() {
     try {
       setLoading(true);
 
-      // Initialize empty arrays for all data
-      let sales: any[] = [];
-      let expenses: any[] = [];
-      let investments: any[] = [];
-      let debts: any[] = [];
-
-      // Load business data (sales for revenue/profit)
-      try {
-        const salesRes = await supabase.from("sales").select("*");
-        if (salesRes.data && !salesRes.error) {
-          sales = salesRes.data;
-        }
-      } catch (error) {
-        console.log("Sales data not available");
-      }
-
-      // Load financial data
-      try {
-        const expensesRes = await supabase.from("expenses").select("*");
-        if (expensesRes.data && !expensesRes.error) {
-          expenses = expensesRes.data;
-        }
-      } catch (error) {
-        console.log("Expenses table not ready yet");
-      }
-
-      try {
-        const investmentsRes = await supabase
-          .from("initial_investments")
-          .select("*");
-        if (investmentsRes.data && !investmentsRes.error) {
-          investments = investmentsRes.data;
-        }
-      } catch (error) {
-        console.log("Initial investments table not ready yet");
-      }
-
-      try {
-        const debtsRes = await supabase.from("debts").select("*");
-        if (debtsRes.data && !debtsRes.error) {
-          debts = debtsRes.data;
-        }
-      } catch (error) {
-        console.log("Debts table not ready yet");
-      }
+      // Use cached data from hooks (already fetched once and cached indefinitely)
+      const salesData: any[] = Array.isArray(sales) ? sales : [];
+      const expensesData: any[] = Array.isArray(expenses) ? expenses : [];
+      const investmentsData: any[] = Array.isArray(investments) ? investments : [];
+      const debtsData: any[] = Array.isArray(debts) ? debts : [];
 
       // Calculate business metrics
-      const totalSales = sales.reduce(
+      const totalSales = salesData.reduce(
         (sum, sale) => sum + (sale.total_sale || 0),
         0
       );
-      const totalProfit = sales.reduce(
+      const totalProfit = salesData.reduce(
         (sum, sale) => sum + (sale.profit || 0),
         0
       );
 
       // Calculate financial metrics
-      const totalExpenses = expenses.reduce(
+      const totalExpenses = expensesData.reduce(
         (sum, expense) => sum + (expense.amount || 0),
         0
       );
-      const totalInvestment = investments.reduce(
+      const totalInvestment = investmentsData.reduce(
         (sum, investment) => sum + (investment.amount || 0),
         0
       );
-      const totalDebt = debts.reduce(
+      const totalDebt = debtsData.reduce(
         (sum, debt) => sum + (debt.current_balance || 0),
         0
       );
@@ -382,7 +348,7 @@ export default function FinancialDashboard() {
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
 
-      const monthlyExpenses = expenses
+      const monthlyExpenses = expensesData
         .filter((expense: any) => {
           if (!expense.date) return false;
           const expenseDate = new Date(expense.date);
@@ -393,7 +359,7 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, expense) => sum + (expense.amount || 0), 0);
 
-      const monthlyRevenue = sales
+      const monthlyRevenue = salesData
         .filter((sale: any) => {
           if (!sale.sale_date) return false;
           const saleDate = new Date(sale.sale_date);
@@ -404,7 +370,7 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, sale) => sum + (sale.total_sale || 0), 0);
 
-      const monthlyProfit = sales
+      const monthlyProfit = salesData
         .filter((sale: any) => {
           if (!sale.sale_date) return false;
           const saleDate = new Date(sale.sale_date);
@@ -423,7 +389,7 @@ export default function FinancialDashboard() {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
 
-      const dailyRevenue = sales
+      const dailyRevenue = salesData
         .filter((sale: any) => {
           if (!sale.sale_date) return false;
           const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
@@ -431,7 +397,7 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, sale) => sum + (sale.total_sale || 0), 0);
 
-      const dailyProfit = sales
+      const dailyProfit = salesData
         .filter((sale: any) => {
           if (!sale.sale_date) return false;
           const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
@@ -439,7 +405,7 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, sale) => sum + (sale.profit || 0), 0);
 
-      const yesterdayProfit = sales
+      const yesterdayProfit = salesData
         .filter((sale: any) => {
           if (!sale.sale_date) return false;
           const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
@@ -447,11 +413,11 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, sale) => sum + (sale.profit || 0), 0);
 
-      const activeDebts = debts.filter(
+      const activeDebts = debtsData.filter(
         (debt: any) => debt.status === "active"
       ).length;
       const investmentCategories = new Set(
-        investments.map((inv: any) => inv.category).filter(Boolean)
+        investmentsData.map((inv: any) => inv.category).filter(Boolean)
       ).size;
 
       // Calculate net worth (assets - liabilities)
@@ -475,7 +441,7 @@ export default function FinancialDashboard() {
       });
 
       // Calculate expense breakdown by category
-      const categoryTotals = expenses.reduce((acc: any, expense: any) => {
+      const categoryTotals = expensesData.reduce((acc: any, expense: any) => {
         const category = expense.category || "Other";
         acc[category] = (acc[category] || 0) + expense.amount;
         return acc;
@@ -492,7 +458,7 @@ export default function FinancialDashboard() {
       setExpenseBreakdown(breakdown);
 
       // Calculate investor dividends
-      calculateInvestorDividends(investments, totalProfit, totalInvestment);
+  calculateInvestorDividends(investmentsData, totalProfit, totalInvestment);
     } catch (error) {
       console.error("Error loading financial data:", error);
     } finally {

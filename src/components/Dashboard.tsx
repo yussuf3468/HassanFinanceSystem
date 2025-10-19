@@ -7,12 +7,9 @@ import {
   Receipt,
 } from "lucide-react";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
-import type { Database } from "../lib/database.types";
+import type { Product, Sale } from "../types";
 import { formatDate } from "../utils/dateFormatter";
 import OptimizedImage from "./OptimizedImage";
-
-type Product = Database["public"]["Tables"]["products"]["Row"];
-type Sale = Database["public"]["Tables"]["sales"]["Row"];
 
 interface DashboardStats {
   totalSales: number;
