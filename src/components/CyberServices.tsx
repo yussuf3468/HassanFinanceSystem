@@ -101,7 +101,7 @@ export default function CyberServices() {
 
       if (error) throw error;
 
-  setServices((data as unknown as CyberService[]) || []);
+      setServices((data as unknown as CyberService[]) || []);
     } catch (error) {
       console.error("Error loading cyber services:", error);
     } finally {

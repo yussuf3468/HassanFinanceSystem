@@ -1,5 +1,12 @@
 import { useState, memo, useCallback } from "react";
-import { Star, ShoppingCart, Heart, Package, Flame, TrendingUp } from "lucide-react";
+import {
+  Star,
+  ShoppingCart,
+  Heart,
+  Package,
+  Flame,
+  TrendingUp,
+} from "lucide-react";
 import compactToast from "../utils/compactToast";
 import { useFeaturedProducts } from "../hooks/useSupabaseQuery";
 import OptimizedImage from "./OptimizedImage";
@@ -219,7 +226,10 @@ const FeaturedProducts = memo(
               <div className="h-8 bg-white/20 rounded mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="bg-white/10 backdrop-blur-xl rounded shadow border border-white/20 p-4">
+                  <div
+                    key={i}
+                    className="bg-white/10 backdrop-blur-xl rounded shadow border border-white/20 p-4"
+                  >
                     <div className="h-32 bg-white/20 rounded mb-3" />
                     <div className="h-4 bg-white/20 rounded mb-2" />
                     <div className="h-6 bg-white/20 rounded" />
@@ -287,9 +297,9 @@ const FeaturedProducts = memo(
             ))}
           </div>
 
-           <div className="mt-8 text-center">
+          <div className="mt-8 text-center">
             <button
-               onClick={handleViewAllProducts}
+              onClick={handleViewAllProducts}
               className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium py-2 px-4 rounded-md hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <span>View All Products</span>

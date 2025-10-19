@@ -13,7 +13,10 @@ export default function QueryDiagnostics() {
 
     const update = () => {
       const queries = queryClient.getQueryCache().getAll();
-      const observers = queries.reduce((sum, q: any) => sum + q.observers.length, 0);
+      const observers = queries.reduce(
+        (sum, q: any) => sum + q.observers.length,
+        0
+      );
       setStats({ queries: queries.length, observers });
     };
 

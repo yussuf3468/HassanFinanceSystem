@@ -17,7 +17,12 @@ import {
   Users,
   Percent,
 } from "lucide-react";
-import { useSales, useExpenses, useDebts, useInitialInvestments } from "../hooks/useSupabaseQuery";
+import {
+  useSales,
+  useExpenses,
+  useDebts,
+  useInitialInvestments,
+} from "../hooks/useSupabaseQuery";
 import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
@@ -317,7 +322,9 @@ export default function FinancialDashboard() {
       // Use cached data from hooks (already fetched once and cached indefinitely)
       const salesData: any[] = Array.isArray(sales) ? sales : [];
       const expensesData: any[] = Array.isArray(expenses) ? expenses : [];
-      const investmentsData: any[] = Array.isArray(investments) ? investments : [];
+      const investmentsData: any[] = Array.isArray(investments)
+        ? investments
+        : [];
       const debtsData: any[] = Array.isArray(debts) ? debts : [];
 
       // Calculate business metrics
@@ -458,7 +465,7 @@ export default function FinancialDashboard() {
       setExpenseBreakdown(breakdown);
 
       // Calculate investor dividends
-  calculateInvestorDividends(investmentsData, totalProfit, totalInvestment);
+      calculateInvestorDividends(investmentsData, totalProfit, totalInvestment);
     } catch (error) {
       console.error("Error loading financial data:", error);
     } finally {

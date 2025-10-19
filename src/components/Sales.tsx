@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import SaleForm from "./SaleForm";
@@ -12,6 +12,23 @@ export default function Sales() {
   const [showForm, setShowForm] = useState(false);
 
   // ❌ Removed useEffect - data now comes from cached hooks!
+
+  // Sort latest sales first by sale_date (fallback to created_at or id)
+  const sortedSales = useMemo(() => {
+    const toTime = (s: any) => {
+      const d = s?.sale_date || s?.created_at;
+      const t = d ? new Date(d).getTime() : 0;
+      return Number.isFinite(t) ? t : 0;
+    };
+    return [...sales].sort((a: any, b: any) => {
+      const diff = toTime(b) - toTime(a);
+      if (diff !== 0) return diff;
+      // Stable fallback when times are equal
+      const idA = String(a?.id ?? "");
+      const idB = String(b?.id ?? "");
+      return idB.localeCompare(idA);
+    });
+  }, [sales]);
 
   function getProductById(id: string) {
     return products.find((p) => p.id === id);
@@ -119,7 +136,7 @@ export default function Sales() {
                   </td>
                 </tr>
               ) : (
-                sales.map((sale) => {
+                sortedSales.map((sale) => {
                   const product = getProductById(sale.product_id);
                   return (
                     <tr

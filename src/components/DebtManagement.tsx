@@ -89,7 +89,10 @@ export default function DebtManagement() {
   const { data: debtsData = [], isLoading: loading } = useDebts();
   const debts = debtsData as unknown as Debt[];
   // Removed unused payments state to satisfy type checker and reduce memory
-  const [/* payments */, /* setPayments */] = useState<Payment[]>([]);
+  const [
+    ,/* payments */
+    /* setPayments */
+  ] = useState<Payment[]>([]);
   const [showDebtForm, setShowDebtForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);

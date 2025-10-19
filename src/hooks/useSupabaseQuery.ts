@@ -68,8 +68,9 @@ export function useSupabaseQueryDirect<T = any>(
  * Hook for products data with caching
  */
 export function useProducts() {
-  return useSupabaseQuery<Product[]>("products", async () =>
-    await supabase.from("products").select("*")
+  return useSupabaseQuery<Product[]>(
+    "products",
+    async () => await supabase.from("products").select("*")
   );
 }
 
@@ -77,8 +78,9 @@ export function useProducts() {
  * Hook for sales data with caching
  */
 export function useSales() {
-  return useSupabaseQuery<any[]>("sales", async () =>
-    await supabase.from("sales").select("*")
+  return useSupabaseQuery<any[]>(
+    "sales",
+    async () => await supabase.from("sales").select("*")
   );
 }
 
@@ -86,8 +88,9 @@ export function useSales() {
  * Hook for orders data with caching
  */
 export function useOrders() {
-  return useSupabaseQuery<any[]>("orders", async () =>
-    await supabase.from("orders").select("*, order_items(*)")
+  return useSupabaseQuery<any[]>(
+    "orders",
+    async () => await supabase.from("orders").select("*, order_items(*)")
   );
 }
 
@@ -151,8 +154,10 @@ export function useCreditPayments() {
  * Hook for expenses with caching
  */
 export function useExpenses() {
-  return useSupabaseQuery<any[]>("expenses", async () =>
-    await supabase.from("expenses").select("*, expense_categories(name)")
+  return useSupabaseQuery<any[]>(
+    "expenses",
+    async () =>
+      await supabase.from("expenses").select("*, expense_categories(name)")
   );
 }
 
@@ -160,8 +165,9 @@ export function useExpenses() {
  * Hook for debts with caching
  */
 export function useDebts() {
-  return useSupabaseQuery<any[]>("debts", async () =>
-    await supabase.from("debts").select("*")
+  return useSupabaseQuery<any[]>(
+    "debts",
+    async () => await supabase.from("debts").select("*")
   );
 }
 
@@ -169,14 +175,16 @@ export function useDebts() {
  * Hook for publicly visible products (published and in stock) with caching
  */
 export function usePublicProducts() {
-  return useSupabaseQuery<Product[]>("public-products", async () =>
-    await supabase
-      .from("products")
-      .select("*")
-      .eq("published", true)
-      .gt("quantity_in_stock", 0)
-      .order("featured", { ascending: false })
-      .order("name")
+  return useSupabaseQuery<Product[]>(
+    "public-products",
+    async () =>
+      await supabase
+        .from("products")
+        .select("*")
+        .eq("published", true)
+        .gt("quantity_in_stock", 0)
+        .order("featured", { ascending: false })
+        .order("name")
   );
 }
 
@@ -184,13 +192,15 @@ export function usePublicProducts() {
  * Hook for featured products list (limited) with caching
  */
 export function useFeaturedProducts(limit = 8) {
-  return useSupabaseQuery<Product[]>("featured-products", async () =>
-    await supabase
-      .from("products")
-      .select("*")
-      .gt("quantity_in_stock", 0)
-      .order("quantity_in_stock", { ascending: true })
-      .limit(limit)
+  return useSupabaseQuery<Product[]>(
+    "featured-products",
+    async () =>
+      await supabase
+        .from("products")
+        .select("*")
+        .gt("quantity_in_stock", 0)
+        .order("quantity_in_stock", { ascending: true })
+        .limit(limit)
   );
 }
 
@@ -198,7 +208,8 @@ export function useFeaturedProducts(limit = 8) {
  * Hook for initial investments data with caching
  */
 export function useInitialInvestments() {
-  return useSupabaseQuery<any[]>("initial-investments", async () =>
-    await supabase.from("initial_investments").select("*")
+  return useSupabaseQuery<any[]>(
+    "initial-investments",
+    async () => await supabase.from("initial_investments").select("*")
   );
 }

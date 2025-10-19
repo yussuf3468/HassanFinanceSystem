@@ -38,7 +38,7 @@ export default function Search() {
       setFilteredProducts(filtered);
     } else {
       setFilteredProducts(products);
-  // reset any transient UI state
+      // reset any transient UI state
     }
   }, [searchTerm, products]);
 
