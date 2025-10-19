@@ -136,8 +136,14 @@ export default function CustomerCredit() {
 
   async function createTableIfNotExist() {
     try {
-      await supabase.from("customer_credits" as any).select("id").limit(1);
-      await supabase.from("credit_payments" as any).select("id").limit(1);
+      await supabase
+        .from("customer_credits" as any)
+        .select("id")
+        .limit(1);
+      await supabase
+        .from("credit_payments" as any)
+        .select("id")
+        .limit(1);
     } catch (error) {
       console.log(
         "Customer credit tables need to be created. Please run database migrations."
@@ -248,7 +254,10 @@ export default function CustomerCredit() {
 
     try {
       // Delete associated payments first
-      await supabase.from("credit_payments" as any).delete().eq("credit_id", id);
+      await supabase
+        .from("credit_payments" as any)
+        .delete()
+        .eq("credit_id", id);
 
       // Then delete the credit
       const { error } = await supabase
@@ -372,7 +381,9 @@ export default function CustomerCredit() {
             <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
               💳 Deymaha Macaamiisha
             </h1>
-            <p className="text-slate-300 mt-1">Lacagta aan ku leenahay macaamiisha</p>
+            <p className="text-slate-300 mt-1">
+              Lacagta aan ku leenahay macaamiisha
+            </p>
           </div>
           <button
             onClick={() => {

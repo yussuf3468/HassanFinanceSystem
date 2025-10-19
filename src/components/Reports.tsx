@@ -6,11 +6,13 @@ import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 
 export default function Reports() {
   // ✅ Use cached hooks instead of direct queries - saves egress!
-  const { data: products = [] } = useProducts();
-  const { data: sales = [] } = useSales();
+  const { data: products = [], isLoading: loadingProducts } = useProducts();
+  const { data: sales = [], isLoading: loadingSales } = useSales();
   const [dateRange, setDateRange] = useState<
     "today" | "week" | "month" | "all"
   >("all");
+
+  const loading = loadingProducts || loadingSales;
 
   // ❌ Removed useEffect and loadData - data now comes from cached hooks!
 
