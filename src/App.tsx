@@ -32,7 +32,11 @@ function AppContent() {
     user?.email?.includes("staff") || user?.email?.includes("khaled");
 
   // Set default tab based on role
-  const defaultTab = isAdmin ? "dashboard" : isStaff ? "staff-dashboard" : "dashboard";
+  const defaultTab = isAdmin
+    ? "dashboard"
+    : isStaff
+    ? "staff-dashboard"
+    : "dashboard";
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   // Auto-redirect to admin for admin/staff users and set correct default tab
