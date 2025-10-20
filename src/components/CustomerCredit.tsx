@@ -69,10 +69,8 @@ const PAYMENT_METHODS = [
 
 export default function CustomerCredit() {
   const queryClient = useQueryClient();
-  const { data: rawCredits = [], isLoading: creditsLoading } =
-    useCustomerCredits();
-  const { data: payments = [], isLoading: paymentsLoading } =
-    useCreditPayments();
+  const { data: rawCredits = [], isLoading: creditsLoading } = useCustomerCredits();
+  const { data: payments = [], isLoading: paymentsLoading } = useCreditPayments();
   const loading = creditsLoading || paymentsLoading;
 
   // Calculate balance and amount_paid for each credit
@@ -89,6 +87,16 @@ export default function CustomerCredit() {
       return { ...credit, amount_paid, balance };
     });
   }, [rawCredits, payments]);
+
+  // Search state for customer lookup
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredCredits = useMemo(() => {
+    if (!searchTerm.trim()) return credits;
+    return credits.filter((c: any) =>
+      c.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.customer_phone.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [credits, searchTerm]);
 
   const [showCreditForm, setShowCreditForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -454,14 +462,31 @@ export default function CustomerCredit() {
         </div>
       </div>
 
-      {/* Credits Table */}
+      {/* Customer Search */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <input
+          type="text"
+          className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder:text-slate-400 w-full sm:w-96"
+          placeholder="Search customer by name or phone..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
+        {searchTerm.trim() && filteredCredits.length > 0 && (
+          <div className="text-slate-200 text-sm mt-2 sm:mt-0">
+            <strong>{filteredCredits[0].customer_name}</strong> owes you: <span className="font-bold text-emerald-400">KES {filteredCredits
+              .filter(c => c.customer_name.toLowerCase() === filteredCredits[0].customer_name.toLowerCase())
+              .reduce((sum, c) => sum + c.balance, 0)
+              .toLocaleString()}</span>
+          </div>
+        )}
+      </div>
       <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 shadow-xl">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
           <Users className="w-6 h-6" />
           <span>Store Credits ({credits.length})</span>
         </h2>
 
-        {credits.length === 0 ? (
+  {filteredCredits.length === 0 ? (
           <div className="text-center py-12">
             <CreditCard className="w-16 h-16 text-slate-500 mx-auto mb-4" />
             <p className="text-slate-400">No store credits recorded yet.</p>
