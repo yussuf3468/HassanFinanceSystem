@@ -42,15 +42,13 @@ export default function Layout({
   // ✅ Use cached query for pending orders count (reduces egress costs)
   const { data: pendingOrdersCount = 0 } = usePendingOrdersCount();
 
-  // Check if current user is admin or staff
-  const isAdmin =
-    user?.email?.includes("admin") || user?.email?.includes("yussuf");
-  const isStaff =
-    user?.email?.includes("staff") || user?.email?.includes("khaled");
+  // Check if current user is admin or staff (mutually exclusive)
+  const isAdmin = user?.email === "admin@bookshop.ke";
+  const isStaff = user?.email === "khalid123@gmail.com";
 
   // Dynamic tabs based on user role
   const baseTabs = [
-    // Admin Dashboard (admin only)
+    // Only show one dashboard tab per role
     ...(isAdmin
       ? [
           {
@@ -61,7 +59,6 @@ export default function Layout({
           },
         ]
       : []),
-    // Staff Dashboard (staff only)
     ...(isStaff
       ? [
           {

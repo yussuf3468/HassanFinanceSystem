@@ -29,31 +29,22 @@ function AppContent() {
   const isAdmin =
     user?.email?.includes("admin") || user?.email?.includes("yussuf");
   const isStaff =
-    user?.email?.includes("staff") || user?.email?.includes("khaled");
+    user?.email?.includes("staff") || user?.email?.includes("khalid");
 
-  // Set default tab based on role
-  const defaultTab = isAdmin
-    ? "dashboard"
-    : isStaff
-    ? "staff-dashboard"
-    : "dashboard";
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  // Set default tab based on role (always update when user changes)
+  const [activeTab, setActiveTab] = useState("dashboard");
 
-  // Auto-redirect to admin for admin/staff users and set correct default tab
   useEffect(() => {
-    if (
-      user &&
-      (user.email?.includes("admin") ||
-        user.email?.includes("yussuf") ||
-        user.email?.includes("staff") ||
-        user.email?.includes("khaled"))
-    ) {
-      setViewMode("admin");
-      // Set appropriate default tab based on role
-      if (user.email?.includes("admin") || user.email?.includes("yussuf")) {
+    if (user) {
+      if (user.email === "admin@bookshop.ke") {
+        setViewMode("admin");
         setActiveTab("dashboard");
-      } else {
+      } else if (user.email === "khalid123@gmail.com") {
+        setViewMode("admin");
         setActiveTab("staff-dashboard");
+      } else {
+        setViewMode("admin");
+        setActiveTab("dashboard");
       }
     }
   }, [user]);
