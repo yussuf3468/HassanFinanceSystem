@@ -18,6 +18,7 @@ import {
   Monitor,
   ChevronLeft,
   CreditCard,
+  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -48,10 +49,10 @@ export default function Layout({
   // Dynamic tabs based on user role
   const baseTabs = [
     {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      color: "from-purple-600 to-pink-600",
+      id: "staff-dashboard",
+      label: "My Sales",
+      icon: TrendingUp,
+      color: "from-emerald-600 to-cyan-600",
     },
     {
       id: "inventory",
@@ -72,37 +73,31 @@ export default function Layout({
       color: "from-emerald-600 to-teal-600",
     },
     {
-      id: "orders",
-      label: "Orders",
-      icon: ClipboardList,
-      color: "from-orange-600 to-amber-600",
-    },
-    {
       id: "search",
       label: "Search",
       icon: Search,
       color: "from-violet-600 to-purple-600",
     },
     {
-      id: "reports",
-      label: "Reports",
-      icon: FileText,
-      color: "from-indigo-600 to-blue-600",
-    },
-  ];
-
-  const adminTabs = [
-    {
       id: "customer-credit",
       label: "Store Credit",
       icon: CreditCard,
       color: "from-teal-600 to-cyan-600",
     },
+  ];
+
+  const adminTabs = [
     {
-      id: "user-activity",
-      label: "Staff Activity",
-      icon: Activity,
-      color: "from-rose-600 to-pink-600",
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      color: "from-purple-600 to-pink-600",
+    },
+    {
+      id: "orders",
+      label: "Orders",
+      icon: ClipboardList,
+      color: "from-orange-600 to-amber-600",
     },
     {
       id: "financial-dashboard",
@@ -127,6 +122,18 @@ export default function Layout({
       label: "Debts",
       icon: Banknote,
       color: "from-amber-600 to-yellow-600",
+    },
+     {
+      id: "reports",
+      label: "Reports",
+      icon: FileText,
+      color: "from-indigo-600 to-blue-600",
+    },
+    {
+      id: "user-activity",
+      label: "Staff Activity",
+      icon: Activity,
+      color: "from-rose-600 to-pink-600",
     },
   ];
 

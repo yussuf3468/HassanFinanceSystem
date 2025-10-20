@@ -11,18 +11,26 @@ export default function QueryDiagnostics() {
   useEffect(() => {
     if (import.meta.env.PROD) return; // dev-only
 
+    let timeoutId: NodeJS.Timeout;
+
     const update = () => {
-      const queries = queryClient.getQueryCache().getAll();
-      const observers = queries.reduce(
-        (sum, q: any) => sum + q.observers.length,
-        0
-      );
-      setStats({ queries: queries.length, observers });
+      // Debounce updates to avoid setState during render
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const queries = queryClient.getQueryCache().getAll();
+        const observers = queries.reduce(
+          (sum, q: any) => sum + q.observers.length,
+          0
+        );
+        setStats({ queries: queries.length, observers });
+      }, 0);
     };
 
     const unsub = queryClient.getQueryCache().subscribe(update);
-    update();
+    update(); // Initial update
+    
     return () => {
+      clearTimeout(timeoutId);
       unsub();
     };
   }, [queryClient]);

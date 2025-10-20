@@ -19,6 +19,7 @@ import DebtManagement from "./components/DebtManagement";
 import CustomerCredit from "./components/CustomerCredit";
 import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
+import StaffDashboard from "./components/StaffDashboard";
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -87,6 +88,7 @@ function AppContent() {
     <div className="relative">
       <Layout activeTab={activeTab} onTabChange={setActiveTab}>
         {activeTab === "dashboard" && <Dashboard />}
+        {activeTab === "staff-dashboard" && <StaffDashboard />}
         {activeTab === "inventory" && <Inventory />}
         {activeTab === "sales" && <Sales />}
         {activeTab === "orders" && <Orders />}
