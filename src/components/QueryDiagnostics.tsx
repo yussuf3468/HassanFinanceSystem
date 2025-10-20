@@ -9,12 +9,12 @@ export default function QueryDiagnostics() {
   });
 
   useEffect(() => {
-    if (import.meta.env.PROD) return; // dev-only
+    if (import.meta.env.PROD) return;
 
     let timeoutId: NodeJS.Timeout;
+    let lastStats = stats;
 
     const update = () => {
-      // Debounce updates to avoid setState during render
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         const queries = queryClient.getQueryCache().getAll();
@@ -22,17 +22,25 @@ export default function QueryDiagnostics() {
           (sum, q: any) => sum + q.observers.length,
           0
         );
-        setStats({ queries: queries.length, observers });
+        // Only update state if values changed
+        if (
+          lastStats.queries !== queries.length ||
+          lastStats.observers !== observers
+        ) {
+          lastStats = { queries: queries.length, observers };
+          setStats(lastStats);
+        }
       }, 0);
     };
 
     const unsub = queryClient.getQueryCache().subscribe(update);
-    update(); // Initial update
+    update();
 
     return () => {
       clearTimeout(timeoutId);
       unsub();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryClient]);
 
   if (import.meta.env.PROD) return null;

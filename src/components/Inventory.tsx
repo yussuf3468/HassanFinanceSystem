@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Plus,
   CreditCard as Edit2,
@@ -24,7 +24,20 @@ export default function Inventory() {
   const { data: products = [], isLoading: loading, refetch } = useProducts();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  // Persist viewingProduct in sessionStorage
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(() => {
+    const saved = sessionStorage.getItem("inventory_viewingProduct");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // Save modal state to sessionStorage whenever it changes
+  useEffect(() => {
+    if (viewingProduct) {
+      sessionStorage.setItem("inventory_viewingProduct", JSON.stringify(viewingProduct));
+    } else {
+      sessionStorage.removeItem("inventory_viewingProduct");
+    }
+  }, [viewingProduct]);
 
   // Sort products newest-first by created_at (fallback to id)
   const sortedProducts = useMemo(() => {
@@ -104,6 +117,7 @@ export default function Inventory() {
 
   function handleCloseView() {
     setViewingProduct(null);
+    // sessionStorage will be cleared by useEffect
   }
 
   function handleCloseForm() {

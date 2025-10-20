@@ -35,9 +35,9 @@ export default defineConfig({
       overlay: false,
     },
     // Force reload on file changes
-    watch: {
-      usePolling: true,
-    },
+    // watch: {
+    //   usePolling: true,
+    // },
   },
   // Better cache control
   preview: {

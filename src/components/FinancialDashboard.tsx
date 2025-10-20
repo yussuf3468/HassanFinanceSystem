@@ -23,6 +23,8 @@ import {
   useDebts,
   useInitialInvestments,
 } from "../hooks/useSupabaseQuery";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
 import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
@@ -79,6 +81,7 @@ export default function FinancialDashboard() {
     dailyRevenue: 0,
     yesterdayProfit: 0,
   });
+  // ...existing code...
   const [expenseBreakdown, setExpenseBreakdown] = useState<ExpenseByCategory[]>(
     []
   );
@@ -91,11 +94,32 @@ export default function FinancialDashboard() {
   const { data: expenses = [] } = useExpenses();
   const { data: debts = [] } = useDebts();
   const { data: investments = [] } = useInitialInvestments();
+  // Cyber services profit (all entries are pure profit)
+  const { data: cyberServices = [] } = useQuery({
+    queryKey: ["cyber_services"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cyber_services" as any)
+        .select("*");
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: Infinity,
+    gcTime: 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+  // Track total cyber profit separately (after cyberServices is initialized)
+  const cyberProfit = cyberServices.reduce(
+    (sum: number, service: any) => sum + (service.amount || 0),
+    0
+  );
 
   useEffect(() => {
     loadFinancialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sales, expenses, debts, investments]);
+  }, [sales, expenses, debts, investments, cyberServices]);
 
   const generateFinancialReport = () => {
     const today = new Date();
@@ -328,14 +352,20 @@ export default function FinancialDashboard() {
       const debtsData: any[] = Array.isArray(debts) ? debts : [];
 
       // Calculate business metrics
+      const cyberProfit = cyberServices.reduce(
+        (sum: number, service: any) => sum + (service.amount || 0),
+        0
+      );
+      // Total sales: only product/service sales
       const totalSales = salesData.reduce(
         (sum, sale) => sum + (sale.total_sale || 0),
         0
       );
+      // Total profit: product/service profit + cyber profit
       const totalProfit = salesData.reduce(
         (sum, sale) => sum + (sale.profit || 0),
         0
-      );
+      ) + cyberProfit;
 
       // Calculate financial metrics
       const totalExpenses = expensesData.reduce(
@@ -375,7 +405,16 @@ export default function FinancialDashboard() {
             saleDate.getFullYear() === currentYear
           );
         })
-        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0);
+        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0)
+        + cyberServices
+            .filter((service: any) => {
+              const serviceDate = new Date(service.date);
+              return (
+                serviceDate.getMonth() + 1 === currentMonth &&
+                serviceDate.getFullYear() === currentYear
+              );
+            })
+            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
 
       const monthlyProfit = salesData
         .filter((sale: any) => {
@@ -386,7 +425,16 @@ export default function FinancialDashboard() {
             saleDate.getFullYear() === currentYear
           );
         })
-        .reduce((sum, sale) => sum + (sale.profit || 0), 0);
+        .reduce((sum, sale) => sum + (sale.profit || 0), 0)
+        + cyberServices
+            .filter((service: any) => {
+              const serviceDate = new Date(service.date);
+              return (
+                serviceDate.getMonth() + 1 === currentMonth &&
+                serviceDate.getFullYear() === currentYear
+              );
+            })
+            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
 
       // Calculate daily metrics
       const today = new Date();
@@ -402,7 +450,13 @@ export default function FinancialDashboard() {
           const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
           return saleDate === todayStr;
         })
-        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0);
+        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0)
+        + cyberServices
+            .filter((service: any) => {
+              const serviceDate = new Date(service.date).toISOString().split("T")[0];
+              return serviceDate === todayStr;
+            })
+            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
 
       const dailyProfit = salesData
         .filter((sale: any) => {
@@ -410,7 +464,13 @@ export default function FinancialDashboard() {
           const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
           return saleDate === todayStr;
         })
-        .reduce((sum, sale) => sum + (sale.profit || 0), 0);
+        .reduce((sum, sale) => sum + (sale.profit || 0), 0)
+        + cyberServices
+            .filter((service: any) => {
+              const serviceDate = new Date(service.date).toISOString().split("T")[0];
+              return serviceDate === todayStr;
+            })
+            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
 
       const yesterdayProfit = salesData
         .filter((sale: any) => {
@@ -707,7 +767,28 @@ export default function FinancialDashboard() {
           <span>Revenue & Profitability</span>
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
+          {/* Cyber Profit Card */}
+          <div className="bg-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-cyan-500/30">
+            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+              <div className="bg-cyan-500/20 p-2 rounded-lg border border-cyan-500/30">
+                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-cyan-400">
+                  Total Cyber Profits
+                </p>
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-white">
+                  KES {cyberProfit.toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Pure profit from cyber café services
+            </p>
+          </div>
+
+          {/* Total Sales Card */}
           <div className="bg-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-500/30">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
               <div className="bg-green-500/20 p-2 rounded-lg border border-green-500/30">
@@ -727,6 +808,7 @@ export default function FinancialDashboard() {
             </p>
           </div>
 
+          {/* Total Profit Card */}
           <div className="bg-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-500/30">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
               <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-500/30">
@@ -749,6 +831,7 @@ export default function FinancialDashboard() {
             </p>
           </div>
 
+          {/* Monthly Revenue Card */}
           <div className="bg-white/5 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-500/30">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
               <div className="bg-purple-500/20 p-2 rounded-lg border border-purple-500/30">
