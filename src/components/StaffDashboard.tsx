@@ -50,12 +50,20 @@ export default function StaffDashboard() {
   const metrics = useMemo((): StaffMetrics => {
     // Create fresh date objects to avoid mutation
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
     const weekStartCalc = new Date(now);
     weekStartCalc.setDate(weekStartCalc.getDate() - weekStartCalc.getDay());
-    const weekStart = new Date(weekStartCalc.getFullYear(), weekStartCalc.getMonth(), weekStartCalc.getDate());
-    
+    const weekStart = new Date(
+      weekStartCalc.getFullYear(),
+      weekStartCalc.getMonth(),
+      weekStartCalc.getDate()
+    );
+
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const todaySales = mySales.filter(
@@ -85,7 +93,11 @@ export default function StaffDashboard() {
   // Get today's sales sorted newest-first
   const todaysSales = useMemo(() => {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
 
     return mySales
       .filter((s) => new Date(s.sale_date) >= todayStart)
@@ -181,7 +193,10 @@ export default function StaffDashboard() {
               color="green"
               subtitle={
                 metrics.todaySales > 0
-                  ? `${((metrics.todayProfit / metrics.todaySales) * 100).toFixed(1)}% margin`
+                  ? `${(
+                      (metrics.todayProfit / metrics.todaySales) *
+                      100
+                    ).toFixed(1)}% margin`
                   : "0% margin"
               }
             />
@@ -367,7 +382,13 @@ interface MetricCardProps {
   subtitle?: string;
 }
 
-function MetricCard({ title, value, icon: Icon, color, subtitle }: MetricCardProps) {
+function MetricCard({
+  title,
+  value,
+  icon: Icon,
+  color,
+  subtitle,
+}: MetricCardProps) {
   const colorClasses = {
     blue: {
       gradient: "from-blue-600 to-cyan-600",

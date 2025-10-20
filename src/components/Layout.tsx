@@ -123,7 +123,7 @@ export default function Layout({
       icon: Banknote,
       color: "from-amber-600 to-yellow-600",
     },
-     {
+    {
       id: "reports",
       label: "Reports",
       icon: FileText,

@@ -28,7 +28,7 @@ export default function QueryDiagnostics() {
 
     const unsub = queryClient.getQueryCache().subscribe(update);
     update(); // Initial update
-    
+
     return () => {
       clearTimeout(timeoutId);
       unsub();
