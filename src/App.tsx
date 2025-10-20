@@ -25,27 +25,33 @@ function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
   const { user, loading } = useAuth();
 
-  // Check if user is admin or staff
-  const isAdmin =
-    user?.email?.includes("admin") || user?.email?.includes("yussuf");
-  const isStaff =
-    user?.email?.includes("staff") || user?.email?.includes("khalid");
-
-  // Set default tab based on role (always update when user changes)
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  // ✅ Load last active tab from localStorage (optional)
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) setActiveTab(savedTab);
+  }, []);
+
+  // ✅ Save current tab to localStorage (optional)
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
+  // ✅ Fixed logic: Only set default tab once when user logs in
   useEffect(() => {
     if (user) {
-      if (user.email === "admin@bookshop.ke") {
-        setViewMode("admin");
-        setActiveTab("dashboard");
-      } else if (user.email === "khalid123@gmail.com") {
-        setViewMode("admin");
-        setActiveTab("staff-dashboard");
-      } else {
-        setViewMode("admin");
-        setActiveTab("dashboard");
-      }
+      setViewMode("admin");
+
+      setActiveTab((prev) => {
+        // Don’t reset if user already has a tab open
+        if (prev && prev !== "dashboard" && prev !== "staff-dashboard") return prev;
+
+        // Assign default dashboard based on user email
+        if (user.email === "admin@bookshop.ke") return "dashboard";
+        if (user.email === "khalid123@gmail.com") return "staff-dashboard";
+        return "dashboard";
+      });
     }
   }, [user]);
 
@@ -113,6 +119,7 @@ function AppContent() {
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
       </Layout>
+
       {/* Dev-only diagnostics (hidden in production) */}
       {!import.meta.env.PROD && <QueryDiagnostics />}
     </div>

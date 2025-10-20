@@ -651,69 +651,65 @@ export default function FinancialDashboard() {
         </div>
       </div>
 
-      {/* Daily Profit Section */}
+      {/* Total Profit Section */}
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20">
         <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-4 flex items-center space-x-2">
           <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
-          <span>Today's Performance</span>
+          <span>Total Profit</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          {/* Full Store Total Sales (all time, all sources) */}
           <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-4 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm font-medium opacity-90">
-                  Today's Profit
+                  Total Sales (All Sources)
                 </p>
                 <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  KES {stats.dailyProfit.toLocaleString()}
+                  KES {(
+                    sales.reduce((sum: number, sale: any) => sum + (sale.total_sale || 0), 0) +
+                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
+                  ).toLocaleString()}
+                </p>
+              </div>
+              <Receipt className="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+          </div>
+
+          {/* Full Store Total Profit (all time, all sources) */}
+          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-4 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium opacity-90">
+                  Total Profit (All Sources)
+                </p>
+                <p className="text-lg sm:text-xl md:text-2xl font-bold">
+                  KES {(
+                    sales.reduce((sum: number, sale: any) => sum + (sale.profit || 0), 0) +
+                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
+                  ).toLocaleString()}
                 </p>
               </div>
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-4 text-white">
+          {/* Full Store Total Revenue (Cash at Hand, all time) */}
+          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl p-4 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm font-medium opacity-90">
-                  Today's Revenue
+                  Total Revenue (Cash at Hand)
                 </p>
                 <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  KES {stats.dailyRevenue.toLocaleString()}
+                  KES {(
+                    sales.reduce((sum: number, sale: any) => sum + (sale.total_sale || 0), 0) +
+                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
+                  ).toLocaleString()}
                 </p>
               </div>
               <DollarSign className="w-6 h-6 sm:w-8 sm:h-8" />
-            </div>
-          </div>
-
-          <div
-            className={`bg-gradient-to-r rounded-xl p-4 text-white ${
-              stats.dailyProfit > stats.yesterdayProfit
-                ? "from-emerald-500 to-green-500"
-                : "from-orange-500 to-red-500"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium opacity-90">
-                  vs Yesterday
-                </p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  {stats.yesterdayProfit > 0
-                    ? `${(
-                        ((stats.dailyProfit - stats.yesterdayProfit) /
-                          stats.yesterdayProfit) *
-                        100
-                      ).toFixed(1)}%`
-                    : "N/A"}
-                </p>
-              </div>
-              {stats.dailyProfit > stats.yesterdayProfit ? (
-                <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
-              ) : (
-                <TrendingDown className="w-6 h-6 sm:w-8 sm:h-8" />
-              )}
             </div>
           </div>
         </div>
