@@ -42,18 +42,36 @@ export default function Layout({
   // ✅ Use cached query for pending orders count (reduces egress costs)
   const { data: pendingOrdersCount = 0 } = usePendingOrdersCount();
 
-  // Check if current user is admin
+  // Check if current user is admin or staff
   const isAdmin =
     user?.email?.includes("admin") || user?.email?.includes("yussuf");
+  const isStaff =
+    user?.email?.includes("staff") || user?.email?.includes("khaled");
 
   // Dynamic tabs based on user role
   const baseTabs = [
-    {
-      id: "staff-dashboard",
-      label: "My Sales",
-      icon: TrendingUp,
-      color: "from-emerald-600 to-cyan-600",
-    },
+    // Admin Dashboard (admin only)
+    ...(isAdmin
+      ? [
+          {
+            id: "dashboard",
+            label: "Dashboard",
+            icon: LayoutDashboard,
+            color: "from-purple-600 to-pink-600",
+          },
+        ]
+      : []),
+    // Staff Dashboard (staff only)
+    ...(isStaff
+      ? [
+          {
+            id: "staff-dashboard",
+            label: "My Sales",
+            icon: TrendingUp,
+            color: "from-emerald-600 to-cyan-600",
+          },
+        ]
+      : []),
     {
       id: "inventory",
       label: "Inventory",
@@ -87,12 +105,6 @@ export default function Layout({
   ];
 
   const adminTabs = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      color: "from-purple-600 to-pink-600",
-    },
     {
       id: "orders",
       label: "Orders",
