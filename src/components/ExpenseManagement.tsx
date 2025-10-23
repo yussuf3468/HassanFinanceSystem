@@ -63,13 +63,22 @@ export default function ExpenseManagement() {
     endDate.setMonth(endDate.getMonth() + 1);
 
     const filtered = expensesData.filter((exp) => {
-      const expDate = exp.incurred_on;
-      return (
-        expDate >= startDate && expDate < endDate.toISOString().split("T")[0]
-      );
+      const expDate = (exp as any).incurred_on as string | undefined;
+      if (!expDate) return false;
+      return expDate >= startDate && expDate < endDate.toISOString().split("T")[0];
     });
 
-    setExpenses(filtered);
+    // Map DB rows to UI model so fields like category/description/date match what the UI expects
+    const mapped: ExpenseUI[] = (filtered as DbExpense[]).map((row) => ({
+      id: row.id,
+      category: row.category_id ? categoryIdToName.get(row.category_id) || "" : "",
+      description: row.title || "",
+      amount: Number(row.amount || 0),
+      date: (row.incurred_on as unknown as string) || "",
+      created_at: (row.created_at as unknown as string) || "",
+    }));
+
+    setExpenses(mapped);
   }, [expensesData, selectedMonth]);
 
   const categoryNameToId = useMemo(() => {
