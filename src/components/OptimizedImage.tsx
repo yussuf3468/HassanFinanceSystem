@@ -4,6 +4,7 @@ import {
   getOptimizedImageUrl,
   IMAGE_PRESETS,
 } from "../utils/imageOptimization";
+import { getCachedImageUrl } from "../utils/getCachedImageUrl";
 
 interface OptimizedImageProps {
   src: string | null;
@@ -21,7 +22,7 @@ interface OptimizedImageProps {
 // Image cache to store loaded images (NO timestamps - cache forever until manual refresh)
 const imageCache = new Map<string, string>();
 
-// Generate optimized URL (NO cache-busting for maximum caching)
+// Generate optimized and proxied URL (NO cache-busting for maximum caching)
 const getProcessedUrl = (
   url: string,
   forceFresh: boolean = false,
@@ -29,17 +30,19 @@ const getProcessedUrl = (
 ): string => {
   if (!url) return url;
 
+  // Always proxy Supabase images through Vercel edge function for egress control
+  let optimizedUrl = getOptimizedImageUrl(url, preset) || url;
+  if (url.includes("supabase.co/storage")) {
+    optimizedUrl = getCachedImageUrl(optimizedUrl);
+  }
+
   // Check if we already have this URL cached
-  const cacheKey = `${url}_${preset}`;
+  const cacheKey = `${optimizedUrl}_${preset}`;
   const cached = imageCache.get(cacheKey);
 
   if (cached && !forceFresh) {
     return cached; // Return cached URL immediately
   }
-
-  // Apply image optimization (resize, format conversion) - NO cache-busting parameters
-  const optimizedUrl = getOptimizedImageUrl(url, preset);
-  if (!optimizedUrl) return url;
 
   // Store in cache forever (browser will handle caching with proper headers)
   imageCache.set(cacheKey, optimizedUrl);
