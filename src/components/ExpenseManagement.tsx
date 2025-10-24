@@ -65,13 +65,17 @@ export default function ExpenseManagement() {
     const filtered = expensesData.filter((exp) => {
       const expDate = (exp as any).incurred_on as string | undefined;
       if (!expDate) return false;
-      return expDate >= startDate && expDate < endDate.toISOString().split("T")[0];
+      return (
+        expDate >= startDate && expDate < endDate.toISOString().split("T")[0]
+      );
     });
 
     // Map DB rows to UI model so fields like category/description/date match what the UI expects
     const mapped: ExpenseUI[] = (filtered as DbExpense[]).map((row) => ({
       id: row.id,
-      category: row.category_id ? categoryIdToName.get(row.category_id) || "" : "",
+      category: row.category_id
+        ? categoryIdToName.get(row.category_id) || ""
+        : "",
       description: row.title || "",
       amount: Number(row.amount || 0),
       date: (row.incurred_on as unknown as string) || "",
