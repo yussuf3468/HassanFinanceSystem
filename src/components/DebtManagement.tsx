@@ -496,10 +496,10 @@ export default function DebtManagement() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-white">
-                          KES {debt.principal_amount.toLocaleString()}
+                          KES {(debt.principal_amount ?? 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-red-400">
-                          KES {debt.current_balance.toLocaleString()}
+                          KES {(debt.current_balance ?? 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-300">
                           {formatDate(debt.due_date)}
@@ -589,8 +589,7 @@ export default function DebtManagement() {
                           </p>
                           <div className="flex flex-col gap-1 text-xs text-slate-300">
                             <span>
-                              Principal: KES{" "}
-                              {debt.principal_amount.toLocaleString()}
+                              Principal: KES { (debt.principal_amount ?? 0).toLocaleString() }
                             </span>
                             <span>Due: {formatDate(debt.due_date)}</span>
                             {debt.interest_rate > 0 && (
@@ -600,7 +599,7 @@ export default function DebtManagement() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-red-400 mb-2">
-                            KES {debt.current_balance.toLocaleString()}
+                            KES {(debt.current_balance ?? 0).toLocaleString()}
                           </p>
                           <div className="flex space-x-1">
                             <button
