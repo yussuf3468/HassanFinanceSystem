@@ -20,37 +20,31 @@ import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
 interface Debt {
   id: string;
-  creditor_name: string;
-  debt_type: string;
-  principal_amount: number;
+  lender: string; // maps to DB column 'lender'
+  principal: number; // maps to DB column 'principal'
   interest_rate: number;
-  borrowed_date: string;
-  due_date: string;
-  current_balance: number;
-  status: "active" | "paid" | "overdue";
-  purpose: string;
-  notes?: string;
-  created_at: string;
+  started_on: string; // maps to DB column 'started_on'
+  due_on: string; // maps to DB column 'due_on'
+  status: string; // 'active' | 'closed' | 'overdue' etc. stored in DB as text
+  notes?: string | null;
+  created_at?: string;
 }
 
 interface Payment {
   id: string;
   debt_id: string;
-  payment_amount: number;
-  payment_date: string;
-  payment_method: string;
-  notes?: string;
-  created_at: string;
+  amount: number;
+  paid_on: string;
+  notes?: string | null;
+  created_at?: string;
 }
 
 interface DebtForm {
-  creditor_name: string;
-  debt_type: string;
-  principal_amount: number;
+  lender: string;
+  principal: number;
   interest_rate: number;
-  borrowed_date: string;
-  due_date: string;
-  purpose: string;
+  started_on: string;
+  due_on: string;
   notes: string;
 }
 
@@ -61,19 +55,6 @@ interface PaymentForm {
   payment_method: string;
   notes: string;
 }
-
-const DEBT_TYPES = [
-  "Personal Loan",
-  "Business Loan",
-  "Bank Loan",
-  "Family/Friend Loan",
-  "Supplier Credit",
-  "Equipment Financing",
-  "Line of Credit",
-  "Credit Card",
-  "Microfinance",
-  "Other",
-];
 
 const PAYMENT_METHODS = [
   "Cash",
@@ -87,24 +68,21 @@ const PAYMENT_METHODS = [
 export default function DebtManagement() {
   const queryClient = useQueryClient();
   const { data: debtsData = [], isLoading: loading } = useDebts();
+  // Ensure runtime type: backend returns rows with DB column names
   const debts = debtsData as unknown as Debt[];
+
   // Removed unused payments state to satisfy type checker and reduce memory
-  const [
-    ,/* payments */
-    /* setPayments */
-  ] = useState<Payment[]>([]);
+  const [, /* payments */ /* setPayments */] = useState<Payment[]>([]);
   const [showDebtForm, setShowDebtForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
 
   const [debtForm, setDebtForm] = useState<DebtForm>({
-    creditor_name: "",
-    debt_type: "Personal Loan",
-    principal_amount: 0,
+    lender: "",
+    principal: 0,
     interest_rate: 0,
-    borrowed_date: getCurrentDateForInput(),
-    due_date: "",
-    purpose: "",
+    started_on: getCurrentDateForInput(),
+    due_on: "",
     notes: "",
   });
 
@@ -130,28 +108,20 @@ export default function DebtManagement() {
     }
   }
 
-  // Stats calculations moved to component body
-  // Stats are computed inline below; kept minimal here to avoid unused warnings
-
   async function handleDebtSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     try {
-
-      // Use the same field names as your Debt interface and what your UI expects
+      // Map our form to actual DB column names
       const payload = {
-        creditor_name: debtForm.creditor_name,
-        debt_type: debtForm.debt_type,
-        principal_amount: debtForm.principal_amount,
+        lender: debtForm.lender,
+        principal: debtForm.principal,
         interest_rate: debtForm.interest_rate || 0,
-        borrowed_date: debtForm.borrowed_date,
-        due_date: debtForm.due_date,
-        current_balance: debtForm.principal_amount, // Set current_balance to principal at creation
-        status: "active" as const,
-        purpose: debtForm.purpose,
+        started_on: debtForm.started_on,
+        due_on: debtForm.due_on,
+        status: "active",
         notes: debtForm.notes || null,
       };
-
 
       if (editingDebt) {
         const { error } = await supabase
@@ -182,36 +152,45 @@ export default function DebtManagement() {
     e.preventDefault();
 
     try {
-      // Add payment (map to DB columns)
-      const { error: paymentError } = await supabase
-        .from("debt_payments")
-        .insert([
-          {
-            debt_id: paymentForm.debt_id,
-            amount: paymentForm.payment_amount,
-            paid_on: paymentForm.payment_date,
-            notes: paymentForm.notes || null,
-          },
-        ]);
+      // Insert payment (DB columns: debt_id, amount, paid_on, notes)
+      const { error: paymentError } = await supabase.from("debt_payments").insert([
+        {
+          debt_id: paymentForm.debt_id,
+          amount: paymentForm.payment_amount,
+          paid_on: paymentForm.payment_date,
+          notes: paymentForm.notes || null,
+        },
+      ]);
 
       if (paymentError) throw paymentError;
 
-      // Update debt status in DB based on new balance
+      // Recompute total paid for this debt and update debt status accordingly
       const debt = debts.find((d) => d.id === paymentForm.debt_id);
-      if (debt) {
-        const newBalance = Math.max(
-          0,
-          debt.current_balance - paymentForm.payment_amount
-        );
-        const newStatusDb = newBalance <= 0 ? "closed" : "active";
 
-        const { error: updateError } = await supabase
-          .from("debts")
-          .update({ status: newStatusDb })
-          .eq("id", paymentForm.debt_id);
+      // fetch all payments for this debt to compute remaining balance
+      const { data: paymentsData, error: paymentsFetchError } = await supabase
+        .from("debt_payments")
+        .select("amount")
+        .eq("debt_id", paymentForm.debt_id);
 
-        if (updateError) throw updateError;
-      }
+      if (paymentsFetchError) throw paymentsFetchError;
+
+      const totalPaid =
+        (paymentsData as any[] | null)?.reduce(
+          (sum, p) => sum + Number(p?.amount ?? 0),
+          0
+        ) ?? 0;
+
+      const principalAmount = Number(debt?.principal ?? 0);
+      const newBalance = Math.max(0, principalAmount - totalPaid);
+      const newStatusDb = newBalance <= 0 ? "closed" : "active";
+
+      const { error: updateError } = await supabase
+        .from("debts")
+        .update({ status: newStatusDb })
+        .eq("id", paymentForm.debt_id);
+
+      if (updateError) throw updateError;
 
       setShowPaymentForm(false);
       resetPaymentForm();
@@ -247,13 +226,11 @@ export default function DebtManagement() {
   function handleEditDebt(debt: Debt) {
     setEditingDebt(debt);
     setDebtForm({
-      creditor_name: debt.creditor_name,
-      debt_type: debt.debt_type,
-      principal_amount: debt.principal_amount,
-      interest_rate: debt.interest_rate,
-      borrowed_date: debt.borrowed_date,
-      due_date: debt.due_date,
-      purpose: debt.purpose,
+      lender: debt.lender,
+      principal: debt.principal,
+      interest_rate: debt.interest_rate ?? 0,
+      started_on: debt.started_on,
+      due_on: debt.due_on,
       notes: debt.notes || "",
     });
     setShowDebtForm(true);
@@ -261,13 +238,11 @@ export default function DebtManagement() {
 
   function resetDebtForm() {
     setDebtForm({
-      creditor_name: "",
-      debt_type: "Personal Loan",
-      principal_amount: 0,
+      lender: "",
+      principal: 0,
       interest_rate: 0,
-      borrowed_date: getCurrentDateForInput(),
-      due_date: "",
-      purpose: "",
+      started_on: getCurrentDateForInput(),
+      due_on: "",
       notes: "",
     });
   }
@@ -293,15 +268,20 @@ export default function DebtManagement() {
     resetPaymentForm();
   }
 
-  const totalDebt = debts.reduce((sum, debt) => sum + debt.current_balance, 0);
+  // Compute simple totals using principal (payments are stored separately)
+  const totalDebt = debts.reduce(
+    (sum, debt) => sum + Number(debt.principal ?? 0),
+    0
+  );
   const activeDebts = debts.filter((debt) => debt.status === "active").length;
   const overdueDebts = debts.filter((debt) => {
     if (debt.status !== "active") return false;
-    return new Date(debt.due_date) < new Date();
+    return new Date(debt.due_on) < new Date();
   }).length;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case "closed":
       case "paid":
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case "overdue":
@@ -313,6 +293,7 @@ export default function DebtManagement() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case "closed":
       case "paid":
         return "bg-green-100 text-green-800";
       case "overdue":
@@ -338,7 +319,6 @@ export default function DebtManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* hidden anchor removed - no-op */}
         {/* Header */}
         <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-xl border border-white/20 mb-4 sm:mb-8">
           <div className="flex flex-col gap-4 sm:gap-6">
@@ -354,14 +334,14 @@ export default function DebtManagement() {
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => setShowPaymentForm(true)}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center gap-2"
               >
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Make Payment</span>
               </button>
               <button
                 onClick={() => setShowDebtForm(true)}
-                className="bg-gradient-to-r from-red-600 to-rose-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                className="bg-gradient-to-r from-red-600 to-rose-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 flex items-center gap-2"
               >
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Add Debt</span>
@@ -379,7 +359,7 @@ export default function DebtManagement() {
               </div>
               <div>
                 <p className="text-xs sm:text-sm text-slate-300 mb-1">
-                  Total Outstanding
+                  Total Principal
                 </p>
                 <p className="text-lg sm:text-3xl font-bold text-white">
                   KES {totalDebt.toLocaleString()}
@@ -435,16 +415,16 @@ export default function DebtManagement() {
               <thead className="bg-white/5">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
-                    Creditor
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
-                    Type
+                    Lender
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
                     Principal
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
-                    Balance
+                    Interest
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Started
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
                     Due Date
@@ -478,7 +458,7 @@ export default function DebtManagement() {
                   debts.map((debt) => {
                     const isOverdue =
                       debt.status === "active" &&
-                      new Date(debt.due_date) < new Date();
+                      new Date(debt.due_on) < new Date();
                     const actualStatus = isOverdue ? "overdue" : debt.status;
 
                     return (
@@ -489,26 +469,24 @@ export default function DebtManagement() {
                         <td className="px-6 py-4">
                           <div>
                             <p className="font-medium text-white">
-                              {debt.creditor_name}
+                              {debt.lender}
                             </p>
                             <p className="text-sm text-slate-300">
-                              {debt.purpose}
+                              {debt.notes}
                             </p>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                            {debt.debt_type}
-                          </span>
-                        </td>
                         <td className="px-6 py-4 text-sm font-semibold text-white">
-                          KES {(debt.principal_amount ?? 0).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-red-400">
-                          KES {(debt.current_balance ?? 0).toLocaleString()}
+                          KES {(debt.principal ?? 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-300">
-                          {formatDate(debt.due_date)}
+                          {debt.interest_rate ?? 0}%
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-300">
+                          {formatDate(debt.started_on)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-300">
+                          {formatDate(debt.due_on)}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
@@ -558,8 +536,7 @@ export default function DebtManagement() {
               <div className="p-3 sm:p-6 space-y-3">
                 {debts.map((debt) => {
                   const isOverdue =
-                    new Date(debt.due_date) < new Date() &&
-                    debt.status !== "paid";
+                    new Date(debt.due_on) < new Date() && debt.status !== "closed";
                   return (
                     <div
                       key={debt.id}
@@ -570,34 +547,31 @@ export default function DebtManagement() {
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                debt.status === "paid"
+                                debt.status === "closed"
                                   ? "bg-green-500/20 text-green-300 border border-green-500/30"
                                   : isOverdue
                                   ? "bg-red-500/20 text-red-300 border border-red-500/30"
                                   : "bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"
                               }`}
                             >
-                              {debt.status === "paid"
-                                ? "✓ Paid"
+                              {debt.status === "closed"
+                                ? "✓ Closed"
                                 : isOverdue
                                 ? "⚠️ Overdue"
                                 : "⏳ Active"}
                             </span>
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                              {debt.debt_type}
-                            </span>
                           </div>
                           <h4 className="text-sm font-semibold text-white mb-1">
-                            {debt.creditor_name}
+                            {debt.lender}
                           </h4>
                           <p className="text-xs text-slate-300 mb-2">
-                            {debt.purpose}
+                            {debt.notes}
                           </p>
                           <div className="flex flex-col gap-1 text-xs text-slate-300">
                             <span>
-                              Principal: KES { (debt.principal_amount ?? 0).toLocaleString() }
+                              Principal: KES {(debt.principal ?? 0).toLocaleString()}
                             </span>
-                            <span>Due: {formatDate(debt.due_date)}</span>
+                            <span>Due: {formatDate(debt.due_on)}</span>
                             {debt.interest_rate > 0 && (
                               <span>Interest: {debt.interest_rate}%</span>
                             )}
@@ -605,7 +579,7 @@ export default function DebtManagement() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-red-400 mb-2">
-                            KES {(debt.current_balance ?? 0).toLocaleString()}
+                            KES {(debt.principal ?? 0).toLocaleString()}
                           </p>
                           <div className="flex space-x-1">
                             <button
@@ -648,15 +622,15 @@ export default function DebtManagement() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Creditor Name
+                      Lender
                     </label>
                     <input
                       type="text"
-                      value={debtForm.creditor_name}
+                      value={debtForm.lender}
                       onChange={(e) =>
                         setDebtForm((prev) => ({
                           ...prev,
-                          creditor_name: e.target.value,
+                          lender: e.target.value,
                         }))
                       }
                       className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -667,42 +641,17 @@ export default function DebtManagement() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Debt Type
-                    </label>
-                    <select
-                      value={debtForm.debt_type}
-                      onChange={(e) =>
-                        setDebtForm((prev) => ({
-                          ...prev,
-                          debt_type: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      required
-                    >
-                      {DEBT_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Principal Amount (KES)
                     </label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      value={debtForm.principal_amount}
+                      value={debtForm.principal}
                       onChange={(e) =>
                         setDebtForm((prev) => ({
                           ...prev,
-                          principal_amount: parseFloat(e.target.value) || 0,
+                          principal: parseFloat(e.target.value) || 0,
                         }))
                       }
                       className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -710,7 +659,9 @@ export default function DebtManagement() {
                       required
                     />
                   </div>
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
                       Interest Rate (% per year)
@@ -730,38 +681,18 @@ export default function DebtManagement() {
                       placeholder="0.00"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Borrowed Date
-                    </label>
-                    <input
-                      type="date"
-                      value={debtForm.borrowed_date}
-                      onChange={(e) =>
-                        setDebtForm((prev) => ({
-                          ...prev,
-                          borrowed_date: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Due Date
+                      Started On
                     </label>
                     <input
                       type="date"
-                      value={debtForm.due_date}
+                      value={debtForm.started_on}
                       onChange={(e) =>
                         setDebtForm((prev) => ({
                           ...prev,
-                          due_date: e.target.value,
+                          started_on: e.target.value,
                         }))
                       }
                       className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -772,19 +703,18 @@ export default function DebtManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Purpose
+                    Due Date
                   </label>
                   <input
-                    type="text"
-                    value={debtForm.purpose}
+                    type="date"
+                    value={debtForm.due_on}
                     onChange={(e) =>
                       setDebtForm((prev) => ({
                         ...prev,
-                        purpose: e.target.value,
+                        due_on: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="What was the money used for?"
+                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -817,7 +747,7 @@ export default function DebtManagement() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg sm:rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 shadow-lg text-sm sm:text-base"
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg sm:rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 text-sm sm:text-base"
                   >
                     {editingDebt ? "Update" : "Add"} Debt
                   </button>
@@ -858,8 +788,7 @@ export default function DebtManagement() {
                       .filter((debt) => debt.status === "active")
                       .map((debt) => (
                         <option key={debt.id} value={debt.id}>
-                          {debt.creditor_name} - KES{" "}
-                          {debt.current_balance.toLocaleString()}
+                          {debt.lender} - KES {debt.principal.toLocaleString()}
                         </option>
                       ))}
                   </select>
@@ -955,7 +884,7 @@ export default function DebtManagement() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg text-sm sm:text-base"
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 text-sm sm:text-base"
                   >
                     Record Payment
                   </button>
