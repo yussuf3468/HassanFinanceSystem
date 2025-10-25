@@ -137,15 +137,21 @@ export default function DebtManagement() {
     e.preventDefault();
 
     try {
+
+      // Use the same field names as your Debt interface and what your UI expects
       const payload = {
-        lender: debtForm.creditor_name,
-        principal: debtForm.principal_amount,
-        interest_rate: debtForm.interest_rate || null,
-        started_on: debtForm.borrowed_date,
-        due_on: debtForm.due_date || null,
+        creditor_name: debtForm.creditor_name,
+        debt_type: debtForm.debt_type,
+        principal_amount: debtForm.principal_amount,
+        interest_rate: debtForm.interest_rate || 0,
+        borrowed_date: debtForm.borrowed_date,
+        due_date: debtForm.due_date,
+        current_balance: debtForm.principal_amount, // Set current_balance to principal at creation
         status: "active" as const,
-        notes: debtForm.purpose || debtForm.notes || null,
-      } as const;
+        purpose: debtForm.purpose,
+        notes: debtForm.notes || null,
+      };
+
 
       if (editingDebt) {
         const { error } = await supabase
