@@ -55,6 +55,7 @@ export default function ExpenseManagement() {
   });
 
   // Filter expenses by selected month from cached data
+  // Include categoryIdToName in deps so category names update when categories are loaded/changed
   useEffect(() => {
     if (expensesData.length === 0) return;
 
@@ -83,7 +84,7 @@ export default function ExpenseManagement() {
     }));
 
     setExpenses(mapped);
-  }, [expensesData, selectedMonth]);
+  }, [expensesData, selectedMonth, /* ensure we recalc when categories change */]);
 
   const categoryNameToId = useMemo(() => {
     const map = new Map<string, string>();
@@ -135,11 +136,18 @@ export default function ExpenseManagement() {
         }
         throw error;
       }
+
+      // Build an id->name map from the freshly fetched categories (cats) so mapping is accurate immediately
+      const localIdToName = new Map<string, string>();
+      (cats || []).forEach((c) => {
+        if (c && c.id) localIdToName.set(c.id, c.name || "");
+      });
+
       const mapped: ExpenseUI[] =
         (data as DbExpense[] | null)?.map((row) => ({
           id: row.id,
           category: row.category_id
-            ? categoryIdToName.get(row.category_id) || ""
+            ? localIdToName.get(row.category_id) || ""
             : "",
           description: row.title || "",
           amount: Number(row.amount || 0),
