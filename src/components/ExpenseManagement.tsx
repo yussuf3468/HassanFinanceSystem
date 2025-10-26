@@ -54,10 +54,29 @@ export default function ExpenseManagement() {
     notes: "",
   });
 
-  // Filter expenses by selected month from cached data
-  // Include categoryIdToName in deps so category names update when categories are loaded/changed
+  const categoryNameToId = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((c) => {
+      if (c.name) map.set(c.name, c.id);
+    });
+    return map;
+  }, [categories]);
+
+  const categoryIdToName = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((c) => {
+      if (c.id) map.set(c.id, c.name || "");
+    });
+    return map;
+  }, [categories]);
+
+  // Recompute UI expenses whenever expensesData, selectedMonth or category mapping changes.
+  // Including categoryIdToName in deps ensures names appear once categories are loaded.
   useEffect(() => {
-    if (expensesData.length === 0) return;
+    if (expensesData.length === 0) {
+      setExpenses([]);
+      return;
+    }
 
     const startDate = selectedMonth + "-01";
     const endDate = new Date(selectedMonth + "-01");
@@ -84,23 +103,7 @@ export default function ExpenseManagement() {
     }));
 
     setExpenses(mapped);
-  }, [expensesData, selectedMonth, /* ensure we recalc when categories change */]);
-
-  const categoryNameToId = useMemo(() => {
-    const map = new Map<string, string>();
-    categories.forEach((c) => {
-      if (c.name) map.set(c.name, c.id);
-    });
-    return map;
-  }, [categories]);
-
-  const categoryIdToName = useMemo(() => {
-    const map = new Map<string, string>();
-    categories.forEach((c) => {
-      if (c.id) map.set(c.id, c.name || "");
-    });
-    return map;
-  }, [categories]);
+  }, [expensesData, selectedMonth, categoryIdToName]);
 
   async function loadCategoriesAndExpenses() {
     try {
@@ -126,7 +129,7 @@ export default function ExpenseManagement() {
       setCategories(cats || []);
 
       if (error) {
-        if (error.code === "42P01") {
+        if ((error as any).code === "42P01") {
           console.log(
             "Expenses table not found. Please run the database setup from FINANCIAL_SETUP.md"
           );
@@ -137,7 +140,7 @@ export default function ExpenseManagement() {
         throw error;
       }
 
-      // Build an id->name map from the freshly fetched categories (cats) so mapping is accurate immediately
+      // Use the freshly fetched categories to map category_id -> name immediately
       const localIdToName = new Map<string, string>();
       (cats || []).forEach((c) => {
         if (c && c.id) localIdToName.set(c.id, c.name || "");
@@ -161,6 +164,13 @@ export default function ExpenseManagement() {
     } finally {
     }
   }
+
+  // Load categories and expenses on mount and whenever the selected month changes.
+  // This ensures categories are available before the UI mapping runs.
+  useEffect(() => {
+    loadCategoriesAndExpenses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMonth]);
 
   async function seedDefaultCategories() {
     try {
@@ -517,7 +527,7 @@ export default function ExpenseManagement() {
                         </td>
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                            {expense.category}
+                            {expense.category || "Uncategorized"}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-white">
@@ -577,7 +587,7 @@ export default function ExpenseManagement() {
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                              {expense.category}
+                              {expense.category || "Uncategorized"}
                             </span>
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-300 border border-gray-500/30">
                               Expense
@@ -751,16 +761,11 @@ export default function ExpenseManagement() {
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
-                      {editingExpense
-                        ? "✏️ Edit Expense"
-                        : "➕ Add New Expense"}
+                      {editingExpense ? "✏️ Edit Expense" : "➕ Add New Expense"}
                     </h3>
                   </div>
 
-                  <form
-                    onSubmit={handleSubmit}
-                    className="space-y-3 sm:space-y-4"
-                  >
+                  <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
                         Category
@@ -776,26 +781,15 @@ export default function ExpenseManagement() {
                         className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/10 border border-white/20 text-white rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
                         required
                       >
-                        <option
-                          value=""
-                          disabled
-                          className="bg-slate-900 text-white"
-                        >
+                        <option value="" disabled className="bg-slate-900 text-white">
                           Select category
                         </option>
                         {/* Allow creating expenses without a category */}
-                        <option
-                          value="Uncategorized"
-                          className="bg-slate-900 text-white"
-                        >
+                        <option value="Uncategorized" className="bg-slate-900 text-white">
                           Uncategorized
                         </option>
                         {categories.map((cat) => (
-                          <option
-                            key={cat.id}
-                            value={cat.name || ""}
-                            className="bg-slate-900 text-white"
-                          >
+                          <option key={cat.id} value={cat.name || ""} className="bg-slate-900 text-white">
                             {cat.name}
                           </option>
                         ))}
