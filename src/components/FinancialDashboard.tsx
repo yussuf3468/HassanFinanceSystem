@@ -376,10 +376,56 @@ export default function FinancialDashboard() {
         (sum, investment) => sum + (investment.amount || 0),
         0
       );
+
+      // === START UPDATED DEBT LOGIC ===
+      // helper: try common debt fields or compute principal - paid
+      const getDebtBalance = (debt: any): number => {
+        const candidates = [
+          debt?.current_balance,
+          debt?.balance,
+          debt?.outstanding_balance,
+          debt?.outstanding,
+          debt?.amount_due,
+          debt?.amount,
+          debt?.remaining_balance,
+        ];
+        for (const v of candidates) {
+          if (v != null && v !== "" && !isNaN(Number(v))) return Number(v);
+        }
+        if (debt && typeof debt === "object") {
+          const principal = debt.principal ?? debt.loan_amount ?? debt.amount;
+          const paid = debt.paid_amount ?? debt.amount_paid ?? 0;
+          if (principal != null && !isNaN(Number(principal))) {
+            const p = Number(principal);
+            const paidNum = !isNaN(Number(paid)) ? Number(paid) : 0;
+            return Math.max(0, p - paidNum);
+          }
+        }
+        return 0;
+      };
+
+      const isDebtActive = (debt: any): boolean => {
+        const status = (debt?.status || "").toString().toLowerCase().trim();
+        if (["active", "open", "ongoing", "unpaid", "pending"].includes(status))
+          return true;
+        if (["paid", "closed", "settled", "completed"].includes(status))
+          return false;
+        if (getDebtBalance(debt) > 0) return true;
+        if (
+          debt?.paid === false ||
+          debt?.is_paid === false ||
+          debt?.isSettled === false
+        )
+          return true;
+        return false;
+      };
+
       const totalDebt = debtsData.reduce(
-        (sum, debt) => sum + (debt.current_balance || 0),
+        (sum, debt) => sum + getDebtBalance(debt),
         0
       );
+      const activeDebts = debtsData.filter((d) => isDebtActive(d)).length;
+      // === END UPDATED DEBT LOGIC ===
 
       // Calculate current month metrics
       const currentMonth = new Date().getMonth() + 1;
@@ -480,9 +526,6 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, sale) => sum + (sale.profit || 0), 0);
 
-      const activeDebts = debtsData.filter(
-        (debt: any) => debt.status === "active"
-      ).length;
       const investmentCategories = new Set(
         investmentsData.map((inv: any) => inv.category).filter(Boolean)
       ).size;
