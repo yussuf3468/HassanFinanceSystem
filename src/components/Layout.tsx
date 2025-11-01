@@ -436,14 +436,14 @@ export default function Layout({
       {/* Mobile Sidebar - Glassmorphic */}
       <div
         className={`
-          fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out lg:hidden
+          fixed top-16 bottom-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out lg:hidden
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Backdrop */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            className="fixed top-16 left-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
