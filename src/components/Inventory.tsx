@@ -26,18 +26,31 @@ export default function Inventory() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   // Persist viewingProduct in sessionStorage
   const [viewingProduct, setViewingProduct] = useState<Product | null>(() => {
-    const saved = sessionStorage.getItem("inventory_viewingProduct");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = sessionStorage.getItem("inventory_viewingProduct");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
   // Save modal state to sessionStorage whenever it changes
   useEffect(() => {
-    if (viewingProduct) {
-      sessionStorage.setItem("inventory_viewingProduct", JSON.stringify(viewingProduct));
-    } else {
-      sessionStorage.removeItem("inventory_viewingProduct");
+    try {
+      if (viewingProduct) {
+        sessionStorage.setItem("inventory_viewingProduct", JSON.stringify(viewingProduct));
+      } else {
+        sessionStorage.removeItem("inventory_viewingProduct");
+      }
+    } catch {
+      // ignore storage errors
     }
   }, [viewingProduct]);
+
+  // New: restock modal state
+  const [restockProduct, setRestockProduct] = useState<Product | null>(null);
+  const [restockAmount, setRestockAmount] = useState<number>(0);
+  const [restocking, setRestocking] = useState(false);
 
   // Sort products newest-first by created_at (fallback to id)
   const sortedProducts = useMemo(() => {
@@ -53,7 +66,7 @@ export default function Inventory() {
     const product = products.find((p) => p.id === id);
     if (!product) return;
 
-    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka dhammaan order items ee ku saabsan alaabtan\n3. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete ALL order items for this product\n3. Delete the product completely\n\nThis action cannot be undone!`;
+    const deleteMessage = `Iska Haqiiji inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka dhammaan order items la xiriira\n\nTirtirka lama beddeli karo. Ma hubtaa?`;
 
     if (!confirm(deleteMessage)) return;
 
@@ -130,6 +143,61 @@ export default function Inventory() {
     refetch();
   }
 
+  // New: open restock modal
+  function openRestock(product: Product) {
+    setRestockProduct(product);
+    setRestockAmount(0);
+    // scroll into view for modal
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function closeRestock() {
+    setRestockProduct(null);
+    setRestockAmount(0);
+    setRestocking(false);
+  }
+
+  // New: perform restock update (simple increment)
+  async function performRestock() {
+    if (!restockProduct) return;
+    const amount = Number(restockAmount);
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid restock quantity greater than 0.");
+      return;
+    }
+
+    setRestocking(true);
+    try {
+      // Update product quantity atomically using Postgres increment via RPC is ideal,
+      // but here we'll read current value and update. This is simple and meets the request.
+      const newQty = (restockProduct.quantity_in_stock || 0) + amount;
+
+      const { error } = await supabase
+        .from("products")
+        .update({ quantity_in_stock: newQty })
+        .eq("id", restockProduct.id);
+
+      if (error) {
+        console.error("Error restocking product:", error);
+        alert("Failed to restock product. Please try again.");
+        setRestocking(false);
+        return;
+      }
+
+      // Optionally record a restock transaction if you have a restocks table.
+      // Uncomment and adapt if desired:
+      // await supabase.from("restocks").insert([{ product_id: restockProduct.id, quantity: amount, created_at: new Date().toISOString() }]);
+
+      alert(`✅ Restocked "${restockProduct.name}" by ${amount} units.`);
+      closeRestock();
+      refetch();
+    } catch (err) {
+      console.error("Restock error:", err);
+      alert("An unexpected error occurred while restocking.");
+      setRestocking(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="text-center py-12 text-white">Loading inventory...</div>
@@ -149,7 +217,7 @@ export default function Inventory() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-5 py-2.5 rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all shadow-xl hover:shadow-2xl hover:scale-105 w-full sm:w-auto font-semibold text-sm"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 sm:px-5 py-2.5 rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Add Product</span>
@@ -280,6 +348,13 @@ export default function Inventory() {
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => openRestock(product)}
+                            className="p-2 text-yellow-300 hover:bg-yellow-600/10 rounded-lg transition-colors border border-transparent hover:border-yellow-500/20"
+                            title="Restock"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDelete(product.id)}
                             className="p-2 text-rose-400 hover:bg-rose-600/20 rounded-lg transition-colors border border-transparent hover:border-rose-500/30"
                             title="Delete"
@@ -363,6 +438,13 @@ export default function Inventory() {
                           className="p-2 text-blue-400 hover:bg-blue-600/20 rounded-lg transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => openRestock(product)}
+                          className="p-2 text-yellow-300 hover:bg-yellow-600/10 rounded-lg transition-colors"
+                          title="Restock"
+                        >
+                          <Plus className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id)}
@@ -454,7 +536,6 @@ export default function Inventory() {
                       ) : (
                         <div className="w-full h-80 lg:h-96 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center border border-white/20">
                           <div className="text-center">
-                            <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                             <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                             <p className="text-slate-300 font-medium">
                               No Image Available
@@ -648,7 +729,7 @@ export default function Inventory() {
                           handleCloseView();
                           handleEdit(viewingProduct);
                         }}
-                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
+                        className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all"
                       >
                         <Edit2 className="w-5 h-5" />
                         <span>Edit Product</span>
@@ -663,6 +744,63 @@ export default function Inventory() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restock Modal (glassmorphic styling matches app) */}
+      {restockProduct && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-screen py-6 px-4 flex items-start justify-center">
+            <div className="bg-white/8 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-lg w-full my-8 border border-white/20 p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Restock: {restockProduct.name}
+                  </h3>
+                  <p className="text-sm text-slate-300 mt-1">
+                    Current stock: {restockProduct.quantity_in_stock} • Reorder level: {restockProduct.reorder_level}
+                  </p>
+                </div>
+                <button
+                  onClick={closeRestock}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-300" />
+                </button>
+              </div>
+
+              <div className="bg-white/5 backdrop-blur-xl p-4 rounded-xl border border-white/20 mb-4">
+                <label className="text-sm text-slate-300">Quantity to add</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={restockAmount}
+                  onChange={(e) => setRestockAmount(Number(e.target.value))}
+                  className="mt-2 w-full bg-transparent border border-white/10 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter quantity e.g. 10"
+                />
+                <p className="text-xs text-slate-400 mt-2">
+                  This will increase the product's stock automatically.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={closeRestock}
+                  className="bg-white/10 text-slate-300 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors border border-white/20"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={performRestock}
+                  disabled={restocking}
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-400 text-black px-4 py-2 rounded-lg hover:from-yellow-600 hover:to-yellow-500 transition-all font-medium"
+                >
+                  {restocking ? "Restocking..." : `Add ${restockAmount || ""}`}
+                </button>
               </div>
             </div>
           </div>
