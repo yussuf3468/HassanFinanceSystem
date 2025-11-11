@@ -35,12 +35,12 @@ interface ReceiptData {
     discount_amount: number;
     final_unit_price: number;
     line_total: number;
-    profit: number;
+    profit: number; // kept for internal use only; no longer rendered on receipt
   }[];
   subtotal: number;
   total_discount: number;
   total: number;
-  total_profit: number;
+  total_profit: number; // kept for internal use only; no longer rendered on receipt
 }
 
 const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
@@ -238,21 +238,7 @@ export default function SaleForm({
     // Create a transaction ID for grouping this sale
     const transactionId = crypto.randomUUID();
 
-    // NOTE: This implementation assumes you added a transaction_id column
-    // to the existing 'sales' table.
-    // For a normalized schema (sale_transactions + sale_items), see comments below.
     try {
-      // Optional: If using normalized schema, first insert into sale_transactions:
-      // const { data: txData, error: txError } = await supabase.from("sale_transactions").insert({
-      //   id: transactionId,
-      //   payment_method: paymentMethod,
-      //   sold_by: soldBy,
-      //   subtotal,
-      //   total_discount,
-      //   total
-      // }).select().single();
-      // if (txError) throw txError;
-
       // Insert each line as a row into 'sales' (legacy approach).
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
@@ -286,20 +272,6 @@ export default function SaleForm({
           .update({ quantity_in_stock: newStock })
           .eq("id", c.product.id);
         if (stockError) throw stockError;
-
-        // If using normalized schema:
-        // await supabase.from("sale_items").insert({
-        //   transaction_id: transactionId,
-        //   product_id: c.product.id,
-        //   quantity: c.quantity,
-        //   original_unit_price: c.product.selling_price,
-        //   discount_type: c.line.discount_type,
-        //   discount_value: c.line.discount_value ? parseFloat(c.line.discount_value) : 0,
-        //   discount_amount: c.discount_amount,
-        //   final_unit_price: c.final_unit_price,
-        //   line_total: c.final_total,
-        //   profit: c.profit
-        // });
       }
 
       // Build receipt data
@@ -360,7 +332,7 @@ export default function SaleForm({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn print:static print:max-h-none print:overflow-visible print:shadow-none print:bg-white print:text-black">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-t-2xl print:hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
@@ -384,64 +356,66 @@ export default function SaleForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl print:bg-white print:text-black">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-bold text-white print:text-black">
-                  Sales Receipt
-                </h2>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Transaction: {receipt.transactionId}
-                </p>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Date: {receipt.created_at.toLocaleString()}
-                </p>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Sold By: {receipt.sold_by} • Payment: {receipt.payment_method}
-                </p>
+          <div className="p-6 space-y-6 bg-white text-black print:bg-white print:text-black">
+            <div className="flex items-start justify-between print:items-center">
+              <div className="w-full">
+                <div className="text-center">
+                  <h1 className="text-2xl font-extrabold tracking-wide">
+                    HASSAN BOOKSHOP
+                  </h1>
+                  <p className="text-sm mt-1">Sales Receipt</p>
+                </div>
+
+                <div className="mt-4 space-y-1 text-sm">
+                  <p>Transaction: {receipt.transactionId}</p>
+                  <p>Date: {receipt.created_at.toLocaleString()}</p>
+                  <p>
+                    Sold By: {receipt.sold_by} • Payment: {receipt.payment_method}
+                  </p>
+                </div>
               </div>
-              <div className="print:hidden flex space-x-2">
+
+              <div className="print:hidden flex-shrink-0 ml-4 flex space-x-2">
                 <button
                   onClick={printReceipt}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg flex items-center space-x-2 hover:from-purple-700 hover:to-blue-700"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm"
                 >
-                  <Printer className="w-4 h-4" />
-                  <span>Print</span>
+                  <span className="inline-flex items-center space-x-2">
+                    <Printer className="w-4 h-4" />
+                    <span>Print</span>
+                  </span>
                 </button>
                 <button
                   onClick={resetForm}
-                  className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm"
                 >
                   New Sale
                 </button>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-white/20 print:border-slate-300">
+            <hr className="border-gray-300" />
+
+            <div className="overflow-hidden rounded-md border border-gray-300">
               <table className="w-full text-sm">
-                <thead className="bg-white/10 text-white print:bg-slate-100 print:text-black">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-2 text-left">Product</th>
                     <th className="px-4 py-2 text-right">Qty</th>
-                    <th className="px-4 py-2 text-right">Unit</th>
-                    <th className="px-4 py-2 text-right">Orig Total</th>
+                    <th className="px-4 py-2 text-right">Unit Price</th>
                     <th className="px-4 py-2 text-right">Discount</th>
                     <th className="px-4 py-2 text-right">Line Total</th>
-                    <th className="px-4 py-2 text-right">Profit</th>
                   </tr>
                 </thead>
                 <tbody>
                   {receipt.items.map((it, idx) => (
-                    <tr key={idx} className="odd:bg-white/5 print:odd:bg-white">
+                    <tr key={idx} className="odd:bg-white even:bg-gray-50">
                       <td className="px-4 py-2">{it.product_name}</td>
                       <td className="px-4 py-2 text-right">{it.quantity}</td>
                       <td className="px-4 py-2 text-right">
                         KES {it.unit_price.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 text-right">
-                        KES {it.original_total.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-right text-red-400 print:text-red-600">
                         {it.discount_amount > 0
                           ? "-KES " + it.discount_amount.toLocaleString()
                           : "-"}
@@ -449,57 +423,46 @@ export default function SaleForm({
                       <td className="px-4 py-2 text-right font-semibold">
                         KES {it.line_total.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right text-green-400 print:text-green-600">
-                        KES {it.profit.toLocaleString()}
-                      </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-white/10 font-semibold print:bg-slate-100 print:text-black">
+                <tfoot className="bg-gray-100 font-semibold">
                   <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
+                    <td className="px-4 py-2 text-right" colSpan={4}>
                       Subtotal
                     </td>
                     <td className="px-4 py-2 text-right">
                       KES {receipt.subtotal.toLocaleString()}
                     </td>
-                    <td />
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
+                    <td className="px-4 py-2 text-right" colSpan={4}>
                       Discount
                     </td>
-                    <td className="px-4 py-2 text-right text-red-400 print:text-red-600">
+                    <td className="px-4 py-2 text-right">
                       -KES {receipt.total_discount.toLocaleString()}
                     </td>
-                    <td />
                   </tr>
                   <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
+                    <td className="px-4 py-2 text-right" colSpan={4}>
                       Total
                     </td>
-                    <td className="px-4 py-2 text-right text-purple-300 print:text-black">
+                    <td className="px-4 py-2 text-right">
                       KES {receipt.total.toLocaleString()}
                     </td>
-                    <td />
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
-                      Profit
-                    </td>
-                    <td className="px-4 py-2 text-right text-green-400 print:text-green-600">
-                      KES {receipt.total_profit.toLocaleString()}
-                    </td>
-                    <td />
                   </tr>
                 </tfoot>
               </table>
             </div>
 
+            <div className="text-center text-xs">
+              <p>Thank you for shopping with us!</p>
+            </div>
+
             <div className="print:hidden flex justify-end">
               <button
                 onClick={onSuccess}
-                className="px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5"
+                className="px-6 py-3 border border-gray-300 rounded-md"
               >
                 Finish
               </button>
@@ -746,7 +709,7 @@ export default function SaleForm({
                       </div>
                     </div>
 
-                    {/* Line Summary */}
+                    {/* Line Summary (staff-only view while editing; OK to show profit here) */}
                     {product && comp.quantity > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
                         <div className="bg-white/10 rounded-md p-2">
@@ -869,7 +832,7 @@ export default function SaleForm({
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Recording Sale..." : "Record Sale"}
               </button>
