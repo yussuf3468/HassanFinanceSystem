@@ -364,7 +364,7 @@ export default function SaleForm({
   <div class="header">
     <h1>HASSAN BOOKSHOP</h1>
     <div class="sub">Quality Educational Materials & Supplies</div>
-    <div class="sub">Tel: +254 722 979 547• Email: yussufh080@gmail.com.com</div>
+    <div class="sub">Tel: +254 722 740 432 Email: galiyowabi@gmail.com</div>
     <div class="title">Sales Receipt</div>
   </div>
 
@@ -527,16 +527,16 @@ export default function SaleForm({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-5xl max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-t-2xl">
+        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
           <div className="relative flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-black text-white">
+              <h3 className="text-lg sm:text-2xl font-black text-white">
                 💰 Diiwaan Gali Iib Cusub (Multi-Product) - Record New Sale
               </h3>
-              <p className="text-purple-100 text-sm font-medium">
+              <p className="text-purple-100 text-xs sm:text-sm font-medium">
                 Ku dar alaabooyin badan hal iib gudaheed
               </p>
             </div>
@@ -544,17 +544,17 @@ export default function SaleForm({
               onClick={onClose}
               className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
 
         {/* Receipt View (Customer-safe: NO profit) */}
         {receipt && (
-          <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl">
-            <div className="bg-white text-black rounded-lg border border-gray-300 p-5 shadow-sm">
+          <div className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl">
+            <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-5 shadow-sm">
               <div className="text-center space-y-1">
-                <h1 className="text-2xl font-extrabold tracking-wide">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
                   HASSAN BOOKSHOP
                 </h1>
                 <p className="text-xs text-gray-700">
@@ -668,23 +668,23 @@ export default function SaleForm({
               </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={printReceipt}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center space-x-2 hover:from-purple-700 hover:to-blue-700 text-sm"
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center justify-center sm:justify-start space-x-2 hover:from-purple-700 hover:to-blue-700 text-sm"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print</span>
               </button>
               <button
                 onClick={resetForm}
-                className="px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
+                className="w-full sm:w-auto px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
               >
                 New Sale
               </button>
               <button
                 onClick={onSuccess}
-                className="px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
+                className="w-full sm:w-auto px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
               >
                 Finish
               </button>
@@ -696,17 +696,17 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="p-6 space-y-8 bg-white/5 backdrop-blur-xl"
+            className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
           >
             {/* Line Items */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-bold text-white">Products</h4>
-                <div className="flex space-x-3">
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h4 className="text-base sm:text-lg font-bold text-white">Products</h4>
+                <div className="flex w-full sm:w-auto space-x-3">
                   <button
                     type="button"
                     onClick={addLine}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Line</span>
@@ -714,7 +714,7 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={consolidateDuplicates}
-                    className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                    className="flex-1 sm:flex-none px-3 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
                   >
                     Merge Duplicates
                   </button>
@@ -740,7 +740,7 @@ export default function SaleForm({
                   <div
                     key={li.id}
                     ref={(el) => (dropdownRefs.current[li.id] = el)}
-                    className="relative bg-white/5 border border-white/20 rounded-xl p-4 space-y-4"
+                    className="relative bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4 space-y-3"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-2">
@@ -765,9 +765,9 @@ export default function SaleForm({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
                       {/* Product Search */}
-                      <div className="lg:col-span-2">
+                      <div className="sm:col-span-2">
                         <label className="block text-xs font-medium text-slate-300 mb-1">
                           Product *
                         </label>
@@ -934,7 +934,7 @@ export default function SaleForm({
 
                     {/* Line Summary (internal only; OK to show profit here) */}
                     {product && comp.quantity > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
                         <div className="bg-white/10 rounded-md p-2">
                           <span className="text-slate-300 block">Original</span>
                           <span className="font-semibold text-purple-300">
@@ -971,7 +971,7 @@ export default function SaleForm({
             </div>
 
             {/* Overall Totals (internal view) */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-6 border border-purple-500/30 space-y-3">
+            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/30 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-300">Subtotal:</span>
                 <span className="font-semibold text-white">
@@ -997,7 +997,7 @@ export default function SaleForm({
             </div>
 
             {/* Payment + Staff moved to bottom */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   Payment Method *
@@ -1055,7 +1055,7 @@ export default function SaleForm({
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50"
               >
                 {submitting ? "Recording Sale..." : "Record Sale"}
               </button>
