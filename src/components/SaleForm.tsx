@@ -364,7 +364,7 @@ export default function SaleForm({
   <div class="header">
     <h1>HASSAN BOOKSHOP</h1>
     <div class="sub">Quality Educational Materials & Supplies</div>
-    <div class="sub">Tel: +254 XXX XXX • Email: info@hassanbookshop.com</div>
+    <div class="sub">Tel: +254 722 979 547• Email: yussufh080@gmail.com.com</div>
     <div class="title">Sales Receipt</div>
   </div>
 
