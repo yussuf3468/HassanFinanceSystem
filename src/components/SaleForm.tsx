@@ -12,11 +12,12 @@ interface SaleFormProps {
 type DiscountType = "none" | "percentage" | "amount";
 
 interface LineItem {
-  id: string;
+  id: string; // local unique id for rendering
   product_id: string;
   quantity: string;
   discount_type: DiscountType;
   discount_value: string;
+  // UI helpers
   searchTerm: string;
   showDropdown: boolean;
 }
@@ -34,18 +35,22 @@ interface ReceiptData {
     discount_amount: number;
     final_unit_price: number;
     line_total: number;
-    profit: number; // internal only (not printed)
+    profit: number; // INTERNAL ONLY (not rendered on customer receipt)
   }[];
   subtotal: number;
   total_discount: number;
   total: number;
-  total_profit: number; // internal only (not printed)
+  total_profit: number; // INTERNAL ONLY (not rendered on customer receipt)
 }
 
 const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
 const staffMembers = ["Yussuf", "Khaled", "Zakaria"];
 
-export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps) {
+export default function SaleForm({
+  products,
+  onClose,
+  onSuccess,
+}: SaleFormProps) {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [soldBy, setSoldBy] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([
@@ -62,6 +67,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
+  // Refs for clicking outside dropdowns
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -82,7 +88,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   }, []);
 
   function updateLine(id: string, patch: Partial<LineItem>) {
-    setLineItems((items) => items.map((li) => (li.id === id ? { ...li, ...patch } : li)));
+    setLineItems((items) =>
+      items.map((li) => (li.id === id ? { ...li, ...patch } : li))
+    );
   }
 
   function addLine() {
@@ -106,6 +114,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
   const productById = (id: string) => products.find((p) => p.id === id);
 
+  // Merge duplicate product lines automatically (optional behavior)
   function consolidateDuplicates() {
     const map: Record<string, LineItem> = {};
     for (const item of lineItems) {
@@ -116,9 +125,12 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         const q1 = parseInt(map[item.product_id].quantity || "0") || 0;
         const q2 = parseInt(item.quantity || "0") || 0;
         map[item.product_id].quantity = String(q1 + q2);
+        // If discounts differ, keep first; advanced merging logic could be added here.
       }
     }
-    setLineItems(Object.values(map).concat(lineItems.filter((i) => !i.product_id)));
+    setLineItems(
+      Object.values(map).concat(lineItems.filter((i) => !i.product_id))
+    );
   }
 
   interface ComputedLine {
@@ -139,7 +151,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       if (!product || quantity <= 0) {
         return {
           line: li,
-            product,
+          product: product,
           quantity,
           original_total: 0,
           discount_amount: 0,
@@ -151,7 +163,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       const original_total = product.selling_price * quantity;
       let discount_amount = 0;
       if (li.discount_type === "percentage" && li.discount_value) {
-        discount_amount = (original_total * parseFloat(li.discount_value)) / 100;
+        discount_amount =
+          (original_total * parseFloat(li.discount_value)) / 100;
       } else if (li.discount_type === "amount" && li.discount_value) {
         discount_amount = parseFloat(li.discount_value);
       }
@@ -179,6 +192,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   const total_profit = computed.reduce((s, c) => s + c.profit, 0);
 
   function validateStock(): { ok: boolean; message?: string } {
+    // Aggregate requested quantity per product
     const aggregate: Record<string, number> = {};
     for (const c of computed) {
       if (!c.product || c.quantity <= 0) continue;
@@ -199,15 +213,20 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Basic validation
     if (!soldBy) {
       alert("Please select staff (Sold By).");
       return;
     }
-    if (computed.length === 0 || computed.every((c) => c.quantity <= 0 || !c.product)) {
+    if (
+      computed.length === 0 ||
+      computed.every((c) => c.quantity <= 0 || !c.product)
+    ) {
       alert("Please add at least one valid product line.");
       return;
     }
 
+    // Stock validation
     const stockCheck = validateStock();
     if (!stockCheck.ok) {
       alert(stockCheck.message);
@@ -215,13 +234,18 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
     }
 
     setSubmitting(true);
+
+    // Create a transaction ID for grouping this sale
     const transactionId = crypto.randomUUID();
 
     try {
+      // Insert each line as a row into 'sales' (legacy approach).
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
-          c.line.discount_type === "percentage" ? parseFloat(c.line.discount_value || "0") : 0;
+          c.line.discount_type === "percentage"
+            ? parseFloat(c.line.discount_value || "0")
+            : 0;
 
         const { error: lineError } = await supabase.from("sales").insert({
           transaction_id: transactionId,
@@ -241,6 +265,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
         if (lineError) throw lineError;
 
+        // Update stock
         const newStock = c.product.quantity_in_stock - c.quantity;
         const { error: stockError } = await supabase
           .from("products")
@@ -249,6 +274,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         if (stockError) throw stockError;
       }
 
+      // Build receipt data
       const receiptData: ReceiptData = {
         transactionId,
         sold_by: soldBy,
@@ -275,188 +301,131 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       setReceipt(receiptData);
     } catch (err) {
       console.error("Error recording multi-product sale:", err);
-      alert("Failed to record sale. Consider implementing a Postgres function for transactional safety.");
+      alert(
+        "Failed to record sale. Consider implementing a Postgres function for transactional safety."
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
-  /**
-   * Create a minimal professional HTML for printing (only one page).
-   * Uses plain CSS, black & white, hides profit info.
-   */
+  // ---------- Printing (No popups; uses hidden iframe) ----------
   function createPrintHtml(r: ReceiptData) {
     const rows = r.items
       .map(
         (it) => `
-        <tr>
-          <td>${escapeHtml(it.product_name)}</td>
-          <td class="num">${it.quantity}</td>
-          <td class="num">KES ${it.unit_price.toLocaleString()}</td>
-          <td class="num">${it.discount_amount > 0 ? "-KES " + it.discount_amount.toLocaleString() : "-"}</td>
-          <td class="num">KES ${it.line_total.toLocaleString()}</td>
-        </tr>`
+          <tr>
+            <td>${escapeHtml(it.product_name)}</td>
+            <td class="num">${it.quantity}</td>
+            <td class="num">KES ${it.unit_price.toLocaleString()}</td>
+            <td class="num">${
+              it.discount_amount > 0
+                ? "-KES " + it.discount_amount.toLocaleString()
+                : "-"
+            }</td>
+            <td class="num">KES ${it.line_total.toLocaleString()}</td>
+          </tr>`
       )
       .join("");
 
-    return `
-<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Receipt - Hassan Bookshop</title>
+<title>Receipt - HASSAN BOOKSHOP</title>
 <style>
-  @page { size: A4; margin: 12mm; }
+  @page { size: A4; margin: 10mm; }
+  html, body { height: 100%; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    color:#000;
-    background:#fff;
-    font-size:12px;
-    line-height:1.35;
+    color:#000; background:#fff; font-size:12px; line-height:1.35;
+    margin:0; padding:0;
   }
-  h1 {
-    font-size:20px;
-    margin:0 0 2px;
-    letter-spacing:0.5px;
-  }
-  h2 {
-    font-size:14px;
-    margin:8px 0 4px;
-    font-weight:600;
-    text-transform:uppercase;
-  }
-  .center { text-align:center; }
-  .small { font-size:11px; }
-  .muted { color:#444; }
-  table {
-    width:100%;
-    border-collapse:collapse;
-    margin-top:8px;
-  }
-  th, td {
-    border:1px solid #222;
-    padding:4px 6px;
-    vertical-align:top;
-  }
-  th {
-    background:#f2f2f2;
-    font-weight:600;
-    font-size:11px;
-  }
-  td.num, th.num { text-align:right; }
-  tfoot td {
-    font-weight:600;
-  }
-  .totals {
-    width:100%;
-    margin-top:10px;
-    border-collapse:collapse;
-  }
-  .totals td {
-    padding:4px 6px;
-  }
-  .totals tr td:first-child {
-    text-align:right;
-    width:70%;
-  }
-  .divider {
-    margin:10px 0;
-    border-top:1px solid #000;
-  }
-  .footnote {
-    margin-top:14px;
-    text-align:center;
-    font-size:10px;
-    color:#555;
-  }
-  .signature-area {
-    margin-top:24px;
-    font-size:10px;
-    display:flex;
-    justify-content:space-between;
-  }
-  .signature-box {
-    width:40%;
-    border-top:1px solid #000;
-    padding-top:4px;
-    text-align:center;
-  }
+  .header { text-align:center; }
+  .header h1 { font-size:20px; margin:0 0 2px; letter-spacing:0.5px; }
+  .header .sub { font-size:11px; color:#444; }
+  .header .title { margin-top:4px; font-size:13px; font-weight:600; }
+  .meta { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
+  .meta td { padding:2px 0; vertical-align:top; }
+  table.items { width:100%; border-collapse:collapse; margin-top:8px; }
+  table.items th, table.items td { border:1px solid #222; padding:4px 6px; vertical-align:top; }
+  table.items th { background:#f2f2f2; font-weight:600; font-size:11px; }
+  .num { text-align:right; }
+  tfoot td { font-weight:600; }
+  .divider { margin:10px 0; border-top:1px solid #000; }
+  .footnote { margin-top:12px; text-align:center; font-size:10px; color:#555; }
+  .signature { margin-top:18px; display:flex; justify-content:space-between; gap:16px; }
+  .sigbox { width:48%; border-top:1px solid #000; padding-top:4px; text-align:center; font-size:10px; }
   .mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
   .nowrap { white-space:nowrap; }
 </style>
 </head>
 <body>
-  <header class="center">
+  <div class="header">
     <h1>HASSAN BOOKSHOP</h1>
-    <div class="small muted">Quality Educational Materials & Supplies</div>
-    <div class="small">Tel: +254 XXX XXX / Email: info@hassanbookshop.com</div>
-    <div class="small">Transaction Receipt</div>
-  </header>
+    <div class="sub">Quality Educational Materials & Supplies</div>
+    <div class="sub">Tel: +254 XXX XXX • Email: info@hassanbookshop.com</div>
+    <div class="title">Sales Receipt</div>
+  </div>
 
-  <section style="margin-top:10px;">
-    <table class="meta" style="width:100%; border-collapse:collapse;">
-      <tbody>
-        <tr>
-          <td style="padding:2px 0;"><strong>Transaction:</strong> ${r.transactionId}</td>
-          <td style="padding:2px 0;" class="mono"><strong>Date:</strong> ${r.created_at.toLocaleString()}</td>
-        </tr>
-        <tr>
-          <td style="padding:2px 0;"><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
-          <td style="padding:2px 0;"><strong>Payment:</strong> ${escapeHtml(r.payment_method)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+  <table class="meta">
+    <tbody>
+      <tr>
+        <td><strong>Transaction:</strong> ${r.transactionId}</td>
+        <td class="mono nowrap"><strong>Date:</strong> ${r.created_at.toLocaleString()}</td>
+      </tr>
+      <tr>
+        <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
+        <td><strong>Payment:</strong> ${escapeHtml(r.payment_method)}</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <section>
-    <table>
-      <thead>
-        <tr>
-          <th style="text-align:left;">Product</th>
-          <th class="num">Qty</th>
-          <th class="num">Unit Price</th>
-          <th class="num">Discount</th>
-          <th class="num">Line Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="4" style="text-align:right;">Subtotal</td>
-          <td class="num">KES ${r.subtotal.toLocaleString()}</td>
-        </tr>
-        <tr>
-          <td colspan="4" style="text-align:right;">Discount</td>
-          <td class="num">-KES ${r.total_discount.toLocaleString()}</td>
-        </tr>
-        <tr>
-          <td colspan="4" style="text-align:right;">Total</td>
-          <td class="num">KES ${r.total.toLocaleString()}</td>
-        </tr>
-      </tfoot>
-    </table>
-  </section>
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="text-align:left;">Product</th>
+        <th class="num">Qty</th>
+        <th class="num">Unit Price</th>
+        <th class="num">Discount</th>
+        <th class="num">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4" style="text-align:right;">Subtotal</td>
+        <td class="num">KES ${r.subtotal.toLocaleString()}</td>
+      </tr>
+      <tr>
+        <td colspan="4" style="text-align:right;">Discount</td>
+        <td class="num">-KES ${r.total_discount.toLocaleString()}</td>
+      </tr>
+      <tr>
+        <td colspan="4" style="text-align:right;">Total</td>
+        <td class="num">KES ${r.total.toLocaleString()}</td>
+      </tr>
+    </tfoot>
+  </table>
 
   <div class="divider"></div>
 
-  <div class="signature-area">
-    <div class="signature-box">Customer Signature</div>
-    <div class="signature-box">Staff Signature</div>
+  <div class="signature">
+    <div class="sigbox">Customer Signature</div>
+    <div class="sigbox">Staff Signature</div>
   </div>
 
   <div class="footnote">
-    No profit, cost, or internal financial data is displayed. Please retain this receipt for your records.
-    <br/>Goods once sold are returnable per shop policy within 7 days if unopened & in original condition.
+    Thank you for your purchase. Please keep this receipt for your records.
   </div>
 </body>
-</html>
-    `;
+</html>`;
   }
 
   function escapeHtml(str: string) {
-    return str
+    return String(str)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -464,27 +433,80 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   }
 
   /**
-   * Opens a new isolated window for printing ONLY the receipt.
-   * This avoids printing the entire modal overlay (which caused many pages).
+   * Prints using a hidden iframe to avoid popup blockers and about:blank issues.
+   * This isolates content so only ONE clean, black-and-white page is printed.
    */
   function printReceipt() {
     if (!receipt) return;
+
     const html = createPrintHtml(receipt);
-    const printWin = window.open("", "_blank", "noopener,noreferrer");
-    if (!printWin) {
-      alert("Popup blocked. Please allow popups to print the receipt.");
+
+    // Create hidden iframe
+    const $iframe = document.createElement("iframe");
+    $iframe.style.position = "fixed";
+    $iframe.style.right = "0";
+    $iframe.style.bottom = "0";
+    $iframe.style.width = "0";
+    $iframe.style.height = "0";
+    $iframe.style.border = "0";
+    $iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild($iframe);
+
+    const cleanup = () => {
+      try {
+        document.body.removeChild($iframe);
+      } catch {
+        // ignore
+      }
+    };
+
+    const onReadyToPrint = () => {
+      try {
+        const win = $iframe.contentWindow;
+        if (!win) {
+          cleanup();
+          alert("Failed to access print frame.");
+          return;
+        }
+        win.focus();
+        win.print();
+      } catch (e) {
+        console.error("Print failed:", e);
+        alert("Unable to print. Please try again.");
+      } finally {
+        // Remove the iframe shortly after print dialog opens
+        setTimeout(cleanup, 500);
+      }
+    };
+
+    // Write HTML to the iframe document
+    const doc = $iframe.contentWindow?.document;
+    if (!doc) {
+      cleanup();
+      alert("Failed to prepare print frame.");
       return;
     }
-    printWin.document.write(html);
-    printWin.document.close();
-    printWin.focus();
-    // Use a small timeout to ensure styles are applied before print dialog.
-    setTimeout(() => {
-      printWin.print();
-      // Optionally close:
-      // printWin.close();
-    }, 50);
+
+    // Some browsers won't fire iframe.onload after document.write,
+    // so we attach multiple readiness signals plus a fallback timeout.
+    let fired = false;
+    const fireOnce = () => {
+      if (fired) return;
+      fired = true;
+      onReadyToPrint();
+    };
+
+    $iframe.onload = fireOnce;
+    $iframe.contentWindow?.addEventListener("load", fireOnce);
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    // Fallback in case neither onload triggers (rare)
+    setTimeout(fireOnce, 300);
   }
+  // ---------- End Printing ----------
 
   function resetForm() {
     setLineItems([
@@ -508,8 +530,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-t-2xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl" />
-            <div className="relative flex items-center justify-between">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
+          <div className="relative flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-black text-white">
                 💰 Diiwaan Gali Iib Cusub (Multi-Product) - Record New Sale
@@ -527,10 +549,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           </div>
         </div>
 
-        {/* Receipt View */}
+        {/* Receipt View (Customer-safe: NO profit) */}
         {receipt && (
           <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl">
-            {/* Professional customer receipt preview (unstyled for print; print uses new window) */}
             <div className="bg-white text-black rounded-lg border border-gray-300 p-5 shadow-sm">
               <div className="text-center space-y-1">
                 <h1 className="text-2xl font-extrabold tracking-wide">
@@ -572,7 +593,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                         Qty
                       </th>
                       <th className="px-3 py-2 text-right font-semibold">
-                        Unit
+                        Unit Price
                       </th>
                       <th className="px-3 py-2 text-right font-semibold">
                         Discount
@@ -643,7 +664,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               </div>
 
               <div className="mt-4 text-center text-[10px] text-gray-600">
-                Thank you for your purchase! Keep this receipt for your records.
+                Thank you for your purchase! Please keep this receipt for your records.
               </div>
             </div>
 
@@ -671,13 +692,13 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           </div>
         )}
 
-        {/* Entry Form (internal view, can show profit estimates) */}
+        {/* Entry Form (internal view can show profit estimates) */}
         {!receipt && (
           <form
             onSubmit={handleSubmit}
             className="p-6 space-y-8 bg-white/5 backdrop-blur-xl"
           >
-            {/* Products */}
+            {/* Line Items */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-bold text-white">Products</h4>
@@ -705,7 +726,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 const comp = computed.find((c) => c.line.id === li.id)!;
                 const filtered = products.filter(
                   (p) =>
-                    p.name.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
+                    p.name
+                      .toLowerCase()
+                      .includes(li.searchTerm.toLowerCase()) ||
                     p.product_id
                       .toLowerCase()
                       .includes(li.searchTerm.toLowerCase()) ||
@@ -800,7 +823,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                                         {p.name}
                                       </p>
                                       <p className="text-xs text-slate-400 truncate">
-                                        {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
+                                        {p.product_id} • Stock{" "}
+                                        {p.quantity_in_stock} • KES{" "}
                                         {p.selling_price.toLocaleString()}
                                       </p>
                                     </div>
@@ -808,7 +832,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                                 ))}
                                 {filtered.length > 15 && (
                                   <div className="px-3 py-2 text-xs text-slate-400">
-                                    Showing first 15 of {filtered.length} results
+                                    Showing first 15 of {filtered.length}{" "}
+                                    results
                                   </div>
                                 )}
                               </div>
@@ -855,7 +880,10 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           }
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
                         >
-                          <option value="none" className="bg-slate-900 text-white">
+                          <option
+                            value="none"
+                            className="bg-slate-900 text-white"
+                          >
                             None
                           </option>
                           <option
@@ -864,7 +892,10 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           >
                             %
                           </option>
-                          <option value="amount" className="bg-slate-900 text-white">
+                          <option
+                            value="amount"
+                            className="bg-slate-900 text-white"
+                          >
                             Amount
                           </option>
                         </select>
@@ -880,20 +911,28 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           disabled={li.discount_type === "none"}
                           value={li.discount_value}
                           onChange={(e) =>
-                            updateLine(li.id, { discount_value: e.target.value })
+                            updateLine(li.id, {
+                              discount_value: e.target.value,
+                            })
                           }
                           min="0"
-                          max={li.discount_type === "percentage" ? 100 : undefined}
-                          step={li.discount_type === "percentage" ? "0.01" : "1"}
+                          max={
+                            li.discount_type === "percentage" ? 100 : undefined
+                          }
+                          step={
+                            li.discount_type === "percentage" ? "0.01" : "1"
+                          }
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
                           placeholder={
-                            li.discount_type === "percentage" ? "10 (%)" : "100 (KES)"
+                            li.discount_type === "percentage"
+                              ? "10 (%)"
+                              : "100 (KES)"
                           }
                         />
                       </div>
                     </div>
 
-                    {/* Line Summary (internal only) */}
+                    {/* Line Summary (internal only; OK to show profit here) */}
                     {product && comp.quantity > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
                         <div className="bg-white/10 rounded-md p-2">
@@ -911,7 +950,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           </span>
                         </div>
                         <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Line Total</span>
+                          <span className="text-slate-300 block">
+                            Line Total
+                          </span>
                           <span className="font-semibold text-blue-300">
                             KES {comp.final_total.toLocaleString()}
                           </span>
@@ -929,7 +970,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               })}
             </div>
 
-            {/* Totals (internal view shows estimated profit) */}
+            {/* Overall Totals (internal view) */}
             <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-6 border border-purple-500/30 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-300">Subtotal:</span>
@@ -955,7 +996,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
               </div>
             </div>
 
-            {/* Payment & Staff */}
+            {/* Payment + Staff moved to bottom */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -967,7 +1008,11 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
                 >
                   {paymentMethods.map((m) => (
-                    <option key={m} value={m} className="bg-slate-900 text-white">
+                    <option
+                      key={m}
+                      value={m}
+                      className="bg-slate-900 text-white"
+                    >
                       {m}
                     </option>
                   ))}
@@ -987,7 +1032,11 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                     -- Select Staff Member --
                   </option>
                   {staffMembers.map((s) => (
-                    <option key={s} value={s} className="bg-slate-900 text-white">
+                    <option
+                      key={s}
+                      value={s}
+                      className="bg-slate-900 text-white"
+                    >
                       {s}
                     </option>
                   ))}
