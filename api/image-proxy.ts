@@ -16,7 +16,7 @@ export default async function handler(req: Request) {
   }
 
   try {
-    const res = await fetch(imageUrl, { cache: "force-cache" });
+    const res = await fetch(imageUrl, { cache: "no-store" });
     if (!res.ok || !res.headers.get("content-type")?.startsWith("image")) {
       return fetch(FALLBACK_IMAGE);
     }
