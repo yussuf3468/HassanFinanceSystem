@@ -1,5 +1,5 @@
 // Vercel Edge Function: /api/image-proxy
-// Fetches an image from a remote URL, caches for 1 year, returns fallback on error
+// Fetches an image from a remote URL, sets correct MIME type, caches for 1 year, returns fallback on error
 
 export const config = {
   runtime: "edge",
@@ -20,13 +20,26 @@ export default async function handler(req: Request) {
 
   try {
     const res = await fetch(imageUrl, { cache: "force-cache" });
-    if (!res.ok || !res.headers.get("content-type")?.startsWith("image")) {
+
+    if (!res.ok) {
       return fetch(fallbackUrl);
     }
-    // Clone the response so we can set headers
+
+    // Determine MIME type based on file extension
+    const urlObj = new URL(imageUrl);
+    const ext = urlObj.pathname.split('.').pop()?.toLowerCase();
+    let mimeType = "image/jpeg"; // default
+    if (ext === "png") mimeType = "image/png";
+    else if (ext === "webp") mimeType = "image/webp";
+    else if (ext === "avif") mimeType = "image/avif";
+    else if (ext === "jpg" || ext === "jpeg") mimeType = "image/jpeg";
+
+    // Set headers manually
     const headers = new Headers(res.headers);
+    headers.set("Content-Type", mimeType);
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     headers.set("Access-Control-Allow-Origin", "*");
+
     return new Response(res.body, {
       status: res.status,
       headers,
