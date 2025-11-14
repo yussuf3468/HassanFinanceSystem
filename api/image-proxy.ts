@@ -1,6 +1,3 @@
-// Vercel Edge Function: /api/image-proxy
-// Fetches an image from a remote URL, caches for 1 year, returns fallback on error
-
 export const config = {
   runtime: "edge",
 };
@@ -12,15 +9,37 @@ export default async function handler(req: Request) {
   const imageUrl = searchParams.get("url");
 
   if (!imageUrl) {
-    return fetch(FALLBACK_IMAGE);
+    // No URL: fallback with 400 status
+    const fallbackRes = await fetch(FALLBACK_IMAGE);
+    const fallbackHeaders = new Headers(fallbackRes.headers);
+    fallbackHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+    fallbackHeaders.set("Access-Control-Allow-Origin", "*");
+    fallbackHeaders.set("X-Fallback-Image", "true");
+    return new Response(fallbackRes.body, {
+      status: 400,  // Bad Request: missing image URL
+      headers: fallbackHeaders,
+    });
   }
 
   try {
     const res = await fetch(imageUrl, { cache: "force-cache" });
+
+    // Image not found or not an image
     if (!res.ok || !res.headers.get("content-type")?.startsWith("image")) {
-      return fetch(FALLBACK_IMAGE);
+      const fallbackRes = await fetch(FALLBACK_IMAGE);
+      const fallbackHeaders = new Headers(fallbackRes.headers);
+      fallbackHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+      fallbackHeaders.set("Access-Control-Allow-Origin", "*");
+      fallbackHeaders.set("X-Fallback-Image", "true");
+      // Upstream returned non-image or error, mirror the relevant status
+      const status = res.status === 404 ? 404 : 502;
+      return new Response(fallbackRes.body, {
+        status,
+        headers: fallbackHeaders,
+      });
     }
-    // Clone the response so we can set headers
+
+    // Success: valid image
     const headers = new Headers(res.headers);
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
     headers.set("Access-Control-Allow-Origin", "*");
@@ -28,7 +47,16 @@ export default async function handler(req: Request) {
       status: res.status,
       headers,
     });
-  } catch {
-    return fetch(FALLBACK_IMAGE);
+  } catch (err) {
+    // Fetch failed: fallback with 502 (Bad Gateway)
+    const fallbackRes = await fetch(FALLBACK_IMAGE);
+    const fallbackHeaders = new Headers(fallbackRes.headers);
+    fallbackHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+    fallbackHeaders.set("Access-Control-Allow-Origin", "*");
+    fallbackHeaders.set("X-Fallback-Image", "true");
+    return new Response(fallbackRes.body, {
+      status: 502,
+      headers: fallbackHeaders,
+    });
   }
 }
