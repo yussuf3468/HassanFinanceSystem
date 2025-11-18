@@ -67,8 +67,17 @@ export default function SaleForm({
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
+  // New: overall (total) discount state
+  const [overallDiscountType, setOverallDiscountType] =
+    useState<DiscountType>("none");
+  const [overallDiscountValue, setOverallDiscountValue] = useState<string>("");
+
   // Refs for clicking outside dropdowns
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // Refs for focusing inputs and scrolling
+  const searchInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const quantityInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const linesContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -93,23 +102,46 @@ export default function SaleForm({
     );
   }
 
-  function addLine() {
-    setLineItems((items) => [
-      ...items,
-      {
-        id: crypto.randomUUID(),
-        product_id: "",
-        quantity: "",
-        discount_type: "none",
-        discount_value: "",
-        searchTerm: "",
-        showDropdown: false,
-      },
-    ]);
+  function addLine(focus = true) {
+    const id = crypto.randomUUID();
+    const newLine: LineItem = {
+      id,
+      product_id: "",
+      quantity: "",
+      discount_type: "none",
+      discount_value: "",
+      searchTerm: "",
+      showDropdown: false,
+    };
+    setLineItems((items) => {
+      const next = [...items, newLine];
+      return next;
+    });
+
+    // After DOM updates, focus the new line search input and scroll into view
+    if (focus) {
+      setTimeout(() => {
+        const input = searchInputRefs.current[id];
+        const qty = quantityInputRefs.current[id];
+        const container = linesContainerRef.current;
+        if (input) {
+          input.focus();
+          input.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else if (qty) {
+          qty.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else if (container) {
+          container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+        }
+      }, 50);
+    }
   }
 
   function removeLine(id: string) {
     setLineItems((items) => items.filter((li) => li.id !== id));
+    // cleanup refs
+    delete dropdownRefs.current[id];
+    delete searchInputRefs.current[id];
+    delete quantityInputRefs.current[id];
   }
 
   const productById = (id: string) => products.find((p) => p.id === id);
@@ -187,9 +219,30 @@ export default function SaleForm({
 
   const computed = computeLines();
   const subtotal = computed.reduce((s, c) => s + c.original_total, 0);
-  const total_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
-  const total = subtotal - total_discount;
-  const total_profit = computed.reduce((s, c) => s + c.profit, 0);
+  const total_line_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
+
+  // Compute overall (total) discount amount (applied after per-line discounts)
+  function computeOverallDiscountAmount(): number {
+    const netBeforeOverall = subtotal - total_line_discount;
+    if (netBeforeOverall <= 0) return 0;
+    if (overallDiscountType === "percentage") {
+      const pct = parseFloat(overallDiscountValue || "0") || 0;
+      const cappedPct = Math.max(0, Math.min(100, pct));
+      return (netBeforeOverall * cappedPct) / 100;
+    } else if (overallDiscountType === "amount") {
+      const amt = parseFloat(overallDiscountValue || "0") || 0;
+      return Math.min(Math.max(0, amt), netBeforeOverall);
+    }
+    return 0;
+  }
+
+  const overallDiscountAmount = computeOverallDiscountAmount();
+  const total_discount = total_line_discount + overallDiscountAmount;
+  const total = Math.max(0, subtotal - total_discount);
+
+  // Adjust estimated profit: subtract overall discount from computed profit (approx.)
+  const baseProfit = computed.reduce((s, c) => s + c.profit, 0);
+  const total_profit = Math.max(0, baseProfit - overallDiscountAmount);
 
   function validateStock(): { ok: boolean; message?: string } {
     // Aggregate requested quantity per product
@@ -226,6 +279,15 @@ export default function SaleForm({
       return;
     }
 
+    // Ensure overall percentage is reasonable
+    if (overallDiscountType === "percentage") {
+      const pct = parseFloat(overallDiscountValue || "0") || 0;
+      if (pct < 0 || pct > 100) {
+        alert("Overall discount percentage must be between 0 and 100.");
+        return;
+      }
+    }
+
     // Stock validation
     const stockCheck = validateStock();
     if (!stockCheck.ok) {
@@ -240,6 +302,7 @@ export default function SaleForm({
 
     try {
       // Insert each line as a row into 'sales' (legacy approach).
+      // We will record per-line final_price and include overall discount info in the first line insertion metadata (simple approach).
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
@@ -253,14 +316,17 @@ export default function SaleForm({
           quantity_sold: c.quantity,
           selling_price: c.product.selling_price,
           buying_price: c.product.buying_price,
-          total_sale: c.final_total,
-          profit: c.profit,
+          total_sale: c.final_total, // per-line final after per-line discounts
+          profit: c.profit, // before overall discount allocation
           payment_method: paymentMethod,
           sold_by: soldBy,
           discount_amount: c.discount_amount,
           discount_percentage,
           original_price: c.product.selling_price,
           final_price: c.final_unit_price,
+          // Optionally record overall discount summary fields only on first line (backend schema permitting)
+          overall_discount_type: undefined,
+          overall_discount_value: undefined,
         });
 
         if (lineError) throw lineError;
@@ -274,7 +340,7 @@ export default function SaleForm({
         if (stockError) throw stockError;
       }
 
-      // Build receipt data
+      // Build receipt data (showing total discount as aggregate)
       const receiptData: ReceiptData = {
         transactionId,
         sold_by: soldBy,
@@ -287,7 +353,7 @@ export default function SaleForm({
             quantity: c.quantity,
             unit_price: c.product!.selling_price,
             original_total: c.original_total,
-            discount_amount: c.discount_amount,
+            discount_amount: c.discount_amount, // per-line discount shown
             final_unit_price: c.final_unit_price,
             line_total: c.final_total,
             profit: c.profit,
@@ -523,11 +589,13 @@ export default function SaleForm({
     setSoldBy("");
     setPaymentMethod("Cash");
     setReceipt(null);
+    setOverallDiscountType("none");
+    setOverallDiscountValue("");
   }
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-5xl max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-5xl max-h-[95vh] overflow-y-auto border border-white/20 relative">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
@@ -671,7 +739,7 @@ export default function SaleForm({
             <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={printReceipt}
-                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center justify-center sm:justify-start space-x-2 hover:from-purple-700 hover:to-blue-700 text-sm"
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center justify-center sm:justify-start space-x-2 hover:from-purple-700 hover:to-blue-700"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print</span>
@@ -698,15 +766,18 @@ export default function SaleForm({
             onSubmit={handleSubmit}
             className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
           >
-            {/* Line Items */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            {/* Sticky Action Bar for Products */}
+            <div
+              className="sticky top-0 z-30 bg-slate-950/90 backdrop-blur border-b border-white/10 rounded-t-xl"
+              style={{ marginBottom: 0, paddingBottom: 0 }}
+            >
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 px-1">
                 <h4 className="text-base sm:text-lg font-bold text-white">Products</h4>
                 <div className="flex w-full sm:w-auto space-x-3">
                   <button
                     type="button"
-                    onClick={addLine}
-                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
+                    onClick={() => addLine(true)}
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium transition shadow"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add Line</span>
@@ -714,13 +785,20 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={consolidateDuplicates}
-                    className="flex-1 sm:flex-none px-3 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                    className="flex-1 sm:flex-none px-3 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10 font-medium transition shadow"
                   >
                     Merge Duplicates
                   </button>
                 </div>
               </div>
+            </div>
 
+            {/* Scrollable Line Items */}
+            <div
+              ref={linesContainerRef}
+              className="overflow-y-auto max-h-[48vh] space-y-4 pb-3"
+              style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+            >
               {lineItems.map((li, idx) => {
                 const product = productById(li.product_id);
                 const comp = computed.find((c) => c.line.id === li.id)!;
@@ -774,6 +852,7 @@ export default function SaleForm({
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                           <input
+                            ref={(el) => (searchInputRefs.current[li.id] = el)}
                             type="text"
                             value={li.searchTerm}
                             required={!li.product_id}
@@ -781,7 +860,6 @@ export default function SaleForm({
                               updateLine(li.id, {
                                 searchTerm: e.target.value,
                                 showDropdown: true,
-                                product_id: e.target.value ? li.product_id : "",
                               })
                             }
                             onFocus={() =>
@@ -793,18 +871,23 @@ export default function SaleForm({
                           {li.showDropdown &&
                             li.searchTerm &&
                             filtered.length > 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                              <div className="absolute z-30 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
                                 {filtered.slice(0, 15).map((p) => (
                                   <button
                                     key={p.id}
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
                                       updateLine(li.id, {
                                         product_id: p.id,
                                         searchTerm: p.name,
                                         showDropdown: false,
-                                      })
-                                    }
+                                      });
+                                      // Focus quantity after selecting product
+                                      setTimeout(() => {
+                                        const qEl = quantityInputRefs.current[li.id];
+                                        if (qEl) qEl.focus();
+                                      }, 40);
+                                    }}
                                     className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
                                   >
                                     {p.image_url ? (
@@ -832,8 +915,7 @@ export default function SaleForm({
                                 ))}
                                 {filtered.length > 15 && (
                                   <div className="px-3 py-2 text-xs text-slate-400">
-                                    Showing first 15 of {filtered.length}{" "}
-                                    results
+                                    Showing first 15 of {filtered.length} results
                                   </div>
                                 )}
                               </div>
@@ -841,7 +923,7 @@ export default function SaleForm({
                           {li.showDropdown &&
                             li.searchTerm &&
                             filtered.length === 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
+                              <div className="absolute z-30 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
                                 No matches for "{li.searchTerm}"
                               </div>
                             )}
@@ -854,6 +936,7 @@ export default function SaleForm({
                           Quantity *
                         </label>
                         <input
+                          ref={(el) => (quantityInputRefs.current[li.id] = el)}
                           type="number"
                           min={1}
                           value={li.quantity}
@@ -865,7 +948,7 @@ export default function SaleForm({
                         />
                       </div>
 
-                      {/* Discount Type */}
+                      {/* Discount Type (per-line kept, but you can use overall discount instead) */}
                       <div>
                         <label className="block text-xs font-medium text-slate-300 mb-1">
                           Discount Type
@@ -968,31 +1051,82 @@ export default function SaleForm({
                   </div>
                 );
               })}
+              {/* Add-at-bottom button (optional for users who reach the end) */}
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => addLine(true)}
+                  className="px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium transition shadow"
+                >
+                  <Plus className="w-4 h-4 mr-1 inline-block" />
+                  Add Line
+                </button>
+              </div>
             </div>
 
             {/* Overall Totals (internal view) */}
             <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/30 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Subtotal:</span>
-                <span className="font-semibold text-white">
-                  KES {subtotal.toLocaleString()}
-                </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                <div className="text-sm">
+                  <span className="text-slate-300 block">Subtotal:</span>
+                  <span className="font-semibold text-white">
+                    KES {subtotal.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Overall discount controls */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-slate-300 mr-2">Total Discount</label>
+                  <select
+                    value={overallDiscountType}
+                    onChange={(e) => {
+                      setOverallDiscountType(e.target.value as DiscountType);
+                      setOverallDiscountValue("");
+                    }}
+                    className="px-2 py-1 bg-white/10 border border-white/20 rounded text-sm text-white"
+                  >
+                    <option value="none" className="bg-slate-900 text-white">None</option>
+                    <option value="percentage" className="bg-slate-900 text-white">%</option>
+                    <option value="amount" className="bg-slate-900 text-white">Amount</option>
+                  </select>
+                  <input
+                    type="number"
+                    disabled={overallDiscountType === "none"}
+                    value={overallDiscountValue}
+                    onChange={(e) => setOverallDiscountValue(e.target.value)}
+                    min={0}
+                    max={overallDiscountType === "percentage" ? 100 : undefined}
+                    step={overallDiscountType === "percentage" ? "0.01" : "1"}
+                    placeholder={overallDiscountType === "percentage" ? "10 (%)" : "100 (KES)"}
+                    className="w-32 px-3 py-1 bg-white/10 border border-white/20 rounded text-sm text-white disabled:opacity-40"
+                  />
+                </div>
+
+                <div className="text-sm text-right">
+                  <span className="text-slate-300 block">Estimated Profit:</span>
+                  <span className="font-semibold text-green-400">
+                    KES {total_profit.toLocaleString()}
+                  </span>
+                </div>
               </div>
+
               <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Total Discount:</span>
+                <span className="text-slate-300">Total Line Discounts:</span>
                 <span className="font-semibold text-red-400">
-                  -KES {total_discount.toLocaleString()}
+                  -KES {total_line_discount.toLocaleString()}
                 </span>
               </div>
+
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-300">Overall Discount:</span>
+                <span className="font-semibold text-red-400">
+                  -KES {overallDiscountAmount.toLocaleString()}
+                </span>
+              </div>
+
               <div className="flex justify-between text-base border-t border-white/20 pt-3 font-bold text-purple-300">
                 <span>Final Total:</span>
                 <span>KES {total.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Estimated Profit:</span>
-                <span className="font-semibold text-green-400">
-                  KES {total_profit.toLocaleString()}
-                </span>
               </div>
             </div>
 
