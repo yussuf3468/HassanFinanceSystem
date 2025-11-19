@@ -46,7 +46,11 @@ interface ReceiptData {
 const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
 const staffMembers = ["Yussuf", "Khaled", "Zakaria"];
 
-export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps) {
+export default function SaleForm({
+  products,
+  onClose,
+  onSuccess,
+}: SaleFormProps) {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [soldBy, setSoldBy] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([
@@ -57,8 +61,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       discount_type: "none",
       discount_value: "",
       searchTerm: "",
-      showDropdown: false
-    }
+      showDropdown: false,
+    },
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
@@ -69,13 +73,13 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       const target = e.target as Node;
-      setLineItems(items =>
-        items.map(li => {
+      setLineItems((items) =>
+        items.map((li) => {
           const ref = dropdownRefs.current[li.id];
-            if (ref && !ref.contains(target)) {
-              return { ...li, showDropdown: false };
-            }
-            return li;
+          if (ref && !ref.contains(target)) {
+            return { ...li, showDropdown: false };
+          }
+          return li;
         })
       );
     }
@@ -84,11 +88,13 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   }, []);
 
   function updateLine(id: string, patch: Partial<LineItem>) {
-    setLineItems(items => items.map(li => (li.id === id ? { ...li, ...patch } : li)));
+    setLineItems((items) =>
+      items.map((li) => (li.id === id ? { ...li, ...patch } : li))
+    );
   }
 
   function addLine() {
-    setLineItems(items => [
+    setLineItems((items) => [
       ...items,
       {
         id: crypto.randomUUID(),
@@ -97,16 +103,16 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         discount_type: "none",
         discount_value: "",
         searchTerm: "",
-        showDropdown: false
-      }
+        showDropdown: false,
+      },
     ]);
   }
 
   function removeLine(id: string) {
-    setLineItems(items => items.filter(li => li.id !== id));
+    setLineItems((items) => items.filter((li) => li.id !== id));
   }
 
-  const productById = (id: string) => products.find(p => p.id === id);
+  const productById = (id: string) => products.find((p) => p.id === id);
 
   // Merge duplicate product lines automatically (optional behavior)
   function consolidateDuplicates() {
@@ -122,7 +128,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         // If discounts differ, keep first; advanced merging logic could be added here.
       }
     }
-    setLineItems(Object.values(map).concat(lineItems.filter(i => !i.product_id)));
+    setLineItems(
+      Object.values(map).concat(lineItems.filter((i) => !i.product_id))
+    );
   }
 
   interface ComputedLine {
@@ -137,25 +145,26 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
   }
 
   function computeLines(): ComputedLine[] {
-    return lineItems.map(li => {
+    return lineItems.map((li) => {
       const product = productById(li.product_id);
       const quantity = parseInt(li.quantity || "0") || 0;
       if (!product || quantity <= 0) {
         return {
           line: li,
-            product: product,
-            quantity,
-            original_total: 0,
-            discount_amount: 0,
-            final_total: 0,
-            final_unit_price: 0,
-            profit: 0
+          product: product,
+          quantity,
+          original_total: 0,
+          discount_amount: 0,
+          final_total: 0,
+          final_unit_price: 0,
+          profit: 0,
         };
       }
       const original_total = product.selling_price * quantity;
       let discount_amount = 0;
       if (li.discount_type === "percentage" && li.discount_value) {
-        discount_amount = (original_total * parseFloat(li.discount_value)) / 100;
+        discount_amount =
+          (original_total * parseFloat(li.discount_value)) / 100;
       } else if (li.discount_type === "amount" && li.discount_value) {
         discount_amount = parseFloat(li.discount_value);
       }
@@ -171,7 +180,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         discount_amount,
         final_total,
         final_unit_price,
-        profit
+        profit,
       };
     });
   }
@@ -194,7 +203,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       if (q > prod.quantity_in_stock) {
         return {
           ok: false,
-          message: `Insufficient stock for ${prod.name}. Requested ${q}, available ${prod.quantity_in_stock}.`
+          message: `Insufficient stock for ${prod.name}. Requested ${q}, available ${prod.quantity_in_stock}.`,
         };
       }
     }
@@ -209,7 +218,10 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
       alert("Please select staff (Sold By).");
       return;
     }
-    if (computed.length === 0 || computed.every(c => c.quantity <= 0 || !c.product)) {
+    if (
+      computed.length === 0 ||
+      computed.every((c) => c.quantity <= 0 || !c.product)
+    ) {
       alert("Please add at least one valid product line.");
       return;
     }
@@ -262,7 +274,7 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           discount_amount: c.discount_amount,
           discount_percentage,
           original_price: c.product.selling_price,
-          final_price: c.final_unit_price
+          final_price: c.final_unit_price,
         });
 
         if (lineError) throw lineError;
@@ -297,8 +309,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         payment_method: paymentMethod,
         created_at: new Date(),
         items: computed
-          .filter(c => c.product && c.quantity > 0)
-          .map(c => ({
+          .filter((c) => c.product && c.quantity > 0)
+          .map((c) => ({
             product_name: c.product!.name,
             quantity: c.quantity,
             unit_price: c.product!.selling_price,
@@ -306,19 +318,20 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
             discount_amount: c.discount_amount,
             final_unit_price: c.final_unit_price,
             line_total: c.final_total,
-            profit: c.profit
+            profit: c.profit,
           })),
         subtotal,
         total_discount,
         total,
-        total_profit
+        total_profit,
       };
 
       setReceipt(receiptData);
-      onSuccess();
     } catch (err) {
       console.error("Error recording multi-product sale:", err);
-      alert("Failed to record sale. Consider implementing a Postgres function for transactional safety.");
+      alert(
+        "Failed to record sale. Consider implementing a Postgres function for transactional safety."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -337,8 +350,8 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
         discount_type: "none",
         discount_value: "",
         searchTerm: "",
-        showDropdown: false
-      }
+        showDropdown: false,
+      },
     ]);
     setSoldBy("");
     setPaymentMethod("Cash");
@@ -374,7 +387,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
           <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl print:bg-white print:text-black">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-white print:text-black">Sales Receipt</h2>
+                <h2 className="text-xl font-bold text-white print:text-black">
+                  Sales Receipt
+                </h2>
                 <p className="text-slate-300 text-sm print:text-black">
                   Transaction: {receipt.transactionId}
                 </p>
@@ -483,10 +498,10 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
             <div className="print:hidden flex justify-end">
               <button
-                onClick={onClose}
+                onClick={onSuccess}
                 className="px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5"
               >
-                Close
+                Finish
               </button>
             </div>
           </div>
@@ -497,46 +512,6 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
             onSubmit={handleSubmit}
             className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden"
           >
-            {/* Payment + Staff */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Payment Method *
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={e => setPaymentMethod(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  {paymentMethods.map(m => (
-                    <option key={m} value={m} className="bg-slate-900 text-white">
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Sold By (Staff) *
-                </label>
-                <select
-                  required
-                  value={soldBy}
-                  onChange={e => setSoldBy(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="" className="bg-slate-900 text-white">
-                    -- Select Staff Member --
-                  </option>
-                  {staffMembers.map(s => (
-                    <option key={s} value={s} className="bg-slate-900 text-white">
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             {/* Line Items */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -562,17 +537,23 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
 
               {lineItems.map((li, idx) => {
                 const product = productById(li.product_id);
-                const comp = computed.find(c => c.line.id === li.id)!;
+                const comp = computed.find((c) => c.line.id === li.id)!;
                 const filtered = products.filter(
-                  p =>
-                    p.name.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
-                    p.product_id.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
-                    p.category.toLowerCase().includes(li.searchTerm.toLowerCase())
+                  (p) =>
+                    p.name
+                      .toLowerCase()
+                      .includes(li.searchTerm.toLowerCase()) ||
+                    p.product_id
+                      .toLowerCase()
+                      .includes(li.searchTerm.toLowerCase()) ||
+                    p.category
+                      .toLowerCase()
+                      .includes(li.searchTerm.toLowerCase())
                 );
                 return (
                   <div
                     key={li.id}
-                    ref={el => (dropdownRefs.current[li.id] = el)}
+                    ref={(el) => (dropdownRefs.current[li.id] = el)}
                     className="relative bg-white/5 border border-white/20 rounded-xl p-4 space-y-4"
                   >
                     <div className="flex items-start justify-between">
@@ -610,66 +591,74 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                             type="text"
                             value={li.searchTerm}
                             required={!li.product_id}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateLine(li.id, {
                                 searchTerm: e.target.value,
                                 showDropdown: true,
-                                product_id: e.target.value ? li.product_id : ""
+                                product_id: e.target.value ? li.product_id : "",
                               })
                             }
-                            onFocus={() => updateLine(li.id, { showDropdown: true })}
+                            onFocus={() =>
+                              updateLine(li.id, { showDropdown: true })
+                            }
                             placeholder="Search product..."
                             className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
                           />
-                          {li.showDropdown && li.searchTerm && filtered.length > 0 && (
-                            <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
-                              {filtered.slice(0, 15).map(p => (
-                                <button
-                                  key={p.id}
-                                  type="button"
-                                  onClick={() =>
-                                    updateLine(li.id, {
-                                      product_id: p.id,
-                                      searchTerm: p.name,
-                                      showDropdown: false
-                                    })
-                                  }
-                                  className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
-                                >
-                                  {p.image_url ? (
-                                    <img
-                                      src={p.image_url}
-                                      alt={p.name}
-                                      className="w-8 h-8 object-cover rounded"
-                                    />
-                                  ) : (
-                                    <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
-                                      <Package className="w-4 h-4 text-slate-400" />
+                          {li.showDropdown &&
+                            li.searchTerm &&
+                            filtered.length > 0 && (
+                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                                {filtered.slice(0, 15).map((p) => (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={() =>
+                                      updateLine(li.id, {
+                                        product_id: p.id,
+                                        searchTerm: p.name,
+                                        showDropdown: false,
+                                      })
+                                    }
+                                    className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
+                                  >
+                                    {p.image_url ? (
+                                      <img
+                                        src={p.image_url}
+                                        alt={p.name}
+                                        className="w-8 h-8 object-cover rounded"
+                                      />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
+                                        <Package className="w-4 h-4 text-slate-400" />
+                                      </div>
+                                    )}
+                                    <div className="min-w-0">
+                                      <p className="font-medium text-white truncate">
+                                        {p.name}
+                                      </p>
+                                      <p className="text-xs text-slate-400 truncate">
+                                        {p.product_id} • Stock{" "}
+                                        {p.quantity_in_stock} • KES{" "}
+                                        {p.selling_price.toLocaleString()}
+                                      </p>
                                     </div>
-                                  )}
-                                  <div className="min-w-0">
-                                    <p className="font-medium text-white truncate">
-                                      {p.name}
-                                    </p>
-                                    <p className="text-xs text-slate-400 truncate">
-                                      {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
-                                      {p.selling_price.toLocaleString()}
-                                    </p>
+                                  </button>
+                                ))}
+                                {filtered.length > 15 && (
+                                  <div className="px-3 py-2 text-xs text-slate-400">
+                                    Showing first 15 of {filtered.length}{" "}
+                                    results
                                   </div>
-                                </button>
-                              ))}
-                              {filtered.length > 15 && (
-                                <div className="px-3 py-2 text-xs text-slate-400">
-                                  Showing first 15 of {filtered.length} results
-                                </div>
-                              )}
-                            </div>
-                          )}
-                          {li.showDropdown && li.searchTerm && filtered.length === 0 && (
-                            <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
-                              No matches for "{li.searchTerm}"
-                            </div>
-                          )}
+                                )}
+                              </div>
+                            )}
+                          {li.showDropdown &&
+                            li.searchTerm &&
+                            filtered.length === 0 && (
+                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
+                                No matches for "{li.searchTerm}"
+                              </div>
+                            )}
                         </div>
                       </div>
 
@@ -682,7 +671,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           type="number"
                           min={1}
                           value={li.quantity}
-                          onChange={e => updateLine(li.id, { quantity: e.target.value })}
+                          onChange={(e) =>
+                            updateLine(li.id, { quantity: e.target.value })
+                          }
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
                           placeholder="Qty"
                         />
@@ -695,21 +686,30 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                         </label>
                         <select
                           value={li.discount_type}
-                          onChange={e =>
+                          onChange={(e) =>
                             updateLine(li.id, {
                               discount_type: e.target.value as DiscountType,
-                              discount_value: ""
+                              discount_value: "",
                             })
                           }
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
                         >
-                          <option value="none" className="bg-slate-900 text-white">
+                          <option
+                            value="none"
+                            className="bg-slate-900 text-white"
+                          >
                             None
                           </option>
-                          <option value="percentage" className="bg-slate-900 text-white">
+                          <option
+                            value="percentage"
+                            className="bg-slate-900 text-white"
+                          >
                             %
                           </option>
-                          <option value="amount" className="bg-slate-900 text-white">
+                          <option
+                            value="amount"
+                            className="bg-slate-900 text-white"
+                          >
                             Amount
                           </option>
                         </select>
@@ -724,15 +724,23 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           type="number"
                           disabled={li.discount_type === "none"}
                           value={li.discount_value}
-                          onChange={e =>
-                            updateLine(li.id, { discount_value: e.target.value })
+                          onChange={(e) =>
+                            updateLine(li.id, {
+                              discount_value: e.target.value,
+                            })
                           }
                           min="0"
-                          max={li.discount_type === "percentage" ? 100 : undefined}
-                          step={li.discount_type === "percentage" ? "0.01" : "1"}
+                          max={
+                            li.discount_type === "percentage" ? 100 : undefined
+                          }
+                          step={
+                            li.discount_type === "percentage" ? "0.01" : "1"
+                          }
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
                           placeholder={
-                            li.discount_type === "percentage" ? "10 (%)" : "100 (KES)"
+                            li.discount_type === "percentage"
+                              ? "10 (%)"
+                              : "100 (KES)"
                           }
                         />
                       </div>
@@ -756,7 +764,9 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                           </span>
                         </div>
                         <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Line Total</span>
+                          <span className="text-slate-300 block">
+                            Line Total
+                          </span>
                           <span className="font-semibold text-blue-300">
                             KES {comp.final_total.toLocaleString()}
                           </span>
@@ -797,6 +807,54 @@ export default function SaleForm({ products, onClose, onSuccess }: SaleFormProps
                 <span className="font-semibold text-green-400">
                   KES {total_profit.toLocaleString()}
                 </span>
+              </div>
+            </div>
+
+            {/* Payment + Staff moved to bottom */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Payment Method *
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
+                >
+                  {paymentMethods.map((m) => (
+                    <option
+                      key={m}
+                      value={m}
+                      className="bg-slate-900 text-white"
+                    >
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Sold By (Staff) *
+                </label>
+                <select
+                  required
+                  value={soldBy}
+                  onChange={(e) => setSoldBy(e.target.value)}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="" className="bg-slate-900 text-white">
+                    -- Select Staff Member --
+                  </option>
+                  {staffMembers.map((s) => (
+                    <option
+                      key={s}
+                      value={s}
+                      className="bg-slate-900 text-white"
+                    >
+                      {s}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

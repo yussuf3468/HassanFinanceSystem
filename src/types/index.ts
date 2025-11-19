@@ -37,6 +37,24 @@ export interface SaleWithProduct extends Sale {
   product?: Product;
 }
 
+// Product Return (customer returned an item)
+export interface ProductReturn {
+  id: string;
+  return_date: string; // timestamp of the return action
+  product_id: string; // FK to products.id
+  sale_id?: string | null; // Optional link to original sale row
+  quantity_returned: number; // quantity put back into stock
+  unit_price: number; // original unit selling price used for refund calc
+  total_refund: number; // unit_price * quantity_returned (stored)
+  reason?: string | null; // e.g. "Damaged", "Wrong Item", "Customer Cancelled"
+  condition?: string | null; // e.g. "Sealed", "Opened", "Damaged"
+  payment_method?: string | null; // method used for refund if any
+  processed_by: string; // staff member name
+  notes?: string | null; // free-form notes
+  status?: "pending" | "approved" | "refunded"; // workflow state
+  created_at: string; // insertion timestamp
+}
+
 export interface DashboardStats {
   totalSales: number;
   totalProfit: number;

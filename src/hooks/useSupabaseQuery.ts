@@ -85,6 +85,16 @@ export function useSales() {
 }
 
 /**
+ * Hook for product returns data with caching
+ */
+export function useReturns() {
+  return useSupabaseQuery<any[]>(
+    "returns",
+    async () => await supabase.from("returns").select("*")
+  );
+}
+
+/**
  * Hook for orders data with caching
  */
 export function useOrders() {
