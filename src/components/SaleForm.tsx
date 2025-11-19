@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Search, Package, Plus, Trash2, Printer } from "lucide-react";
+import { X, Search, Package, Plus, Trash2, Printer, ShoppingCart } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
 
@@ -12,12 +12,11 @@ interface SaleFormProps {
 type DiscountType = "none" | "percentage" | "amount";
 
 interface LineItem {
-  id: string; // local unique id for rendering
+  id: string;
   product_id: string;
   quantity: string;
   discount_type: DiscountType;
   discount_value: string;
-  // UI helpers
   searchTerm: string;
   showDropdown: boolean;
 }
@@ -35,12 +34,15 @@ interface ReceiptData {
     discount_amount: number;
     final_unit_price: number;
     line_total: number;
-    profit: number; // INTERNAL ONLY (not rendered on customer receipt)
+    profit: number;
   }[];
   subtotal: number;
-  total_discount: number;
+  total_line_discount: number;
+  overall_discount_type: DiscountType;
+  overall_discount_value: number;
+  overall_discount_amount: number;
   total: number;
-  total_profit: number; // INTERNAL ONLY (not rendered on customer receipt)
+  total_profit: number;
 }
 
 const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
@@ -64,10 +66,14 @@ export default function SaleForm({
       showDropdown: false,
     },
   ]);
+  
+  // Overall discount state
+  const [overallDiscountType, setOverallDiscountType] = useState<DiscountType>("none");
+  const [overallDiscountValue, setOverallDiscountValue] = useState("");
+  
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
-  // Refs for clicking outside dropdowns
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -114,25 +120,6 @@ export default function SaleForm({
 
   const productById = (id: string) => products.find((p) => p.id === id);
 
-  // Merge duplicate product lines automatically (optional behavior)
-  function consolidateDuplicates() {
-    const map: Record<string, LineItem> = {};
-    for (const item of lineItems) {
-      if (!item.product_id) continue;
-      if (!map[item.product_id]) {
-        map[item.product_id] = { ...item };
-      } else {
-        const q1 = parseInt(map[item.product_id].quantity || "0") || 0;
-        const q2 = parseInt(item.quantity || "0") || 0;
-        map[item.product_id].quantity = String(q1 + q2);
-        // If discounts differ, keep first; advanced merging logic could be added here.
-      }
-    }
-    setLineItems(
-      Object.values(map).concat(lineItems.filter((i) => !i.product_id))
-    );
-  }
-
   interface ComputedLine {
     line: LineItem;
     product?: Product;
@@ -163,8 +150,7 @@ export default function SaleForm({
       const original_total = product.selling_price * quantity;
       let discount_amount = 0;
       if (li.discount_type === "percentage" && li.discount_value) {
-        discount_amount =
-          (original_total * parseFloat(li.discount_value)) / 100;
+        discount_amount = (original_total * parseFloat(li.discount_value)) / 100;
       } else if (li.discount_type === "amount" && li.discount_value) {
         discount_amount = parseFloat(li.discount_value);
       }
@@ -187,12 +173,32 @@ export default function SaleForm({
 
   const computed = computeLines();
   const subtotal = computed.reduce((s, c) => s + c.original_total, 0);
-  const total_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
-  const total = subtotal - total_discount;
-  const total_profit = computed.reduce((s, c) => s + c.profit, 0);
+  const total_line_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
+  const subtotalAfterLineDiscounts = subtotal - total_line_discount;
+
+  // Calculate overall discount
+  let overallDiscountAmount = 0;
+  if (overallDiscountType === "percentage" && overallDiscountValue) {
+    overallDiscountAmount = (subtotalAfterLineDiscounts * parseFloat(overallDiscountValue)) / 100;
+  } else if (overallDiscountType === "amount" && overallDiscountValue) {
+    overallDiscountAmount = parseFloat(overallDiscountValue);
+  }
+  if (overallDiscountAmount > subtotalAfterLineDiscounts) {
+    overallDiscountAmount = subtotalAfterLineDiscounts;
+  }
+
+  const total = subtotalAfterLineDiscounts - overallDiscountAmount;
+  
+  // Recalculate profit considering overall discount
+  const profitReductionRatio = subtotalAfterLineDiscounts > 0 
+    ? overallDiscountAmount / subtotalAfterLineDiscounts 
+    : 0;
+  const total_profit = computed.reduce((s, c) => {
+    const adjustedProfit = c.profit * (1 - profitReductionRatio);
+    return s + adjustedProfit;
+  }, 0);
 
   function validateStock(): { ok: boolean; message?: string } {
-    // Aggregate requested quantity per product
     const aggregate: Record<string, number> = {};
     for (const c of computed) {
       if (!c.product || c.quantity <= 0) continue;
@@ -213,20 +219,15 @@ export default function SaleForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Basic validation
     if (!soldBy) {
       alert("Please select staff (Sold By).");
       return;
     }
-    if (
-      computed.length === 0 ||
-      computed.every((c) => c.quantity <= 0 || !c.product)
-    ) {
+    if (computed.length === 0 || computed.every((c) => c.quantity <= 0 || !c.product)) {
       alert("Please add at least one valid product line.");
       return;
     }
 
-    // Stock validation
     const stockCheck = validateStock();
     if (!stockCheck.ok) {
       alert(stockCheck.message);
@@ -234,12 +235,9 @@ export default function SaleForm({
     }
 
     setSubmitting(true);
-
-    // Create a transaction ID for grouping this sale
     const transactionId = crypto.randomUUID();
 
     try {
-      // Insert each line as a row into 'sales' (legacy approach).
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
@@ -254,7 +252,7 @@ export default function SaleForm({
           selling_price: c.product.selling_price,
           buying_price: c.product.buying_price,
           total_sale: c.final_total,
-          profit: c.profit,
+          profit: c.profit * (1 - profitReductionRatio),
           payment_method: paymentMethod,
           sold_by: soldBy,
           discount_amount: c.discount_amount,
@@ -265,7 +263,6 @@ export default function SaleForm({
 
         if (lineError) throw lineError;
 
-        // Update stock
         const newStock = c.product.quantity_in_stock - c.quantity;
         const { error: stockError } = await supabase
           .from("products")
@@ -274,7 +271,6 @@ export default function SaleForm({
         if (stockError) throw stockError;
       }
 
-      // Build receipt data
       const receiptData: ReceiptData = {
         transactionId,
         sold_by: soldBy,
@@ -290,10 +286,13 @@ export default function SaleForm({
             discount_amount: c.discount_amount,
             final_unit_price: c.final_unit_price,
             line_total: c.final_total,
-            profit: c.profit,
+            profit: c.profit * (1 - profitReductionRatio),
           })),
         subtotal,
-        total_discount,
+        total_line_discount,
+        overall_discount_type: overallDiscountType,
+        overall_discount_value: parseFloat(overallDiscountValue || "0"),
+        overall_discount_amount: overallDiscountAmount,
         total,
         total_profit,
       };
@@ -301,15 +300,12 @@ export default function SaleForm({
       setReceipt(receiptData);
     } catch (err) {
       console.error("Error recording multi-product sale:", err);
-      alert(
-        "Failed to record sale. Consider implementing a Postgres function for transactional safety."
-      );
+      alert("Failed to record sale. Please try again.");
     } finally {
       setSubmitting(false);
     }
   }
 
-  // ---------- Printing (No popups; uses hidden iframe) ----------
   function createPrintHtml(r: ReceiptData) {
     const rows = r.items
       .map(
@@ -399,10 +395,16 @@ export default function SaleForm({
         <td colspan="4" style="text-align:right;">Subtotal</td>
         <td class="num">KES ${r.subtotal.toLocaleString()}</td>
       </tr>
+      ${r.total_line_discount > 0 ? `
       <tr>
-        <td colspan="4" style="text-align:right;">Discount</td>
-        <td class="num">-KES ${r.total_discount.toLocaleString()}</td>
-      </tr>
+        <td colspan="4" style="text-align:right;">Line Discounts</td>
+        <td class="num">-KES ${r.total_line_discount.toLocaleString()}</td>
+      </tr>` : ''}
+      ${r.overall_discount_amount > 0 ? `
+      <tr>
+        <td colspan="4" style="text-align:right;">Overall Discount ${r.overall_discount_type === 'percentage' ? '(' + r.overall_discount_value + '%)' : ''}</td>
+        <td class="num">-KES ${r.overall_discount_amount.toLocaleString()}</td>
+      </tr>` : ''}
       <tr>
         <td colspan="4" style="text-align:right;">Total</td>
         <td class="num">KES ${r.total.toLocaleString()}</td>
@@ -432,16 +434,10 @@ export default function SaleForm({
       .replace(/"/g, "&quot;");
   }
 
-  /**
-   * Prints using a hidden iframe to avoid popup blockers and about:blank issues.
-   * This isolates content so only ONE clean, black-and-white page is printed.
-   */
   function printReceipt() {
     if (!receipt) return;
 
     const html = createPrintHtml(receipt);
-
-    // Create hidden iframe
     const $iframe = document.createElement("iframe");
     $iframe.style.position = "fixed";
     $iframe.style.right = "0";
@@ -455,9 +451,7 @@ export default function SaleForm({
     const cleanup = () => {
       try {
         document.body.removeChild($iframe);
-      } catch {
-        // ignore
-      }
+      } catch {}
     };
 
     const onReadyToPrint = () => {
@@ -474,12 +468,10 @@ export default function SaleForm({
         console.error("Print failed:", e);
         alert("Unable to print. Please try again.");
       } finally {
-        // Remove the iframe shortly after print dialog opens
         setTimeout(cleanup, 500);
       }
     };
 
-    // Write HTML to the iframe document
     const doc = $iframe.contentWindow?.document;
     if (!doc) {
       cleanup();
@@ -487,8 +479,6 @@ export default function SaleForm({
       return;
     }
 
-    // Some browsers won't fire iframe.onload after document.write,
-    // so we attach multiple readiness signals plus a fallback timeout.
     let fired = false;
     const fireOnce = () => {
       if (fired) return;
@@ -503,10 +493,8 @@ export default function SaleForm({
     doc.write(html);
     doc.close();
 
-    // Fallback in case neither onload triggers (rare)
     setTimeout(fireOnce, 300);
   }
-  // ---------- End Printing ----------
 
   function resetForm() {
     setLineItems([
@@ -522,23 +510,28 @@ export default function SaleForm({
     ]);
     setSoldBy("");
     setPaymentMethod("Cash");
+    setOverallDiscountType("none");
+    setOverallDiscountValue("");
     setReceipt(null);
   }
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-5xl max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn">
-        {/* Header */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-white/20 animate-scaleIn flex flex-col">
+        {/* Header - Fixed */}
+        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
           <div className="relative flex items-center justify-between">
-            <div>
-              <h3 className="text-lg sm:text-2xl font-black text-white">
-                💰 Diiwaan Gali Iib Cusub (Multi-Product) - Record New Sale
-              </h3>
-              <p className="text-purple-100 text-xs sm:text-sm font-medium">
-                Ku dar alaabooyin badan hal iib gudaheed
-              </p>
+            <div className="flex items-center space-x-3">
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black text-white">
+                  Record New Sale
+                </h3>
+                <p className="text-purple-100 text-xs sm:text-sm font-medium">
+                  Multi-Product Sale System
+                </p>
+              </div>
             </div>
             <button
               onClick={onClose}
@@ -549,74 +542,64 @@ export default function SaleForm({
           </div>
         </div>
 
-        {/* Receipt View (Customer-safe: NO profit) */}
+        {/* Receipt View */}
         {receipt && (
-          <div className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl">
-            <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-5 shadow-sm">
-              <div className="text-center space-y-1">
+          <div className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl overflow-y-auto flex-1">
+            <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-6 shadow-lg">
+              <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
                   HASSAN BOOKSHOP
                 </h1>
                 <p className="text-xs text-gray-700">
                   Quality Educational Materials & Supplies
                 </p>
-                <p className="text-sm font-medium">Sales Receipt</p>
+                <p className="text-xs text-gray-600">
+                  Tel: +254 722 740 432 | Email: galiyowabi@gmail.com
+                </p>
+                <p className="text-sm font-bold mt-2">Sales Receipt</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 p-3 rounded">
                 <p>
                   <span className="font-semibold">Transaction:</span>{" "}
-                  {receipt.transactionId}
+                  <span className="text-gray-700">{receipt.transactionId}</span>
                 </p>
                 <p className="sm:text-right">
                   <span className="font-semibold">Date:</span>{" "}
-                  {receipt.created_at.toLocaleString()}
+                  <span className="text-gray-700">{receipt.created_at.toLocaleString()}</span>
                 </p>
                 <p>
                   <span className="font-semibold">Sold By:</span>{" "}
-                  {receipt.sold_by}
+                  <span className="text-gray-700">{receipt.sold_by}</span>
                 </p>
                 <p className="sm:text-right">
                   <span className="font-semibold">Payment:</span>{" "}
-                  {receipt.payment_method}
+                  <span className="text-gray-700">{receipt.payment_method}</span>
                 </p>
               </div>
 
-              <div className="mt-4 overflow-hidden border border-gray-300 rounded-md">
-                <table className="w-full text-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="bg-gray-100">
-                      <th className="px-3 py-2 text-left font-semibold">
-                        Product
-                      </th>
-                      <th className="px-3 py-2 text-right font-semibold">
-                        Qty
-                      </th>
-                      <th className="px-3 py-2 text-right font-semibold">
-                        Unit Price
-                      </th>
-                      <th className="px-3 py-2 text-right font-semibold">
-                        Discount
-                      </th>
-                      <th className="px-3 py-2 text-right font-semibold">
-                        Line Total
-                      </th>
+                    <tr className="bg-gray-200 border-b-2 border-gray-400">
+                      <th className="px-3 py-2 text-left font-bold">Product</th>
+                      <th className="px-3 py-2 text-right font-bold">Qty</th>
+                      <th className="px-3 py-2 text-right font-bold">Unit Price</th>
+                      <th className="px-3 py-2 text-right font-bold">Discount</th>
+                      <th className="px-3 py-2 text-right font-bold">Total</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-200">
                     {receipt.items.map((it, idx) => (
-                      <tr
-                        key={idx}
-                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                      >
+                      <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-3 py-2">{it.product_name}</td>
                         <td className="px-3 py-2 text-right">{it.quantity}</td>
                         <td className="px-3 py-2 text-right">
                           KES {it.unit_price.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2 text-right">
+                        <td className="px-3 py-2 text-right text-red-600">
                           {it.discount_amount > 0
-                            ? "-KES " + it.discount_amount.toLocaleString()
+                            ? "-" + it.discount_amount.toLocaleString()
                             : "-"}
                         </td>
                         <td className="px-3 py-2 text-right font-semibold">
@@ -625,37 +608,42 @@ export default function SaleForm({
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot>
-                    <tr>
-                      <td
-                        className="px-3 py-2 text-right font-semibold"
-                        colSpan={4}
-                      >
+                  <tfoot className="border-t-2 border-gray-400">
+                    <tr className="bg-gray-50">
+                      <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
                         Subtotal
                       </td>
                       <td className="px-3 py-2 text-right font-semibold">
                         KES {receipt.subtotal.toLocaleString()}
                       </td>
                     </tr>
-                    <tr>
-                      <td
-                        className="px-3 py-2 text-right font-semibold"
-                        colSpan={4}
-                      >
-                        Discount
+                    {receipt.total_line_discount > 0 && (
+                      <tr className="bg-gray-50">
+                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                          Line Discounts
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                          -KES {receipt.total_line_discount.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    {receipt.overall_discount_amount > 0 && (
+                      <tr className="bg-gray-50">
+                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                          Overall Discount
+                          {receipt.overall_discount_type === "percentage" &&
+                            ` (${receipt.overall_discount_value}%)`}
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                          -KES {receipt.overall_discount_amount.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-gray-800 text-white">
+                      <td className="px-3 py-3 text-right font-bold text-base" colSpan={4}>
+                        TOTAL
                       </td>
-                      <td className="px-3 py-2 text-right font-semibold">
-                        -KES {receipt.total_discount.toLocaleString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
-                        className="px-3 py-2 text-right font-bold"
-                        colSpan={4}
-                      >
-                        Total
-                      </td>
-                      <td className="px-3 py-2 text-right font-bold">
+                      <td className="px-3 py-3 text-right font-bold text-base">
                         KES {receipt.total.toLocaleString()}
                       </td>
                     </tr>
@@ -663,7 +651,7 @@ export default function SaleForm({
                 </table>
               </div>
 
-              <div className="mt-4 text-center text-[10px] text-gray-600">
+              <div className="mt-6 pt-4 border-t border-gray-300 text-center text-[10px] text-gray-600">
                 Thank you for your purchase! Please keep this receipt for your records.
               </div>
             </div>
@@ -671,129 +659,153 @@ export default function SaleForm({
             <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={printReceipt}
-                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-md flex items-center justify-center sm:justify-start space-x-2 hover:from-purple-700 hover:to-blue-700 text-sm"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg flex items-center justify-center space-x-2 hover:from-green-700 hover:to-emerald-700 font-medium shadow-lg"
               >
-                <Printer className="w-4 h-4" />
-                <span>Print</span>
+                <Printer className="w-5 h-5" />
+                <span>Print Receipt</span>
               </button>
               <button
                 onClick={resetForm}
-                className="w-full sm:w-auto px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg"
               >
                 New Sale
               </button>
               <button
                 onClick={onSuccess}
-                className="w-full sm:w-auto px-4 py-2 border border-white/30 text-white rounded-md hover:bg-white/10 text-sm"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 font-medium"
               >
-                Finish
+                Close
               </button>
             </div>
           </div>
         )}
 
-        {/* Entry Form (internal view can show profit estimates) */}
+        {/* Entry Form */}
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
+            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
           >
-            {/* Line Items */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h4 className="text-base sm:text-lg font-bold text-white">Products</h4>
-                <div className="flex w-full sm:w-auto space-x-3">
-                  <button
-                    type="button"
-                    onClick={addLine}
-                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
+            {/* Staff & Payment - Moved to top for better UX */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
+              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                <span>📋</span>
+                <span>Sale Information</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Sold By (Staff) *
+                  </label>
+                  <select
+                    required
+                    value={soldBy}
+                    onChange={(e) => setSoldBy(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Line</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={consolidateDuplicates}
-                    className="flex-1 sm:flex-none px-3 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                    <option value="" className="bg-slate-900 text-white">
+                      -- Select Staff Member --
+                    </option>
+                    {staffMembers.map((s) => (
+                      <option key={s} value={s} className="bg-slate-900 text-white">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Payment Method *
+                  </label>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   >
-                    Merge Duplicates
-                  </button>
+                    {paymentMethods.map((m) => (
+                      <option key={m} value={m} className="bg-slate-900 text-white">
+                        {m}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
+            </div>
 
-              {lineItems.map((li, idx) => {
-                const product = productById(li.product_id);
-                const comp = computed.find((c) => c.line.id === li.id)!;
-                const filtered = products.filter(
-                  (p) =>
-                    p.name
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase()) ||
-                    p.product_id
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase()) ||
-                    p.category
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase())
-                );
-                return (
-                  <div
-                    key={li.id}
-                    ref={(el) => (dropdownRefs.current[li.id] = el)}
-                    className="relative bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4 space-y-3"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-semibold text-white">
-                          Line {idx + 1}
-                        </span>
-                        {product && (
-                          <span className="text-xs px-2 py-1 bg-purple-600/30 text-purple-200 rounded">
-                            Stock: {product.quantity_in_stock}
+            {/* Line Items */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                  <Package className="w-5 h-5" />
+                  <span>Products ({lineItems.length})</span>
+                </h4>
+              </div>
+
+              <div className="space-y-3">
+                {lineItems.map((li, idx) => {
+                  const product = productById(li.product_id);
+                  const comp = computed.find((c) => c.line.id === li.id)!;
+                  const filtered = products.filter(
+                    (p) =>
+                      p.name.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
+                      p.product_id.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
+                      p.category.toLowerCase().includes(li.searchTerm.toLowerCase())
+                  );
+                  
+                  return (
+                    <div
+                      key={li.id}
+                      ref={(el) => (dropdownRefs.current[li.id] = el)}
+                      className="relative bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4 space-y-3 hover:bg-white/10 transition-all"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-purple-600/30 text-purple-200 text-xs font-bold">
+                            {idx + 1}
                           </span>
+                          {product && (
+                            <span className="text-xs px-2 py-1 bg-green-600/20 text-green-300 rounded border border-green-500/30">
+                              Stock: {product.quantity_in_stock}
+                            </span>
+                          )}
+                        </div>
+                        {lineItems.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeLine(li.id)}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+                            title="Remove line"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         )}
                       </div>
-                      {lineItems.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeLine(li.id)}
-                          className="p-2 rounded-lg hover:bg-white/10 text-red-300 hover:text-red-200"
-                          title="Remove line"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-                      {/* Product Search */}
-                      <div className="sm:col-span-2">
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Product *
-                        </label>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input
-                            type="text"
-                            value={li.searchTerm}
-                            required={!li.product_id}
-                            onChange={(e) =>
-                              updateLine(li.id, {
-                                searchTerm: e.target.value,
-                                showDropdown: true,
-                                product_id: e.target.value ? li.product_id : "",
-                              })
-                            }
-                            onFocus={() =>
-                              updateLine(li.id, { showDropdown: true })
-                            }
-                            placeholder="Search product..."
-                            className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                          />
-                          {li.showDropdown &&
-                            li.searchTerm &&
-                            filtered.length > 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        {/* Product Search */}
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Product *
+                          </label>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+                            <input
+                              type="text"
+                              value={li.searchTerm}
+                              required={!li.product_id}
+                              onChange={(e) =>
+                                updateLine(li.id, {
+                                  searchTerm: e.target.value,
+                                  showDropdown: true,
+                                  product_id: e.target.value ? li.product_id : "",
+                                })
+                              }
+                              onFocus={() => updateLine(li.id, { showDropdown: true })}
+                              placeholder="Search product..."
+                              className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            />
+                            {li.showDropdown && li.searchTerm && filtered.length > 0 && (
+                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
                                 {filtered.slice(0, 15).map((p) => (
                                   <button
                                     key={p.id}
@@ -805,259 +817,294 @@ export default function SaleForm({
                                         showDropdown: false,
                                       })
                                     }
-                                    className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
+                                    className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
                                   >
                                     {p.image_url ? (
                                       <img
                                         src={p.image_url}
                                         alt={p.name}
-                                        className="w-8 h-8 object-cover rounded"
+                                        className="w-10 h-10 object-cover rounded border border-white/10"
                                       />
                                     ) : (
-                                      <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
-                                        <Package className="w-4 h-4 text-slate-400" />
+                                      <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                        <Package className="w-5 h-5 text-slate-400" />
                                       </div>
                                     )}
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 flex-1">
                                       <p className="font-medium text-white truncate">
                                         {p.name}
                                       </p>
                                       <p className="text-xs text-slate-400 truncate">
-                                        {p.product_id} • Stock{" "}
-                                        {p.quantity_in_stock} • KES{" "}
+                                        {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
                                         {p.selling_price.toLocaleString()}
                                       </p>
                                     </div>
                                   </button>
                                 ))}
                                 {filtered.length > 15 && (
-                                  <div className="px-3 py-2 text-xs text-slate-400">
-                                    Showing first 15 of {filtered.length}{" "}
-                                    results
+                                  <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
+                                    + {filtered.length - 15} more results
                                   </div>
                                 )}
                               </div>
                             )}
-                          {li.showDropdown &&
-                            li.searchTerm &&
-                            filtered.length === 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
-                                No matches for "{li.searchTerm}"
+                            {li.showDropdown && li.searchTerm && filtered.length === 0 && (
+                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl p-4 text-center text-slate-400 text-sm">
+                                No products match "{li.searchTerm}"
                               </div>
                             )}
+                          </div>
+                        </div>
+
+                        {/* Quantity */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Quantity *
+                          </label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={li.quantity}
+                            onChange={(e) => updateLine(li.id, { quantity: e.target.value })}
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            placeholder="Qty"
+                          />
+                        </div>
+
+                        {/* Discount Type */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Discount Type
+                          </label>
+                          <select
+                            value={li.discount_type}
+                            onChange={(e) =>
+                              updateLine(li.id, {
+                                discount_type: e.target.value as DiscountType,
+                                discount_value: "",
+                              })
+                            }
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                          >
+                            <option value="none" className="bg-slate-900 text-white">
+                              None
+                            </option>
+                            <option value="percentage" className="bg-slate-900 text-white">
+                              Percentage (%)
+                            </option>
+                            <option value="amount" className="bg-slate-900 text-white">
+                              Amount (KES)
+                            </option>
+                          </select>
+                        </div>
+
+                        {/* Discount Value */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Discount Value
+                          </label>
+                          <input
+                            type="number"
+                            disabled={li.discount_type === "none"}
+                            value={li.discount_value}
+                            onChange={(e) =>
+                              updateLine(li.id, { discount_value: e.target.value })
+                            }
+                            min="0"
+                            max={li.discount_type === "percentage" ? 100 : undefined}
+                            step={li.discount_type === "percentage" ? "0.01" : "1"}
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            placeholder={
+                              li.discount_type === "percentage" ? "10" : "100"
+                            }
+                          />
                         </div>
                       </div>
 
-                      {/* Quantity */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Quantity *
-                        </label>
-                        <input
-                          type="number"
-                          min={1}
-                          value={li.quantity}
-                          onChange={(e) =>
-                            updateLine(li.id, { quantity: e.target.value })
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                          placeholder="Qty"
-                        />
-                      </div>
-
-                      {/* Discount Type */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Discount Type
-                        </label>
-                        <select
-                          value={li.discount_type}
-                          onChange={(e) =>
-                            updateLine(li.id, {
-                              discount_type: e.target.value as DiscountType,
-                              discount_value: "",
-                            })
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                        >
-                          <option
-                            value="none"
-                            className="bg-slate-900 text-white"
-                          >
-                            None
-                          </option>
-                          <option
-                            value="percentage"
-                            className="bg-slate-900 text-white"
-                          >
-                            %
-                          </option>
-                          <option
-                            value="amount"
-                            className="bg-slate-900 text-white"
-                          >
-                            Amount
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* Discount Value */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Discount Value
-                        </label>
-                        <input
-                          type="number"
-                          disabled={li.discount_type === "none"}
-                          value={li.discount_value}
-                          onChange={(e) =>
-                            updateLine(li.id, {
-                              discount_value: e.target.value,
-                            })
-                          }
-                          min="0"
-                          max={
-                            li.discount_type === "percentage" ? 100 : undefined
-                          }
-                          step={
-                            li.discount_type === "percentage" ? "0.01" : "1"
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
-                          placeholder={
-                            li.discount_type === "percentage"
-                              ? "10 (%)"
-                              : "100 (KES)"
-                          }
-                        />
-                      </div>
+                      {/* Line Summary */}
+                      {product && comp.quantity > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-white/10">
+                          <div className="bg-blue-500/10 rounded-md p-2 border border-blue-500/20">
+                            <span className="text-slate-400 block mb-0.5">Original</span>
+                            <span className="font-bold text-blue-300">
+                              KES {comp.original_total.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="bg-red-500/10 rounded-md p-2 border border-red-500/20">
+                            <span className="text-slate-400 block mb-0.5">Discount</span>
+                            <span className="font-bold text-red-300">
+                              {comp.discount_amount > 0
+                                ? "-" + comp.discount_amount.toLocaleString()
+                                : "-"}
+                            </span>
+                          </div>
+                          <div className="bg-purple-500/10 rounded-md p-2 border border-purple-500/20">
+                            <span className="text-slate-400 block mb-0.5">Line Total</span>
+                            <span className="font-bold text-purple-300">
+                              KES {comp.final_total.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="bg-green-500/10 rounded-md p-2 border border-green-500/20">
+                            <span className="text-slate-400 block mb-0.5">Profit Est.</span>
+                            <span className="font-bold text-green-300">
+                              KES {comp.profit.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Line Summary (internal only; OK to show profit here) */}
-                    {product && comp.quantity > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Original</span>
-                          <span className="font-semibold text-purple-300">
-                            KES {comp.original_total.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Discount</span>
-                          <span className="font-semibold text-red-400">
-                            {comp.discount_amount > 0
-                              ? "-KES " + comp.discount_amount.toLocaleString()
-                              : "-"}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">
-                            Line Total
-                          </span>
-                          <span className="font-semibold text-blue-300">
-                            KES {comp.final_total.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Profit</span>
-                          <span className="font-semibold text-green-400">
-                            KES {comp.profit.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+              {/* Add Line Button - NOW AT THE BOTTOM */}
+              <button
+                type="button"
+                onClick={addLine}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Another Product Line</span>
+              </button>
+            </div>
+
+            {/* Overall Discount Section */}
+            <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-xl p-4 border border-orange-500/30">
+              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                <span>🎁</span>
+                <span>Overall Discount (Applied to Total)</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                    Discount Type
+                  </label>
+                  <select
+                    value={overallDiscountType}
+                    onChange={(e) => {
+                      setOverallDiscountType(e.target.value as DiscountType);
+                      setOverallDiscountValue("");
+                    }}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  >
+                    <option value="none" className="bg-slate-900 text-white">
+                      No Overall Discount
+                    </option>
+                    <option value="percentage" className="bg-slate-900 text-white">
+                      Percentage (%)
+                    </option>
+                    <option value="amount" className="bg-slate-900 text-white">
+                      Fixed Amount (KES)
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                    Discount Value
+                  </label>
+                  <input
+                    type="number"
+                    disabled={overallDiscountType === "none"}
+                    value={overallDiscountValue}
+                    onChange={(e) => setOverallDiscountValue(e.target.value)}
+                    min="0"
+                    max={overallDiscountType === "percentage" ? 100 : undefined}
+                    step={overallDiscountType === "percentage" ? "0.01" : "1"}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    placeholder={
+                      overallDiscountType === "percentage"
+                        ? "e.g., 10 for 10%"
+                        : "e.g., 500 for KES 500"
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Overall Totals */}
+            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/40 space-y-3 shadow-lg">
+              <h4 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
+                <span>💵</span>
+                <span>Sale Summary</span>
+              </h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-300">Subtotal:</span>
+                  <span className="font-semibold text-white">
+                    KES {subtotal.toLocaleString()}
+                  </span>
+                </div>
+                {total_line_discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">Line Discounts:</span>
+                    <span className="font-semibold text-red-400">
+                      -KES {total_line_discount.toLocaleString()}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Overall Totals (internal view) */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/30 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Subtotal:</span>
-                <span className="font-semibold text-white">
-                  KES {subtotal.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Total Discount:</span>
-                <span className="font-semibold text-red-400">
-                  -KES {total_discount.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between text-base border-t border-white/20 pt-3 font-bold text-purple-300">
-                <span>Final Total:</span>
-                <span>KES {total.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Estimated Profit:</span>
-                <span className="font-semibold text-green-400">
-                  KES {total_profit.toLocaleString()}
-                </span>
+                )}
+                {overallDiscountAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Overall Discount
+                      {overallDiscountType === "percentage" &&
+                        ` (${overallDiscountValue}%)`}
+                      :
+                    </span>
+                    <span className="font-semibold text-red-400">
+                      -KES {overallDiscountAmount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between text-lg border-t border-white/20 pt-3 font-bold">
+                  <span className="text-purple-300">Final Total:</span>
+                  <span className="text-purple-300">KES {total.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t border-white/10">
+                  <span className="text-slate-300">Estimated Profit:</span>
+                  <span className="font-bold text-green-400">
+                    KES {total_profit.toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Payment + Staff moved to bottom */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Payment Method *
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  {paymentMethods.map((m) => (
-                    <option
-                      key={m}
-                      value={m}
-                      className="bg-slate-900 text-white"
-                    >
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Sold By (Staff) *
-                </label>
-                <select
-                  required
-                  value={soldBy}
-                  onChange={(e) => setSoldBy(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="" className="bg-slate-900 text-white">
-                    -- Select Staff Member --
-                  </option>
-                  {staffMembers.map((s) => (
-                    <option
-                      key={s}
-                      value={s}
-                      className="bg-slate-900 text-white"
-                    >
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors font-medium"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 transition-all font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50"
+                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base"
               >
-                {submitting ? "Recording Sale..." : "Record Sale"}
+                {submitting ? (
+                  <span className="flex items-center justify-center space-x-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>Recording Sale...</span>
+                  </span>
+                ) : (
+                  "Complete Sale"
+                )}
               </button>
             </div>
           </form>
