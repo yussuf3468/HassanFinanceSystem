@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
+  RotateCcw,
   ClipboardList,
   Search,
   FileText,
@@ -86,6 +87,12 @@ export default function Layout({
       label: "Sales",
       icon: ShoppingCart,
       color: "from-emerald-600 to-teal-600",
+    },
+    {
+      id: "returns",
+      label: "Returns",
+      icon: RotateCcw,
+      color: "from-rose-600 to-red-600",
     },
     {
       id: "search",

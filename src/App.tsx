@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Inventory from "./components/Inventory";
 import Sales from "./components/Sales";
+import Returns from "./components/Returns";
 import Search from "./components/Search";
 import Reports from "./components/Reports";
 import UserActivityDashboard from "./components/UserActivityDashboard";
@@ -108,6 +109,7 @@ function AppContent() {
         {activeTab === "staff-dashboard" && <StaffDashboard />}
         {activeTab === "inventory" && <Inventory />}
         {activeTab === "sales" && <Sales />}
+        {activeTab === "returns" && <Returns />}
         {activeTab === "orders" && <Orders />}
         {activeTab === "search" && <Search />}
         {activeTab === "reports" && <Reports />}
