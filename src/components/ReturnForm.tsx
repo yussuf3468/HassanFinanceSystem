@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { X, Search, Package, Printer } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
@@ -33,6 +33,7 @@ interface ReceiptData {
 
 export default function ReturnForm({ products, sales = [], onClose, onSuccess }: ReturnFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
   const [productId, setProductId] = useState<string>("");
   const [quantity, setQuantity] = useState<string>("");
   const [saleId, setSaleId] = useState<string>("");
@@ -43,6 +44,20 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      const target = e.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return [];
@@ -205,24 +220,33 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
         {!receipt && (
           <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden">
             {/* Product Selection */}
-            <div>
+            <div ref={dropdownRef}>
               <label className="block text-xs font-medium text-slate-300 mb-1">Product *</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); if (!e.target.value) setProductId(""); }}
+                  onChange={(e) => { 
+                    setSearchTerm(e.target.value); 
+                    setShowDropdown(true);
+                    if (!e.target.value) setProductId(""); 
+                  }}
+                  onFocus={() => setShowDropdown(true)}
                   placeholder="Search product..."
                   className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
                 />
-                {searchTerm && filteredProducts.length > 0 && (
+                {showDropdown && searchTerm && filteredProducts.length > 0 && (
                   <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
                     {filteredProducts.map((p) => (
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => { setProductId(p.id); setSearchTerm(p.name); }}
+                        onClick={() => { 
+                          setProductId(p.id); 
+                          setSearchTerm(p.name); 
+                          setShowDropdown(false);
+                        }}
                         className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
                       >
                         {p.image_url ? (
