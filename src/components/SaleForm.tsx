@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Search, Package, Plus, Trash2, Printer } from "lucide-react";
+import { X, Search, Package, Plus, Trash2, Printer, ShoppingCart } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
 
@@ -12,12 +12,11 @@ interface SaleFormProps {
 type DiscountType = "none" | "percentage" | "amount";
 
 interface LineItem {
-  id: string; // local unique id for rendering
+  id: string;
   product_id: string;
   quantity: string;
   discount_type: DiscountType;
   discount_value: string;
-  // UI helpers
   searchTerm: string;
   showDropdown: boolean;
 }
@@ -38,7 +37,10 @@ interface ReceiptData {
     profit: number;
   }[];
   subtotal: number;
-  total_discount: number;
+  total_line_discount: number;
+  overall_discount_type: DiscountType;
+  overall_discount_value: number;
+  overall_discount_amount: number;
   total: number;
   total_profit: number;
 }
@@ -64,10 +66,14 @@ export default function SaleForm({
       showDropdown: false,
     },
   ]);
+  
+  // Overall discount state
+  const [overallDiscountType, setOverallDiscountType] = useState<DiscountType>("none");
+  const [overallDiscountValue, setOverallDiscountValue] = useState("");
+  
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
-  // Refs for clicking outside dropdowns
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -114,25 +120,6 @@ export default function SaleForm({
 
   const productById = (id: string) => products.find((p) => p.id === id);
 
-  // Merge duplicate product lines automatically (optional behavior)
-  function consolidateDuplicates() {
-    const map: Record<string, LineItem> = {};
-    for (const item of lineItems) {
-      if (!item.product_id) continue;
-      if (!map[item.product_id]) {
-        map[item.product_id] = { ...item };
-      } else {
-        const q1 = parseInt(map[item.product_id].quantity || "0") || 0;
-        const q2 = parseInt(item.quantity || "0") || 0;
-        map[item.product_id].quantity = String(q1 + q2);
-        // If discounts differ, keep first; advanced merging logic could be added here.
-      }
-    }
-    setLineItems(
-      Object.values(map).concat(lineItems.filter((i) => !i.product_id))
-    );
-  }
-
   interface ComputedLine {
     line: LineItem;
     product?: Product;
@@ -163,8 +150,7 @@ export default function SaleForm({
       const original_total = product.selling_price * quantity;
       let discount_amount = 0;
       if (li.discount_type === "percentage" && li.discount_value) {
-        discount_amount =
-          (original_total * parseFloat(li.discount_value)) / 100;
+        discount_amount = (original_total * parseFloat(li.discount_value)) / 100;
       } else if (li.discount_type === "amount" && li.discount_value) {
         discount_amount = parseFloat(li.discount_value);
       }
@@ -187,12 +173,32 @@ export default function SaleForm({
 
   const computed = computeLines();
   const subtotal = computed.reduce((s, c) => s + c.original_total, 0);
-  const total_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
-  const total = subtotal - total_discount;
-  const total_profit = computed.reduce((s, c) => s + c.profit, 0);
+  const total_line_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
+  const subtotalAfterLineDiscounts = subtotal - total_line_discount;
+
+  // Calculate overall discount
+  let overallDiscountAmount = 0;
+  if (overallDiscountType === "percentage" && overallDiscountValue) {
+    overallDiscountAmount = (subtotalAfterLineDiscounts * parseFloat(overallDiscountValue)) / 100;
+  } else if (overallDiscountType === "amount" && overallDiscountValue) {
+    overallDiscountAmount = parseFloat(overallDiscountValue);
+  }
+  if (overallDiscountAmount > subtotalAfterLineDiscounts) {
+    overallDiscountAmount = subtotalAfterLineDiscounts;
+  }
+
+  const total = subtotalAfterLineDiscounts - overallDiscountAmount;
+  
+  // Recalculate profit considering overall discount
+  const profitReductionRatio = subtotalAfterLineDiscounts > 0 
+    ? overallDiscountAmount / subtotalAfterLineDiscounts 
+    : 0;
+  const total_profit = computed.reduce((s, c) => {
+    const adjustedProfit = c.profit * (1 - profitReductionRatio);
+    return s + adjustedProfit;
+  }, 0);
 
   function validateStock(): { ok: boolean; message?: string } {
-    // Aggregate requested quantity per product
     const aggregate: Record<string, number> = {};
     for (const c of computed) {
       if (!c.product || c.quantity <= 0) continue;
@@ -213,20 +219,15 @@ export default function SaleForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Basic validation
     if (!soldBy) {
       alert("Please select staff (Sold By).");
       return;
     }
-    if (
-      computed.length === 0 ||
-      computed.every((c) => c.quantity <= 0 || !c.product)
-    ) {
+    if (computed.length === 0 || computed.every((c) => c.quantity <= 0 || !c.product)) {
       alert("Please add at least one valid product line.");
       return;
     }
 
-    // Stock validation
     const stockCheck = validateStock();
     if (!stockCheck.ok) {
       alert(stockCheck.message);
@@ -234,26 +235,9 @@ export default function SaleForm({
     }
 
     setSubmitting(true);
-
-    // Create a transaction ID for grouping this sale
     const transactionId = crypto.randomUUID();
 
-    // NOTE: This implementation assumes you added a transaction_id column
-    // to the existing 'sales' table.
-    // For a normalized schema (sale_transactions + sale_items), see comments below.
     try {
-      // Optional: If using normalized schema, first insert into sale_transactions:
-      // const { data: txData, error: txError } = await supabase.from("sale_transactions").insert({
-      //   id: transactionId,
-      //   payment_method: paymentMethod,
-      //   sold_by: soldBy,
-      //   subtotal,
-      //   total_discount,
-      //   total
-      // }).select().single();
-      // if (txError) throw txError;
-
-      // Insert each line as a row into 'sales' (legacy approach).
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
@@ -268,7 +252,7 @@ export default function SaleForm({
           selling_price: c.product.selling_price,
           buying_price: c.product.buying_price,
           total_sale: c.final_total,
-          profit: c.profit,
+          profit: c.profit * (1 - profitReductionRatio),
           payment_method: paymentMethod,
           sold_by: soldBy,
           discount_amount: c.discount_amount,
@@ -279,30 +263,14 @@ export default function SaleForm({
 
         if (lineError) throw lineError;
 
-        // Update stock
         const newStock = c.product.quantity_in_stock - c.quantity;
         const { error: stockError } = await supabase
           .from("products")
           .update({ quantity_in_stock: newStock })
           .eq("id", c.product.id);
         if (stockError) throw stockError;
-
-        // If using normalized schema:
-        // await supabase.from("sale_items").insert({
-        //   transaction_id: transactionId,
-        //   product_id: c.product.id,
-        //   quantity: c.quantity,
-        //   original_unit_price: c.product.selling_price,
-        //   discount_type: c.line.discount_type,
-        //   discount_value: c.line.discount_value ? parseFloat(c.line.discount_value) : 0,
-        //   discount_amount: c.discount_amount,
-        //   final_unit_price: c.final_unit_price,
-        //   line_total: c.final_total,
-        //   profit: c.profit
-        // });
       }
 
-      // Build receipt data
       const receiptData: ReceiptData = {
         transactionId,
         sold_by: soldBy,
@@ -318,10 +286,13 @@ export default function SaleForm({
             discount_amount: c.discount_amount,
             final_unit_price: c.final_unit_price,
             line_total: c.final_total,
-            profit: c.profit,
+            profit: c.profit * (1 - profitReductionRatio),
           })),
         subtotal,
-        total_discount,
+        total_line_discount,
+        overall_discount_type: overallDiscountType,
+        overall_discount_value: parseFloat(overallDiscountValue || "0"),
+        overall_discount_amount: overallDiscountAmount,
         total,
         total_profit,
       };
@@ -329,16 +300,200 @@ export default function SaleForm({
       setReceipt(receiptData);
     } catch (err) {
       console.error("Error recording multi-product sale:", err);
-      alert(
-        "Failed to record sale. Consider implementing a Postgres function for transactional safety."
-      );
+      alert("Failed to record sale. Please try again.");
     } finally {
       setSubmitting(false);
     }
   }
 
+  function createPrintHtml(r: ReceiptData) {
+    const rows = r.items
+      .map(
+        (it) => `
+          <tr>
+            <td>${escapeHtml(it.product_name)}</td>
+            <td class="num">${it.quantity}</td>
+            <td class="num">KES ${it.unit_price.toLocaleString()}</td>
+            <td class="num">${
+              it.discount_amount > 0
+                ? "-KES " + it.discount_amount.toLocaleString()
+                : "-"
+            }</td>
+            <td class="num">KES ${it.line_total.toLocaleString()}</td>
+          </tr>`
+      )
+      .join("");
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Receipt - HASSAN BOOKSHOP</title>
+<style>
+  @page { size: A4; margin: 10mm; }
+  html, body { height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    color:#000; background:#fff; font-size:12px; line-height:1.35;
+    margin:0; padding:0;
+  }
+  .header { text-align:center; }
+  .header h1 { font-size:20px; margin:0 0 2px; letter-spacing:0.5px; }
+  .header .sub { font-size:11px; color:#444; }
+  .header .title { margin-top:4px; font-size:13px; font-weight:600; }
+  .meta { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
+  .meta td { padding:2px 0; vertical-align:top; }
+  table.items { width:100%; border-collapse:collapse; margin-top:8px; }
+  table.items th, table.items td { border:1px solid #222; padding:4px 6px; vertical-align:top; }
+  table.items th { background:#f2f2f2; font-weight:600; font-size:11px; }
+  .num { text-align:right; }
+  tfoot td { font-weight:600; }
+  .divider { margin:10px 0; border-top:1px solid #000; }
+  .footnote { margin-top:12px; text-align:center; font-size:10px; color:#555; }
+  .signature { margin-top:18px; display:flex; justify-content:space-between; gap:16px; }
+  .sigbox { width:48%; border-top:1px solid #000; padding-top:4px; text-align:center; font-size:10px; }
+  .mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
+  .nowrap { white-space:nowrap; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>HASSAN BOOKSHOP</h1>
+    <div class="sub">Quality Educational Materials & Supplies</div>
+    <div class="sub">Tel: +254 722 740 432 Email: galiyowabi@gmail.com</div>
+    <div class="title">Sales Receipt</div>
+  </div>
+
+  <table class="meta">
+    <tbody>
+      <tr>
+        <td><strong>Transaction:</strong> ${r.transactionId}</td>
+        <td class="mono nowrap"><strong>Date:</strong> ${r.created_at.toLocaleString()}</td>
+      </tr>
+      <tr>
+        <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
+        <td><strong>Payment:</strong> ${escapeHtml(r.payment_method)}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="text-align:left;">Product</th>
+        <th class="num">Qty</th>
+        <th class="num">Unit Price</th>
+        <th class="num">Discount</th>
+        <th class="num">Line Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4" style="text-align:right;">Subtotal</td>
+        <td class="num">KES ${r.subtotal.toLocaleString()}</td>
+      </tr>
+      ${r.total_line_discount > 0 ? `
+      <tr>
+        <td colspan="4" style="text-align:right;">Line Discounts</td>
+        <td class="num">-KES ${r.total_line_discount.toLocaleString()}</td>
+      </tr>` : ''}
+      ${r.overall_discount_amount > 0 ? `
+      <tr>
+        <td colspan="4" style="text-align:right;">Overall Discount ${r.overall_discount_type === 'percentage' ? '(' + r.overall_discount_value + '%)' : ''}</td>
+        <td class="num">-KES ${r.overall_discount_amount.toLocaleString()}</td>
+      </tr>` : ''}
+      <tr>
+        <td colspan="4" style="text-align:right;">Total</td>
+        <td class="num">KES ${r.total.toLocaleString()}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="divider"></div>
+
+  <div class="signature">
+    <div class="sigbox">Customer Signature</div>
+    <div class="sigbox">Staff Signature</div>
+  </div>
+
+  <div class="footnote">
+    Thank you for your purchase. Please keep this receipt for your records.
+  </div>
+</body>
+</html>`;
+  }
+
+  function escapeHtml(str: string) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function printReceipt() {
-    window.print();
+    if (!receipt) return;
+
+    const html = createPrintHtml(receipt);
+    const $iframe = document.createElement("iframe");
+    $iframe.style.position = "fixed";
+    $iframe.style.right = "0";
+    $iframe.style.bottom = "0";
+    $iframe.style.width = "0";
+    $iframe.style.height = "0";
+    $iframe.style.border = "0";
+    $iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild($iframe);
+
+    const cleanup = () => {
+      try {
+        document.body.removeChild($iframe);
+      } catch {}
+    };
+
+    const onReadyToPrint = () => {
+      try {
+        const win = $iframe.contentWindow;
+        if (!win) {
+          cleanup();
+          alert("Failed to access print frame.");
+          return;
+        }
+        win.focus();
+        win.print();
+      } catch (e) {
+        console.error("Print failed:", e);
+        alert("Unable to print. Please try again.");
+      } finally {
+        setTimeout(cleanup, 500);
+      }
+    };
+
+    const doc = $iframe.contentWindow?.document;
+    if (!doc) {
+      cleanup();
+      alert("Failed to prepare print frame.");
+      return;
+    }
+
+    let fired = false;
+    const fireOnce = () => {
+      if (fired) return;
+      fired = true;
+      onReadyToPrint();
+    };
+
+    $iframe.onload = fireOnce;
+    $iframe.contentWindow?.addEventListener("load", fireOnce);
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    setTimeout(fireOnce, 300);
   }
 
   function resetForm() {
@@ -355,259 +510,302 @@ export default function SaleForm({
     ]);
     setSoldBy("");
     setPaymentMethod("Cash");
+    setOverallDiscountType("none");
+    setOverallDiscountValue("");
     setReceipt(null);
   }
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn print:static print:max-h-none print:overflow-visible print:shadow-none print:bg-white print:text-black">
-        {/* Header */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-t-2xl print:hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-white/20 animate-scaleIn flex flex-col">
+        {/* Header - Fixed */}
+        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
           <div className="relative flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-black text-white">
-                💰 Diiwaan Gali Iib Cusub (Multi-Product) - Record New Sale
-              </h3>
-              <p className="text-purple-100 text-sm font-medium">
-                Ku dar alaabooyin badan hal iib gudaheed
-              </p>
+            <div className="flex items-center space-x-3">
+              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black text-white">
+                  Record New Sale
+                </h3>
+                <p className="text-purple-100 text-xs sm:text-sm font-medium">
+                  Multi-Product Sale System
+                </p>
+              </div>
             </div>
             <button
               onClick={onClose}
               className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl print:bg-white print:text-black">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-bold text-white print:text-black">
-                  Sales Receipt
-                </h2>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Transaction: {receipt.transactionId}
+          <div className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl overflow-y-auto flex-1">
+            <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-6 shadow-lg">
+              <div className="text-center space-y-1 mb-4">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
+                  HASSAN BOOKSHOP
+                </h1>
+                <p className="text-xs text-gray-700">
+                  Quality Educational Materials & Supplies
                 </p>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Date: {receipt.created_at.toLocaleString()}
+                <p className="text-xs text-gray-600">
+                  Tel: +254 722 740 432 | Email: galiyowabi@gmail.com
                 </p>
-                <p className="text-slate-300 text-sm print:text-black">
-                  Sold By: {receipt.sold_by} • Payment: {receipt.payment_method}
-                </p>
+                <p className="text-sm font-bold mt-2">Sales Receipt</p>
               </div>
-              <div className="print:hidden flex space-x-2">
-                <button
-                  onClick={printReceipt}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg flex items-center space-x-2 hover:from-purple-700 hover:to-blue-700"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>Print</span>
-                </button>
-                <button
-                  onClick={resetForm}
-                  className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
-                >
-                  New Sale
-                </button>
-              </div>
-            </div>
 
-            <div className="overflow-hidden rounded-xl border border-white/20 print:border-slate-300">
-              <table className="w-full text-sm">
-                <thead className="bg-white/10 text-white print:bg-slate-100 print:text-black">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Product</th>
-                    <th className="px-4 py-2 text-right">Qty</th>
-                    <th className="px-4 py-2 text-right">Unit</th>
-                    <th className="px-4 py-2 text-right">Orig Total</th>
-                    <th className="px-4 py-2 text-right">Discount</th>
-                    <th className="px-4 py-2 text-right">Line Total</th>
-                    <th className="px-4 py-2 text-right">Profit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {receipt.items.map((it, idx) => (
-                    <tr key={idx} className="odd:bg-white/5 print:odd:bg-white">
-                      <td className="px-4 py-2">{it.product_name}</td>
-                      <td className="px-4 py-2 text-right">{it.quantity}</td>
-                      <td className="px-4 py-2 text-right">
-                        KES {it.unit_price.toLocaleString()}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 p-3 rounded">
+                <p>
+                  <span className="font-semibold">Transaction:</span>{" "}
+                  <span className="text-gray-700">{receipt.transactionId}</span>
+                </p>
+                <p className="sm:text-right">
+                  <span className="font-semibold">Date:</span>{" "}
+                  <span className="text-gray-700">{receipt.created_at.toLocaleString()}</span>
+                </p>
+                <p>
+                  <span className="font-semibold">Sold By:</span>{" "}
+                  <span className="text-gray-700">{receipt.sold_by}</span>
+                </p>
+                <p className="sm:text-right">
+                  <span className="font-semibold">Payment:</span>{" "}
+                  <span className="text-gray-700">{receipt.payment_method}</span>
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gray-200 border-b-2 border-gray-400">
+                      <th className="px-3 py-2 text-left font-bold">Product</th>
+                      <th className="px-3 py-2 text-right font-bold">Qty</th>
+                      <th className="px-3 py-2 text-right font-bold">Unit Price</th>
+                      <th className="px-3 py-2 text-right font-bold">Discount</th>
+                      <th className="px-3 py-2 text-right font-bold">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {receipt.items.map((it, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="px-3 py-2">{it.product_name}</td>
+                        <td className="px-3 py-2 text-right">{it.quantity}</td>
+                        <td className="px-3 py-2 text-right">
+                          KES {it.unit_price.toLocaleString()}
+                        </td>
+                        <td className="px-3 py-2 text-right text-red-600">
+                          {it.discount_amount > 0
+                            ? "-" + it.discount_amount.toLocaleString()
+                            : "-"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold">
+                          KES {it.line_total.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="border-t-2 border-gray-400">
+                    <tr className="bg-gray-50">
+                      <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                        Subtotal
                       </td>
-                      <td className="px-4 py-2 text-right">
-                        KES {it.original_total.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-right text-red-400 print:text-red-600">
-                        {it.discount_amount > 0
-                          ? "-KES " + it.discount_amount.toLocaleString()
-                          : "-"}
-                      </td>
-                      <td className="px-4 py-2 text-right font-semibold">
-                        KES {it.line_total.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-2 text-right text-green-400 print:text-green-600">
-                        KES {it.profit.toLocaleString()}
+                      <td className="px-3 py-2 text-right font-semibold">
+                        KES {receipt.subtotal.toLocaleString()}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-white/10 font-semibold print:bg-slate-100 print:text-black">
-                  <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
-                      Subtotal
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      KES {receipt.subtotal.toLocaleString()}
-                    </td>
-                    <td />
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
-                      Discount
-                    </td>
-                    <td className="px-4 py-2 text-right text-red-400 print:text-red-600">
-                      -KES {receipt.total_discount.toLocaleString()}
-                    </td>
-                    <td />
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
-                      Total
-                    </td>
-                    <td className="px-4 py-2 text-right text-purple-300 print:text-black">
-                      KES {receipt.total.toLocaleString()}
-                    </td>
-                    <td />
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-right" colSpan={5}>
-                      Profit
-                    </td>
-                    <td className="px-4 py-2 text-right text-green-400 print:text-green-600">
-                      KES {receipt.total_profit.toLocaleString()}
-                    </td>
-                    <td />
-                  </tr>
-                </tfoot>
-              </table>
+                    {receipt.total_line_discount > 0 && (
+                      <tr className="bg-gray-50">
+                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                          Line Discounts
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                          -KES {receipt.total_line_discount.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    {receipt.overall_discount_amount > 0 && (
+                      <tr className="bg-gray-50">
+                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                          Overall Discount
+                          {receipt.overall_discount_type === "percentage" &&
+                            ` (${receipt.overall_discount_value}%)`}
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                          -KES {receipt.overall_discount_amount.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-gray-800 text-white">
+                      <td className="px-3 py-3 text-right font-bold text-base" colSpan={4}>
+                        TOTAL
+                      </td>
+                      <td className="px-3 py-3 text-right font-bold text-base">
+                        KES {receipt.total.toLocaleString()}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-300 text-center text-[10px] text-gray-600">
+                Thank you for your purchase! Please keep this receipt for your records.
+              </div>
             </div>
 
-            <div className="print:hidden flex justify-end">
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
+              <button
+                onClick={printReceipt}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg flex items-center justify-center space-x-2 hover:from-green-700 hover:to-emerald-700 font-medium shadow-lg"
+              >
+                <Printer className="w-5 h-5" />
+                <span>Print Receipt</span>
+              </button>
+              <button
+                onClick={resetForm}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg"
+              >
+                New Sale
+              </button>
               <button
                 onClick={onSuccess}
-                className="px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 font-medium"
               >
-                Finish
+                Close
               </button>
             </div>
           </div>
         )}
 
+        {/* Entry Form */}
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden"
+            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
           >
-            {/* Line Items */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-bold text-white">Products</h4>
-                <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={addLine}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
+            {/* Staff & Payment - Moved to top for better UX */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
+              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                <span>📋</span>
+                <span>Sale Information</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Sold By (Staff) *
+                  </label>
+                  <select
+                    required
+                    value={soldBy}
+                    onChange={(e) => setSoldBy(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Line</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={consolidateDuplicates}
-                    className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                    <option value="" className="bg-slate-900 text-white">
+                      -- Select Staff Member --
+                    </option>
+                    {staffMembers.map((s) => (
+                      <option key={s} value={s} className="bg-slate-900 text-white">
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Payment Method *
+                  </label>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   >
-                    Merge Duplicates
-                  </button>
+                    {paymentMethods.map((m) => (
+                      <option key={m} value={m} className="bg-slate-900 text-white">
+                        {m}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
+            </div>
 
-              {lineItems.map((li, idx) => {
-                const product = productById(li.product_id);
-                const comp = computed.find((c) => c.line.id === li.id)!;
-                const filtered = products.filter(
-                  (p) =>
-                    p.name
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase()) ||
-                    p.product_id
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase()) ||
-                    p.category
-                      .toLowerCase()
-                      .includes(li.searchTerm.toLowerCase())
-                );
-                return (
-                  <div
-                    key={li.id}
-                    ref={(el) => (dropdownRefs.current[li.id] = el)}
-                    className="relative bg-white/5 border border-white/20 rounded-xl p-4 space-y-4"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-semibold text-white">
-                          Line {idx + 1}
-                        </span>
-                        {product && (
-                          <span className="text-xs px-2 py-1 bg-purple-600/30 text-purple-200 rounded">
-                            Stock: {product.quantity_in_stock}
+            {/* Line Items */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                  <Package className="w-5 h-5" />
+                  <span>Products ({lineItems.length})</span>
+                </h4>
+              </div>
+
+              <div className="space-y-3">
+                {lineItems.map((li, idx) => {
+                  const product = productById(li.product_id);
+                  const comp = computed.find((c) => c.line.id === li.id)!;
+                  const filtered = products.filter(
+                    (p) =>
+                      p.name.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
+                      p.product_id.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
+                      p.category.toLowerCase().includes(li.searchTerm.toLowerCase())
+                  );
+                  
+                  return (
+                    <div
+                      key={li.id}
+                      ref={(el) => (dropdownRefs.current[li.id] = el)}
+                      className="relative bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4 space-y-3 hover:bg-white/10 transition-all"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-purple-600/30 text-purple-200 text-xs font-bold">
+                            {idx + 1}
                           </span>
+                          {product && (
+                            <span className="text-xs px-2 py-1 bg-green-600/20 text-green-300 rounded border border-green-500/30">
+                              Stock: {product.quantity_in_stock}
+                            </span>
+                          )}
+                        </div>
+                        {lineItems.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeLine(li.id)}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+                            title="Remove line"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         )}
                       </div>
-                      {lineItems.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeLine(li.id)}
-                          className="p-2 rounded-lg hover:bg-white/10 text-red-300 hover:text-red-200"
-                          title="Remove line"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                      {/* Product Search */}
-                      <div className="lg:col-span-2">
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Product *
-                        </label>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                          <input
-                            type="text"
-                            value={li.searchTerm}
-                            required={!li.product_id}
-                            onChange={(e) =>
-                              updateLine(li.id, {
-                                searchTerm: e.target.value,
-                                showDropdown: true,
-                                product_id: e.target.value ? li.product_id : "",
-                              })
-                            }
-                            onFocus={() =>
-                              updateLine(li.id, { showDropdown: true })
-                            }
-                            placeholder="Search product..."
-                            className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                          />
-                          {li.showDropdown &&
-                            li.searchTerm &&
-                            filtered.length > 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        {/* Product Search */}
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Product *
+                          </label>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+                            <input
+                              type="text"
+                              value={li.searchTerm}
+                              required={!li.product_id}
+                              onChange={(e) =>
+                                updateLine(li.id, {
+                                  searchTerm: e.target.value,
+                                  showDropdown: true,
+                                  product_id: e.target.value ? li.product_id : "",
+                                })
+                              }
+                              onFocus={() => updateLine(li.id, { showDropdown: true })}
+                              placeholder="Search product..."
+                              className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            />
+                            {li.showDropdown && li.searchTerm && filtered.length > 0 && (
+                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
                                 {filtered.slice(0, 15).map((p) => (
                                   <button
                                     key={p.id}
@@ -619,259 +817,294 @@ export default function SaleForm({
                                         showDropdown: false,
                                       })
                                     }
-                                    className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
+                                    className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
                                   >
                                     {p.image_url ? (
                                       <img
                                         src={p.image_url}
                                         alt={p.name}
-                                        className="w-8 h-8 object-cover rounded"
+                                        className="w-10 h-10 object-cover rounded border border-white/10"
                                       />
                                     ) : (
-                                      <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
-                                        <Package className="w-4 h-4 text-slate-400" />
+                                      <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                        <Package className="w-5 h-5 text-slate-400" />
                                       </div>
                                     )}
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 flex-1">
                                       <p className="font-medium text-white truncate">
                                         {p.name}
                                       </p>
                                       <p className="text-xs text-slate-400 truncate">
-                                        {p.product_id} • Stock{" "}
-                                        {p.quantity_in_stock} • KES{" "}
+                                        {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
                                         {p.selling_price.toLocaleString()}
                                       </p>
                                     </div>
                                   </button>
                                 ))}
                                 {filtered.length > 15 && (
-                                  <div className="px-3 py-2 text-xs text-slate-400">
-                                    Showing first 15 of {filtered.length}{" "}
-                                    results
+                                  <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
+                                    + {filtered.length - 15} more results
                                   </div>
                                 )}
                               </div>
                             )}
-                          {li.showDropdown &&
-                            li.searchTerm &&
-                            filtered.length === 0 && (
-                              <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl p-3 text-center text-slate-400 text-sm">
-                                No matches for "{li.searchTerm}"
+                            {li.showDropdown && li.searchTerm && filtered.length === 0 && (
+                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl p-4 text-center text-slate-400 text-sm">
+                                No products match "{li.searchTerm}"
                               </div>
                             )}
+                          </div>
+                        </div>
+
+                        {/* Quantity */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Quantity *
+                          </label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={li.quantity}
+                            onChange={(e) => updateLine(li.id, { quantity: e.target.value })}
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            placeholder="Qty"
+                          />
+                        </div>
+
+                        {/* Discount Type */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Discount Type
+                          </label>
+                          <select
+                            value={li.discount_type}
+                            onChange={(e) =>
+                              updateLine(li.id, {
+                                discount_type: e.target.value as DiscountType,
+                                discount_value: "",
+                              })
+                            }
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                          >
+                            <option value="none" className="bg-slate-900 text-white">
+                              None
+                            </option>
+                            <option value="percentage" className="bg-slate-900 text-white">
+                              Percentage (%)
+                            </option>
+                            <option value="amount" className="bg-slate-900 text-white">
+                              Amount (KES)
+                            </option>
+                          </select>
+                        </div>
+
+                        {/* Discount Value */}
+                        <div>
+                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                            Discount Value
+                          </label>
+                          <input
+                            type="number"
+                            disabled={li.discount_type === "none"}
+                            value={li.discount_value}
+                            onChange={(e) =>
+                              updateLine(li.id, { discount_value: e.target.value })
+                            }
+                            min="0"
+                            max={li.discount_type === "percentage" ? 100 : undefined}
+                            step={li.discount_type === "percentage" ? "0.01" : "1"}
+                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            placeholder={
+                              li.discount_type === "percentage" ? "10" : "100"
+                            }
+                          />
                         </div>
                       </div>
 
-                      {/* Quantity */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Quantity *
-                        </label>
-                        <input
-                          type="number"
-                          min={1}
-                          value={li.quantity}
-                          onChange={(e) =>
-                            updateLine(li.id, { quantity: e.target.value })
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                          placeholder="Qty"
-                        />
-                      </div>
-
-                      {/* Discount Type */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Discount Type
-                        </label>
-                        <select
-                          value={li.discount_type}
-                          onChange={(e) =>
-                            updateLine(li.id, {
-                              discount_type: e.target.value as DiscountType,
-                              discount_value: "",
-                            })
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500"
-                        >
-                          <option
-                            value="none"
-                            className="bg-slate-900 text-white"
-                          >
-                            None
-                          </option>
-                          <option
-                            value="percentage"
-                            className="bg-slate-900 text-white"
-                          >
-                            %
-                          </option>
-                          <option
-                            value="amount"
-                            className="bg-slate-900 text-white"
-                          >
-                            Amount
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* Discount Value */}
-                      <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
-                          Discount Value
-                        </label>
-                        <input
-                          type="number"
-                          disabled={li.discount_type === "none"}
-                          value={li.discount_value}
-                          onChange={(e) =>
-                            updateLine(li.id, {
-                              discount_value: e.target.value,
-                            })
-                          }
-                          min="0"
-                          max={
-                            li.discount_type === "percentage" ? 100 : undefined
-                          }
-                          step={
-                            li.discount_type === "percentage" ? "0.01" : "1"
-                          }
-                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 disabled:opacity-40"
-                          placeholder={
-                            li.discount_type === "percentage"
-                              ? "10 (%)"
-                              : "100 (KES)"
-                          }
-                        />
-                      </div>
+                      {/* Line Summary */}
+                      {product && comp.quantity > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-white/10">
+                          <div className="bg-blue-500/10 rounded-md p-2 border border-blue-500/20">
+                            <span className="text-slate-400 block mb-0.5">Original</span>
+                            <span className="font-bold text-blue-300">
+                              KES {comp.original_total.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="bg-red-500/10 rounded-md p-2 border border-red-500/20">
+                            <span className="text-slate-400 block mb-0.5">Discount</span>
+                            <span className="font-bold text-red-300">
+                              {comp.discount_amount > 0
+                                ? "-" + comp.discount_amount.toLocaleString()
+                                : "-"}
+                            </span>
+                          </div>
+                          <div className="bg-purple-500/10 rounded-md p-2 border border-purple-500/20">
+                            <span className="text-slate-400 block mb-0.5">Line Total</span>
+                            <span className="font-bold text-purple-300">
+                              KES {comp.final_total.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="bg-green-500/10 rounded-md p-2 border border-green-500/20">
+                            <span className="text-slate-400 block mb-0.5">Profit Est.</span>
+                            <span className="font-bold text-green-300">
+                              KES {comp.profit.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Line Summary */}
-                    {product && comp.quantity > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mt-2">
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Original</span>
-                          <span className="font-semibold text-purple-300">
-                            KES {comp.original_total.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Discount</span>
-                          <span className="font-semibold text-red-400">
-                            {comp.discount_amount > 0
-                              ? "-KES " + comp.discount_amount.toLocaleString()
-                              : "-"}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">
-                            Line Total
-                          </span>
-                          <span className="font-semibold text-blue-300">
-                            KES {comp.final_total.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="bg-white/10 rounded-md p-2">
-                          <span className="text-slate-300 block">Profit</span>
-                          <span className="font-semibold text-green-400">
-                            KES {comp.profit.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {/* Add Line Button - NOW AT THE BOTTOM */}
+              <button
+                type="button"
+                onClick={addLine}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg font-medium"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Another Product Line</span>
+              </button>
+            </div>
+
+            {/* Overall Discount Section */}
+            <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-xl p-4 border border-orange-500/30">
+              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+                <span>🎁</span>
+                <span>Overall Discount (Applied to Total)</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                    Discount Type
+                  </label>
+                  <select
+                    value={overallDiscountType}
+                    onChange={(e) => {
+                      setOverallDiscountType(e.target.value as DiscountType);
+                      setOverallDiscountValue("");
+                    }}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  >
+                    <option value="none" className="bg-slate-900 text-white">
+                      No Overall Discount
+                    </option>
+                    <option value="percentage" className="bg-slate-900 text-white">
+                      Percentage (%)
+                    </option>
+                    <option value="amount" className="bg-slate-900 text-white">
+                      Fixed Amount (KES)
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                    Discount Value
+                  </label>
+                  <input
+                    type="number"
+                    disabled={overallDiscountType === "none"}
+                    value={overallDiscountValue}
+                    onChange={(e) => setOverallDiscountValue(e.target.value)}
+                    min="0"
+                    max={overallDiscountType === "percentage" ? 100 : undefined}
+                    step={overallDiscountType === "percentage" ? "0.01" : "1"}
+                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    placeholder={
+                      overallDiscountType === "percentage"
+                        ? "e.g., 10 for 10%"
+                        : "e.g., 500 for KES 500"
+                    }
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Overall Totals */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-6 border border-purple-500/30 space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Subtotal:</span>
-                <span className="font-semibold text-white">
-                  KES {subtotal.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Total Discount:</span>
-                <span className="font-semibold text-red-400">
-                  -KES {total_discount.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between text-base border-t border-white/20 pt-3 font-bold text-purple-300">
-                <span>Final Total:</span>
-                <span>KES {total.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">Estimated Profit:</span>
-                <span className="font-semibold text-green-400">
-                  KES {total_profit.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            {/* Payment + Staff moved to bottom */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Payment Method *
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  {paymentMethods.map((m) => (
-                    <option
-                      key={m}
-                      value={m}
-                      className="bg-slate-900 text-white"
-                    >
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Sold By (Staff) *
-                </label>
-                <select
-                  required
-                  value={soldBy}
-                  onChange={(e) => setSoldBy(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="" className="bg-slate-900 text-white">
-                    -- Select Staff Member --
-                  </option>
-                  {staffMembers.map((s) => (
-                    <option
-                      key={s}
-                      value={s}
-                      className="bg-slate-900 text-white"
-                    >
-                      {s}
-                    </option>
-                  ))}
-                </select>
+            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/40 space-y-3 shadow-lg">
+              <h4 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
+                <span>💵</span>
+                <span>Sale Summary</span>
+              </h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-300">Subtotal:</span>
+                  <span className="font-semibold text-white">
+                    KES {subtotal.toLocaleString()}
+                  </span>
+                </div>
+                {total_line_discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">Line Discounts:</span>
+                    <span className="font-semibold text-red-400">
+                      -KES {total_line_discount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {overallDiscountAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Overall Discount
+                      {overallDiscountType === "percentage" &&
+                        ` (${overallDiscountValue}%)`}
+                      :
+                    </span>
+                    <span className="font-semibold text-red-400">
+                      -KES {overallDiscountAmount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between text-lg border-t border-white/20 pt-3 font-bold">
+                  <span className="text-purple-300">Final Total:</span>
+                  <span className="text-purple-300">KES {total.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t border-white/10">
+                  <span className="text-slate-300">Estimated Profit:</span>
+                  <span className="font-bold text-green-400">
+                    KES {total_profit.toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors font-medium"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 transition-all font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base"
               >
-                {submitting ? "Recording Sale..." : "Record Sale"}
+                {submitting ? (
+                  <span className="flex items-center justify-center space-x-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>Recording Sale...</span>
+                  </span>
+                ) : (
+                  "Complete Sale"
+                )}
               </button>
             </div>
           </form>
