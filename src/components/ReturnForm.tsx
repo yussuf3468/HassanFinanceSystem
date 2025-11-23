@@ -31,7 +31,12 @@ interface ReceiptData {
   total_refund: number;
 }
 
-export default function ReturnForm({ products, sales = [], onClose, onSuccess }: ReturnFormProps) {
+export default function ReturnForm({
+  products,
+  sales = [],
+  onClose,
+  onSuccess,
+}: ReturnFormProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [productId, setProductId] = useState<string>("");
@@ -44,7 +49,7 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
-  
+
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Handle click outside dropdown
@@ -62,12 +67,14 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return [];
     const lower = searchTerm.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lower) ||
-        p.product_id.toLowerCase().includes(lower) ||
-        p.category.toLowerCase().includes(lower)
-    ).slice(0, 20);
+    return products
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(lower) ||
+          p.product_id.toLowerCase().includes(lower) ||
+          p.category.toLowerCase().includes(lower)
+      )
+      .slice(0, 20);
   }, [searchTerm, products]);
 
   const product = products.find((p) => p.id === productId);
@@ -157,10 +164,17 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
           <div className="absolute inset-0 bg-gradient-to-r from-rose-500/50 to-red-500/50 rounded-t-2xl"></div>
           <div className="relative flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-black text-white">↩️ Record Product Return</h3>
-              <p className="text-rose-100 text-sm font-medium">Capture returned items & restore stock</p>
+              <h3 className="text-2xl font-black text-white">
+                ↩️ Record Product Return
+              </h3>
+              <p className="text-rose-100 text-sm font-medium">
+                Capture returned items & restore stock
+              </p>
             </div>
-            <button onClick={onClose} className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white">
+            <button
+              onClick={onClose}
+              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white"
+            >
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -171,18 +185,43 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
           <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl print:bg-white print:text-black">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-white print:text-black">Return Receipt</h2>
-                <p className="text-slate-300 text-sm print:text-black">Date: {receipt.return_date.toLocaleString()}</p>
-                <p className="text-slate-300 text-sm print:text-black">Processed By: {receipt.processed_by}{receipt.payment_method ? ` • Refund via ${receipt.payment_method}` : ""}</p>
-                {receipt.reason && <p className="text-slate-300 text-sm print:text-black">Reason: {receipt.reason}</p>}
-                {receipt.condition && <p className="text-slate-300 text-sm print:text-black">Condition: {receipt.condition}</p>}
+                <h2 className="text-xl font-bold text-white print:text-black">
+                  Return Receipt
+                </h2>
+                <p className="text-slate-300 text-sm print:text-black">
+                  Date: {receipt.return_date.toLocaleString()}
+                </p>
+                <p className="text-slate-300 text-sm print:text-black">
+                  Processed By: {receipt.processed_by}
+                  {receipt.payment_method
+                    ? ` • Refund via ${receipt.payment_method}`
+                    : ""}
+                </p>
+                {receipt.reason && (
+                  <p className="text-slate-300 text-sm print:text-black">
+                    Reason: {receipt.reason}
+                  </p>
+                )}
+                {receipt.condition && (
+                  <p className="text-slate-300 text-sm print:text-black">
+                    Condition: {receipt.condition}
+                  </p>
+                )}
               </div>
               <div className="print:hidden flex space-x-2">
-                <button onClick={printReceipt} className="px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg flex items-center space-x-2 hover:from-rose-700 hover:to-red-700">
+                <button
+                  onClick={printReceipt}
+                  className="px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg flex items-center space-x-2 hover:from-rose-700 hover:to-red-700"
+                >
                   <Printer className="w-4 h-4" />
                   <span>Print</span>
                 </button>
-                <button onClick={handleFinish} className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10">Finish</button>
+                <button
+                  onClick={handleFinish}
+                  className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                >
+                  Finish
+                </button>
               </div>
             </div>
 
@@ -201,15 +240,23 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
                     <tr key={i} className="odd:bg-white/5 print:odd:bg-white">
                       <td className="px-4 py-2">{it.product_name}</td>
                       <td className="px-4 py-2 text-right">{it.quantity}</td>
-                      <td className="px-4 py-2 text-right">KES {it.unit_price.toLocaleString()}</td>
-                      <td className="px-4 py-2 text-right font-semibold text-rose-300 print:text-black">KES {it.total_refund.toLocaleString()}</td>
+                      <td className="px-4 py-2 text-right">
+                        KES {it.unit_price.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 text-right font-semibold text-rose-300 print:text-black">
+                        KES {it.total_refund.toLocaleString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot className="bg-white/10 font-semibold print:bg-slate-100 print:text-black">
                   <tr>
-                    <td className="px-4 py-2 text-right" colSpan={3}>Total Refund</td>
-                    <td className="px-4 py-2 text-right text-rose-300 print:text-black">KES {receipt.total_refund.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right" colSpan={3}>
+                      Total Refund
+                    </td>
+                    <td className="px-4 py-2 text-right text-rose-300 print:text-black">
+                      KES {receipt.total_refund.toLocaleString()}
+                    </td>
                   </tr>
                 </tfoot>
               </table>
@@ -218,19 +265,24 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
         )}
 
         {!receipt && (
-          <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden"
+          >
             {/* Product Selection */}
             <div ref={dropdownRef}>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Product *</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Product *
+              </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => { 
-                    setSearchTerm(e.target.value); 
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
                     setShowDropdown(true);
-                    if (!e.target.value) setProductId(""); 
+                    if (!e.target.value) setProductId("");
                   }}
                   onFocus={() => setShowDropdown(true)}
                   placeholder="Search product..."
@@ -242,23 +294,32 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => { 
-                          setProductId(p.id); 
-                          setSearchTerm(p.name); 
+                        onClick={() => {
+                          setProductId(p.id);
+                          setSearchTerm(p.name);
                           setShowDropdown(false);
                         }}
                         className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
                       >
                         {p.image_url ? (
-                          <img src={p.image_url} alt={p.name} className="w-8 h-8 object-cover rounded" />
+                          <img
+                            src={p.image_url}
+                            alt={p.name}
+                            className="w-8 h-8 object-cover rounded"
+                          />
                         ) : (
                           <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
                             <Package className="w-4 h-4 text-slate-400" />
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="font-medium text-white truncate">{p.name}</p>
-                          <p className="text-xs text-slate-400 truncate">{p.product_id} • Stock {p.quantity_in_stock} • KES {p.selling_price.toLocaleString()}</p>
+                          <p className="font-medium text-white truncate">
+                            {p.name}
+                          </p>
+                          <p className="text-xs text-slate-400 truncate">
+                            {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
+                            {p.selling_price.toLocaleString()}
+                          </p>
                         </div>
                       </button>
                     ))}
@@ -270,7 +331,9 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
             {/* Quantity & Optional Sale Link */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Quantity Returned *</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Quantity Returned *
+                </label>
                 <input
                   type="number"
                   min={1}
@@ -280,7 +343,9 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-slate-300 mb-1">Link to Sale (Optional)</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Link to Sale (Optional)
+                </label>
                 <input
                   type="text"
                   value={saleId}
@@ -296,7 +361,9 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <div className="bg-white/10 rounded-md p-2">
                   <span className="text-slate-300 block">Unit Price</span>
-                  <span className="font-semibold text-rose-300">KES {product.selling_price.toLocaleString()}</span>
+                  <span className="font-semibold text-rose-300">
+                    KES {product.selling_price.toLocaleString()}
+                  </span>
                 </div>
                 <div className="bg-white/10 rounded-md p-2">
                   <span className="text-slate-300 block">Qty</span>
@@ -304,11 +371,17 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
                 </div>
                 <div className="bg-white/10 rounded-md p-2">
                   <span className="text-slate-300 block">Refund Total</span>
-                  <span className="font-semibold text-rose-300">KES {refundTotal.toLocaleString()}</span>
+                  <span className="font-semibold text-rose-300">
+                    KES {refundTotal.toLocaleString()}
+                  </span>
                 </div>
                 <div className="bg-white/10 rounded-md p-2">
-                  <span className="text-slate-300 block">Stock After Return</span>
-                  <span className="font-semibold text-green-400">{(product.quantity_in_stock + qtyNum)}</span>
+                  <span className="text-slate-300 block">
+                    Stock After Return
+                  </span>
+                  <span className="font-semibold text-green-400">
+                    {product.quantity_in_stock + qtyNum}
+                  </span>
                 </div>
               </div>
             )}
@@ -316,7 +389,9 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
             {/* Reason / Condition */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Reason</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Reason
+                </label>
                 <input
                   type="text"
                   value={reason}
@@ -326,13 +401,23 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Condition</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Condition
+                </label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
                   className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
                 >
-                  {['Sealed','Opened','Damaged','Other'].map(c => <option key={c} value={c} className="bg-slate-900 text-white">{c}</option>)}
+                  {["Sealed", "Opened", "Damaged", "Other"].map((c) => (
+                    <option
+                      key={c}
+                      value={c}
+                      className="bg-slate-900 text-white"
+                    >
+                      {c}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -340,32 +425,56 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
             {/* Payment Method & Staff */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Refund Method</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Refund Method
+                </label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
                 >
-                  {paymentMethods.map(m => <option key={m} value={m} className="bg-slate-900 text-white">{m}</option>)}
+                  {paymentMethods.map((m) => (
+                    <option
+                      key={m}
+                      value={m}
+                      className="bg-slate-900 text-white"
+                    >
+                      {m}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-slate-300 mb-1">Processed By (Staff) *</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Processed By (Staff) *
+                </label>
                 <select
                   required
                   value={processedBy}
                   onChange={(e) => setProcessedBy(e.target.value)}
                   className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
                 >
-                  <option value="" className="bg-slate-900 text-white">-- Select Staff Member --</option>
-                  {staffMembers.map(s => <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>)}
+                  <option value="" className="bg-slate-900 text-white">
+                    -- Select Staff Member --
+                  </option>
+                  {staffMembers.map((s) => (
+                    <option
+                      key={s}
+                      value={s}
+                      className="bg-slate-900 text-white"
+                    >
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Notes</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Notes
+              </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -376,8 +485,18 @@ export default function ReturnForm({ products, sales = [], onClose, onSuccess }:
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
-              <button type="button" onClick={onClose} className="w-full sm:w-auto px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors font-medium">Cancel</button>
-              <button type="submit" disabled={submitting} className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
                 {submitting ? "Recording Return..." : "Record Return"}
               </button>
             </div>

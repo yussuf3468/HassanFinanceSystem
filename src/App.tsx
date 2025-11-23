@@ -46,7 +46,8 @@ function AppContent() {
 
       setActiveTab((prev) => {
         // Don’t reset if user already has a tab open
-        if (prev && prev !== "dashboard" && prev !== "staff-dashboard") return prev;
+        if (prev && prev !== "dashboard" && prev !== "staff-dashboard")
+          return prev;
 
         // Assign default dashboard based on user email
         if (user.email === "admin@bookshop.ke") return "dashboard";

@@ -554,7 +554,7 @@ export default function SaleForm({
                   Quality Educational Materials & Supplies
                 </p>
                 <p className="text-xs text-gray-600">
-                  Tel: +254 722 740 432 | Email: galiyowabi@gmail.com
+                  Tel: +254 722 979 547 | Email: yussufh080@gmail.com
                 </p>
                 <p className="text-sm font-bold mt-2">Sales Receipt</p>
               </div>
