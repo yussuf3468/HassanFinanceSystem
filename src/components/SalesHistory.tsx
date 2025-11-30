@@ -897,14 +897,14 @@ export default function SalesHistory() {
 
           <div className="relative w-full max-w-3xl mx-4">
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b">
-                <div className="flex items-center gap-3">
-                  <Receipt className="w-6 h-6 text-slate-800" />
-                  <div>
-                    <div className="font-bold text-slate-900">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Receipt className="w-6 h-6 text-slate-800 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-900 truncate">
                       Sales Receipt
                     </div>
-                    <div className="text-xs text-slate-600">
+                    <div className="text-xs text-slate-600 truncate">
                       Transaction{" "}
                       {selectedTransaction.transaction_id.slice(0, 10)} •{" "}
                       {formatDate(selectedTransaction.created_at)}
@@ -912,15 +912,16 @@ export default function SalesHistory() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-2 sm:mt-0 flex-wrap">
                   <button
                     onClick={() => {
                       printReceipt(selectedTransaction);
                     }}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
+                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg whitespace-nowrap"
+                    aria-label="Print receipt"
                   >
                     <Printer className="w-4 h-4" />
-                    Print
+                    <span className="hidden sm:inline">Print</span>
                   </button>
 
                   <button
@@ -943,15 +944,17 @@ export default function SalesHistory() {
                         );
                       }
                     }}
-                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
+                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg whitespace-nowrap"
+                    aria-label="Open printable view"
                   >
                     <Eye className="w-4 h-4" />
-                    Open
+                    <span className="hidden sm:inline">Open</span>
                   </button>
 
                   <button
                     onClick={closeReceiptModal}
                     className="p-2 rounded-full text-slate-700 hover:bg-slate-100"
+                    aria-label="Close modal"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -959,7 +962,7 @@ export default function SalesHistory() {
               </div>
 
               {/* Receipt content - emphasized, white card with dark text */}
-              <div className="p-6 bg-white text-slate-900">
+              <div className="p-6 bg-white text-slate-900 max-h-[calc(100vh-200px)] overflow-auto">
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
                     <h3 className="text-xl font-bold">AL KALAM BOOKSHOP</h3>
