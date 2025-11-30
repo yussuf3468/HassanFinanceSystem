@@ -21,6 +21,7 @@ import CustomerCredit from "./components/CustomerCredit";
 import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
+import SalesHistory from "./components/SalesHistory";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -110,6 +111,7 @@ function AppContent() {
         {activeTab === "staff-dashboard" && <StaffDashboard />}
         {activeTab === "inventory" && <Inventory />}
         {activeTab === "sales" && <Sales />}
+        {activeTab === "sales-history" && <SalesHistory />}
         {activeTab === "returns" && <Returns />}
         {activeTab === "orders" && <Orders />}
         {activeTab === "search" && <Search />}

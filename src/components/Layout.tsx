@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   CreditCard,
   TrendingUp,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -84,9 +85,15 @@ export default function Layout({
     },
     {
       id: "sales",
-      label: "Sales",
+      label: "Sales Records",
       icon: ShoppingCart,
       color: "from-emerald-600 to-teal-600",
+    },
+    {
+      id: "sales-history",
+      label: "Sales Records",
+      icon: Receipt,
+      color: "from-purple-600 to-indigo-600",
     },
     {
       id: "returns",
