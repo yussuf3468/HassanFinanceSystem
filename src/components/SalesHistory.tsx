@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -10,9 +10,25 @@ import {
   User,
   CreditCard,
   Receipt,
+  Copy,
+  Search,
+  XCircle,
 } from "lucide-react";
 import { useSales, useProducts } from "../hooks/useSupabaseQuery";
 import { formatDate } from "../utils/dateFormatter";
+
+/**
+ * Refreshed SalesHistory component
+ * - polished UI: nicer header with stats, subtle glassmorphism, gradients, and shadows
+ * - search + filters (payment method / sold by / date range)
+ * - animated expand/collapse (smooth height transitions)
+ * - improved print flow (opens a print window) and copy-to-clipboard for tx id
+ * - skeleton loader when refetching
+ * - accessible attributes (aria-expanded, titles)
+ *
+ * Note: Uses only existing dependencies (lucide-react + tailwind classes).
+ * If you use different styling system, adapt the utility classes to match.
+ */
 
 interface SaleItem {
   id: string;
@@ -48,11 +64,16 @@ interface GroupedTransaction {
 export default function SalesHistory() {
   const { data: sales = [], refetch: refetchSales, isRefetching } = useSales();
   const { data: products = [] } = useProducts();
-  const [expandedTransactions, setExpandedTransactions] = useState<Set<string>>(
-    new Set()
-  );
 
-  // Group sales by transaction_id
+  // UI state
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
+  const [sellerFilter, setSellerFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+
+  // Group sales by transaction
   const groupedTransactions = useMemo(() => {
     const groups = new Map<string, GroupedTransaction>();
 
@@ -82,91 +103,168 @@ export default function SalesHistory() {
       group.item_count += 1;
     });
 
-    // Sort by date (newest first)
-    return Array.from(groups.values()).sort((a, b) => {
+    // Sort newest first
+    const arr = Array.from(groups.values()).sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
       return dateB - dateA;
     });
+
+    return arr;
   }, [sales]);
+
+  // Derived: available payment methods and sellers for filters
+  const availablePayments = useMemo(() => {
+    const set = new Set<string>();
+    sales.forEach((s) => s.payment_method && set.add(s.payment_method));
+    return Array.from(set);
+  }, [sales]);
+
+  const availableSellers = useMemo(() => {
+    const set = new Set<string>();
+    sales.forEach((s) => s.sold_by && set.add(s.sold_by));
+    return Array.from(set);
+  }, [sales]);
+
+  // Filtered transactions based on search & filters
+  const filteredTransactions = useMemo(() => {
+    return groupedTransactions.filter((tx) => {
+      // date filter
+      const txTime = new Date(tx.created_at).getTime();
+      if (dateFrom) {
+        const fromTime = new Date(dateFrom).getTime();
+        if (isNaN(fromTime) === false && txTime < fromTime) return false;
+      }
+      if (dateTo) {
+        const toTime = new Date(dateTo).getTime();
+        if (isNaN(toTime) === false && txTime > toTime + 86400000 - 1) return false; // inclusive
+      }
+
+      // payment filter
+      if (paymentFilter !== "all" && tx.payment_method !== paymentFilter)
+        return false;
+
+      // seller filter
+      if (sellerFilter !== "all" && tx.sold_by !== sellerFilter) return false;
+
+      // query search across tx id, items, seller
+      if (query.trim()) {
+        const q = query.trim().toLowerCase();
+        if (tx.transaction_id.toLowerCase().includes(q)) return true;
+        if (tx.sold_by.toLowerCase().includes(q)) return true;
+        if (
+          tx.items.some((it) =>
+            (getProductName(it.product_id) + "")
+              .toLowerCase()
+              .includes(q)
+          )
+        )
+          return true;
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    groupedTransactions,
+    query,
+    paymentFilter,
+    sellerFilter,
+    dateFrom,
+    dateTo,
+  ]);
+
+  // Global stats
+  const totals = useMemo(() => {
+    const revenue = filteredTransactions.reduce(
+      (s, t) => s + (t.total_amount || 0),
+      0
+    );
+    const profit = filteredTransactions.reduce(
+      (s, t) => s + (t.total_profit || 0),
+      0
+    );
+    const discounts = filteredTransactions.reduce(
+      (s, t) => s + (t.total_discount || 0),
+      0
+    );
+    return {
+      revenue,
+      profit,
+      discounts,
+      transactions: filteredTransactions.length,
+      items: filteredTransactions.reduce((s, t) => s + t.item_count, 0),
+    };
+  }, [filteredTransactions]);
 
   const getProductName = (productId: string) => {
     const product = products.find((p) => p.id === productId);
-    return product?.name || "Unknown Product";
+    // Handle product objects that may have `name` or `title`
+    return (product && (product.name || (product as any).title)) || "Unknown";
   };
 
   const toggleExpand = (txId: string) => {
-    setExpandedTransactions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(txId)) {
-        newSet.delete(txId);
-      } else {
-        newSet.add(txId);
-      }
-      return newSet;
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(txId)) next.delete(txId);
+      else next.add(txId);
+      return next;
     });
   };
 
-  const printReceipt = (transaction: GroupedTransaction) => {
-    const html = createPrintHtml(transaction);
-    const $iframe = document.createElement("iframe");
-    $iframe.style.position = "fixed";
-    $iframe.style.right = "0";
-    $iframe.style.bottom = "0";
-    $iframe.style.width = "0";
-    $iframe.style.height = "0";
-    $iframe.style.border = "0";
-    $iframe.setAttribute("aria-hidden", "true");
-    document.body.appendChild($iframe);
+  // copy tx id to clipboard with tiny feedback
+  const [copiedTx, setCopiedTx] = useState<string | null>(null);
+  useEffect(() => {
+    if (!copiedTx) return;
+    const t = setTimeout(() => setCopiedTx(null), 1800);
+    return () => clearTimeout(t);
+  }, [copiedTx]);
 
-    const cleanup = () => {
-      try {
-        document.body.removeChild($iframe);
-      } catch {}
-    };
-
-    const onReadyToPrint = () => {
-      try {
-        const win = $iframe.contentWindow;
-        if (!win) {
-          cleanup();
-          alert("Failed to access print frame.");
-          return;
-        }
-        win.focus();
-        win.print();
-      } catch (e) {
-        console.error("Print failed:", e);
-        alert("Unable to print. Please try again.");
-      } finally {
-        setTimeout(cleanup, 500);
-      }
-    };
-
-    const doc = $iframe.contentWindow?.document;
-    if (!doc) {
-      cleanup();
-      alert("Failed to prepare print frame.");
-      return;
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedTx(text);
+    } catch {
+      // fallback
+      const el = document.createElement("textarea");
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopiedTx(text);
     }
-
-    let fired = false;
-    const fireOnce = () => {
-      if (fired) return;
-      fired = true;
-      onReadyToPrint();
-    };
-
-    $iframe.onload = fireOnce;
-    $iframe.contentWindow?.addEventListener("load", fireOnce);
-
-    doc.open();
-    doc.write(html);
-    doc.close();
-
-    setTimeout(fireOnce, 300);
   };
 
+  // Improved print: open a new window so user sees the receipt before printing
+  const printReceipt = (transaction: GroupedTransaction) => {
+    try {
+      const html = createPrintHtml(transaction);
+      const w = window.open("", "_blank", "noopener,noreferrer");
+      if (!w) {
+        alert("Popups blocked. Please enable popups for this site to print.");
+        return;
+      }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+      // allow the document to layout before invoking print
+      w.focus();
+      setTimeout(() => {
+        try {
+          w.print();
+        } catch (e) {
+          console.error("Print error", e);
+          alert("Unable to print automatically. Use your browser's print.");
+        }
+      }, 350);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to prepare receipt for printing.");
+    }
+  };
+
+  // create HTML used for printing (same as original but slightly enhanced)
   function createPrintHtml(transaction: GroupedTransaction) {
     const rows = transaction.items
       .map(
@@ -195,46 +293,42 @@ export default function SalesHistory() {
 <head>
 <meta charset="UTF-8" />
 <title>Receipt - AL KALAM BOOKSHOP</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
   @page { size: A4; margin: 10mm; }
   html, body { height: 100%; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    color:#000; background:#fff; font-size:12px; line-height:1.35;
-    margin:0; padding:0;
+    color:#111; background:#fff; font-size:13px; line-height:1.4;
+    margin:0; padding:14px;
   }
-  .header { text-align:center; }
-  .header h1 { font-size:20px; margin:0 0 2px; letter-spacing:0.5px; }
-  .header .sub { font-size:11px; color:#444; }
-  .header .title { margin-top:4px; font-size:13px; font-weight:600; }
-  .meta { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
-  .meta td { padding:2px 0; vertical-align:top; }
-  table.items { width:100%; border-collapse:collapse; margin-top:8px; }
-  table.items th, table.items td { border:1px solid #222; padding:4px 6px; vertical-align:top; }
-  table.items th { background:#f2f2f2; font-weight:600; font-size:11px; }
+  .wrap { max-width:720px; margin:0 auto; }
+  .header { text-align:center; margin-bottom:8px; }
+  .header h1 { font-size:20px; margin:0; letter-spacing:0.6px; }
+  .sub { color:#555; font-size:12px; margin-top:2px }
+  table { width:100%; border-collapse:collapse; margin-top:8px; }
+  td, th { padding:6px 8px; border: 1px solid #222; }
+  thead th { background:#f6f6f6; font-weight:700; }
   .num { text-align:right; }
-  tfoot td { font-weight:600; }
-  .divider { margin:10px 0; border-top:1px solid #000; }
-  .footnote { margin-top:12px; text-align:center; font-size:10px; color:#555; }
-  .signature { margin-top:18px; display:flex; justify-content:space-between; gap:16px; }
-  .sigbox { width:48%; border-top:1px solid #000; padding-top:4px; text-align:center; font-size:10px; }
-  .mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
-  .nowrap { white-space:nowrap; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
+  .foot { margin-top:12px; text-align:center; color:#444; font-size:12px; }
+  .sig { display:flex; justify-content:space-between; gap:12px; margin-top:12px}
+  .sig > div { border-top:1px solid #000; padding-top:6px; text-align:center; width:45%; font-size:12px; }
 </style>
 </head>
 <body>
-  <div class="header">
-    <h1>AL KALAM BOOKSHOP</h1>
-    <div class="sub">Quality Educational Materials & Supplies</div>
-    <div class="sub">Tel: +254 722 740 432 Email: galiyowabi@gmail.com</div>
-    <div class="title">Sales Receipt</div>
-  </div>
+  <div class="wrap">
+    <div class="header">
+      <h1>AL KALAM BOOKSHOP</h1>
+      <div class="sub">Quality Educational Materials & Supplies</div>
+      <div class="sub">Tel: +254 722 740 432 • Email: galiyowabi@gmail.com</div>
+      <div style="margin-top:10px;font-weight:700;">Sales Receipt</div>
+    </div>
 
-  <table class="meta">
-    <tbody>
+    <table>
       <tr>
         <td><strong>Transaction:</strong> ${transaction.transaction_id}</td>
-        <td class="mono nowrap"><strong>Date:</strong> ${new Date(
+        <td class="mono"><strong>Date:</strong> ${new Date(
           transaction.created_at
         ).toLocaleString()}</td>
       </tr>
@@ -244,51 +338,47 @@ export default function SalesHistory() {
           transaction.payment_method
         )}</td>
       </tr>
-    </tbody>
-  </table>
+    </table>
 
-  <table class="items">
-    <thead>
-      <tr>
-        <th style="text-align:left;">Product</th>
-        <th class="num">Qty</th>
-        <th class="num">Unit Price</th>
-        <th class="num">Discount</th>
-        <th class="num">Line Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows}
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="4" style="text-align:right;">Subtotal</td>
-        <td class="num">KES ${subtotal.toLocaleString()}</td>
-      </tr>
-      ${
-        transaction.total_discount > 0
-          ? `<tr>
-        <td colspan="4" style="text-align:right;">Discount</td>
-        <td class="num">-KES ${transaction.total_discount.toLocaleString()}</td>
-      </tr>`
-          : ""
-      }
-      <tr>
-        <td colspan="4" style="text-align:right;">Total</td>
-        <td class="num">KES ${transaction.total_amount.toLocaleString()}</td>
-      </tr>
-    </tfoot>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">Product</th>
+          <th class="num">Qty</th>
+          <th class="num">Unit</th>
+          <th class="num">Disc</th>
+          <th class="num">Line</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" style="text-align:right">Subtotal</td>
+          <td class="num">KES ${subtotal.toLocaleString()}</td>
+        </tr>
+        ${
+          transaction.total_discount > 0
+            ? `<tr>
+                <td colspan="4" style="text-align:right">Discount</td>
+                <td class="num">-KES ${transaction.total_discount.toLocaleString()}</td>
+              </tr>`
+            : ""
+        }
+        <tr>
+          <td colspan="4" style="text-align:right">Total</td>
+          <td class="num">KES ${transaction.total_amount.toLocaleString()}</td>
+        </tr>
+      </tfoot>
+    </table>
 
-  <div class="divider"></div>
+    <div class="sig">
+      <div>Customer Signature</div>
+      <div>Staff Signature</div>
+    </div>
 
-  <div class="signature">
-    <div class="sigbox">Customer Signature</div>
-    <div class="sigbox">Staff Signature</div>
-  </div>
-
-  <div class="footnote">
-    Thank you for your purchase. Please keep this receipt for your records.
+    <div class="foot">Thank you for your purchase. Please keep this receipt for your records.</div>
   </div>
 </body>
 </html>`;
@@ -302,86 +392,289 @@ export default function SalesHistory() {
       .replace(/"/g, "&quot;");
   }
 
+  // Simple skeleton card for loading UI
+  const SkeletonCard = () => (
+    <div className="animate-pulse bg-gradient-to-r from-white/3 to-white/2 rounded-2xl p-4">
+      <div className="h-4 w-1/3 bg-white/6 rounded mb-3" />
+      <div className="h-3 w-1/4 bg-white/6 rounded mb-6" />
+      <div className="flex gap-3">
+        <div className="h-10 w-10 bg-white/6 rounded" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 bg-white/6 rounded w-3/5" />
+          <div className="h-3 bg-white/6 rounded w-1/2" />
+        </div>
+      </div>
+    </div>
+  );
+
+  // Collapsible row content with smooth height transition
+  const Collapsible: React.FC<{
+    isOpen: boolean;
+    children: React.ReactNode;
+  }> = ({ isOpen, children }) => {
+    const ref = useRef<HTMLDivElement | null>(null);
+    const [height, setHeight] = useState<number | "auto">(0);
+
+    useEffect(() => {
+      if (!ref.current) return;
+      const el = ref.current;
+      if (isOpen) {
+        const sh = el.scrollHeight;
+        setHeight(sh);
+        const t = setTimeout(() => setHeight("auto"), 300);
+        return () => clearTimeout(t);
+      } else {
+        // measure and then collapse to 0 for animation
+        setHeight(el.scrollHeight);
+        requestAnimationFrame(() => {
+          setHeight(0);
+        });
+      }
+    }, [isOpen]);
+
+    return (
+      <div
+        ref={ref}
+        style={{
+          height: height === "auto" ? "auto" : `${height}px`,
+          transition: "height 300ms cubic-bezier(.2,.9,.2,1)",
+          overflow: "hidden",
+        }}
+        aria-hidden={!isOpen}
+      >
+        {children}
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white">
-            Sales Records
-          </h2>
-          <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
-            View and reprint receipts for all transactions (
-            {groupedTransactions.length} transactions)
+          <h2 className="text-2xl font-extrabold text-white">Sales Records</h2>
+          <p className="text-slate-300 mt-1 text-sm max-w-xl">
+            Look up transactions, preview sold items, and reprint receipts with a
+            smooth and responsive interface.
           </p>
         </div>
-        <button
-          onClick={() => refetchSales()}
-          disabled={isRefetching}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Refresh sales data"
-        >
-          <RefreshCw
-            className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-          />
-          <span className="hidden sm:inline">Refresh</span>
-        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => refetchSales()}
+            disabled={isRefetching}
+            title="Refresh sales data"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg hover:scale-105 transform transition-all disabled:opacity-60"
+            aria-busy={isRefetching}
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline font-semibold text-sm">Refresh</span>
+          </button>
+        </div>
       </div>
 
-      {/* Empty State */}
-      {groupedTransactions.length === 0 && (
-        <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-12 text-center">
-          <Receipt className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">
-            No Sales History Yet
-          </h3>
-          <p className="text-slate-400">
-            Sales transactions will appear here once you make your first sale.
-          </p>
+      {/* Filters + Stats Panel */}
+      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by product, transaction id or seller..."
+              className="pl-10 pr-3 py-2 bg-white/5 w-full rounded-lg placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              aria-label="Search transactions"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                title="Clear"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-300 hover:text-white"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          <select
+            value={paymentFilter}
+            onChange={(e) => setPaymentFilter(e.target.value)}
+            className="py-2 px-3 bg-white/5 rounded-lg text-sm"
+            title="Filter by payment method"
+            aria-label="Payment method filter"
+          >
+            <option value="all">All Payments</option>
+            {availablePayments.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={sellerFilter}
+            onChange={(e) => setSellerFilter(e.target.value)}
+            className="py-2 px-3 bg-white/5 rounded-lg text-sm"
+            title="Filter by seller"
+            aria-label="Seller filter"
+          >
+            <option value="all">All Sellers</option>
+            {availableSellers.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="py-2 px-3 rounded-lg bg-white/5 text-sm"
+            title="From date"
+          />
+          <span className="text-slate-300 hidden sm:inline">—</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="py-2 px-3 rounded-lg bg-white/5 text-sm"
+            title="To date"
+          />
+          <div className="ml-3 hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/3">
+            <div className="text-xs text-slate-300">Revenue</div>
+            <div className="text-sm font-bold">KES {totals.revenue.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overview / quick stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-2xl p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase opacity-80">Transactions</div>
+              <div className="text-2xl font-extrabold">{totals.transactions}</div>
+              <div className="text-xs opacity-80 mt-1">Items: {totals.items}</div>
+            </div>
+            <div className="bg-white/10 p-3 rounded-full">
+              <Receipt className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white rounded-2xl p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase opacity-80">Revenue</div>
+              <div className="text-2xl font-extrabold">KES {totals.revenue.toLocaleString()}</div>
+              <div className="text-xs opacity-80 mt-1">Discounts: KES {totals.discounts.toLocaleString()}</div>
+            </div>
+            <div className="bg-white/10 p-3 rounded-full">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-2xl p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase opacity-80">Profit</div>
+              <div className="text-2xl font-extrabold">KES {totals.profit.toLocaleString()}</div>
+              <div className="text-xs opacity-80 mt-1">Net</div>
+            </div>
+            <div className="bg-white/10 p-3 rounded-full">
+              <CreditCard className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Empty / skeleton states */}
+      {filteredTransactions.length === 0 && (
+        <div>
+          {isRefetching ? (
+            <div className="grid gap-3">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          ) : (
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-10 text-center">
+              <Receipt className="w-14 h-14 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">No Sales Found</h3>
+              <p className="text-slate-400">
+                Try adjusting filters, or refresh to load the latest transactions.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Transactions List */}
       <div className="space-y-3">
-        {groupedTransactions.map((transaction) => {
-          const isExpanded = expandedTransactions.has(
-            transaction.transaction_id
-          );
-
+        {filteredTransactions.map((transaction) => {
+          const isOpen = expanded.has(transaction.transaction_id);
+          const preview = transaction.items
+            .map((it) => `${getProductName(it.product_id)} (${it.quantity_sold})`)
+            .slice(0, 4)
+            .join(", ");
           return (
             <div
               key={transaction.transaction_id}
-              className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300"
+              className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl overflow-hidden"
             >
-              {/* Transaction Summary - Clickable */}
-              <button
+              <div
+                className="flex items-start gap-4 p-4 cursor-pointer hover:bg-white/6 transition-colors"
+                role="button"
+                tabIndex={0}
                 onClick={() => toggleExpand(transaction.transaction_id)}
-                className="w-full p-4 sm:p-5 flex items-start gap-4 text-left hover:bg-white/5 transition-all"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") toggleExpand(transaction.transaction_id);
+                }}
+                aria-expanded={isOpen}
+                aria-controls={`tx-${transaction.transaction_id}`}
               >
-                {/* Expand Icon */}
-                <div className="flex-shrink-0 mt-1">
-                  {isExpanded ? (
-                    <ChevronDown className="w-5 h-5 text-purple-400" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-slate-400" />
-                  )}
+                <div className="flex-shrink-0 mt-1 transform transition-transform duration-300">
+                  <div className={`p-2 rounded-lg ${isOpen ? "bg-purple-600/30" : "bg-white/5"}`}>
+                    {isOpen ? (
+                      <ChevronDown className="w-5 h-5 text-purple-300 transition-transform rotate-0" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-slate-300" />
+                    )}
+                  </div>
                 </div>
 
-                {/* Transaction Info */}
-                <div className="flex-1 min-w-0 space-y-3">
-                  {/* Top Row */}
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-3 py-1 bg-purple-600/20 text-purple-300 rounded-lg text-xs font-bold border border-purple-500/30">
-                          {transaction.item_count}{" "}
-                          {transaction.item_count === 1 ? "Item" : "Items"}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-purple-600/20 text-purple-200 rounded-lg text-xs font-semibold border border-purple-500/20">
+                          {transaction.item_count} {transaction.item_count === 1 ? "Item" : "Items"}
                         </span>
-                        <span className="text-xs text-slate-400 font-mono">
+
+                        <div className="text-xs text-slate-400 font-mono truncate">
                           ID: {transaction.transaction_id.slice(0, 8)}...
-                        </span>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(transaction.transaction_id);
+                          }}
+                          title="Copy transaction id"
+                          className="ml-2 p-1 rounded hover:bg-white/5"
+                        >
+                          <Copy className="w-4 h-4 text-slate-300" />
+                        </button>
+                        {copiedTx === transaction.transaction_id && (
+                          <span className="ml-2 text-xs text-emerald-400">Copied</span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-slate-300">
+
+                      <div className="text-xs text-slate-300 mt-2 flex items-center gap-3 flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(transaction.created_at)}
@@ -395,129 +688,81 @@ export default function SalesHistory() {
                           {transaction.payment_method}
                         </span>
                       </div>
+
+                      {/* preview */}
+                      <div className="text-xs text-slate-400 mt-2 truncate">{preview}</div>
                     </div>
 
-                    {/* Amount */}
-                    <div className="text-right">
-                      <div className="text-xl sm:text-2xl font-black text-white">
+                    <div className="text-right ml-4">
+                      <div className="text-lg font-extrabold text-white">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
                       {transaction.total_discount > 0 && (
-                        <div className="text-xs text-red-400">
-                          Discount: KES{" "}
-                          {transaction.total_discount.toLocaleString()}
-                        </div>
+                        <div className="text-xs text-red-400">Discount: KES {transaction.total_discount.toLocaleString()}</div>
                       )}
-                      <div className="text-xs text-green-400">
-                        Profit: KES {transaction.total_profit.toLocaleString()}
-                      </div>
+                      <div className="text-xs text-green-400">Profit: KES {transaction.total_profit.toLocaleString()}</div>
                     </div>
                   </div>
-
-                  {/* Products Preview (when collapsed) */}
-                  {!isExpanded && (
-                    <div className="text-xs text-slate-400 truncate">
-                      {transaction.items
-                        .map(
-                          (item) =>
-                            `${getProductName(item.product_id)} (${
-                              item.quantity_sold
-                            })`
-                        )
-                        .join(", ")}
-                    </div>
-                  )}
                 </div>
 
-                {/* Print Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    printReceipt(transaction);
-                  }}
-                  className="flex-shrink-0 p-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:scale-105"
-                  title="Print Receipt"
-                >
-                  <Printer className="w-5 h-5" />
-                </button>
-              </button>
+                <div className="flex-shrink-0 flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      printReceipt(transaction);
+                    }}
+                    className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:scale-105 transition-transform shadow"
+                    title="Print receipt"
+                  >
+                    <Printer className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
 
-              {/* Expanded Details */}
-              {isExpanded && (
-                <div className="border-t border-white/10 bg-white/5">
-                  <div className="p-4 sm:p-5 space-y-3">
-                    {/* Items Table */}
-                    <div className="overflow-x-auto -mx-4 sm:mx-0">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-white/10">
-                            <th className="text-left py-2 px-3 text-slate-400 font-semibold">
-                              Product
-                            </th>
-                            <th className="text-right py-2 px-3 text-slate-400 font-semibold">
-                              Qty
-                            </th>
-                            <th className="text-right py-2 px-3 text-slate-400 font-semibold">
-                              Price
-                            </th>
-                            <th className="text-right py-2 px-3 text-slate-400 font-semibold hidden sm:table-cell">
-                              Discount
-                            </th>
-                            <th className="text-right py-2 px-3 text-slate-400 font-semibold">
-                              Total
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                          {transaction.items.map((item) => (
-                            <tr
-                              key={item.id}
-                              className="hover:bg-white/5 transition-colors"
-                            >
-                              <td className="py-3 px-3">
-                                <div className="flex items-center gap-2">
-                                  <Package className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                                  <span className="text-white font-medium">
-                                    {getProductName(item.product_id)}
-                                  </span>
+              <Collapsible isOpen={isOpen}>
+                <div id={`tx-${transaction.transaction_id}`} className="border-t border-white/8 bg-white/3 p-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-slate-300">
+                          <th className="text-left py-2 px-3">Product</th>
+                          <th className="text-right py-2 px-3">Qty</th>
+                          <th className="text-right py-2 px-3">Price</th>
+                          <th className="text-right py-2 px-3 hidden sm:table-cell">Discount</th>
+                          <th className="text-right py-2 px-3">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/6">
+                        {transaction.items.map((item) => (
+                          <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-3">
+                              <div className="flex items-center gap-2">
+                                <Package className="w-4 h-4 text-purple-400" />
+                                <div className="min-w-0">
+                                  <div className="text-white font-medium truncate">{getProductName(item.product_id)}</div>
+                                  <div className="text-xs text-slate-400 truncate">{(item.original_price && `Was KES ${item.original_price.toLocaleString()}`) || ""}</div>
                                 </div>
-                              </td>
-                              <td className="py-3 px-3 text-right text-white">
-                                {item.quantity_sold}
-                              </td>
-                              <td className="py-3 px-3 text-right text-white">
-                                KES {item.selling_price.toLocaleString()}
-                              </td>
-                              <td className="py-3 px-3 text-right text-red-400 hidden sm:table-cell">
-                                {item.discount_amount &&
-                                item.discount_amount > 0
-                                  ? `-KES ${item.discount_amount.toLocaleString()}`
-                                  : "-"}
-                              </td>
-                              <td className="py-3 px-3 text-right text-white font-bold">
-                                KES {item.total_sale.toLocaleString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="border-t border-white/20">
-                          <tr>
-                            <td
-                              colSpan={4}
-                              className="py-3 px-3 text-right text-slate-300 font-semibold"
-                            >
-                              Total
+                              </div>
                             </td>
-                            <td className="py-3 px-3 text-right text-white font-black text-lg">
-                              KES {transaction.total_amount.toLocaleString()}
+                            <td className="py-3 px-3 text-right text-white">{item.quantity_sold}</td>
+                            <td className="py-3 px-3 text-right text-white">KES {item.selling_price.toLocaleString()}</td>
+                            <td className="py-3 px-3 text-right text-red-400 hidden sm:table-cell">
+                              {item.discount_amount && item.discount_amount > 0 ? `-KES ${item.discount_amount.toLocaleString()}` : "-"}
                             </td>
+                            <td className="py-3 px-3 text-right text-white font-semibold">KES {item.total_sale.toLocaleString()}</td>
                           </tr>
-                        </tfoot>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                      <tfoot className="border-t border-white/10">
+                        <tr>
+                          <td colSpan={4} className="py-3 px-3 text-right text-slate-300 font-semibold">Total</td>
+                          <td className="py-3 px-3 text-right text-white font-extrabold text-lg">KES {transaction.total_amount.toLocaleString()}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
                 </div>
-              )}
+              </Collapsible>
             </div>
           );
         })}
