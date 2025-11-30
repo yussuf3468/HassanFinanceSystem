@@ -63,7 +63,8 @@ export default function SalesHistory() {
   const [dateTo, setDateTo] = useState<string>("");
 
   // Receipt modal
-  const [selectedTransaction, setSelectedTransaction] = useState<GroupedTransaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<GroupedTransaction | null>(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   // Group sales by transaction
@@ -130,11 +131,13 @@ export default function SalesHistory() {
       }
       if (dateTo) {
         const toTime = new Date(dateTo).getTime();
-        if (isNaN(toTime) === false && txTime > toTime + 86400000 - 1) return false; // inclusive
+        if (isNaN(toTime) === false && txTime > toTime + 86400000 - 1)
+          return false; // inclusive
       }
 
       // payment filter
-      if (paymentFilter !== "all" && tx.payment_method !== paymentFilter) return false;
+      if (paymentFilter !== "all" && tx.payment_method !== paymentFilter)
+        return false;
 
       // seller filter
       if (sellerFilter !== "all" && tx.sold_by !== sellerFilter) return false;
@@ -144,19 +147,40 @@ export default function SalesHistory() {
         const q = query.trim().toLowerCase();
         if (tx.transaction_id.toLowerCase().includes(q)) return true;
         if (tx.sold_by.toLowerCase().includes(q)) return true;
-        if (tx.items.some((it) => (getProductName(it.product_id) + "").toLowerCase().includes(q))) return true;
+        if (
+          tx.items.some((it) =>
+            (getProductName(it.product_id) + "").toLowerCase().includes(q)
+          )
+        )
+          return true;
         return false;
       }
 
       return true;
     });
-  }, [groupedTransactions, query, paymentFilter, sellerFilter, dateFrom, dateTo]);
+  }, [
+    groupedTransactions,
+    query,
+    paymentFilter,
+    sellerFilter,
+    dateFrom,
+    dateTo,
+  ]);
 
   // Global stats
   const totals = useMemo(() => {
-    const revenue = filteredTransactions.reduce((s, t) => s + (t.total_amount || 0), 0);
-    const profit = filteredTransactions.reduce((s, t) => s + (t.total_profit || 0), 0);
-    const discounts = filteredTransactions.reduce((s, t) => s + (t.total_discount || 0), 0);
+    const revenue = filteredTransactions.reduce(
+      (s, t) => s + (t.total_amount || 0),
+      0
+    );
+    const profit = filteredTransactions.reduce(
+      (s, t) => s + (t.total_profit || 0),
+      0
+    );
+    const discounts = filteredTransactions.reduce(
+      (s, t) => s + (t.total_discount || 0),
+      0
+    );
     return {
       revenue,
       profit,
@@ -254,14 +278,19 @@ export default function SalesHistory() {
             <td class="num">${item.quantity_sold}</td>
             <td class="num">KES ${item.selling_price.toLocaleString()}</td>
             <td class="num">${
-              item.discount_amount && item.discount_amount > 0 ? "-KES " + item.discount_amount.toLocaleString() : "-"
+              item.discount_amount && item.discount_amount > 0
+                ? "-KES " + item.discount_amount.toLocaleString()
+                : "-"
             }</td>
             <td class="num">KES ${item.total_sale.toLocaleString()}</td>
           </tr>`
       )
       .join("");
 
-    const subtotal = transaction.items.reduce((sum, item) => sum + item.selling_price * item.quantity_sold, 0);
+    const subtotal = transaction.items.reduce(
+      (sum, item) => sum + item.selling_price * item.quantity_sold,
+      0
+    );
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -299,11 +328,15 @@ export default function SalesHistory() {
     <table>
       <tr>
         <td><strong>Transaction:</strong> ${transaction.transaction_id}</td>
-        <td class="mono"><strong>Date:</strong> ${new Date(transaction.created_at).toLocaleString()}</td>
+        <td class="mono"><strong>Date:</strong> ${new Date(
+          transaction.created_at
+        ).toLocaleString()}</td>
       </tr>
       <tr>
         <td><strong>Sold By:</strong> ${escapeHtml(transaction.sold_by)}</td>
-        <td><strong>Payment:</strong> ${escapeHtml(transaction.payment_method)}</td>
+        <td><strong>Payment:</strong> ${escapeHtml(
+          transaction.payment_method
+        )}</td>
       </tr>
     </table>
 
@@ -325,10 +358,14 @@ export default function SalesHistory() {
           <td colspan="4" style="text-align:right">Subtotal</td>
           <td class="num">KES ${subtotal.toLocaleString()}</td>
         </tr>
-        ${transaction.total_discount > 0 ? `<tr>
+        ${
+          transaction.total_discount > 0
+            ? `<tr>
             <td colspan="4" style="text-align:right">Discount</td>
             <td class="num">-KES ${transaction.total_discount.toLocaleString()}</td>
-          </tr>` : ""}
+          </tr>`
+            : ""
+        }
         <tr>
           <td colspan="4" style="text-align:right">Total</td>
           <td class="num">KES ${transaction.total_amount.toLocaleString()}</td>
@@ -416,7 +453,8 @@ export default function SalesHistory() {
         <div>
           <h2 className="text-2xl font-extrabold">Sales Records</h2>
           <p className="mt-1 text-sm text-white/85 max-w-xl">
-            Look up transactions, preview sold items, and reprint receipts with a smooth and responsive interface.
+            Look up transactions, preview sold items, and reprint receipts with
+            a smooth and responsive interface.
           </p>
         </div>
 
@@ -425,18 +463,22 @@ export default function SalesHistory() {
             onClick={() => refetchSales()}
             disabled={isRefetching}
             title="Refresh sales data"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg hover:scale-105 transform transition-all disabled:opacity-60"
+            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg hover:scale-105 transform transition-all disabled:opacity-60"
             aria-busy={isRefetching}
           >
-            <RefreshCw className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline font-semibold text-sm">Refresh</span>
+            <RefreshCw
+              className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+            />
+            <span className="hidden sm:inline font-semibold text-sm">
+              Refresh
+            </span>
           </button>
         </div>
       </div>
 
       {/* Filters + Stats Panel */}
       <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
             <input
@@ -460,7 +502,7 @@ export default function SalesHistory() {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
@@ -475,7 +517,7 @@ export default function SalesHistory() {
           <select
             value={sellerFilter}
             onChange={(e) => setSellerFilter(e.target.value)}
-            className="py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
             title="Filter by seller"
             aria-label="Seller filter"
           >
@@ -493,7 +535,7 @@ export default function SalesHistory() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white"
+            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white w-full sm:w-auto"
             title="From date"
           />
           <span className="text-white hidden sm:inline">—</span>
@@ -501,12 +543,14 @@ export default function SalesHistory() {
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white"
+            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white w-full sm:w-auto"
             title="To date"
           />
-          <div className="ml-3 hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/6">
+          <div className="ml-0 sm:ml-3 hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/6">
             <div className="text-xs text-white/80">Revenue</div>
-            <div className="text-sm font-bold">KES {totals.revenue.toLocaleString()}</div>
+            <div className="text-sm font-bold">
+              KES {totals.revenue.toLocaleString()}
+            </div>
           </div>
         </div>
       </div>
@@ -517,8 +561,12 @@ export default function SalesHistory() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Transactions</div>
-              <div className="text-2xl font-extrabold">{totals.transactions}</div>
-              <div className="text-xs opacity-90 mt-1">Items: {totals.items}</div>
+              <div className="text-2xl font-extrabold">
+                {totals.transactions}
+              </div>
+              <div className="text-xs opacity-90 mt-1">
+                Items: {totals.items}
+              </div>
             </div>
             <div className="bg-white/10 p-3 rounded-full">
               <Receipt className="w-6 h-6 text-white" />
@@ -530,8 +578,12 @@ export default function SalesHistory() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Revenue</div>
-              <div className="text-2xl font-extrabold">KES {totals.revenue.toLocaleString()}</div>
-              <div className="text-xs opacity-90 mt-1">Discounts: KES {totals.discounts.toLocaleString()}</div>
+              <div className="text-2xl font-extrabold">
+                KES {totals.revenue.toLocaleString()}
+              </div>
+              <div className="text-xs opacity-90 mt-1">
+                Discounts: KES {totals.discounts.toLocaleString()}
+              </div>
             </div>
             <div className="bg-white/10 p-3 rounded-full">
               <DollarSign className="w-6 h-6 text-white" />
@@ -543,7 +595,9 @@ export default function SalesHistory() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Profit</div>
-              <div className="text-2xl font-extrabold">KES {totals.profit.toLocaleString()}</div>
+              <div className="text-2xl font-extrabold">
+                KES {totals.profit.toLocaleString()}
+              </div>
               <div className="text-xs opacity-90 mt-1">Net</div>
             </div>
             <div className="bg-white/10 p-3 rounded-full">
@@ -566,7 +620,10 @@ export default function SalesHistory() {
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-10 text-center">
               <Receipt className="w-14 h-14 text-white/70 mx-auto mb-4" />
               <h3 className="text-lg font-bold mb-2">No Sales Found</h3>
-              <p className="text-white/70">Try adjusting filters, or refresh to load the latest transactions.</p>
+              <p className="text-white/70">
+                Try adjusting filters, or refresh to load the latest
+                transactions.
+              </p>
             </div>
           )}
         </div>
@@ -577,25 +634,39 @@ export default function SalesHistory() {
         {filteredTransactions.map((transaction) => {
           const isOpen = expanded.has(transaction.transaction_id);
           const preview = transaction.items
-            .map((it) => `${getProductName(it.product_id)} (${it.quantity_sold})`)
+            .map(
+              (it) => `${getProductName(it.product_id)} (${it.quantity_sold})`
+            )
             .slice(0, 4)
             .join(", ");
           return (
-            <div key={transaction.transaction_id} className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl overflow-hidden">
+            <div
+              key={transaction.transaction_id}
+              className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl overflow-hidden"
+            >
               <div
-                className="flex items-start gap-4 p-4 cursor-pointer hover:bg-white/6 transition-colors"
+                className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 cursor-pointer hover:bg-white/6 transition-colors"
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleExpand(transaction.transaction_id)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") toggleExpand(transaction.transaction_id);
+                  if (e.key === "Enter" || e.key === " ")
+                    toggleExpand(transaction.transaction_id);
                 }}
                 aria-expanded={isOpen}
                 aria-controls={`tx-${transaction.transaction_id}`}
               >
                 <div className="flex-shrink-0 mt-1 transform transition-transform duration-300">
-                  <div className={`p-2 rounded-lg ${isOpen ? "bg-purple-600/30" : "bg-white/5"}`}>
-                    {isOpen ? <ChevronDown className="w-5 h-5 text-purple-300" /> : <ChevronRight className="w-5 h-5 text-white/80" />}
+                  <div
+                    className={`p-2 rounded-lg ${
+                      isOpen ? "bg-purple-600/30" : "bg-white/5"
+                    }`}
+                  >
+                    {isOpen ? (
+                      <ChevronDown className="w-5 h-5 text-purple-300" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-white/80" />
+                    )}
                   </div>
                 </div>
 
@@ -604,10 +675,13 @@ export default function SalesHistory() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="px-3 py-1 bg-purple-600/25 text-purple-200 rounded-lg text-xs font-semibold border border-purple-500/20">
-                          {transaction.item_count} {transaction.item_count === 1 ? "Item" : "Items"}
+                          {transaction.item_count}{" "}
+                          {transaction.item_count === 1 ? "Item" : "Items"}
                         </span>
 
-                        <div className="text-xs font-mono truncate text-white/80">ID: {transaction.transaction_id.slice(0, 8)}...</div>
+                        <div className="text-xs font-mono truncate text-white/80">
+                          ID: {transaction.transaction_id.slice(0, 8)}...
+                        </div>
 
                         <button
                           onClick={(e) => {
@@ -619,7 +693,11 @@ export default function SalesHistory() {
                         >
                           <Copy className="w-4 h-4 text-white/80" />
                         </button>
-                        {copiedTx === transaction.transaction_id && <span className="ml-2 text-xs text-emerald-400">Copied</span>}
+                        {copiedTx === transaction.transaction_id && (
+                          <span className="ml-2 text-xs text-emerald-400">
+                            Copied
+                          </span>
+                        )}
                       </div>
 
                       <div className="text-xs text-white/80 mt-2 flex items-center gap-3 flex-wrap">
@@ -638,18 +716,29 @@ export default function SalesHistory() {
                       </div>
 
                       {/* preview */}
-                      <div className="text-xs text-white/70 mt-2 truncate">{preview}</div>
+                      <div className="text-xs text-white/70 mt-2 truncate">
+                        {preview}
+                      </div>
                     </div>
 
-                    <div className="text-right ml-4">
-                      <div className="text-lg font-extrabold">KES {transaction.total_amount.toLocaleString()}</div>
-                      {transaction.total_discount > 0 && <div className="text-xs text-red-400">Discount: KES {transaction.total_discount.toLocaleString()}</div>}
-                      <div className="text-xs text-green-400">Profit: KES {transaction.total_profit.toLocaleString()}</div>
+                    <div className="text-right ml-0 md:ml-4 mt-3 md:mt-0">
+                      <div className="text-lg font-extrabold">
+                        KES {transaction.total_amount.toLocaleString()}
+                      </div>
+                      {transaction.total_discount > 0 && (
+                        <div className="text-xs text-red-400">
+                          Discount: KES{" "}
+                          {transaction.total_discount.toLocaleString()}
+                        </div>
+                      )}
+                      <div className="text-xs text-green-400">
+                        Profit: KES {transaction.total_profit.toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-shrink-0 flex items-center gap-2">
+                <div className="flex-shrink-0 flex items-center gap-2 mt-3 md:mt-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -675,43 +764,118 @@ export default function SalesHistory() {
               </div>
 
               <Collapsible isOpen={isOpen}>
-                <div id={`tx-${transaction.transaction_id}`} className="border-t border-white/8 bg-white/3 p-4">
-                  <div className="overflow-x-auto">
+                <div
+                  id={`tx-${transaction.transaction_id}`}
+                  className="border-t border-white/8 bg-white/3 p-4"
+                >
+                  {/* Mobile stacked view */}
+                  <div className="md:hidden space-y-2">
+                    {transaction.items.map((item) => (
+                      <div key={item.id} className="p-3 bg-white/5 rounded-md">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="font-medium truncate">
+                              {getProductName(item.product_id)}
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              {(item.original_price &&
+                                `Was KES ${item.original_price.toLocaleString()}`) ||
+                                ""}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">
+                              KES {item.total_sale.toLocaleString()}
+                            </div>
+                            <div className="text-xs text-white/60">
+                              Qty: {item.quantity_sold}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-xs text-white/70">
+                          <div>
+                            Unit: KES {item.selling_price.toLocaleString()}
+                          </div>
+                          <div>
+                            {item.discount_amount && item.discount_amount > 0
+                              ? `Disc: -KES ${item.discount_amount.toLocaleString()}`
+                              : ""}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="pt-2 border-t border-white/10 text-right">
+                      <div className="text-sm text-white/80">Total</div>
+                      <div className="text-xl font-extrabold">
+                        KES {transaction.total_amount.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop table view */}
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-white/80">
                           <th className="text-left py-2 px-3">Product</th>
                           <th className="text-right py-2 px-3">Qty</th>
                           <th className="text-right py-2 px-3">Price</th>
-                          <th className="text-right py-2 px-3 hidden sm:table-cell">Discount</th>
+                          <th className="text-right py-2 px-3 hidden sm:table-cell">
+                            Discount
+                          </th>
                           <th className="text-right py-2 px-3">Total</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/6">
                         {transaction.items.map((item) => (
-                          <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                          <tr
+                            key={item.id}
+                            className="hover:bg-white/5 transition-colors"
+                          >
                             <td className="py-3 px-3">
                               <div className="flex items-center gap-2">
                                 <Package className="w-4 h-4 text-purple-300" />
                                 <div className="min-w-0">
-                                  <div className="font-medium truncate">{getProductName(item.product_id)}</div>
-                                  <div className="text-xs text-white/60 truncate">{(item.original_price && `Was KES ${item.original_price.toLocaleString()}`) || ""}</div>
+                                  <div className="font-medium truncate">
+                                    {getProductName(item.product_id)}
+                                  </div>
+                                  <div className="text-xs text-white/60 truncate">
+                                    {(item.original_price &&
+                                      `Was KES ${item.original_price.toLocaleString()}`) ||
+                                      ""}
+                                  </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-3 px-3 text-right">{item.quantity_sold}</td>
-                            <td className="py-3 px-3 text-right">KES {item.selling_price.toLocaleString()}</td>
-                            <td className="py-3 px-3 text-right text-red-300 hidden sm:table-cell">
-                              {item.discount_amount && item.discount_amount > 0 ? `-KES ${item.discount_amount.toLocaleString()}` : "-"}
+                            <td className="py-3 px-3 text-right">
+                              {item.quantity_sold}
                             </td>
-                            <td className="py-3 px-3 text-right font-semibold">KES {item.total_sale.toLocaleString()}</td>
+                            <td className="py-3 px-3 text-right">
+                              KES {item.selling_price.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-3 text-right text-red-300 hidden sm:table-cell">
+                              {item.discount_amount && item.discount_amount > 0
+                                ? `-KES ${item.discount_amount.toLocaleString()}`
+                                : "-"}
+                            </td>
+                            <td className="py-3 px-3 text-right font-semibold">
+                              KES {item.total_sale.toLocaleString()}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="border-t border-white/10">
                         <tr>
-                          <td colSpan={4} className="py-3 px-3 text-right text-white/80 font-semibold">Total</td>
-                          <td className="py-3 px-3 text-right font-extrabold text-lg">KES {transaction.total_amount.toLocaleString()}</td>
+                          <td
+                            colSpan={4}
+                            className="py-3 px-3 text-right text-white/80 font-semibold"
+                          >
+                            Total
+                          </td>
+                          <td className="py-3 px-3 text-right font-extrabold text-lg">
+                            KES {transaction.total_amount.toLocaleString()}
+                          </td>
                         </tr>
                       </tfoot>
                     </table>
@@ -726,7 +890,10 @@ export default function SalesHistory() {
       {/* Receipt Modal */}
       {showReceiptModal && selectedTransaction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeReceiptModal} />
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeReceiptModal}
+          />
 
           <div className="relative w-full max-w-3xl mx-4">
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -734,8 +901,14 @@ export default function SalesHistory() {
                 <div className="flex items-center gap-3">
                   <Receipt className="w-6 h-6 text-slate-800" />
                   <div>
-                    <div className="font-bold text-slate-900">Sales Receipt</div>
-                    <div className="text-xs text-slate-600">Transaction {selectedTransaction.transaction_id.slice(0, 10)} • {formatDate(selectedTransaction.created_at)}</div>
+                    <div className="font-bold text-slate-900">
+                      Sales Receipt
+                    </div>
+                    <div className="text-xs text-slate-600">
+                      Transaction{" "}
+                      {selectedTransaction.transaction_id.slice(0, 10)} •{" "}
+                      {formatDate(selectedTransaction.created_at)}
+                    </div>
                   </div>
                 </div>
 
@@ -754,14 +927,20 @@ export default function SalesHistory() {
                     onClick={() => {
                       // open printable page in new window for export / download
                       const html = createPrintHtml(selectedTransaction);
-                      const w = window.open("", "_blank", "noopener,noreferrer");
+                      const w = window.open(
+                        "",
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
                       if (w) {
                         w.document.open();
                         w.document.write(html);
                         w.document.close();
                         w.focus();
                       } else {
-                        alert("Popups blocked. Enable popups to open printable view.");
+                        alert(
+                          "Popups blocked. Enable popups to open printable view."
+                        );
                       }
                     }}
                     className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
@@ -770,7 +949,10 @@ export default function SalesHistory() {
                     Open
                   </button>
 
-                  <button onClick={closeReceiptModal} className="p-2 rounded-full text-slate-700 hover:bg-slate-100">
+                  <button
+                    onClick={closeReceiptModal}
+                    className="p-2 rounded-full text-slate-700 hover:bg-slate-100"
+                  >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -781,26 +963,40 @@ export default function SalesHistory() {
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
                     <h3 className="text-xl font-bold">AL KALAM BOOKSHOP</h3>
-                    <div className="text-sm text-slate-600">Quality Educational Materials & Supplies</div>
-                    <div className="text-sm text-slate-600">Tel: +254 722 740 432 • galiyowabi@gmail.com</div>
+                    <div className="text-sm text-slate-600">
+                      Quality Educational Materials & Supplies
+                    </div>
+                    <div className="text-sm text-slate-600">
+                      Tel: +254 722 740 432 • galiyowabi@gmail.com
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <div>
                       <div className="text-xs text-slate-600">Transaction</div>
-                      <div className="font-medium">{selectedTransaction.transaction_id}</div>
+                      <div className="font-medium">
+                        {selectedTransaction.transaction_id}
+                      </div>
                     </div>
                     <div className="text-left sm:text-right">
                       <div className="text-xs text-slate-600">Date</div>
-                      <div className="font-medium">{new Date(selectedTransaction.created_at).toLocaleString()}</div>
+                      <div className="font-medium">
+                        {new Date(
+                          selectedTransaction.created_at
+                        ).toLocaleString()}
+                      </div>
                     </div>
                     <div>
                       <div className="text-xs text-slate-600">Sold By</div>
-                      <div className="font-medium">{selectedTransaction.sold_by}</div>
+                      <div className="font-medium">
+                        {selectedTransaction.sold_by}
+                      </div>
                     </div>
                     <div className="text-left sm:text-right">
                       <div className="text-xs text-slate-600">Payment</div>
-                      <div className="font-medium">{selectedTransaction.payment_method}</div>
+                      <div className="font-medium">
+                        {selectedTransaction.payment_method}
+                      </div>
                     </div>
                   </div>
 
@@ -818,18 +1014,38 @@ export default function SalesHistory() {
                       <tbody>
                         {selectedTransaction.items.map((item) => (
                           <tr key={item.id} className="text-sm">
-                            <td className="py-3">{getProductName(item.product_id)}</td>
-                            <td className="py-3 text-right">{item.quantity_sold}</td>
-                            <td className="py-3 text-right">KES {item.selling_price.toLocaleString()}</td>
-                            <td className="py-3 text-right">{item.discount_amount && item.discount_amount > 0 ? `-KES ${item.discount_amount.toLocaleString()}` : "-"}</td>
-                            <td className="py-3 text-right font-semibold">KES {item.total_sale.toLocaleString()}</td>
+                            <td className="py-3">
+                              {getProductName(item.product_id)}
+                            </td>
+                            <td className="py-3 text-right">
+                              {item.quantity_sold}
+                            </td>
+                            <td className="py-3 text-right">
+                              KES {item.selling_price.toLocaleString()}
+                            </td>
+                            <td className="py-3 text-right">
+                              {item.discount_amount && item.discount_amount > 0
+                                ? `-KES ${item.discount_amount.toLocaleString()}`
+                                : "-"}
+                            </td>
+                            <td className="py-3 text-right font-semibold">
+                              KES {item.total_sale.toLocaleString()}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot>
                         <tr className="border-t">
-                          <td colSpan={4} className="py-3 text-right text-slate-700 font-medium">Total</td>
-                          <td className="py-3 text-right font-extrabold">KES {selectedTransaction.total_amount.toLocaleString()}</td>
+                          <td
+                            colSpan={4}
+                            className="py-3 text-right text-slate-700 font-medium"
+                          >
+                            Total
+                          </td>
+                          <td className="py-3 text-right font-extrabold">
+                            KES{" "}
+                            {selectedTransaction.total_amount.toLocaleString()}
+                          </td>
                         </tr>
                       </tfoot>
                     </table>
@@ -838,14 +1054,21 @@ export default function SalesHistory() {
                   <div className="mt-6 flex gap-6 items-center">
                     <div className="flex-1">
                       <div className="text-xs text-slate-600">Notes</div>
-                      <div className="text-sm text-slate-700">Thank you for your purchase. Keep this receipt for returns.</div>
+                      <div className="text-sm text-slate-700">
+                        Thank you for your purchase. Keep this receipt for
+                        returns.
+                      </div>
                     </div>
 
                     <div className="w-48">
                       <div className="text-xs text-slate-600">Signatures</div>
                       <div className="flex gap-2 mt-3">
-                        <div className="flex-1 border-t pt-2 text-center text-xs">Customer</div>
-                        <div className="flex-1 border-t pt-2 text-center text-xs">Staff</div>
+                        <div className="flex-1 border-t pt-2 text-center text-xs">
+                          Customer
+                        </div>
+                        <div className="flex-1 border-t pt-2 text-center text-xs">
+                          Staff
+                        </div>
                       </div>
                     </div>
                   </div>
