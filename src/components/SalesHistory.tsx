@@ -447,12 +447,12 @@ export default function SalesHistory() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-4 pb-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 pt-2 pb-2">
         <div>
-          <h2 className="text-2xl font-extrabold">Sales Records</h2>
-          <p className="mt-1 text-sm text-white/85 max-w-xl">
+          <h2 className="text-2xl font-extrabold text-slate-900">Sales Records</h2>
+          <p className="mt-1 text-sm text-slate-700 max-w-xl leading-relaxed">
             Look up transactions, preview sold items, and reprint receipts with
             a smooth and responsive interface.
           </p>
@@ -477,7 +477,7 @@ export default function SalesHistory() {
       </div>
 
       {/* Filters + Stats Panel */}
-      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-white">
+      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-slate-900">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
