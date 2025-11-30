@@ -447,9 +447,9 @@ export default function SalesHistory() {
   };
 
   return (
-    <div className="space-y-6 text-white">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
         <div>
           <h2 className="text-2xl font-extrabold">Sales Records</h2>
           <p className="mt-1 text-sm text-white/85 max-w-xl">
@@ -477,7 +477,7 @@ export default function SalesHistory() {
       </div>
 
       {/* Filters + Stats Panel */}
-      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-white">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
@@ -630,7 +630,7 @@ export default function SalesHistory() {
       )}
 
       {/* Transactions List */}
-      <div className="space-y-3">
+      <div className="space-y-3 text-white">
         {filteredTransactions.map((transaction) => {
           const isOpen = expanded.has(transaction.transaction_id);
           const preview = transaction.items
@@ -889,15 +889,15 @@ export default function SalesHistory() {
 
       {/* Receipt Modal */}
       {showReceiptModal && selectedTransaction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={closeReceiptModal}
           />
 
-          <div className="relative w-full max-w-3xl mx-4">
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b gap-3">
+          <div className="relative w-full h-full md:h-auto max-w-3xl mx-0 md:mx-4">
+            <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full md:max-h-[calc(100vh-200px)]">
+              <div className="flex items-center justify-between p-4 border-b gap-3 sticky top-0 bg-white z-10">
                 <div className="flex items-center gap-3 min-w-0">
                   <Receipt className="w-6 h-6 text-slate-800 flex-shrink-0" />
                   <div className="min-w-0">
@@ -912,21 +912,19 @@ export default function SalesHistory() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-2 sm:mt-0 flex-wrap">
+                <div className="hidden md:flex items-center gap-2">
                   <button
                     onClick={() => {
                       printReceipt(selectedTransaction);
                     }}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg whitespace-nowrap"
-                    aria-label="Print receipt"
+                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
                   >
                     <Printer className="w-4 h-4" />
-                    <span className="hidden sm:inline">Print</span>
+                    Print
                   </button>
 
                   <button
                     onClick={() => {
-                      // open printable page in new window for export / download
                       const html = createPrintHtml(selectedTransaction);
                       const w = window.open(
                         "",
@@ -944,17 +942,15 @@ export default function SalesHistory() {
                         );
                       }
                     }}
-                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg whitespace-nowrap"
-                    aria-label="Open printable view"
+                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
                   >
                     <Eye className="w-4 h-4" />
-                    <span className="hidden sm:inline">Open</span>
+                    Open
                   </button>
 
                   <button
                     onClick={closeReceiptModal}
                     className="p-2 rounded-full text-slate-700 hover:bg-slate-100"
-                    aria-label="Close modal"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -962,7 +958,7 @@ export default function SalesHistory() {
               </div>
 
               {/* Receipt content - emphasized, white card with dark text */}
-              <div className="p-6 bg-white text-slate-900 max-h-[calc(100vh-200px)] overflow-auto">
+              <div className="p-4 md:p-6 overflow-auto flex-1">
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
                     <h3 className="text-xl font-bold">AL KALAM BOOKSHOP</h3>
@@ -1078,6 +1074,45 @@ export default function SalesHistory() {
                 </div>
               </div>
               {/* end receipt content */}
+
+              {/* Mobile footer actions - sticky at bottom for small screens */}
+              <div className="md:hidden sticky bottom-0 left-0 right-0 p-3 bg-white border-t flex gap-2 justify-end">
+                <button
+                  onClick={() => printReceipt(selectedTransaction)}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print
+                </button>
+
+                <button
+                  onClick={() => {
+                    const html = createPrintHtml(selectedTransaction);
+                    const w = window.open("", "_blank", "noopener,noreferrer");
+                    if (w) {
+                      w.document.open();
+                      w.document.write(html);
+                      w.document.close();
+                      w.focus();
+                    } else {
+                      alert(
+                        "Popups blocked. Enable popups to open printable view."
+                      );
+                    }
+                  }}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
+                >
+                  <Eye className="w-4 h-4" />
+                  Open
+                </button>
+
+                <button
+                  onClick={closeReceiptModal}
+                  className="p-2 rounded-full text-slate-700 border border-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
