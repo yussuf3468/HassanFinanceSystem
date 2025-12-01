@@ -447,12 +447,12 @@ export default function SalesHistory() {
   };
 
   return (
-    <div className="space-y-6 pt-4 pb-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 pt-2 pb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900">Sales Records</h2>
-          <p className="mt-1 text-sm text-slate-700 max-w-xl leading-relaxed">
+          <h2 className="text-2xl font-extrabold">Sales Records</h2>
+          <p className="mt-1 text-sm text-white/85 max-w-xl">
             Look up transactions, preview sold items, and reprint receipts with
             a smooth and responsive interface.
           </p>
@@ -477,7 +477,7 @@ export default function SalesHistory() {
       </div>
 
       {/* Filters + Stats Panel */}
-      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-slate-900">
+      <div className="bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 text-white">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
@@ -530,7 +530,7 @@ export default function SalesHistory() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input
             type="date"
             value={dateFrom}
@@ -546,7 +546,7 @@ export default function SalesHistory() {
             className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white w-full sm:w-auto"
             title="To date"
           />
-          <div className="ml-0 sm:ml-3 hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/6">
+          <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/6">
             <div className="text-xs text-white/80">Revenue</div>
             <div className="text-sm font-bold">
               KES {totals.revenue.toLocaleString()}
@@ -556,52 +556,52 @@ export default function SalesHistory() {
       </div>
 
       {/* Overview / quick stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-gradient-to-r from-purple-700 to-indigo-700 rounded-2xl p-4 shadow-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl md:rounded-2xl p-4 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Transactions</div>
-              <div className="text-2xl font-extrabold">
+              <div className="text-xl sm:text-2xl font-extrabold">
                 {totals.transactions}
               </div>
               <div className="text-xs opacity-90 mt-1">
                 Items: {totals.items}
               </div>
             </div>
-            <div className="bg-white/10 p-3 rounded-full">
-              <Receipt className="w-6 h-6 text-white" />
+            <div className="bg-white/10 p-2 sm:p-3 rounded-full">
+              <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-emerald-600 to-green-500 rounded-xl md:rounded-2xl p-4 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Revenue</div>
-              <div className="text-2xl font-extrabold">
+              <div className="text-xl sm:text-2xl font-extrabold">
                 KES {totals.revenue.toLocaleString()}
               </div>
               <div className="text-xs opacity-90 mt-1">
                 Discounts: KES {totals.discounts.toLocaleString()}
               </div>
             </div>
-            <div className="bg-white/10 p-3 rounded-full">
-              <DollarSign className="w-6 h-6 text-white" />
+            <div className="bg-white/10 p-2 sm:p-3 rounded-full">
+              <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl p-4 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Profit</div>
-              <div className="text-2xl font-extrabold">
+              <div className="text-xl sm:text-2xl font-extrabold">
                 KES {totals.profit.toLocaleString()}
               </div>
               <div className="text-xs opacity-90 mt-1">Net</div>
             </div>
-            <div className="bg-white/10 p-3 rounded-full">
-              <CreditCard className="w-6 h-6 text-white" />
+            <div className="bg-white/10 p-2 sm:p-3 rounded-full">
+              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
           </div>
         </div>
@@ -617,10 +617,12 @@ export default function SalesHistory() {
               <SkeletonCard />
             </div>
           ) : (
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-10 text-center">
-              <Receipt className="w-14 h-14 text-white/70 mx-auto mb-4" />
-              <h3 className="text-lg font-bold mb-2">No Sales Found</h3>
-              <p className="text-white/70">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl p-6 md:p-10 text-center">
+              <Receipt className="w-10 h-10 md:w-14 md:h-14 text-white/70 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-bold mb-2">
+                No Sales Found
+              </h3>
+              <p className="text-sm md:text-base text-white/70">
                 Try adjusting filters, or refresh to load the latest
                 transactions.
               </p>
@@ -642,10 +644,10 @@ export default function SalesHistory() {
           return (
             <div
               key={transaction.transaction_id}
-              className="bg-white/4 backdrop-blur-md border border-white/8 rounded-2xl overflow-hidden"
+              className="bg-white/4 backdrop-blur-md border border-white/8 rounded-xl md:rounded-2xl overflow-hidden"
             >
               <div
-                className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 cursor-pointer hover:bg-white/6 transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 p-3 md:p-4 cursor-pointer hover:bg-white/6 transition-colors"
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleExpand(transaction.transaction_id)}
@@ -656,9 +658,9 @@ export default function SalesHistory() {
                 aria-expanded={isOpen}
                 aria-controls={`tx-${transaction.transaction_id}`}
               >
-                <div className="flex-shrink-0 mt-1 transform transition-transform duration-300">
+                <div className="flex-shrink-0 mt-0.5 transform transition-transform duration-300">
                   <div
-                    className={`p-2 rounded-lg ${
+                    className={`p-1.5 md:p-2 rounded-lg ${
                       isOpen ? "bg-purple-600/30" : "bg-white/5"
                     }`}
                   >
@@ -671,10 +673,10 @@ export default function SalesHistory() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 bg-purple-600/25 text-purple-200 rounded-lg text-xs font-semibold border border-purple-500/20">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 md:px-3 py-1 bg-purple-600/25 text-purple-200 rounded-lg text-xs font-semibold border border-purple-500/20">
                           {transaction.item_count}{" "}
                           {transaction.item_count === 1 ? "Item" : "Items"}
                         </span>
@@ -721,8 +723,8 @@ export default function SalesHistory() {
                       </div>
                     </div>
 
-                    <div className="text-right ml-0 md:ml-4 mt-3 md:mt-0">
-                      <div className="text-lg font-extrabold">
+                    <div className="text-left sm:text-right ml-0 sm:ml-4 mt-2 sm:mt-0">
+                      <div className="text-base md:text-lg font-extrabold">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
                       {transaction.total_discount > 0 && (
@@ -738,13 +740,13 @@ export default function SalesHistory() {
                   </div>
                 </div>
 
-                <div className="flex-shrink-0 flex items-center gap-2 mt-3 md:mt-0">
+                <div className="flex-shrink-0 flex items-center gap-2 mt-2 sm:mt-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openReceiptModal(transaction);
                     }}
-                    className="p-2 bg-white/6 text-white rounded-xl hover:bg-white/8 transition"
+                    className="p-2 bg-white/6 text-white rounded-lg md:rounded-xl hover:bg-white/8 transition"
                     title="View receipt"
                   >
                     <Eye className="w-4 h-4" />
@@ -755,7 +757,7 @@ export default function SalesHistory() {
                       e.stopPropagation();
                       printReceipt(transaction);
                     }}
-                    className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:scale-105 transition-transform shadow"
+                    className="p-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg md:rounded-xl hover:scale-105 transition-transform shadow"
                     title="Print receipt"
                   >
                     <Printer className="w-4 h-4" />
@@ -766,12 +768,15 @@ export default function SalesHistory() {
               <Collapsible isOpen={isOpen}>
                 <div
                   id={`tx-${transaction.transaction_id}`}
-                  className="border-t border-white/8 bg-white/3 p-4"
+                  className="border-t border-white/8 bg-white/3 p-3 md:p-4"
                 >
                   {/* Mobile stacked view */}
-                  <div className="md:hidden space-y-2">
+                  <div className="lg:hidden space-y-2">
                     {transaction.items.map((item) => (
-                      <div key={item.id} className="p-3 bg-white/5 rounded-md">
+                      <div
+                        key={item.id}
+                        className="p-2.5 md:p-3 bg-white/5 rounded-md"
+                      >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <div className="font-medium truncate">
@@ -814,7 +819,7 @@ export default function SalesHistory() {
                   </div>
 
                   {/* Desktop table view */}
-                  <div className="hidden md:block overflow-x-auto">
+                  <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-white/80">
