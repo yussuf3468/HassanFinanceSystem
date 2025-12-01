@@ -941,16 +941,24 @@ export default function SalesHistory() {
                         w.document.write(html);
                         w.document.close();
                         w.focus();
+                        setTimeout(() => {
+                          try {
+                            w.print();
+                          } catch (e) {
+                            console.error("Print error", e);
+                          }
+                        }, 350);
                       } else {
                         alert(
-                          "Popups blocked. Enable popups to open printable view."
+                          "Popups blocked. Enable popups to print to PDF. Please allow popups and try again."
                         );
                       }
                     }}
                     className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
+                    title="Save as PDF (Use browser's Print > Save as PDF)"
                   >
                     <Eye className="w-4 h-4" />
-                    Open
+                    PDF
                   </button>
 
                   <button
@@ -1099,16 +1107,24 @@ export default function SalesHistory() {
                       w.document.write(html);
                       w.document.close();
                       w.focus();
+                      setTimeout(() => {
+                        try {
+                          w.print();
+                        } catch (e) {
+                          console.error("Print error", e);
+                        }
+                      }, 350);
                     } else {
                       alert(
-                        "Popups blocked. Enable popups to open printable view."
+                        "Popups blocked. Enable popups to print to PDF. Please allow popups and try again."
                       );
                     }
                   }}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
+                  title="Save as PDF (Use browser's Print > Save as PDF)"
                 >
                   <Eye className="w-4 h-4" />
-                  Open
+                  PDF
                 </button>
 
                 <button
