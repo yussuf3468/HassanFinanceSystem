@@ -502,7 +502,7 @@ export default function SalesHistory() {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white [&>option]:bg-slate-800 [&>option]:text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-slate-700 rounded-lg text-sm text-white [&>option]:bg-slate-700 [&>option]:text-white"
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
@@ -517,7 +517,7 @@ export default function SalesHistory() {
           <select
             value={sellerFilter}
             onChange={(e) => setSellerFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white [&>option]:bg-slate-800 [&>option]:text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-slate-700 rounded-lg text-sm text-white [&>option]:bg-slate-700 [&>option]:text-white"
             title="Filter by seller"
             aria-label="Seller filter"
           >
