@@ -931,31 +931,21 @@ export default function SalesHistory() {
                   <button
                     onClick={() => {
                       const html = createPrintHtml(selectedTransaction);
-                      const w = window.open(
-                        "",
-                        "_blank",
-                        "noopener,noreferrer"
-                      );
-                      if (w) {
-                        w.document.open();
-                        w.document.write(html);
-                        w.document.close();
-                        w.focus();
-                        setTimeout(() => {
-                          try {
-                            w.print();
-                          } catch (e) {
-                            console.error("Print error", e);
-                          }
-                        }, 350);
-                      } else {
-                        alert(
-                          "Popups blocked. Enable popups to print to PDF. Please allow popups and try again."
-                        );
-                      }
+                      const blob = new Blob([html], { type: "text/html" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `receipt-${selectedTransaction.transaction_id.slice(
+                        0,
+                        8
+                      )}.html`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
                     }}
                     className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
-                    title="Save as PDF (Use browser's Print > Save as PDF)"
+                    title="Download receipt (open the file and use browser's Print to PDF)"
                   >
                     <Eye className="w-4 h-4" />
                     PDF
@@ -1101,27 +1091,21 @@ export default function SalesHistory() {
                 <button
                   onClick={() => {
                     const html = createPrintHtml(selectedTransaction);
-                    const w = window.open("", "_blank", "noopener,noreferrer");
-                    if (w) {
-                      w.document.open();
-                      w.document.write(html);
-                      w.document.close();
-                      w.focus();
-                      setTimeout(() => {
-                        try {
-                          w.print();
-                        } catch (e) {
-                          console.error("Print error", e);
-                        }
-                      }, 350);
-                    } else {
-                      alert(
-                        "Popups blocked. Enable popups to print to PDF. Please allow popups and try again."
-                      );
-                    }
+                    const blob = new Blob([html], { type: "text/html" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `receipt-${selectedTransaction.transaction_id.slice(
+                      0,
+                      8
+                    )}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                   }}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg"
-                  title="Save as PDF (Use browser's Print > Save as PDF)"
+                  title="Download receipt (open the file and use browser's Print to PDF)"
                 >
                   <Eye className="w-4 h-4" />
                   PDF
