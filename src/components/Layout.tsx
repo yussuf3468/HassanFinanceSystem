@@ -89,12 +89,12 @@ export default function Layout({
       icon: ShoppingCart,
       color: "from-emerald-600 to-teal-600",
     },
-    {
-      id: "sales-history",
-      label: "Sales Records",
-      icon: Receipt,
-      color: "from-purple-600 to-indigo-600",
-    },
+    // {
+    //   id: "sales-history",
+    //   label: "Sales Records",
+    //   icon: Receipt,
+    //   color: "from-purple-600 to-indigo-600",
+    // },
     {
       id: "returns",
       label: "Returns",
