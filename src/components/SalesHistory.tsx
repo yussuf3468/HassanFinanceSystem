@@ -502,7 +502,7 @@ export default function SalesHistory() {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white [&>option]:bg-slate-800 [&>option]:text-white"
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
@@ -517,7 +517,7 @@ export default function SalesHistory() {
           <select
             value={sellerFilter}
             onChange={(e) => setSellerFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white"
+            className="w-full sm:w-auto py-2 px-3 bg-white/6 rounded-lg text-sm text-white [&>option]:bg-slate-800 [&>option]:text-white"
             title="Filter by seller"
             aria-label="Seller filter"
           >
@@ -557,7 +557,7 @@ export default function SalesHistory() {
 
       {/* Overview / quick stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div className="bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl md:rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-purple-700 to-indigo-700 rounded-xl md:rounded-2xl p-4 shadow-lg text-white">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Transactions</div>
@@ -574,7 +574,7 @@ export default function SalesHistory() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-emerald-600 to-green-500 rounded-xl md:rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-emerald-600 to-green-500 rounded-xl md:rounded-2xl p-4 shadow-lg text-white">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Revenue</div>
@@ -591,7 +591,7 @@ export default function SalesHistory() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl p-4 shadow-lg text-white">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs uppercase opacity-90">Profit</div>
