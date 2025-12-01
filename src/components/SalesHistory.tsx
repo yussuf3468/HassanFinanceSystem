@@ -535,7 +535,8 @@ export default function SalesHistory() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white w-full sm:w-auto"
+            className="py-2 px-3 rounded-lg bg-slate-700 text-sm text-white w-full sm:w-auto [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+            placeholder="dd/mm/yyyy"
             title="From date"
           />
           <span className="text-white hidden sm:inline">—</span>
@@ -543,7 +544,8 @@ export default function SalesHistory() {
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="py-2 px-3 rounded-lg bg-white/6 text-sm text-white w-full sm:w-auto"
+            className="py-2 px-3 rounded-lg bg-slate-700 text-sm text-white w-full sm:w-auto [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+            placeholder="dd/mm/yyyy"
             title="To date"
           />
           <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/6">
