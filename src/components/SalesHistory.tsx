@@ -966,12 +966,12 @@ export default function SalesHistory() {
               <div className="p-4 md:p-6 overflow-auto flex-1">
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
-                    <h3 className="text-xl font-bold">AL KALAM BOOKSHOP</h3>
+                    <h3 className="text-xl font-bold">HASSAN BOOKSHOP</h3>
                     <div className="text-sm text-slate-600">
                       Quality Educational Materials & Supplies
                     </div>
                     <div className="text-sm text-slate-600">
-                      Tel: +254 722 740 432 • galiyowabi@gmail.com
+                      Tel: +254 722 979 547 • yussufh080@gmail.com
                     </div>
                   </div>
 
