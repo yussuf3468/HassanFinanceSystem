@@ -62,10 +62,21 @@ export default function SalesHistory() {
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
   // Receipt modal
   const [selectedTransaction, setSelectedTransaction] =
     useState<GroupedTransaction | null>(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+
+  // Create product map for O(1) lookups instead of Array.find()
+  const productMap = useMemo(() => {
+    const map = new Map<string, any>();
+    products.forEach((p) => map.set(p.id, p));
+    return map;
+  }, [products]);
 
   // Group sales by transaction
   const groupedTransactions = useMemo(() => {
@@ -190,8 +201,21 @@ export default function SalesHistory() {
     };
   }, [filteredTransactions]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const paginatedTransactions = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    return filteredTransactions.slice(startIdx, endIdx);
+  }, [filteredTransactions, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, paymentFilter, sellerFilter, dateFrom, dateTo]);
+
   const getProductName = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
+    const product = productMap.get(productId);
     return (product && (product.name || (product as any).title)) || "Unknown";
   };
 
@@ -227,30 +251,52 @@ export default function SalesHistory() {
     }
   };
 
-  // Improved print: open a new window so user sees the receipt before printing
+  // Direct print without popup - uses iframe for better compatibility
   const printReceipt = (transaction: GroupedTransaction) => {
     try {
       const html = createPrintHtml(transaction);
-      const w = window.open("", "_blank", "noopener,noreferrer");
-      if (!w) {
-        alert("Popups blocked. Please enable popups for this site to print.");
+
+      // Create hidden iframe for printing
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "absolute";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
+
+      document.body.appendChild(iframe);
+
+      const iframeDoc = iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        alert("Unable to print. Please use the PDF option instead.");
+        document.body.removeChild(iframe);
         return;
       }
-      w.document.open();
-      w.document.write(html);
-      w.document.close();
-      w.focus();
-      setTimeout(() => {
+
+      iframeDoc.open();
+      iframeDoc.write(html);
+      iframeDoc.close();
+
+      // Wait for content to load then print
+      iframe.onload = () => {
         try {
-          w.print();
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+
+          // Clean up after print dialog closes
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 1000);
         } catch (e) {
           console.error("Print error", e);
-          alert("Unable to print automatically. Use your browser's print.");
+          alert("Unable to print. Please use the PDF download option instead.");
+          document.body.removeChild(iframe);
         }
-      }, 350);
+      };
     } catch (e) {
       console.error(e);
-      alert("Failed to prepare receipt for printing.");
+      alert(
+        "Failed to prepare receipt for printing. Please use the PDF option."
+      );
     }
   };
 
@@ -451,7 +497,7 @@ export default function SalesHistory() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
         <div>
-          <h2 className="text-2xl font-extrabold">Sales Records</h2>
+          <h2 className="text-2xl font-extrabold">Sales Transaction Log</h2>
           <p className="mt-1 text-sm text-white/85 max-w-xl">
             Look up transactions, preview sold items, and reprint receipts with
             a smooth and responsive interface.
@@ -635,7 +681,7 @@ export default function SalesHistory() {
 
       {/* Transactions List */}
       <div className="space-y-3 text-white">
-        {filteredTransactions.map((transaction) => {
+        {paginatedTransactions.map((transaction) => {
           const isOpen = expanded.has(transaction.transaction_id);
           const preview = transaction.items
             .map(
@@ -893,6 +939,57 @@ export default function SalesHistory() {
           );
         })}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredTransactions.length > 0 && (
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/4 backdrop-blur-md border border-white/8 rounded-xl">
+          <div className="text-sm text-white/80">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, filteredTransactions.length)}{" "}
+            of {filteredTransactions.length} transactions
+          </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+            </select>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+
+              <span className="px-3 py-2 text-sm text-white/90">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Receipt Modal */}
       {showReceiptModal && selectedTransaction && (
