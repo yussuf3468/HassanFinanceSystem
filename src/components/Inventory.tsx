@@ -29,6 +29,11 @@ export default function Inventory() {
   const [showReceive, setShowReceive] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+
   // Persist viewingProduct in sessionStorage
   const [viewingProduct, setViewingProduct] = useState<Product | null>(() => {
     const saved = sessionStorage.getItem("inventory_viewingProduct");
@@ -56,6 +61,14 @@ export default function Inventory() {
       return b.id.localeCompare(a.id);
     });
   }, [products]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const paginatedProducts = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    return sortedProducts.slice(startIdx, endIdx);
+  }, [sortedProducts, currentPage, itemsPerPage]);
 
   async function handleDelete(id: string) {
     const product = products.find((p) => p.id === id);
@@ -211,7 +224,7 @@ export default function Inventory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {sortedProducts.length === 0 ? (
+              {paginatedProducts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -221,7 +234,7 @@ export default function Inventory() {
                   </td>
                 </tr>
               ) : (
-                sortedProducts.map((product) => {
+                paginatedProducts.map((product) => {
                   const isLowStock =
                     product.quantity_in_stock <= product.reorder_level;
                   return (
@@ -327,13 +340,13 @@ export default function Inventory() {
 
       {/* Mobile Card View */}
       <div className="lg:hidden space-y-4">
-        {sortedProducts.length === 0 ? (
+        {paginatedProducts.length === 0 ? (
           <div className="text-center py-12 text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-slate-300" />
             <p>No products found. Add your first product to get started!</p>
           </div>
         ) : (
-          sortedProducts.map((product) => {
+          paginatedProducts.map((product) => {
             const isLowStock =
               product.quantity_in_stock <= product.reorder_level;
             return (
@@ -441,6 +454,68 @@ export default function Inventory() {
           })
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {sortedProducts.length > 0 && (
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/4 backdrop-blur-md border border-white/8 rounded-xl">
+          <div className="text-sm text-white/80">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, sortedProducts.length)} of{" "}
+            {sortedProducts.length} products
+          </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              style={{
+                colorScheme: "dark",
+              }}
+            >
+              <option value={25} className="bg-gray-900 text-white">
+                25 per page
+              </option>
+              <option value={50} className="bg-gray-900 text-white">
+                50 per page
+              </option>
+              <option value={100} className="bg-gray-900 text-white">
+                100 per page
+              </option>
+              <option value={200} className="bg-gray-900 text-white">
+                200 per page
+              </option>
+            </select>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+
+              <span className="px-3 py-2 text-sm text-white/90">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Product View Modal */}
       {viewingProduct && (

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, RefreshCw } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import SaleForm from "./SaleForm";
 import { formatDate } from "../utils/dateFormatter";
@@ -7,9 +7,13 @@ import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 
 export default function Sales() {
   // ✅ Use cached hooks instead of direct queries - saves egress!
-  const { data: sales = [], refetch: refetchSales } = useSales();
+  const { data: sales = [], refetch: refetchSales, isRefetching } = useSales();
   const { data: products = [] } = useProducts();
   const [showForm, setShowForm] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // ❌ Removed useEffect - data now comes from cached hooks!
 
@@ -29,6 +33,14 @@ export default function Sales() {
       return idB.localeCompare(idA);
     });
   }, [sales]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(sortedSales.length / itemsPerPage);
+  const paginatedSales = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    return sortedSales.slice(startIdx, endIdx);
+  }, [sortedSales, currentPage, itemsPerPage]);
 
   function getProductById(id: string) {
     return products.find((p) => p.id === id);
@@ -82,16 +94,29 @@ export default function Sales() {
             Sales Records
           </h2>
           <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
-            Track all your bookstore sales
+            Track all your bookstore sales ({sales.length} total)
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 w-full sm:w-auto font-bold text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Record Sale</span>
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={() => refetchSales()}
+            disabled={isRefetching}
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Refresh sales data"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+            />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 flex-1 sm:flex-initial font-bold text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Record Sale</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
@@ -136,7 +161,7 @@ export default function Sales() {
                   </td>
                 </tr>
               ) : (
-                sortedSales.map((sale) => {
+                paginatedSales.map((sale) => {
                   const product = getProductById(sale.product_id);
                   return (
                     <tr
@@ -144,10 +169,10 @@ export default function Sales() {
                       className="hover:bg-white/5 transition-colors"
                     >
                       <td className="px-6 py-4 text-slate-200">
-                        {formatDate(sale.sale_date)}
+                        {formatDate(sale.created_at)}
                         <br />
                         <span className="text-xs text-slate-400">
-                          {new Date(sale.sale_date).toLocaleTimeString()}
+                          {new Date(sale.created_at).toLocaleTimeString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -221,6 +246,65 @@ export default function Sales() {
           </table>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      {sortedSales.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/4 backdrop-blur-md border border-white/8 rounded-xl">
+          <div className="text-sm text-white/80">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, sortedSales.length)} of{" "}
+            {sortedSales.length} sales
+          </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value={25} className="bg-gray-900 text-white">
+                25 per page
+              </option>
+              <option value={50} className="bg-gray-900 text-white">
+                50 per page
+              </option>
+              <option value={100} className="bg-gray-900 text-white">
+                100 per page
+              </option>
+              <option value={200} className="bg-gray-900 text-white">
+                200 per page
+              </option>
+            </select>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+
+              <span className="px-3 py-2 text-sm text-white/90">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <SaleForm

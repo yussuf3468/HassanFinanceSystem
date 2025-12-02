@@ -296,7 +296,7 @@ export default function SalesHistory() {
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Receipt - AL KALAM BOOKSHOP</title>
+<title>Receipt - HASSAN BOOKSHOP</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
   @page { size: A4; margin: 10mm; }
@@ -319,9 +319,9 @@ export default function SalesHistory() {
 <body>
   <div class="wrap">
     <div class="header">
-      <h1>AL KALAM BOOKSHOP</h1>
+      <h1>HASSAN BOOKSHOP</h1>
       <div class="sub">Quality Educational Materials & Supplies</div>
-      <div class="sub">Tel: +254 722 740 432 • Email: galiyowabi@gmail.com</div>
+      <div class="sub">Tel: +254 722 979 547 • Email: yussufh080@gmail.com</div>
       <div style="margin-top:10px;font-weight:700;">Sales Receipt</div>
     </div>
 
