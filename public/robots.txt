@@ -1,3 +1,32 @@
+# Hassan Bookshop - Robots.txt
 User-agent: *
 Allow: /
-Sitemap: https://finance.lenzro.com/sitemap.xml
+Allow: /shop
+Allow: /products
+Allow: /about
+Allow: /contact
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://hassanbookshop.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Popular Search Engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Slurp
+Allow: /

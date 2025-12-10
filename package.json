@@ -1,7 +1,15 @@
 {
-  "name": "lenzro-erp",
-  "private": true,
-  "version": "0.0.0",
+  "name": "hassan-bookshop",
+  "private": false,
+  "version": "1.0.0",
+  "description": "Hassan Bookshop - Leading educational bookstore in Eastleigh, Nairobi Kenya. Buy textbooks, stationery, electronics and school supplies online with fast delivery.",
+  "keywords": ["bookstore", "Kenya", "Nairobi", "Eastleigh", "textbooks", "stationery", "electronics", "school supplies", "educational materials", "books online", "Hassan Bookshop"],
+  "author": "Yussuf Muse <yussufh080@gmail.com>",
+  "homepage": "https://hassanbookshop.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yussuf3468/HassanFinanceSystem.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

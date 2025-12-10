@@ -1,6 +1,53 @@
-# Hassan Financial System 💼
+# Hassan Bookshop 📚 - Best Bookstore in Eastleigh, Nairobi Kenya
 
-A comprehensive financial management system for Hassan Muse BookShop & Cyber Café with a modern dark glassmorphic UI and collapsible sidebar navigation.
+[![Live Site](https://img.shields.io/badge/Live-Hassan%20Bookshop-purple?style=for-the-badge)](https://hassanbookshop.vercel.app)
+[![Made in Kenya](https://img.shields.io/badge/Made%20in-Kenya%20🇰🇪-green?style=for-the-badge)](https://hassanbookshop.vercel.app)
+[![Contact](https://img.shields.io/badge/Call-%2B254%20722%20979%20547-blue?style=for-the-badge)](tel:+254722979547)
+
+> 🏆 **Leading Educational Bookstore in Eastleigh, Nairobi** - Your trusted partner for textbooks, stationery, electronics, and school supplies with over 10,000+ products in stock!
+
+## 🌟 About Hassan Bookshop
+
+Hassan Bookshop is the premier destination for educational materials in Eastleigh, Nairobi Kenya. We specialize in providing quality textbooks, stationery, electronics, and school supplies to students, schools, and educational institutions across Kenya.
+
+### 📍 Location
+**Global Apartments, Section One, Eastleigh, Nairobi, Kenya**
+
+### 📞 Contact Information
+- **Phone:** [+254 722 979 547](tel:+254722979547)
+- **Email:** [yussufh080@gmail.com](mailto:yussufh080@gmail.com)
+- **Opening Hours:** Monday - Sunday, 8:00 AM - 8:00 PM
+
+## 🛒 What We Offer
+
+### 📚 Textbooks & Educational Books
+- Primary School Books
+- Secondary School Textbooks  
+- University & College Books
+- Reference Materials
+- Educational Guides
+- 10,000+ Books in Stock
+
+### ✏️ Stationery & School Supplies
+- Writing Materials (Pens, Pencils, Markers)
+- Notebooks & Exercise Books
+- Art Supplies
+- School Bags & Accessories
+- Office Supplies
+
+### 💻 Electronics & Technology
+- Calculators (Scientific & Graphing)
+- USB Drives & Memory Cards
+- Computer Accessories
+- Educational Electronics
+- Tech Accessories
+
+### 🎒 School Accessories
+- School Uniforms
+- Sports Equipment
+- Laboratory Equipment
+- Educational Toys & Games
+- Backpacks & Lunch Boxes
 
 ## ✨ Features
 

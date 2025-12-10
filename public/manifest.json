@@ -1,11 +1,11 @@
 {
-  "name": "Lenzro ERP",
-  "short_name": "Lenzro ERP",
-  "description": "Lenzro ERP — Inventory, sales, orders, and financial management system",
+  "name": "Hassan Bookshop - Best Bookstore in Eastleigh Nairobi Kenya",
+  "short_name": "Hassan Bookshop",
+  "description": "Leading bookstore in Eastleigh Nairobi Kenya. Buy textbooks, stationery, electronics, school supplies online. 10,000+ books. Fast delivery. Best prices.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#3b82f6",
+  "background_color": "#0f172a",
+  "theme_color": "#7c3aed",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -21,8 +21,26 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "utilities"],
+  "categories": ["shopping", "education", "books", "business"],
   "lang": "en",
+  "dir": "ltr",
   "scope": "/",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Shop Books",
+      "short_name": "Shop",
+      "description": "Browse and buy books online",
+      "url": "/shop",
+      "icons": [{ "src": "/bookshop-icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Contact Us",
+      "short_name": "Contact",
+      "description": "Get in touch with Hassan Bookshop",
+      "url": "/contact",
+      "icons": [{ "src": "/bookshop-icon.svg", "sizes": "192x192" }]
+    }
+  ]
 }
