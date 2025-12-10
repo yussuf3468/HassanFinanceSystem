@@ -11,9 +11,11 @@
 Hassan Bookshop is the premier destination for educational materials in Eastleigh, Nairobi Kenya. We specialize in providing quality textbooks, stationery, electronics, and school supplies to students, schools, and educational institutions across Kenya.
 
 ### 📍 Location
+
 **Global Apartments, Section One, Eastleigh, Nairobi, Kenya**
 
 ### 📞 Contact Information
+
 - **Phone:** [+254 722 979 547](tel:+254722979547)
 - **Email:** [yussufh080@gmail.com](mailto:yussufh080@gmail.com)
 - **Opening Hours:** Monday - Sunday, 8:00 AM - 8:00 PM
@@ -21,14 +23,16 @@ Hassan Bookshop is the premier destination for educational materials in Eastleig
 ## 🛒 What We Offer
 
 ### 📚 Textbooks & Educational Books
+
 - Primary School Books
-- Secondary School Textbooks  
+- Secondary School Textbooks
 - University & College Books
 - Reference Materials
 - Educational Guides
 - 10,000+ Books in Stock
 
 ### ✏️ Stationery & School Supplies
+
 - Writing Materials (Pens, Pencils, Markers)
 - Notebooks & Exercise Books
 - Art Supplies
@@ -36,6 +40,7 @@ Hassan Bookshop is the premier destination for educational materials in Eastleig
 - Office Supplies
 
 ### 💻 Electronics & Technology
+
 - Calculators (Scientific & Graphing)
 - USB Drives & Memory Cards
 - Computer Accessories
@@ -43,6 +48,7 @@ Hassan Bookshop is the premier destination for educational materials in Eastleig
 - Tech Accessories
 
 ### 🎒 School Accessories
+
 - School Uniforms
 - Sports Equipment
 - Laboratory Equipment

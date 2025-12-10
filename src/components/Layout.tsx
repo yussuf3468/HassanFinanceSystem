@@ -237,9 +237,7 @@ export default function Layout({
                     </div>
                   </div>
                   <div>
-                    <h1 className="text-lg font-black text-white">
-                      HASSAN
-                    </h1>
+                    <h1 className="text-lg font-black text-white">HASSAN</h1>
                     <p className="text-xs text-purple-300 font-medium">
                       Bookshop & Cyber
                     </p>

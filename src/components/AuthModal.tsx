@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from "react";
-import { X, Mail, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { X, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 interface AuthModalProps {
@@ -7,20 +7,16 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-type AuthMode = "signin" | "signup";
-
 const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
-  const [mode, setMode] = useState<AuthMode>("signin");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    fullName: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
 
   const handleInputChange = useCallback(
     (field: string, value: string) => {
@@ -47,13 +43,9 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    if (mode === "signup" && !formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData, mode]);
+  }, [formData]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -64,31 +56,20 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
       setLoading(true);
 
       try {
-        if (mode === "signin") {
-          await signIn(formData.email, formData.password);
-        } else {
-          await signUp(formData.email, formData.password, formData.fullName);
-        }
+        await signIn(formData.email, formData.password);
         onClose();
-        setFormData({ email: "", password: "", fullName: "" });
+        setFormData({ email: "", password: "" });
         setErrors({});
       } catch (error: any) {
         setErrors({
-          submit:
-            error.message ||
-            `Failed to ${mode === "signin" ? "sign in" : "create account"}`,
+          submit: error.message || "Failed to sign in",
         });
       } finally {
         setLoading(false);
       }
     },
-    [formData, mode, validateForm, signIn, signUp, onClose]
+    [formData, validateForm, signIn, onClose]
   );
-
-  const switchMode = useCallback(() => {
-    setMode((prev) => (prev === "signin" ? "signup" : "signin"));
-    setErrors({});
-  }, []);
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword((prev) => !prev);
@@ -96,9 +77,8 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
 
   const handleClose = useCallback(() => {
     onClose();
-    setFormData({ email: "", password: "", fullName: "" });
+    setFormData({ email: "", password: "" });
     setErrors({});
-    setMode("signin");
   }, [onClose]);
 
   if (!isOpen) return null;
@@ -110,12 +90,10 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
         <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
           <div>
             <h2 className="text-2xl font-bold text-white">
-              {mode === "signin" ? "Welcome Back" : "Create Account"}
+              Staff Login
             </h2>
             <p className="text-slate-300 text-sm">
-              {mode === "signin"
-                ? "Sign in to your account"
-                : "Join Zakaria's BookShop today"}
+              Sign in to access the system
             </p>
           </div>
           <button
@@ -132,29 +110,6 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
           onSubmit={handleSubmit}
           className="p-6 space-y-6 bg-white/5 backdrop-blur-xl"
         >
-          {/* Full Name (Sign Up only) */}
-          {mode === "signup" && (
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                <User className="w-4 h-4 inline mr-1" />
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={formData.fullName}
-                onChange={(e) => handleInputChange("fullName", e.target.value)}
-                className={`w-full px-3 py-3 bg-white/10 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-white placeholder-slate-400 ${
-                  errors.fullName ? "border-red-500" : "border-white/20"
-                }`}
-                placeholder="Enter your full name"
-                disabled={loading}
-              />
-              {errors.fullName && (
-                <p className="text-red-400 text-sm mt-1">{errors.fullName}</p>
-              )}
-            </div>
-          )}
-
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-white mb-2">
@@ -227,41 +182,19 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>
-                  {mode === "signin" ? "Signing In..." : "Creating Account..."}
-                </span>
+                <span>Signing In...</span>
               </>
             ) : (
-              <span>{mode === "signin" ? "Sign In" : "Create Account"}</span>
+              <span>Sign In</span>
             )}
           </button>
 
-          {/* Mode Switch */}
-          <div className="text-center">
-            <p className="text-slate-300 text-sm">
-              {mode === "signin"
-                ? "Don't have an account?"
-                : "Already have an account?"}{" "}
-              <button
-                type="button"
-                onClick={switchMode}
-                className="text-purple-400 hover:text-purple-300 font-medium"
-                disabled={loading}
-              >
-                {mode === "signin" ? "Sign Up" : "Sign In"}
-              </button>
+          {/* Admin Note */}
+          <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3">
+            <p className="text-blue-300 text-sm text-center">
+              <strong>Staff Access Only:</strong> Contact administrator if you need access
             </p>
           </div>
-
-          {/* Admin Note */}
-          {mode === "signin" && (
-            <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3">
-              <p className="text-blue-300 text-sm text-center">
-                <strong>Admin Access:</strong> Use your admin credentials to
-                access the management panel
-              </p>
-            </div>
-          )}
         </form>
       </div>
     </div>
