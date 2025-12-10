@@ -107,10 +107,10 @@ const Navbar = memo(
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                  Hassan BookShop
+                  HASSAN BOOKSHOP
                 </h1>
                 <p className="text-xs text-slate-300 hidden sm:block">
-                  Dukaan Online
+                  Your trusted bookstore
                 </p>
               </div>
             </div>

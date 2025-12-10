@@ -65,9 +65,9 @@ const HeroSection = memo(
                   {/* Main Heading with Trilingual Touch */}
                   <div className="space-y-4">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-                      <span className="block">Hassan Muse</span>
+                      <span className="block">HASSAN</span>
                       <span className="block bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
-                        BookShop
+                        BOOKSHOP
                       </span>
                       <span className="block text-xl sm:text-2xl lg:text-3xl font-normal text-slate-300 mt-2">
                         Educational Store •{" "}
@@ -117,16 +117,13 @@ const HeroSection = memo(
 
                   {/* Contact Info - Mobile Friendly */}
                   <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-slate-300">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 whitespace-nowrap">
                       <Phone className="w-4 h-4 text-purple-400" />
                       <span className="font-medium">+254 722 979 547</span>
                     </div>
                     <div className="hidden sm:block w-1 h-1 bg-slate-400 rounded-full"></div>
                     <span className="text-center">
-                      Free delivery within Nairobi •{" "}
-                      <span className="font-somali">
-                        Gaadiid bilaash Nairobi gudaheeda
-                      </span>
+                      <span className="text-center">Badeeco tayo leh</span>
                     </span>
                   </div>
 
@@ -136,7 +133,7 @@ const HeroSection = memo(
                       <MapPin className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="font-somali">
-                          Global Apartment, Eastleigh, Section One, Nairobi
+                          Global Apartments, Section One, Eastleigh, Nairobi
                         </div>
                         <div className="text-xs text-slate-500 mt-1 font-arabic text-accent-lang">
                           شرق لي، القسم الأول، نيروبي

@@ -10,9 +10,11 @@ import {
   Search,
   User,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useProducts } from "../hooks/useSupabaseQuery";
 import type { Product } from "../types";
+import { invalidateProductCaches } from "../utils/cacheInvalidation";
 import OptimizedImage from "./OptimizedImage";
 
 type LineItem = {
@@ -20,7 +22,7 @@ type LineItem = {
   quantity: number;
 };
 
-const staffMembers = ["Khalid", "Yussuf"];
+const staffMembers = ["Mohamed", "Najib", "Isse", "Timo", "Samira"];
 
 export default function ReceiveStockModal({
   onClose,
@@ -29,6 +31,7 @@ export default function ReceiveStockModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const queryClient = useQueryClient();
   const { data: products = [] } = useProducts();
 
   const [items, setItems] = useState<LineItem[]>([]);
@@ -91,6 +94,10 @@ export default function ReceiveStockModal({
       );
       if (error) throw error;
       setSuccessId(data as string);
+
+      // ✅ Invalidate product caches to update stock levels
+      await invalidateProductCaches(queryClient);
+
       // brief success state then close
       setTimeout(() => {
         onSuccess();
@@ -434,4 +441,3 @@ export default function ReceiveStockModal({
     </div>
   );
 }
-

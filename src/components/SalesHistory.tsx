@@ -16,7 +16,11 @@ import {
   X,
   Eye,
 } from "lucide-react";
-import { useSales, useProducts } from "../hooks/useSupabaseQuery";
+import {
+  useSales,
+  useProducts,
+  useSalesTotals,
+} from "../hooks/useSupabaseQuery";
 import { formatDate } from "../utils/dateFormatter";
 
 interface SaleItem {
@@ -53,6 +57,7 @@ interface GroupedTransaction {
 export default function SalesHistory() {
   const { data: sales = [], refetch: refetchSales, isRefetching } = useSales();
   const { data: products = [] } = useProducts();
+  const { data: salesTotals } = useSalesTotals();
 
   // UI state
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -180,6 +185,26 @@ export default function SalesHistory() {
 
   // Global stats
   const totals = useMemo(() => {
+    // Check if any filters are active
+    const hasFilters =
+      query.trim() !== "" ||
+      paymentFilter !== "all" ||
+      sellerFilter !== "all" ||
+      dateFrom !== "" ||
+      dateTo !== "";
+
+    // If no filters, use server-side totals for accuracy (all 1,786+ sales)
+    if (!hasFilters && salesTotals) {
+      return {
+        revenue: salesTotals.total_sales || 0,
+        profit: salesTotals.total_profit || 0,
+        discounts: 0, // Not provided by server totals, would need separate calculation
+        transactions: groupedTransactions.length,
+        items: groupedTransactions.reduce((s, t) => s + t.item_count, 0),
+      };
+    }
+
+    // If filters are active, use client-side calculation on filtered data
     const revenue = filteredTransactions.reduce(
       (s, t) => s + (t.total_amount || 0),
       0
@@ -199,7 +224,16 @@ export default function SalesHistory() {
       transactions: filteredTransactions.length,
       items: filteredTransactions.reduce((s, t) => s + t.item_count, 0),
     };
-  }, [filteredTransactions]);
+  }, [
+    filteredTransactions,
+    query,
+    paymentFilter,
+    sellerFilter,
+    dateFrom,
+    dateTo,
+    salesTotals,
+    groupedTransactions,
+  ]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);

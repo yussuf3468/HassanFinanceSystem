@@ -81,7 +81,7 @@ export default function Login({ onLogin }: LoginProps) {
               </div>
             </div>
             <h1 className="text-3xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              Hassan Muse BookShop
+              HASSAN BOOKSHOP
             </h1>
             <p className="text-slate-600 font-medium mt-2">
               Gal Nidaamka - Staff Login System
@@ -198,6 +198,22 @@ export default function Login({ onLogin }: LoginProps) {
             </p>
           </div>
         </div> */}
+
+        {/* Professional Credit Footer */}
+        <div className="mt-8 pt-6 border-t border-white/20 text-center">
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
+            <span>Crafted with excellence by</span>
+            <a
+              href="https://lenzro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-purple-600/20 to-blue-600/20 hover:from-purple-600/30 hover:to-blue-600/30 border border-purple-500/30 hover:border-purple-500/50 rounded-md transition-all hover:scale-105 font-bold text-purple-700 hover:text-purple-600"
+            >
+              <span>⚡</span>
+              <span>Lenzro</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

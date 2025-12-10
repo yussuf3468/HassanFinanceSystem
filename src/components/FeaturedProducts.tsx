@@ -184,12 +184,6 @@ const FeaturedProducts = memo(
                   <div className="text-lg sm:text-xl font-light text-white">
                     KES {product.selling_price?.toLocaleString()}
                   </div>
-                  {product.buying_price &&
-                    product.buying_price < product.selling_price && (
-                      <div className="text-xs text-slate-400 line-through">
-                        KES {product.buying_price.toLocaleString()}
-                      </div>
-                    )}
                   <div className="text-xs text-slate-400 flex items-center mt-1">
                     <Package className="w-3 h-3 mr-1.5" />
                     {product.quantity_in_stock} in stock

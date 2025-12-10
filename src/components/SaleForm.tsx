@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { X, Search, Package, Plus, Trash2, Printer, ShoppingCart } from "lucide-react";
+import {
+  X,
+  Search,
+  Package,
+  Plus,
+  Trash2,
+  Printer,
+  ShoppingCart,
+} from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
+import { invalidateAfterSale } from "../utils/cacheInvalidation";
+import { StockReceiveModal } from "./StockReceiveModal";
 
 interface SaleFormProps {
   products: Product[];
@@ -45,14 +56,21 @@ interface ReceiptData {
   total_profit: number;
 }
 
-const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer"];
-const staffMembers = ["Yussuf", "Khaled", "Zakaria"];
+const paymentMethods = [
+  "Cash",
+  "Mpesa",
+  "Till Number",
+  "Card",
+  "Bank Transfer",
+];
+const staffMembers = ["Mohamed", "Najib", "Isse", "Timo", "Samira"];
 
 export default function SaleForm({
   products,
   onClose,
   onSuccess,
 }: SaleFormProps) {
+  const queryClient = useQueryClient();
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [soldBy, setSoldBy] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([
@@ -66,18 +84,36 @@ export default function SaleForm({
       showDropdown: false,
     },
   ]);
-  
+
   // Overall discount state
-  const [overallDiscountType, setOverallDiscountType] = useState<DiscountType>("none");
+  const [overallDiscountType, setOverallDiscountType] =
+    useState<DiscountType>("none");
   const [overallDiscountValue, setOverallDiscountValue] = useState("");
-  
+
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+
+  // Stock receive modal state
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [currentStockItem, setCurrentStockItem] = useState<{
+    product: Product;
+    requested: number;
+    available: number;
+    shortage: number;
+  } | null>(null);
+  const [pendingStockItems, setPendingStockItems] = useState<
+    Array<{
+      product: Product;
+      requested: number;
+      available: number;
+      shortage: number;
+    }>
+  >([]);
 
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
       const target = e.target as Node;
       setLineItems((items) =>
         items.map((li) => {
@@ -90,7 +126,13 @@ export default function SaleForm({
       );
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, {
+      passive: true,
+    });
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, []);
 
   function updateLine(id: string, patch: Partial<LineItem>) {
@@ -150,7 +192,8 @@ export default function SaleForm({
       const original_total = product.selling_price * quantity;
       let discount_amount = 0;
       if (li.discount_type === "percentage" && li.discount_value) {
-        discount_amount = (original_total * parseFloat(li.discount_value)) / 100;
+        discount_amount =
+          (original_total * parseFloat(li.discount_value)) / 100;
       } else if (li.discount_type === "amount" && li.discount_value) {
         discount_amount = parseFloat(li.discount_value);
       }
@@ -173,47 +216,175 @@ export default function SaleForm({
 
   const computed = computeLines();
   const subtotal = computed.reduce((s, c) => s + c.original_total, 0);
-  const total_line_discount = computed.reduce((s, c) => s + c.discount_amount, 0);
+  const total_line_discount = computed.reduce(
+    (s, c) => s + c.discount_amount,
+    0
+  );
   const subtotalAfterLineDiscounts = subtotal - total_line_discount;
 
   // Calculate overall discount
   let overallDiscountAmount = 0;
-  if (overallDiscountType === "percentage" && overallDiscountValue) {
-    overallDiscountAmount = (subtotalAfterLineDiscounts * parseFloat(overallDiscountValue)) / 100;
-  } else if (overallDiscountType === "amount" && overallDiscountValue) {
-    overallDiscountAmount = parseFloat(overallDiscountValue);
+  const overallDiscountNum = parseFloat(overallDiscountValue) || 0;
+
+  if (overallDiscountType === "percentage" && overallDiscountNum > 0) {
+    overallDiscountAmount =
+      (subtotalAfterLineDiscounts * overallDiscountNum) / 100;
+  } else if (overallDiscountType === "amount" && overallDiscountNum > 0) {
+    overallDiscountAmount = overallDiscountNum;
   }
+
   if (overallDiscountAmount > subtotalAfterLineDiscounts) {
     overallDiscountAmount = subtotalAfterLineDiscounts;
   }
 
   const total = subtotalAfterLineDiscounts - overallDiscountAmount;
-  
-  // Recalculate profit considering overall discount
-  const profitReductionRatio = subtotalAfterLineDiscounts > 0 
-    ? overallDiscountAmount / subtotalAfterLineDiscounts 
-    : 0;
-  const total_profit = computed.reduce((s, c) => {
-    const adjustedProfit = c.profit * (1 - profitReductionRatio);
-    return s + adjustedProfit;
-  }, 0);
 
-  function validateStock(): { ok: boolean; message?: string } {
+  // Calculate total profit: sum of individual line profits minus overall discount
+  const sumOfLineProfits = computed.reduce((s, c) => s + c.profit, 0);
+  const total_profit = sumOfLineProfits - overallDiscountAmount;
+
+  function validateStock(): {
+    ok: boolean;
+    outOfStockItems?: Array<{
+      product: Product;
+      requested: number;
+      available: number;
+      shortage: number;
+    }>;
+  } {
     const aggregate: Record<string, number> = {};
+    const outOfStockItems: Array<{
+      product: Product;
+      requested: number;
+      available: number;
+      shortage: number;
+    }> = [];
+
     for (const c of computed) {
       if (!c.product || c.quantity <= 0) continue;
       aggregate[c.product.id] = (aggregate[c.product.id] || 0) + c.quantity;
     }
+
     for (const [pid, q] of Object.entries(aggregate)) {
       const prod = productById(pid)!;
       if (q > prod.quantity_in_stock) {
-        return {
-          ok: false,
-          message: `Insufficient stock for ${prod.name}. Requested ${q}, available ${prod.quantity_in_stock}.`,
-        };
+        outOfStockItems.push({
+          product: prod,
+          requested: q,
+          available: prod.quantity_in_stock,
+          shortage: q - prod.quantity_in_stock,
+        });
       }
     }
-    return { ok: true };
+
+    return {
+      ok: true,
+      outOfStockItems: outOfStockItems.length > 0 ? outOfStockItems : undefined,
+    };
+  }
+
+  async function handleReceiveStock(quantity: number, source: string) {
+    if (!currentStockItem) return;
+
+    try {
+      const item = currentStockItem;
+      const newStock = item.product.quantity_in_stock + quantity;
+
+      // Update product stock
+      const { error: stockError } = await supabase
+        .from("products")
+        .update({ quantity_in_stock: newStock })
+        .eq("id", item.product.id);
+
+      if (stockError) throw stockError;
+
+      // Record in stock receipts trail with source information
+      const { error: receiptError } = await (supabase as any).rpc(
+        "process_stock_receipt",
+        {
+          p_items: [
+            {
+              product_id: item.product.id,
+              quantity: quantity,
+              cost_per_unit: null,
+              received_by: soldBy,
+              notes: source, // Include source in notes
+            },
+          ],
+        }
+      );
+
+      if (receiptError) {
+        console.error("Stock receipt trail error:", receiptError);
+      }
+
+      // Update local product data
+      item.product.quantity_in_stock = newStock;
+
+      // Move to next item or close modal if done
+      const nextItems = pendingStockItems.slice(1);
+      if (nextItems.length > 0) {
+        setPendingStockItems(nextItems);
+        setCurrentStockItem(nextItems[0]);
+      } else {
+        setShowStockModal(false);
+        setCurrentStockItem(null);
+        setPendingStockItems([]);
+
+        // Automatically continue the sale submission
+        setTimeout(() => {
+          const form = document.querySelector("form");
+          if (form) {
+            form.dispatchEvent(
+              new Event("submit", { cancelable: true, bubbles: true })
+            );
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      alert(
+        `Failed to update stock for ${currentStockItem.product.name}. Please try again.`
+      );
+    }
+  }
+
+  function handleSkipItem() {
+    // Remove this item from the sale
+    if (!currentStockItem) return;
+
+    // Remove line items for this product
+    setLineItems((items) =>
+      items.filter((li) => li.product_id !== currentStockItem.product.id)
+    );
+
+    // Move to next item or close modal if done
+    const nextItems = pendingStockItems.slice(1);
+    if (nextItems.length > 0) {
+      setPendingStockItems(nextItems);
+      setCurrentStockItem(nextItems[0]);
+    } else {
+      setShowStockModal(false);
+      setCurrentStockItem(null);
+      setPendingStockItems([]);
+
+      // Automatically resubmit the form
+      setTimeout(() => {
+        const form = document.querySelector("form");
+        if (form) {
+          form.dispatchEvent(
+            new Event("submit", { cancelable: true, bubbles: true })
+          );
+        }
+      }, 100);
+    }
+  }
+
+  function handleCancelSale() {
+    setShowStockModal(false);
+    setCurrentStockItem(null);
+    setPendingStockItems([]);
+    // Sale form remains open for user to modify
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -223,14 +394,21 @@ export default function SaleForm({
       alert("Please select staff (Sold By).");
       return;
     }
-    if (computed.length === 0 || computed.every((c) => c.quantity <= 0 || !c.product)) {
+    if (
+      computed.length === 0 ||
+      computed.every((c) => c.quantity <= 0 || !c.product)
+    ) {
       alert("Please add at least one valid product line.");
       return;
     }
 
     const stockCheck = validateStock();
-    if (!stockCheck.ok) {
-      alert(stockCheck.message);
+
+    // ✅ Handle out-of-stock items with modal UI
+    if (stockCheck.outOfStockItems && stockCheck.outOfStockItems.length > 0) {
+      setPendingStockItems(stockCheck.outOfStockItems);
+      setCurrentStockItem(stockCheck.outOfStockItems[0]);
+      setShowStockModal(true);
       return;
     }
 
@@ -238,6 +416,7 @@ export default function SaleForm({
     const transactionId = crypto.randomUUID();
 
     try {
+      // ✅ All items should have sufficient stock now (handled above)
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
@@ -252,7 +431,7 @@ export default function SaleForm({
           selling_price: c.product.selling_price,
           buying_price: c.product.buying_price,
           total_sale: c.final_total,
-          profit: c.profit * (1 - profitReductionRatio),
+          profit: c.profit,
           payment_method: paymentMethod,
           sold_by: soldBy,
           discount_amount: c.discount_amount,
@@ -286,7 +465,7 @@ export default function SaleForm({
             discount_amount: c.discount_amount,
             final_unit_price: c.final_unit_price,
             line_total: c.final_total,
-            profit: c.profit * (1 - profitReductionRatio),
+            profit: c.profit,
           })),
         subtotal,
         total_line_discount,
@@ -298,6 +477,9 @@ export default function SaleForm({
       };
 
       setReceipt(receiptData);
+
+      // ✅ Invalidate caches to update dashboard immediately
+      await invalidateAfterSale(queryClient);
     } catch (err) {
       console.error("Error recording multi-product sale:", err);
       alert("Failed to record sale. Please try again.");
@@ -360,7 +542,7 @@ export default function SaleForm({
   <div class="header">
     <h1>HASSAN BOOKSHOP</h1>
     <div class="sub">Quality Educational Materials & Supplies</div>
-    <div class="sub">Tel: +254 722 740 432 Email: galiyowabi@gmail.com</div>
+    <div class="sub">Tel: +254 722 979 547 Email: yussufh080@gmail.com</div>
     <div class="title">Sales Receipt</div>
   </div>
 
@@ -395,16 +577,12 @@ export default function SaleForm({
         <td colspan="4" style="text-align:right;">Subtotal</td>
         <td class="num">KES ${r.subtotal.toLocaleString()}</td>
       </tr>
-      ${r.total_line_discount > 0 ? `
       <tr>
-        <td colspan="4" style="text-align:right;">Line Discounts</td>
-        <td class="num">-KES ${r.total_line_discount.toLocaleString()}</td>
-      </tr>` : ''}
-      ${r.overall_discount_amount > 0 ? `
-      <tr>
-        <td colspan="4" style="text-align:right;">Overall Discount ${r.overall_discount_type === 'percentage' ? '(' + r.overall_discount_value + '%)' : ''}</td>
-        <td class="num">-KES ${r.overall_discount_amount.toLocaleString()}</td>
-      </tr>` : ''}
+        <td colspan="4" style="text-align:right;">Discount</td>
+        <td class="num">-KES ${(
+          r.total_line_discount + r.overall_discount_amount
+        ).toLocaleString()}</td>
+      </tr>
       <tr>
         <td colspan="4" style="text-align:right;">Total</td>
         <td class="num">KES ${r.total.toLocaleString()}</td>
@@ -516,8 +694,8 @@ export default function SaleForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-white/20 animate-scaleIn flex flex-col">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
+      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-white/20 animate-scaleIn flex flex-col touch-auto">
         {/* Header - Fixed */}
         <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
@@ -548,7 +726,7 @@ export default function SaleForm({
             <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
-                  HASSAN BOOKSHOP
+                  AL KALAM BOOKSHOP
                 </h1>
                 <p className="text-xs text-gray-700">
                   Quality Educational Materials & Supplies
@@ -566,7 +744,9 @@ export default function SaleForm({
                 </p>
                 <p className="sm:text-right">
                   <span className="font-semibold">Date:</span>{" "}
-                  <span className="text-gray-700">{receipt.created_at.toLocaleString()}</span>
+                  <span className="text-gray-700">
+                    {receipt.created_at.toLocaleString()}
+                  </span>
                 </p>
                 <p>
                   <span className="font-semibold">Sold By:</span>{" "}
@@ -574,7 +754,9 @@ export default function SaleForm({
                 </p>
                 <p className="sm:text-right">
                   <span className="font-semibold">Payment:</span>{" "}
-                  <span className="text-gray-700">{receipt.payment_method}</span>
+                  <span className="text-gray-700">
+                    {receipt.payment_method}
+                  </span>
                 </p>
               </div>
 
@@ -584,8 +766,12 @@ export default function SaleForm({
                     <tr className="bg-gray-200 border-b-2 border-gray-400">
                       <th className="px-3 py-2 text-left font-bold">Product</th>
                       <th className="px-3 py-2 text-right font-bold">Qty</th>
-                      <th className="px-3 py-2 text-right font-bold">Unit Price</th>
-                      <th className="px-3 py-2 text-right font-bold">Discount</th>
+                      <th className="px-3 py-2 text-right font-bold">
+                        Unit Price
+                      </th>
+                      <th className="px-3 py-2 text-right font-bold">
+                        Discount
+                      </th>
                       <th className="px-3 py-2 text-right font-bold">Total</th>
                     </tr>
                   </thead>
@@ -610,7 +796,10 @@ export default function SaleForm({
                   </tbody>
                   <tfoot className="border-t-2 border-gray-400">
                     <tr className="bg-gray-50">
-                      <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                      <td
+                        className="px-3 py-2 text-right font-semibold"
+                        colSpan={4}
+                      >
                         Subtotal
                       </td>
                       <td className="px-3 py-2 text-right font-semibold">
@@ -619,7 +808,10 @@ export default function SaleForm({
                     </tr>
                     {receipt.total_line_discount > 0 && (
                       <tr className="bg-gray-50">
-                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                        <td
+                          className="px-3 py-2 text-right font-semibold"
+                          colSpan={4}
+                        >
                           Line Discounts
                         </td>
                         <td className="px-3 py-2 text-right font-semibold text-red-600">
@@ -629,18 +821,25 @@ export default function SaleForm({
                     )}
                     {receipt.overall_discount_amount > 0 && (
                       <tr className="bg-gray-50">
-                        <td className="px-3 py-2 text-right font-semibold" colSpan={4}>
+                        <td
+                          className="px-3 py-2 text-right font-semibold"
+                          colSpan={4}
+                        >
                           Overall Discount
                           {receipt.overall_discount_type === "percentage" &&
                             ` (${receipt.overall_discount_value}%)`}
                         </td>
                         <td className="px-3 py-2 text-right font-semibold text-red-600">
-                          -KES {receipt.overall_discount_amount.toLocaleString()}
+                          -KES{" "}
+                          {receipt.overall_discount_amount.toLocaleString()}
                         </td>
                       </tr>
                     )}
                     <tr className="bg-gray-800 text-white">
-                      <td className="px-3 py-3 text-right font-bold text-base" colSpan={4}>
+                      <td
+                        className="px-3 py-3 text-right font-bold text-base"
+                        colSpan={4}
+                      >
                         TOTAL
                       </td>
                       <td className="px-3 py-3 text-right font-bold text-base">
@@ -652,7 +851,8 @@ export default function SaleForm({
               </div>
 
               <div className="mt-6 pt-4 border-t border-gray-300 text-center text-[10px] text-gray-600">
-                Thank you for your purchase! Please keep this receipt for your records.
+                Thank you for your purchase! Please keep this receipt for your
+                records.
               </div>
             </div>
 
@@ -684,7 +884,8 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
+            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
+            style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Staff & Payment - Moved to top for better UX */}
             <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
@@ -701,13 +902,17 @@ export default function SaleForm({
                     required
                     value={soldBy}
                     onChange={(e) => setSoldBy(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
                   >
                     <option value="" className="bg-slate-900 text-white">
                       -- Select Staff Member --
                     </option>
                     {staffMembers.map((s) => (
-                      <option key={s} value={s} className="bg-slate-900 text-white">
+                      <option
+                        key={s}
+                        value={s}
+                        className="bg-slate-900 text-white"
+                      >
                         {s}
                       </option>
                     ))}
@@ -720,10 +925,14 @@ export default function SaleForm({
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
                   >
                     {paymentMethods.map((m) => (
-                      <option key={m} value={m} className="bg-slate-900 text-white">
+                      <option
+                        key={m}
+                        value={m}
+                        className="bg-slate-900 text-white"
+                      >
                         {m}
                       </option>
                     ))}
@@ -747,11 +956,17 @@ export default function SaleForm({
                   const comp = computed.find((c) => c.line.id === li.id)!;
                   const filtered = products.filter(
                     (p) =>
-                      p.name.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
-                      p.product_id.toLowerCase().includes(li.searchTerm.toLowerCase()) ||
-                      p.category.toLowerCase().includes(li.searchTerm.toLowerCase())
+                      p.name
+                        .toLowerCase()
+                        .includes(li.searchTerm.toLowerCase()) ||
+                      p.product_id
+                        .toLowerCase()
+                        .includes(li.searchTerm.toLowerCase()) ||
+                      p.category
+                        .toLowerCase()
+                        .includes(li.searchTerm.toLowerCase())
                   );
-                  
+
                   return (
                     <div
                       key={li.id}
@@ -797,62 +1012,71 @@ export default function SaleForm({
                                 updateLine(li.id, {
                                   searchTerm: e.target.value,
                                   showDropdown: true,
-                                  product_id: e.target.value ? li.product_id : "",
+                                  product_id: e.target.value
+                                    ? li.product_id
+                                    : "",
                                 })
                               }
-                              onFocus={() => updateLine(li.id, { showDropdown: true })}
+                              onFocus={() =>
+                                updateLine(li.id, { showDropdown: true })
+                              }
                               placeholder="Search product..."
                               className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                             />
-                            {li.showDropdown && li.searchTerm && filtered.length > 0 && (
-                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
-                                {filtered.slice(0, 15).map((p) => (
-                                  <button
-                                    key={p.id}
-                                    type="button"
-                                    onClick={() =>
-                                      updateLine(li.id, {
-                                        product_id: p.id,
-                                        searchTerm: p.name,
-                                        showDropdown: false,
-                                      })
-                                    }
-                                    className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
-                                  >
-                                    {p.image_url ? (
-                                      <img
-                                        src={p.image_url}
-                                        alt={p.name}
-                                        className="w-10 h-10 object-cover rounded border border-white/10"
-                                      />
-                                    ) : (
-                                      <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
-                                        <Package className="w-5 h-5 text-slate-400" />
+                            {li.showDropdown &&
+                              li.searchTerm &&
+                              filtered.length > 0 && (
+                                <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
+                                  {filtered.slice(0, 15).map((p) => (
+                                    <button
+                                      key={p.id}
+                                      type="button"
+                                      onClick={() =>
+                                        updateLine(li.id, {
+                                          product_id: p.id,
+                                          searchTerm: p.name,
+                                          showDropdown: false,
+                                        })
+                                      }
+                                      className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
+                                    >
+                                      {p.image_url ? (
+                                        <img
+                                          src={p.image_url}
+                                          alt={p.name}
+                                          className="w-10 h-10 object-cover rounded border border-white/10"
+                                        />
+                                      ) : (
+                                        <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                          <Package className="w-5 h-5 text-slate-400" />
+                                        </div>
+                                      )}
+                                      <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-white truncate">
+                                          {p.name}
+                                        </p>
+                                        <p className="text-xs text-slate-400 truncate">
+                                          {p.product_id} • Stock{" "}
+                                          {p.quantity_in_stock} • KES{" "}
+                                          {p.selling_price.toLocaleString()}
+                                        </p>
                                       </div>
-                                    )}
-                                    <div className="min-w-0 flex-1">
-                                      <p className="font-medium text-white truncate">
-                                        {p.name}
-                                      </p>
-                                      <p className="text-xs text-slate-400 truncate">
-                                        {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
-                                        {p.selling_price.toLocaleString()}
-                                      </p>
+                                    </button>
+                                  ))}
+                                  {filtered.length > 15 && (
+                                    <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
+                                      + {filtered.length - 15} more results
                                     </div>
-                                  </button>
-                                ))}
-                                {filtered.length > 15 && (
-                                  <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
-                                    + {filtered.length - 15} more results
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            {li.showDropdown && li.searchTerm && filtered.length === 0 && (
-                              <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl p-4 text-center text-slate-400 text-sm">
-                                No products match "{li.searchTerm}"
-                              </div>
-                            )}
+                                  )}
+                                </div>
+                              )}
+                            {li.showDropdown &&
+                              li.searchTerm &&
+                              filtered.length === 0 && (
+                                <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl p-4 text-center text-slate-400 text-sm">
+                                  No products match "{li.searchTerm}"
+                                </div>
+                              )}
                           </div>
                         </div>
 
@@ -865,7 +1089,9 @@ export default function SaleForm({
                             type="number"
                             min={1}
                             value={li.quantity}
-                            onChange={(e) => updateLine(li.id, { quantity: e.target.value })}
+                            onChange={(e) =>
+                              updateLine(li.id, { quantity: e.target.value })
+                            }
                             className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                             placeholder="Qty"
                           />
@@ -886,13 +1112,22 @@ export default function SaleForm({
                             }
                             className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                           >
-                            <option value="none" className="bg-slate-900 text-white">
+                            <option
+                              value="none"
+                              className="bg-slate-900 text-white"
+                            >
                               None
                             </option>
-                            <option value="percentage" className="bg-slate-900 text-white">
+                            <option
+                              value="percentage"
+                              className="bg-slate-900 text-white"
+                            >
                               Percentage (%)
                             </option>
-                            <option value="amount" className="bg-slate-900 text-white">
+                            <option
+                              value="amount"
+                              className="bg-slate-900 text-white"
+                            >
                               Amount (KES)
                             </option>
                           </select>
@@ -908,11 +1143,19 @@ export default function SaleForm({
                             disabled={li.discount_type === "none"}
                             value={li.discount_value}
                             onChange={(e) =>
-                              updateLine(li.id, { discount_value: e.target.value })
+                              updateLine(li.id, {
+                                discount_value: e.target.value,
+                              })
                             }
                             min="0"
-                            max={li.discount_type === "percentage" ? 100 : undefined}
-                            step={li.discount_type === "percentage" ? "0.01" : "1"}
+                            max={
+                              li.discount_type === "percentage"
+                                ? 100
+                                : undefined
+                            }
+                            step={
+                              li.discount_type === "percentage" ? "0.01" : "1"
+                            }
                             className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             placeholder={
                               li.discount_type === "percentage" ? "10" : "100"
@@ -925,13 +1168,17 @@ export default function SaleForm({
                       {product && comp.quantity > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-white/10">
                           <div className="bg-blue-500/10 rounded-md p-2 border border-blue-500/20">
-                            <span className="text-slate-400 block mb-0.5">Original</span>
+                            <span className="text-slate-400 block mb-0.5">
+                              Original
+                            </span>
                             <span className="font-bold text-blue-300">
                               KES {comp.original_total.toLocaleString()}
                             </span>
                           </div>
                           <div className="bg-red-500/10 rounded-md p-2 border border-red-500/20">
-                            <span className="text-slate-400 block mb-0.5">Discount</span>
+                            <span className="text-slate-400 block mb-0.5">
+                              Discount
+                            </span>
                             <span className="font-bold text-red-300">
                               {comp.discount_amount > 0
                                 ? "-" + comp.discount_amount.toLocaleString()
@@ -939,13 +1186,17 @@ export default function SaleForm({
                             </span>
                           </div>
                           <div className="bg-purple-500/10 rounded-md p-2 border border-purple-500/20">
-                            <span className="text-slate-400 block mb-0.5">Line Total</span>
+                            <span className="text-slate-400 block mb-0.5">
+                              Line Total
+                            </span>
                             <span className="font-bold text-purple-300">
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
                           <div className="bg-green-500/10 rounded-md p-2 border border-green-500/20">
-                            <span className="text-slate-400 block mb-0.5">Profit Est.</span>
+                            <span className="text-slate-400 block mb-0.5">
+                              Profit Est.
+                            </span>
                             <span className="font-bold text-green-300">
                               KES {comp.profit.toLocaleString()}
                             </span>
@@ -990,7 +1241,10 @@ export default function SaleForm({
                     <option value="none" className="bg-slate-900 text-white">
                       No Overall Discount
                     </option>
-                    <option value="percentage" className="bg-slate-900 text-white">
+                    <option
+                      value="percentage"
+                      className="bg-slate-900 text-white"
+                    >
                       Percentage (%)
                     </option>
                     <option value="amount" className="bg-slate-900 text-white">
@@ -1057,7 +1311,9 @@ export default function SaleForm({
                 )}
                 <div className="flex justify-between text-lg border-t border-white/20 pt-3 font-bold">
                   <span className="text-purple-300">Final Total:</span>
-                  <span className="text-purple-300">KES {total.toLocaleString()}</span>
+                  <span className="text-purple-300">
+                    KES {total.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-white/10">
                   <span className="text-slate-300">Estimated Profit:</span>
@@ -1068,19 +1324,19 @@ export default function SaleForm({
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Improved for mobile touch */}
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 transition-all font-medium"
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 transition-all font-medium touch-manipulation active:scale-95"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base"
+                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base touch-manipulation active:scale-95"
               >
                 {submitting ? (
                   <span className="flex items-center justify-center space-x-2">
@@ -1110,6 +1366,15 @@ export default function SaleForm({
           </form>
         )}
       </div>
+
+      {/* Stock Receive Modal */}
+      <StockReceiveModal
+        isOpen={showStockModal}
+        item={currentStockItem}
+        onReceiveStock={handleReceiveStock}
+        onSkipItem={handleSkipItem}
+        onCancel={handleCancelSale}
+      />
     </div>
   );
 }

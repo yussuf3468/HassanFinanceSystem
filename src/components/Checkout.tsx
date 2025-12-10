@@ -9,8 +9,10 @@ import {
   CreditCard,
   Check,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
+import { invalidateProductCaches } from "../utils/cacheInvalidation";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 import OptimizedImage from "./OptimizedImage";
@@ -21,6 +23,7 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
@@ -123,6 +126,9 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
         if (stockError) throw stockError;
       }
+
+      // ✅ Invalidate product caches to update stock levels
+      await invalidateProductCaches(queryClient);
 
       setOrderNumber(order.order_number);
       setOrderPlaced(true);

@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Banknote, TrendingUp, Package, Receipt } from "lucide-react";
 import {
-  Banknote,
-  TrendingUp,
-  Package,
-  AlertTriangle,
-  Receipt,
-} from "lucide-react";
-import { useProducts, useSales } from "../hooks/useSupabaseQuery";
+  useProducts,
+  useRecentSales,
+  useSalesTotals,
+} from "../hooks/useSupabaseQuery";
 import type { Product, Sale } from "../types";
 import { formatDate } from "../utils/dateFormatter";
 import OptimizedImage from "./OptimizedImage";
@@ -16,6 +14,10 @@ interface DashboardStats {
   totalProfit: number;
   lowStockCount: number;
   totalProducts: number;
+  dailySales: number;
+  dailyProfit: number;
+  yearSales: number;
+  yearProfit: number;
 }
 
 function formatCurrency(value: number) {
@@ -31,65 +33,110 @@ export default function Dashboard() {
     totalProfit: 0,
     lowStockCount: 0,
     totalProducts: 0,
+    dailySales: 0,
+    dailyProfit: 0,
+    yearSales: 0,
+    yearProfit: 0,
   });
   const [topProducts, setTopProducts] = useState<
     Array<{ product: Product; total: number }>
   >([]);
   const [recentSales, setRecentSales] = useState<Sale[]>([]);
 
-  // ✅ Use cached queries (reduces egress costs by 90%)
+  // ✅ Use accurate totals from database aggregation + recent sales for list/top products
   const { data: products = [], isLoading: productsLoading } = useProducts();
-  const { data: sales = [], isLoading: salesLoading } = useSales();
+  const { data: sales = [], isLoading: salesLoading } = useRecentSales(500); // Last 500 for top products
+  const { data: salesTotals, isLoading: totalsLoading } = useSalesTotals(); // Accurate totals
 
-  const loading = productsLoading || salesLoading;
+  const loading = productsLoading || salesLoading || totalsLoading;
+
+  // Memoize expensive calculations
+  const dashboardData = useMemo(() => {
+    if (products.length === 0 || sales.length === 0 || !salesTotals)
+      return null;
+    return calculateDashboardData(sales, products, salesTotals);
+  }, [products, sales, salesTotals]);
 
   useEffect(() => {
-    if (products.length > 0 && sales.length > 0) {
-      calculateDashboardData(sales, products);
+    if (dashboardData) {
+      setStats(dashboardData.stats);
+      setTopProducts(dashboardData.topProducts);
+      setRecentSales(dashboardData.recentSales);
     }
-  }, [products, sales]);
+  }, [dashboardData]);
 
-  function calculateDashboardData(sales: Sale[], products: Product[]) {
+  function calculateDashboardData(
+    sales: Sale[],
+    products: Product[],
+    salesTotals: {
+      total_sales: number;
+      total_profit: number;
+      today_sales: number;
+      today_profit: number;
+      year_sales: number;
+      year_profit: number;
+    }
+  ) {
     try {
-      const totalSales = sales.reduce((sum, sale) => sum + sale.total_sale, 0);
-      const totalProfit = sales.reduce((sum, sale) => sum + sale.profit, 0);
+      // Use yearly totals from database (resets every January 1st)
+      const totalSales = salesTotals.year_sales; // Changed to yearly totals
+      const totalProfit = salesTotals.year_profit; // Changed to yearly totals
+      const dailySales = salesTotals.today_sales;
+      const dailyProfit = salesTotals.today_profit;
+
       const lowStockCount = products.filter(
         (p) => p.quantity_in_stock <= p.reorder_level
       ).length;
 
-      setStats({
+      const stats = {
         totalSales,
         totalProfit,
         lowStockCount,
         totalProducts: products.length,
-      });
+        dailySales,
+        dailyProfit,
+        yearSales: salesTotals.year_sales,
+        yearProfit: salesTotals.year_profit,
+      };
 
+      // Use Map for O(1) lookups instead of Array.find
+      const productMap = new Map(products.map((p) => [p.id, p]));
       const productSales = new Map<string, number>();
+
       sales.forEach((sale) => {
         const current = productSales.get(sale.product_id) || 0;
-        productSales.set(sale.product_id, current + sale.total_sale);
+        productSales.set(sale.product_id, current + (sale.total_sale || 0));
       });
 
-      const top = Array.from(productSales.entries())
+      const topProducts = Array.from(productSales.entries())
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([productId, total]) => ({
-          product: products.find((p) => p.id === productId)!,
+          product: productMap.get(productId)!,
           total,
         }))
         .filter((item) => item.product);
 
-      setTopProducts(top);
-      setRecentSales(sales.slice(-5).reverse());
+      const recentSales = sales.slice(0, 5); // Already sorted by date DESC
+
+      return { stats, topProducts, recentSales };
     } catch (error) {
       console.error("Error calculating dashboard:", error);
-      // Show empty state on error
-      setStats({
-        totalSales: 0,
-        totalProfit: 0,
-        lowStockCount: 0,
-        totalProducts: 0,
-      });
+      // Return empty state on error
+      return {
+        stats: {
+          totalSales: 0,
+          totalProfit: 0,
+          lowStockCount: 0,
+          totalProducts: 0,
+          dailySales: 0,
+          dailyProfit: 0,
+          yearSales: 0,
+          yearProfit: 0,
+        },
+        topProducts: [],
+        recentSales: [],
+      };
     }
   }
 
@@ -108,12 +155,15 @@ export default function Dashboard() {
           <div className="text-center space-y-2">
             <div className="inline-block">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
-                Hassan Muse BookShop
+                HASSAN BOOKSHOP
               </h1>
             </div>
             <p className="text-xs md:text-sm text-slate-200 font-medium max-w-3xl mx-auto">
-              ✨ Premium ERP Dashboard • Real-Time Analytics
+              ✨ Ku soo dhowow Dashboard-ka HASSAN BOOKSHOP — Halka aad ku
+              maamusho alaabta, iibka, iyo shaqaalaha. La soco xogta
+              waqtiga-dhabta ah si aad ganacsigaaga hore ugu waddo!
             </p>
+
             <div className="flex items-center justify-center space-x-2 text-emerald-400">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               <span className="text-xs font-semibold">Live System Active</span>
@@ -156,6 +206,18 @@ export default function Dashboard() {
           </div>
           <div
             className="group animate-slideInLeft"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <StatCard
+              title="Iibka Maanta - Today's Sales"
+              value={formatCurrency(stats.dailySales)}
+              icon={TrendingUp}
+              color="orange"
+              subtitle={`Profit: ${formatCurrency(stats.dailyProfit)}`}
+            />
+          </div>
+          <div
+            className="group animate-slideInLeft"
             style={{ animationDelay: "0.3s" }}
           >
             <StatCard
@@ -163,17 +225,6 @@ export default function Dashboard() {
               value={stats.totalProducts.toString()}
               icon={Package}
               color="purple"
-            />
-          </div>
-          <div
-            className="group animate-slideInLeft"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <StatCard
-              title="Alaab Yaraatay - Low Stock"
-              value={stats.lowStockCount.toString()}
-              icon={AlertTriangle}
-              color="orange"
             />
           </div>
         </div>
@@ -284,7 +335,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-white text-xs md:text-sm">
-                        {formatDate(sale.sale_date)}
+                        {formatDate(sale.created_at)}
                       </p>
                       <p className="text-xs text-slate-400 font-medium truncate">
                         {sale.sold_by}

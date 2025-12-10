@@ -3,13 +3,11 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  RotateCcw,
   ClipboardList,
   Search,
   FileText,
   LogOut,
   User,
-  Activity,
   Menu,
   X,
   DollarSign,
@@ -20,6 +18,7 @@ import {
   ChevronLeft,
   CreditCard,
   TrendingUp,
+  RotateCcw,
   Receipt,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -79,13 +78,13 @@ export default function Layout({
     },
     {
       id: "cyber-services",
-      label: "Cyber Services",
+      label: "Adeegyada Cyber-ka",
       icon: Monitor,
       color: "from-cyan-600 to-blue-600",
     },
     {
       id: "sales",
-      label: "Sales Records",
+      label: "Iibka",
       icon: ShoppingCart,
       color: "from-emerald-600 to-teal-600",
     },
@@ -97,19 +96,19 @@ export default function Layout({
     },
     {
       id: "returns",
-      label: "Returns",
+      label: "Soo Celinta",
       icon: RotateCcw,
       color: "from-rose-600 to-red-600",
     },
     {
       id: "search",
-      label: "Search",
+      label: "Raadi Alaabta",
       icon: Search,
       color: "from-violet-600 to-purple-600",
     },
     {
       id: "customer-credit",
-      label: "Store Credit",
+      label: "Deynta Macaamiisha",
       icon: CreditCard,
       color: "from-teal-600 to-cyan-600",
     },
@@ -118,46 +117,46 @@ export default function Layout({
   const adminTabs = [
     {
       id: "orders",
-      label: "Orders",
+      label: "Dalabyada",
       icon: ClipboardList,
       color: "from-orange-600 to-amber-600",
     },
     {
       id: "financial-dashboard",
-      label: "Financial Dashboard",
+      label: "Guddi Maaliyadeed",
       icon: LayoutDashboard,
       color: "from-cyan-600 to-blue-600",
     },
     {
       id: "expenses",
-      label: "Expenses",
+      label: "Kharashyada",
       icon: DollarSign,
       color: "from-red-600 to-rose-600",
     },
     {
       id: "investments",
-      label: "Initial Investment",
+      label: "Maalgelinta Hore",
       icon: PiggyBank,
       color: "from-green-600 to-emerald-600",
     },
     {
       id: "debts",
-      label: "Debts",
+      label: "Deymaha",
       icon: Banknote,
       color: "from-amber-600 to-yellow-600",
     },
     {
       id: "reports",
-      label: "Reports",
+      label: "Warbixinnada",
       icon: FileText,
       color: "from-indigo-600 to-blue-600",
     },
-    {
-      id: "user-activity",
-      label: "Staff Activity",
-      icon: Activity,
-      color: "from-rose-600 to-pink-600",
-    },
+    // {
+    //   id: "user-activity",
+    //   label: "Staff Activity",
+    //   icon: Activity,
+    //   color: "from-rose-600 to-pink-600",
+    // },
   ];
 
   const tabs = isAdmin ? [...baseTabs, ...adminTabs] : baseTabs;
@@ -166,7 +165,7 @@ export default function Layout({
   // No need for manual fetching - React Query auto-refetches every 2 minutes
 
   const getStaffName = (email: string) => {
-    if (email.includes("yussuf") || email.includes("admin"))
+    if (email.includes("yussufh080") || email.includes("admin"))
       return "Yussuf Muse (Admin)";
     if (email.includes("khaled")) return "Khaled";
     return email.split("@")[0];
@@ -230,7 +229,7 @@ export default function Layout({
           <div className="p-6 border-b border-white/10">
             {!isDesktopSidebarCollapsed ? (
               <>
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="hidden lg:flex items-center space-x-3 mb-4">
                   <div className="relative group">
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-3 rounded-2xl shadow-xl">
@@ -239,10 +238,10 @@ export default function Layout({
                   </div>
                   <div>
                     <h1 className="text-lg font-black text-white">
-                      Hassan Muse
+                      HASSAN
                     </h1>
                     <p className="text-xs text-purple-300 font-medium">
-                      BookShop & Cyber
+                      Bookshop & Cyber
                     </p>
                   </div>
                 </div>
@@ -390,19 +389,19 @@ export default function Layout({
                 )}
               </button>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 min-w-0">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl blur opacity-75"></div>
                   <div className="relative bg-gradient-to-br from-purple-600 to-pink-600 p-2 rounded-xl shadow-xl">
                     <Package className="w-4 h-4 text-white" />
                   </div>
                 </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-sm font-black text-white">
-                    Hassan Muse BookShop
+                <div className="hidden sm:block min-w-0">
+                  <h1 className="text-sm font-black text-white truncate max-w-[160px]">
+                    HASSAN BOOKSHOP
                   </h1>
                   <p className="text-xs text-purple-300 font-medium">
-                    ERP System
+                    POS/ERP System
                   </p>
                 </div>
               </div>
@@ -541,12 +540,40 @@ export default function Layout({
 
       {/* Main Content Area */}
       <main
-        className={`relative pt-16 lg:pt-0 min-h-screen transition-all duration-300 ${
+        className={`relative pt-16 lg:pt-0 transition-all duration-300 ${
           isDesktopSidebarCollapsed ? "lg:ml-20" : "lg:ml-72 xl:ml-80"
         }`}
       >
-        <div className="px-3 sm:px-4 lg:px-6 py-3 md:py-4 lg:py-6 max-w-[1600px] mx-auto">
-          {children}
+        <div className="min-h-screen flex flex-col">
+          <div className="flex-1 px-3 sm:px-4 lg:px-6 py-3 md:py-4 lg:py-6 max-w-[1600px] mx-auto w-full">
+            {children}
+          </div>
+
+          {/* Professional Footer Credit */}
+          <footer className="mt-auto py-4 border-t border-white/10 backdrop-blur-xl bg-white/5">
+            <div className="px-3 sm:px-4 lg:px-6 max-w-[1600px] mx-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-xs sm:text-sm text-slate-300">
+                <p className="text-center sm:text-left">
+                  © {new Date().getFullYear()} HASSAN Bookshop. All rights
+                  reserved.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400">
+                    Designed & Developed by
+                  </span>
+                  <a
+                    href="https://lenzro.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600/20 to-blue-600/20 hover:from-purple-600/30 hover:to-blue-600/30 border border-purple-500/30 hover:border-purple-500/50 rounded-lg transition-all hover:scale-105 font-semibold text-purple-300 hover:text-purple-200 shadow-lg"
+                  >
+                    <span className="text-lg">⚡</span>
+                    <span>Lenzro</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </footer>
         </div>
       </main>
     </div>

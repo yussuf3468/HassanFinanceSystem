@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { X, Upload } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
+import { invalidateProductCaches } from "../utils/cacheInvalidation";
 
 interface ProductFormProps {
   product: Product | null;
@@ -19,6 +21,21 @@ const categories = [
   "Pencils",
   "Erasers",
   "Markers",
+  "Quran",
+  "Print pepa",
+  "Office fell",
+  "Lunch box",
+  "Bags",
+  "Sabuurad",
+  "Ink",
+  "Water color",
+  "Crayons",
+  "Kutub elmi",
+  "Tarmus",
+  "Cup hot",
+  "Speaker",
+  "Locks/Qufulo",
+  "Malab/Honey",
   "Other",
 ];
 
@@ -27,6 +44,7 @@ export default function ProductForm({
   onClose,
   onSuccess,
 }: ProductFormProps) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     product_id: "",
     name: "",
@@ -127,6 +145,9 @@ export default function ProductForm({
         const { error } = await supabase.from("products").insert(data);
         if (error) throw error;
       }
+
+      // ✅ Invalidate product caches to update inventory lists
+      await invalidateProductCaches(queryClient);
 
       onSuccess();
     } catch (error) {

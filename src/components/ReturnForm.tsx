@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { X, Search, Package, Printer } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
+import { invalidateAfterReturn } from "../utils/cacheInvalidation";
 
 interface ReturnFormProps {
   products: Product[];
@@ -10,8 +12,14 @@ interface ReturnFormProps {
   onSuccess: () => void;
 }
 
-const staffMembers = ["Yussuf", "Khaled", "Zakaria"];
-const paymentMethods = ["Cash", "Mpesa", "Card", "Bank Transfer", "None"];
+const paymentMethods = [
+  "Cash",
+  "Mpesa",
+  "Till Number",
+  "Card",
+  "Bank Transfer",
+];
+const staffMembers = ["Mohamed", "Najib", "Isse", "Timo", "Samira"];
 
 interface ReceiptItem {
   product_name: string;
@@ -37,6 +45,7 @@ export default function ReturnForm({
   onClose,
   onSuccess,
 }: ReturnFormProps) {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [productId, setProductId] = useState<string>("");
@@ -98,6 +107,7 @@ export default function ReturnForm({
 
     setSubmitting(true);
     try {
+      // Insert return record
       const { error } = await supabase.from("returns").insert({
         sale_id: saleId || null,
         product_id: product.id,
@@ -112,6 +122,45 @@ export default function ReturnForm({
         status: "pending",
       });
       if (error) throw error;
+
+      // Update inventory: Add returned quantity back to stock
+      const { error: updateError } = await supabase
+        .from("products")
+        .update({
+          quantity_in_stock: product.quantity_in_stock + qtyNum,
+        })
+        .eq("id", product.id);
+
+      if (updateError) {
+        console.error("Error updating inventory:", updateError);
+        alert(
+          "Return recorded but failed to update inventory. Please update stock manually."
+        );
+      }
+
+      // Record negative sale entry to reflect the refund in sales/revenue tracking
+      const { error: saleError } = await supabase.from("sales").insert({
+        product_id: product.id,
+        quantity_sold: -qtyNum, // Negative quantity to indicate return
+        selling_price: product.selling_price,
+        buying_price: product.buying_price,
+        total_sale: -refundTotal, // Negative total to reduce revenue
+        profit: -(product.selling_price - product.buying_price) * qtyNum, // Negative profit
+        payment_method: paymentMethod !== "None" ? paymentMethod : "Cash",
+        sold_by: processedBy,
+        sale_date: new Date().toISOString(),
+        original_price: product.selling_price,
+        final_price: product.selling_price,
+        discount_percentage: 0,
+        discount_amount: 0,
+      });
+
+      if (saleError) {
+        console.error("Error recording refund in sales:", saleError);
+        alert(
+          "Return recorded but failed to update sales. Revenue may not reflect the refund."
+        );
+      }
 
       setReceipt({
         id: crypto.randomUUID(),
@@ -130,6 +179,9 @@ export default function ReturnForm({
         condition: condition || null,
         total_refund: refundTotal,
       });
+
+      // ✅ Invalidate caches to update dashboard immediately
+      await invalidateAfterReturn(queryClient);
     } catch (err) {
       console.error("Error recording return", err);
       alert("Failed to record return.");

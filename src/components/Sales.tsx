@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2, RefreshCw } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import SaleForm from "./SaleForm";
 import { formatDate } from "../utils/dateFormatter";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
+import { invalidateAfterSale } from "../utils/cacheInvalidation";
 
 export default function Sales() {
+  const queryClient = useQueryClient();
   // ✅ Use cached hooks instead of direct queries - saves egress!
   const { data: sales = [], refetch: refetchSales, isRefetching } = useSales();
   const { data: products = [] } = useProducts();
@@ -56,21 +59,60 @@ export default function Sales() {
   }
 
   async function handleDeleteSale(saleId: string, productName: string) {
-    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto iibkan?\n\nDelete this sale record for "${productName}"?\n\nTani kama noqon karto - This cannot be undone!`;
+    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto iibkan?\n\nDelete this sale record for "${productName}"?\n\n⚠️ This will restore the product quantity back to inventory.\n\nTani kama noqon karto - This cannot be undone!`;
 
     if (!confirm(deleteMessage)) return;
 
     try {
-      const { error } = await supabase.from("sales").delete().eq("id", saleId);
+      // ✅ First, get the sale details to restore stock
+      const { data: saleData, error: fetchError } = await supabase
+        .from("sales")
+        .select("product_id, quantity_sold")
+        .eq("id", saleId)
+        .single();
 
-      if (error) {
-        console.error("Error deleting sale:", error);
+      if (fetchError) {
+        console.error("Error fetching sale data:", fetchError);
+        alert("Failed to fetch sale details. Please try again.");
+        return;
+      }
+
+      // Delete the sale record
+      const { error: deleteError } = await supabase
+        .from("sales")
+        .delete()
+        .eq("id", saleId);
+
+      if (deleteError) {
+        console.error("Error deleting sale:", deleteError);
         alert("Failed to delete sale record. Please try again.");
         return;
       }
 
-      alert(`✅ Sale record deleted successfully!`);
-      refetchSales(); // ✅ Use refetch from hook
+      // ✅ Restore the product stock
+      const product = getProductById(saleData.product_id);
+      if (product) {
+        const restoredStock =
+          product.quantity_in_stock + saleData.quantity_sold;
+        const { error: stockError } = await supabase
+          .from("products")
+          .update({ quantity_in_stock: restoredStock })
+          .eq("id", saleData.product_id);
+
+        if (stockError) {
+          console.error("Error restoring stock:", stockError);
+          alert(
+            "⚠️ Sale deleted but failed to restore inventory. Please manually update stock for " +
+              product.name
+          );
+        }
+      }
+
+      // ✅ Invalidate caches to update dashboard and inventory
+      await invalidateAfterSale(queryClient);
+
+      alert(`✅ Sale record deleted and stock restored successfully!`);
+      refetchSales();
     } catch (error) {
       console.error("Error deleting sale:", error);
       alert("Failed to delete sale record. Please try again.");

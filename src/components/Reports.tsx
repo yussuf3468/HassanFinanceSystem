@@ -1,22 +1,52 @@
 import { useState } from "react";
-import { Download, Calendar, FileDown } from "lucide-react";
-import { useProducts, useSales, useReturns } from "../hooks/useSupabaseQuery";
+import { Download, Calendar, FileDown, RefreshCw } from "lucide-react";
+import {
+  useProducts,
+  useSales,
+  useReturns,
+  useSalesTotals,
+} from "../hooks/useSupabaseQuery";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  invalidateSalesCaches,
+  invalidateProductCaches,
+  invalidateReturnsCaches,
+} from "../utils/cacheInvalidation";
 import OptimizedImage from "./OptimizedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export default function Reports() {
+  const queryClient = useQueryClient();
   // ✅ Use cached hooks instead of direct queries - saves egress!
   const { data: products = [], isLoading: loadingProducts } = useProducts();
-  const { data: sales = [], isLoading: loadingSales } = useSales();
+  const { data: sales = [], isLoading: loadingSales } = useSales(); // For filtered reports only
   const { data: returns = [], isLoading: loadingReturns } = useReturns();
+  const { data: salesTotals } = useSalesTotals(); // Accurate totals for all sales
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [dateRange, setDateRange] = useState<
-    "today" | "week" | "month" | "all"
+    "today" | "week" | "month" | "year" | "all" | "custom"
   >("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
 
   const loading = loadingProducts || loadingSales || loadingReturns;
 
   // ❌ Removed useEffect and loadData - data now comes from cached hooks!
+
+  async function handleRefresh() {
+    setIsRefreshing(true);
+    try {
+      // Invalidate all caches - this ensures Dashboard and FinancialDashboard stay in sync
+      await Promise.all([
+        invalidateProductCaches(queryClient),
+        invalidateSalesCaches(queryClient),
+        invalidateReturnsCaches(queryClient),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
 
   function getFilteredSales() {
     const now = new Date();
@@ -33,6 +63,20 @@ export default function Reports() {
         const monthAgo = new Date(today);
         monthAgo.setMonth(monthAgo.getMonth() - 1);
         return sales.filter((s) => new Date(s.created_at) >= monthAgo);
+      case "year":
+        const yearStart = new Date(now.getFullYear(), 0, 1); // January 1st of current year
+        return sales.filter((s) => new Date(s.created_at) >= yearStart);
+      case "custom":
+        if (!customStartDate && !customEndDate) return sales;
+        return sales.filter((s) => {
+          const saleDate = new Date(s.created_at);
+          const start = customStartDate
+            ? new Date(customStartDate)
+            : new Date(0);
+          const end = customEndDate ? new Date(customEndDate) : new Date();
+          end.setHours(23, 59, 59, 999); // Include entire end date
+          return saleDate >= start && saleDate <= end;
+        });
       default:
         return sales;
     }
@@ -59,6 +103,22 @@ export default function Reports() {
         return returns.filter(
           (r: any) => new Date(r.return_date || r.created_at) >= monthAgo
         );
+      case "year":
+        const yearStart = new Date(now.getFullYear(), 0, 1); // January 1st of current year
+        return returns.filter(
+          (r: any) => new Date(r.return_date || r.created_at) >= yearStart
+        );
+      case "custom":
+        if (!customStartDate && !customEndDate) return returns;
+        return returns.filter((r: any) => {
+          const returnDate = new Date(r.return_date || r.created_at);
+          const start = customStartDate
+            ? new Date(customStartDate)
+            : new Date(0);
+          const end = customEndDate ? new Date(customEndDate) : new Date();
+          end.setHours(23, 59, 59, 999);
+          return returnDate >= start && returnDate <= end;
+        });
       default:
         return returns;
     }
@@ -194,7 +254,7 @@ export default function Reports() {
           pageHeight - 10
         );
         doc.text(
-          "Hassan Bookshop - Confidential",
+          "Al Kalam Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
           { align: "center" }
@@ -203,7 +263,256 @@ export default function Reports() {
     });
 
     // Save the PDF
-    const filename = `Hassan_Bookshop_Inventory_Report_${
+    const filename = `Al_Kalam_Inventory_Report_${
+      new Date().toISOString().split("T")[0]
+    }.pdf`;
+    doc.save(filename);
+  }
+
+  function exportSalesPDF() {
+    const doc = new jsPDF();
+    const today = new Date();
+    const dateStr = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const filtered = getFilteredSales();
+
+    // Get date range label
+    let rangeLabel = "";
+    let periodText = "";
+
+    if (dateRange === "today") {
+      rangeLabel = "Today";
+      periodText = dateStr;
+    } else if (dateRange === "week") {
+      rangeLabel = "Last_7_Days";
+      periodText = "Last 7 Days";
+    } else if (dateRange === "month") {
+      rangeLabel = "Last_30_Days";
+      periodText = "Last 30 Days";
+    } else if (dateRange === "year") {
+      const currentYear = new Date().getFullYear();
+      rangeLabel = `Year_${currentYear}`;
+      periodText = `Year ${currentYear} (Jan 1 - Dec 31)`;
+    } else if (dateRange === "custom") {
+      const start = customStartDate || "Beginning";
+      const end = customEndDate || "Today";
+      rangeLabel = "Custom_Range";
+      periodText = `${
+        customStartDate
+          ? new Date(customStartDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "Beginning"
+      } to ${
+        customEndDate
+          ? new Date(customEndDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "Today"
+      }`;
+    } else {
+      rangeLabel = "All_Time";
+      periodText = "All Time";
+    }
+
+    // Calculate totals
+    const totalTransactions = filtered.length;
+    const totalItems = filtered.reduce((sum, s) => sum + s.quantity_sold, 0);
+    const totalRevenue = filtered.reduce((sum, s) => sum + s.total_sale, 0);
+    const totalProfit = filtered.reduce((sum, s) => sum + s.profit, 0);
+    const totalDiscounts = filtered.reduce(
+      (sum, s) => sum + (s.discount_amount || 0),
+      0
+    );
+    const profitMargin =
+      totalRevenue > 0
+        ? ((totalProfit / totalRevenue) * 100).toFixed(1)
+        : "0.0";
+    const avgSale =
+      filtered.length > 0
+        ? (totalRevenue / filtered.length).toFixed(2)
+        : "0.00";
+    const avgProfit =
+      filtered.length > 0 ? (totalProfit / filtered.length).toFixed(2) : "0.00";
+
+    // Payment method breakdown
+    const paymentBreakdown = filtered.reduce((acc: any, s) => {
+      const method = s.payment_method || "Unknown";
+      if (!acc[method]) {
+        acc[method] = { count: 0, total: 0 };
+      }
+      acc[method].count++;
+      acc[method].total += s.total_sale;
+      return acc;
+    }, {});
+
+    // Header
+    doc.setFillColor(11, 11, 20);
+    doc.rect(0, 0, 210, 40, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("HASSAN BOOKSHOP", 105, 15, { align: "center" });
+
+    doc.setFontSize(16);
+    doc.text("Sales Report", 105, 25, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${dateStr} • Period: ${periodText}`, 105, 33, {
+      align: "center",
+    });
+
+    // Summary section
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Summary", 14, 50);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+
+    // Left column
+    doc.text(`Total Transactions: ${totalTransactions}`, 14, 58);
+    doc.text(`Total Items Sold: ${totalItems}`, 14, 64);
+    doc.text(`Average Sale: KES ${Number(avgSale).toLocaleString()}`, 14, 70);
+    doc.text(
+      `Average Profit: KES ${Number(avgProfit).toLocaleString()}`,
+      14,
+      76
+    );
+
+    // Right column
+    doc.text(`Total Revenue: KES ${totalRevenue.toLocaleString()}`, 105, 58);
+    doc.text(`Total Profit: KES ${totalProfit.toLocaleString()}`, 105, 64);
+    doc.text(`Profit Margin: ${profitMargin}%`, 105, 70);
+    doc.text(
+      `Total Discounts: KES ${totalDiscounts.toLocaleString()}`,
+      105,
+      76
+    );
+
+    // Payment method breakdown
+    let yPos = 84;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Payment Methods:", 14, yPos);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+
+    Object.entries(paymentBreakdown).forEach(
+      ([method, data]: [string, any]) => {
+        yPos += 6;
+        doc.text(
+          `${method}: ${
+            data.count
+          } transactions (KES ${data.total.toLocaleString()})`,
+          14,
+          yPos
+        );
+      }
+    );
+
+    // Sales table - sorted by date (newest first)
+    const sortedSales = [...filtered].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    const tableData = sortedSales.map((s, index) => {
+      const product = products.find((p) => p.id === s.product_id);
+      return [
+        index + 1,
+        new Date(s.created_at).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        product?.product_id || "N/A",
+        product?.name || "Unknown",
+        s.quantity_sold,
+        `KES ${s.selling_price.toLocaleString()}`,
+        s.discount_amount ? `KES ${s.discount_amount.toLocaleString()}` : "-",
+        `KES ${s.total_sale.toLocaleString()}`,
+        `KES ${s.profit.toLocaleString()}`,
+      ];
+    });
+
+    autoTable(doc, {
+      startY: yPos + 10,
+      head: [
+        [
+          "#",
+          "Date",
+          "Product ID",
+          "Product Name",
+          "Qty",
+          "Unit Price",
+          "Discount",
+          "Total Sale",
+          "Profit",
+        ],
+      ],
+      body: tableData,
+      theme: "striped",
+      headStyles: {
+        fillColor: [11, 11, 20],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 8,
+        halign: "center",
+      },
+      bodyStyles: {
+        fontSize: 7,
+        textColor: [0, 0, 0],
+      },
+      columnStyles: {
+        0: { cellWidth: 8, halign: "center" },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 18 },
+        3: { cellWidth: 38 },
+        4: { cellWidth: 10, halign: "center" },
+        5: { cellWidth: 20, halign: "right" },
+        6: { cellWidth: 18, halign: "right" },
+        7: { cellWidth: 22, halign: "right", fontStyle: "bold" },
+        8: { cellWidth: 22, halign: "right", textColor: [34, 197, 94] },
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      margin: { left: 14, right: 14 },
+      didDrawPage: (data) => {
+        // Footer
+        const pageCount = (doc as any).internal.pages.length - 1;
+        const pageSize = doc.internal.pageSize;
+        const pageHeight = pageSize.height || pageSize.getHeight();
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          `Page ${data.pageNumber} of ${pageCount}`,
+          data.settings.margin.left,
+          pageHeight - 10
+        );
+        doc.text(
+          "Al Kalam Bookshop - Confidential",
+          pageSize.width / 2,
+          pageHeight - 10,
+          { align: "center" }
+        );
+      },
+    });
+
+    // Save the PDF
+    const filename = `Al_Kalam_Sales_Report_${rangeLabel}_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -270,8 +579,19 @@ export default function Reports() {
 
   const filteredSales = getFilteredSales();
   const filteredReturns = getFilteredReturns();
-  const totalRevenue = filteredSales.reduce((sum, s) => sum + s.total_sale, 0);
-  const totalProfit = filteredSales.reduce((sum, s) => sum + s.profit, 0);
+
+  // Use filtered totals for summary cards based on date range
+  // Only use server-side totals when "all" is selected
+  const totalRevenue =
+    dateRange === "all"
+      ? salesTotals?.total_sales || 0
+      : filteredSales.reduce((sum, s) => sum + s.total_sale, 0);
+
+  const totalProfit =
+    dateRange === "all"
+      ? salesTotals?.total_profit || 0
+      : filteredSales.reduce((sum, s) => sum + s.profit, 0);
+
   const totalRefunded = filteredReturns.reduce(
     (sum: number, r: any) => sum + (Number(r.total_refund) || 0),
     0
@@ -302,54 +622,113 @@ export default function Reports() {
       </div>
 
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center space-x-3">
+        {/* Date Range Filters - Mobile First */}
+        <div className="flex flex-col gap-3 mb-4 md:mb-6">
+          <div className="flex items-center space-x-2 px-1">
             <div className="p-2 bg-purple-600/20 rounded-lg border border-purple-500/30">
-              <Calendar className="w-5 h-5 text-purple-400" />
+              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
-            <span className="font-bold text-white">Date Range:</span>
+            <span className="font-bold text-white text-sm md:text-base">
+              📅 Date Range
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {(["today", "week", "month", "all"] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setDateRange(range)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                  dateRange === range
-                    ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg scale-105"
-                    : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-white/20"
-                }`}
-              >
-                {range === "today"
-                  ? "Today"
-                  : range === "week"
-                  ? "Last 7 Days"
-                  : range === "month"
-                  ? "Last 30 Days"
-                  : "All Time"}
-              </button>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Filter buttons - 2 columns on mobile, wrap on tablet+ */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 flex-1">
+              {(
+                ["today", "week", "month", "year", "custom", "all"] as const
+              ).map((range) => (
+                <button
+                  key={range}
+                  onClick={() => setDateRange(range)}
+                  className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 touch-manipulation active:scale-95 ${
+                    dateRange === range
+                      ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg"
+                      : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-white/20 active:bg-white/30"
+                  }`}
+                >
+                  {range === "today"
+                    ? "Today"
+                    : range === "week"
+                    ? "7 Days"
+                    : range === "month"
+                    ? "30 Days"
+                    : range === "year"
+                    ? `${new Date().getFullYear()}`
+                    : range === "custom"
+                    ? "Custom"
+                    : "All Time"}
+                </button>
+              ))}
+            </div>
+            {/* Refresh button */}
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing || loading}
+              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm touch-manipulation"
+              title="Refresh reports data"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              <span>Refresh</span>
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-gradient-to-br from-blue-600/20 to-blue-500/10 backdrop-blur-xl rounded-xl p-5 border border-blue-500/30 hover:-translate-y-1 transition-all duration-300">
+        {/* Custom Date Range Inputs - Mobile Optimized */}
+        {dateRange === "custom" && (
+          <div className="mb-4 md:mb-6 p-4 md:p-5 bg-white/5 rounded-xl border border-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  📅 Start Date
+                </label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-full px-4 py-3 md:py-2 bg-white/10 border border-white/20 rounded-lg text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert touch-manipulation"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  📅 End Date
+                </label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-full px-4 py-3 md:py-2 bg-white/10 border border-white/20 rounded-lg text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert touch-manipulation"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 mt-3">
+              💡 Select start and end dates to filter reports. Leave blank for
+              open-ended ranges.
+            </p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+          <div className="bg-gradient-to-br from-blue-600/20 to-blue-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-blue-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation">
             <p className="text-xs md:text-sm text-blue-300 font-semibold mb-2 uppercase tracking-wide">
               Total Revenue
             </p>
-            <p className="text-2xl md:text-3xl font-black text-white">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
               KES {totalRevenue.toLocaleString()}
             </p>
             <p className="text-xs md:text-sm text-blue-400 mt-2 font-medium">
-              {filteredSales.length} transactions
+              {filteredSales.length} transaction
+              {filteredSales.length !== 1 ? "s" : ""}
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 backdrop-blur-xl rounded-xl p-5 border border-emerald-500/30 hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-emerald-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation">
             <p className="text-xs md:text-sm text-emerald-300 font-semibold mb-2 uppercase tracking-wide">
               Total Profit
             </p>
-            <p className="text-2xl md:text-3xl font-black text-white">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
               KES {totalProfit.toLocaleString()}
             </p>
             <p className="text-xs md:text-sm text-emerald-400 mt-2 font-medium">
@@ -360,39 +739,42 @@ export default function Reports() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-rose-600/20 to-red-500/10 backdrop-blur-xl rounded-xl p-5 border border-rose-500/30 hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-gradient-to-br from-rose-600/20 to-red-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-rose-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1">
             <p className="text-xs md:text-sm text-rose-300 font-semibold mb-2 uppercase tracking-wide">
               Total Refunded
             </p>
-            <p className="text-2xl md:text-3xl font-black text-white">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
               KES {totalRefunded.toLocaleString()}
             </p>
             <p className="text-xs md:text-sm text-rose-400 mt-2 font-medium">
-              {filteredReturns.length} returns
+              {filteredReturns.length} return
+              {filteredReturns.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">Inventory Report</h3>
-            <div className="flex gap-2">
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-bold text-white">
+              Inventory Report
+            </h3>
+            <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={exportInventoryToPDF}
-                className="flex items-center space-x-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1.5 rounded-lg hover:scale-105 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 text-xs font-bold"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 text-xs font-bold touch-manipulation"
                 title="Export as PDF"
               >
-                <FileDown className="w-3.5 h-3.5" />
+                <FileDown className="w-4 h-4" />
                 <span>PDF</span>
               </button>
               <button
                 onClick={() => exportToCSV("inventory")}
-                className="flex items-center space-x-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-lg hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-xs font-bold"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-xs font-bold touch-manipulation"
                 title="Export as CSV"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-4 h-4" />
                 <span>CSV</span>
               </button>
             </div>
@@ -441,16 +823,29 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">Sales Report</h3>
-            <button
-              onClick={() => exportToCSV("sales")}
-              className="flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 text-sm font-bold"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export CSV</span>
-            </button>
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-bold text-white">
+              Sales Report
+            </h3>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button
+                onClick={exportSalesPDF}
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 text-xs font-bold touch-manipulation"
+                title="Export as PDF"
+              >
+                <FileDown className="w-4 h-4" />
+                <span>PDF</span>
+              </button>
+              <button
+                onClick={() => exportToCSV("sales")}
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-xs font-bold touch-manipulation"
+                title="Export as CSV"
+              >
+                <Download className="w-4 h-4" />
+                <span>CSV</span>
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             <ReportRow
@@ -492,12 +887,14 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">Returns Report</h3>
+        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-bold text-white">
+              Returns Report
+            </h3>
             <button
               onClick={() => exportToCSV("returns")}
-              className="flex items-center space-x-2 bg-gradient-to-r from-rose-500 to-red-600 text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/40 text-sm font-bold"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-rose-500 to-red-600 text-white px-4 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/40 text-sm font-bold touch-manipulation"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>

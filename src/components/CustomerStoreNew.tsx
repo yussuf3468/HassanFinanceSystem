@@ -388,7 +388,7 @@ export default function CustomerStore({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
       {/* Navbar */}
       <Navbar
         searchTerm={searchTerm}
@@ -459,23 +459,27 @@ export default function CustomerStore({
           </div>
 
           {/* Desktop Filter Design */}
-          <div className="hidden lg:flex items-center justify-center space-x-3 overflow-x-auto pb-4">
-            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-xl rounded-full p-1 shadow-lg border border-white/20">
-              <Filter className="w-5 h-5 text-purple-300 ml-3" />
-              <div className="flex space-x-1 pr-3">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => handleCategoryChange(category)}
-                    className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                      selectedCategory === category
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl transform scale-105"
-                        : "text-slate-300 hover:bg-white/10 hover:text-white hover:scale-105"
-                    }`}
-                  >
-                    {category === "all" ? "All" : category}
-                  </button>
-                ))}
+          <div className="hidden lg:block">
+            <div className="overflow-x-auto scrollbar-hide pb-4">
+              <div className="flex items-center justify-center space-x-3 min-w-max mx-auto">
+                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-xl rounded-full p-1 shadow-lg border border-white/20">
+                  <Filter className="w-5 h-5 text-purple-300 ml-3 flex-shrink-0" />
+                  <div className="flex space-x-1 pr-3">
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => handleCategoryChange(category)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                          selectedCategory === category
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl transform scale-105"
+                            : "text-slate-300 hover:bg-white/10 hover:text-white hover:scale-105"
+                        }`}
+                      >
+                        {category === "all" ? "All" : category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -518,31 +522,19 @@ export default function CustomerStore({
         )}
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-4 mt-12">
+          <div className="flex justify-center items-center gap-3 mt-12 px-4">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
             >
               Previous
             </button>
 
-            <div className="flex space-x-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-lg transition-all ${
-                      page === currentPage
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-                        : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+            <div className="flex items-center gap-2">
+              <span className="text-white font-medium px-3 py-2 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20">
+                Page {currentPage} of {totalPages}
+              </span>
             </div>
 
             <button
@@ -550,7 +542,7 @@ export default function CustomerStore({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
             >
               Next
             </button>
@@ -563,7 +555,7 @@ export default function CustomerStore({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Hassan Muse BookShop</h3>
+              <h3 className="text-xl font-bold mb-4">HASSAN BOOKSHOP</h3>
               <p className="text-slate-300">
                 Your trusted partner for books, stationery, and more. Quality
                 products, fast delivery, best prices.
@@ -585,10 +577,10 @@ export default function CustomerStore({
                 <p className="flex items-center space-x-2">
                   <span>📧</span>
                   <a
-                    href="mailto:Yussufh080@gmail.com"
+                    href="mailto:yussufh080@gmail.com"
                     className="hover:text-white transition-colors"
                   >
-                    Yussufh080@gmail.com
+                    yussufh080@gmail.com
                   </a>
                 </p>
                 <p className="flex items-center space-x-2">
@@ -596,8 +588,8 @@ export default function CustomerStore({
                   <span>Nairobi, Kenya</span>
                 </p>
                 <p className="flex items-center space-x-2">
-                  <span>🚚</span>
-                  <span>Free delivery over KES 2,000</span>
+                  <span>⚡</span>
+                  <span>Made with ❤️ by Lenzro</span>
                 </p>
               </div>
             </div>
@@ -613,8 +605,28 @@ export default function CustomerStore({
             </div>
           </div>
 
-          <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
-            <p>&copy; 2025 Hassan Muse BookShop. All rights reserved.</p>
+          <div className="border-t border-slate-700 mt-8 pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-3 text-sm">
+              <p className="text-slate-400 text-center sm:text-left">
+                &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
+                reserved.
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">Powered by</span>
+                <a
+                  href="https://lenzro.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600/30 to-blue-600/30 hover:from-purple-600/40 hover:to-blue-600/40 border border-purple-500/40 hover:border-purple-400/60 rounded-lg transition-all hover:scale-105 font-bold text-purple-300 hover:text-purple-200 shadow-xl"
+                >
+                  <span className="text-lg">⚡</span>
+                  <span>Lenzro</span>
+                  <span className="text-xs text-purple-400">
+                    Digital Agency
+                  </span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

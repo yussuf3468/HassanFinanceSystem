@@ -73,8 +73,8 @@ const OptimizedImage = memo(
     // Get optimized and cache-busted URL
     const imageUrl = src ? getProcessedUrl(src, forceFresh, preset) : null;
 
-    // Check if image is already cached
-    const isCached = src ? imageCache.has(src) : false;
+    // Check if processed image URL is already cached
+    const isCached = imageUrl ? imageCache.has(imageUrl) : false;
 
     const preloadImage = useCallback(
       (imageUrl: string) => {

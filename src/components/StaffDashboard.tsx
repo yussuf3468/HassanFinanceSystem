@@ -34,7 +34,7 @@ export default function StaffDashboard() {
   const staffName = useMemo(() => {
     if (!user?.email) return "Staff Member";
     const email = user.email;
-    if (email.includes("yussuf") || email.includes("admin"))
+    if (email.includes("galiyowabi") || email.includes("admin"))
       return "Yussuf Muse";
     if (email.includes("khaled")) return "Khaled";
     return email.split("@")[0];
@@ -67,11 +67,13 @@ export default function StaffDashboard() {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const todaySales = mySales.filter(
-      (s) => new Date(s.sale_date) >= todayStart
+      (s) => new Date(s.created_at) >= todayStart
     );
-    const weekSales = mySales.filter((s) => new Date(s.sale_date) >= weekStart);
+    const weekSales = mySales.filter(
+      (s) => new Date(s.created_at) >= weekStart
+    );
     const monthSales = mySales.filter(
-      (s) => new Date(s.sale_date) >= monthStart
+      (s) => new Date(s.created_at) >= monthStart
     );
 
     return {
@@ -100,10 +102,10 @@ export default function StaffDashboard() {
     );
 
     return mySales
-      .filter((s) => new Date(s.sale_date) >= todayStart)
+      .filter((s) => new Date(s.created_at) >= todayStart)
       .sort((a, b) => {
-        const timeA = new Date(a.sale_date).getTime();
-        const timeB = new Date(b.sale_date).getTime();
+        const timeA = new Date(a.created_at).getTime();
+        const timeB = new Date(b.created_at).getTime();
         return timeB - timeA; // Newest first
       })
       .slice(0, 10); // Top 10 most recent
@@ -339,7 +341,7 @@ export default function StaffDashboard() {
                             {product?.name || "Unknown Product"}
                           </p>
                           <p className="text-xs text-slate-400">
-                            {new Date(sale.sale_date).toLocaleTimeString()} •
+                            {new Date(sale.created_at).toLocaleTimeString()} •
                             Qty: {sale.quantity_sold}
                           </p>
                         </div>

@@ -1,7 +1,8 @@
 // getCachedImageUrl.ts
-// Returns a Vercel proxy URL for a Supabase image, with 1-year cache and fallback support.
+// Returns a same-origin proxy URL for a Supabase image, with 1-year cache and fallback support.
 
-const FALLBACK_IMAGE = "https://finance.lenzro.com/fallback-image.png";
+// Use a local, version-controlled fallback asset to avoid cross-domain and availability issues
+const FALLBACK_IMAGE = "/fallback-image.svg";
 
 /**
  * Returns a proxy URL for a Supabase image, cached for 1 year via Vercel edge function.
@@ -13,8 +14,8 @@ export function getCachedImageUrl(supabaseUrl: string): string {
   try {
     // Encode the original image URL for proxying
     const encoded = encodeURIComponent(supabaseUrl);
-    // The Vercel edge function should be set up at /api/image-proxy
-    return `https://finance.lenzro.com/api/image-proxy?url=${encoded}`;
+    // Always target the same-origin edge function to work in any environment
+    return `/api/image-proxy?url=${encoded}`;
   } catch {
     return FALLBACK_IMAGE;
   }

@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Inventory from "./components/Inventory";
 import Sales from "./components/Sales";
+import SalesHistory from "./components/SalesHistory";
 import Returns from "./components/Returns";
 import Search from "./components/Search";
 import Reports from "./components/Reports";
@@ -21,7 +22,7 @@ import CustomerCredit from "./components/CustomerCredit";
 import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
-import SalesHistory from "./components/SalesHistory";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -52,7 +53,7 @@ function AppContent() {
 
         // Assign default dashboard based on user email
         if (user.email === "admin@bookshop.ke") return "dashboard";
-        if (user.email === "khalid123@gmail.com") return "staff-dashboard";
+        if (user.email) return "staff-dashboard";
         return "dashboard";
       });
     }
@@ -90,16 +91,20 @@ function AppContent() {
   // Admin view (requires authentication)
   if (!user) {
     return (
-      <div className="relative">
-        {/* View Toggle Button */}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 relative">
+        {/* View Toggle Button (match customer/admin toggle style) */}
         <button
           onClick={() => setViewMode("customer")}
-          className="fixed top-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 shadow-lg"
+          className="fixed top-4 right-4 z-50 bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2 shadow-lg"
         >
           <Store className="w-4 h-4" />
           <span className="hidden sm:inline">Customer Store</span>
         </button>
-        <Login onLogin={() => {}} />
+
+        {/* Centered login container to match app layout */}
+        <div className="w-full max-w-md mx-4">
+          <Login onLogin={() => {}} />
+        </div>
       </div>
     );
   }
@@ -124,6 +129,9 @@ function AppContent() {
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
       </Layout>
+
+      {/* PWA Install Prompt for iOS and Android */}
+      <PWAInstallPrompt />
 
       {/* Dev-only diagnostics (hidden in production) */}
       {!import.meta.env.PROD && <QueryDiagnostics />}

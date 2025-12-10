@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { invalidateAllFinancialCaches } from "../utils/cacheInvalidation";
 import {
   DollarSign,
   PiggyBank,
@@ -16,12 +18,14 @@ import {
   Sun,
   Users,
   Percent,
+  RefreshCw,
 } from "lucide-react";
 import {
   useSales,
   useExpenses,
   useDebts,
   useInitialInvestments,
+  useFinancialTotals,
 } from "../hooks/useSupabaseQuery";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
@@ -65,6 +69,7 @@ interface InvestorDividend {
 }
 
 export default function FinancialDashboard() {
+  const queryClient = useQueryClient();
   const [stats, setStats] = useState<FinancialStats>({
     totalSales: 0,
     totalProfit: 0,
@@ -89,11 +94,13 @@ export default function FinancialDashboard() {
     InvestorDividend[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { data: sales = [] } = useSales();
   const { data: expenses = [] } = useExpenses();
   const { data: debts = [] } = useDebts();
   const { data: investments = [] } = useInitialInvestments();
+  const { data: financialTotals } = useFinancialTotals(); // Accurate server-side totals
   // Cyber services profit (all entries are pure profit)
   const { data: cyberServices = [] } = useQuery({
     queryKey: ["cyber_services"],
@@ -119,14 +126,24 @@ export default function FinancialDashboard() {
   useEffect(() => {
     loadFinancialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sales, expenses, debts, investments, cyberServices]);
+  }, [expenses, debts, investments, financialTotals]); // Removed sales and cyberServices, added financialTotals
+
+  async function handleRefresh() {
+    setIsRefreshing(true);
+    try {
+      // Invalidate all financial caches - ensures Dashboard, Reports, and FinancialDashboard stay in sync
+      await invalidateAllFinancialCaches(queryClient);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
 
   const generateFinancialReport = () => {
     const today = new Date();
     const reportData = {
       generatedAt: today.toISOString(),
       reportDate: formatDate(today),
-      businessName: "Lenzro ERP",
+      businessName: "Hassan Bookshop",
 
       // Executive Summary
       executiveSummary: {
@@ -306,7 +323,7 @@ export default function FinancialDashboard() {
 
   const generateCSVReport = (data: any) => {
     const lines = [
-      `Lenzro ERP - Financial Report`,
+      `Hassan Bookshop - Financial Report`,
       `Generated: ${data.reportDate}`,
       ``,
       `EXECUTIVE SUMMARY`,
@@ -343,29 +360,26 @@ export default function FinancialDashboard() {
     try {
       setLoading(true);
 
-      // Use cached data from hooks (already fetched once and cached indefinitely)
-      const salesData: any[] = Array.isArray(sales) ? sales : [];
+      // Use cached data from hooks
       const expensesData: any[] = Array.isArray(expenses) ? expenses : [];
       const investmentsData: any[] = Array.isArray(investments)
         ? investments
         : [];
       const debtsData: any[] = Array.isArray(debts) ? debts : [];
 
-      // Calculate business metrics
-      const cyberProfit = cyberServices.reduce(
-        (sum: number, service: any) => sum + (service.amount || 0),
-        0
-      );
-      // Total sales: only product/service sales
-      const totalSales = salesData.reduce(
-        (sum, sale) => sum + (sale.total_sale || 0),
-        0
-      );
-      // Total profit: product/service profit + cyber profit
-      const totalProfit = salesData.reduce(
-        (sum, sale) => sum + (sale.profit || 0),
-        0
-      ) + cyberProfit;
+      // Use server-side aggregated totals (accurate for ALL sales, bypasses 1000 row limit)
+      const totalSales =
+        (financialTotals?.total_sales || 0) +
+        (financialTotals?.total_cyber_profit || 0);
+      const totalProfit =
+        (financialTotals?.total_profit || 0) +
+        (financialTotals?.total_cyber_profit || 0);
+      const monthlyRevenue = financialTotals?.monthly_sales || 0;
+      const monthlyProfit = financialTotals?.monthly_profit || 0;
+      const dailyRevenue = financialTotals?.daily_sales || 0;
+      const dailyProfit = financialTotals?.daily_profit || 0;
+      const yesterdayProfit = financialTotals?.yesterday_profit || 0;
+      const cyberProfit = financialTotals?.total_cyber_profit || 0;
 
       // Calculate financial metrics
       const totalExpenses = expensesData.reduce(
@@ -427,7 +441,7 @@ export default function FinancialDashboard() {
       const activeDebts = debtsData.filter((d) => isDebtActive(d)).length;
       // === END UPDATED DEBT LOGIC ===
 
-      // Calculate current month metrics
+      // Calculate monthly expenses (keep client-side for category breakdown)
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
 
@@ -442,89 +456,7 @@ export default function FinancialDashboard() {
         })
         .reduce((sum, expense) => sum + (expense.amount || 0), 0);
 
-      const monthlyRevenue = salesData
-        .filter((sale: any) => {
-          if (!sale.sale_date) return false;
-          const saleDate = new Date(sale.sale_date);
-          return (
-            saleDate.getMonth() + 1 === currentMonth &&
-            saleDate.getFullYear() === currentYear
-          );
-        })
-        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0)
-        + cyberServices
-            .filter((service: any) => {
-              const serviceDate = new Date(service.date);
-              return (
-                serviceDate.getMonth() + 1 === currentMonth &&
-                serviceDate.getFullYear() === currentYear
-              );
-            })
-            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
-
-      const monthlyProfit = salesData
-        .filter((sale: any) => {
-          if (!sale.sale_date) return false;
-          const saleDate = new Date(sale.sale_date);
-          return (
-            saleDate.getMonth() + 1 === currentMonth &&
-            saleDate.getFullYear() === currentYear
-          );
-        })
-        .reduce((sum, sale) => sum + (sale.profit || 0), 0)
-        + cyberServices
-            .filter((service: any) => {
-              const serviceDate = new Date(service.date);
-              return (
-                serviceDate.getMonth() + 1 === currentMonth &&
-                serviceDate.getFullYear() === currentYear
-              );
-            })
-            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
-
-      // Calculate daily metrics
-      const today = new Date();
-      const todayStr = today.toISOString().split("T")[0];
-
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-      const dailyRevenue = salesData
-        .filter((sale: any) => {
-          if (!sale.sale_date) return false;
-          const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
-          return saleDate === todayStr;
-        })
-        .reduce((sum, sale) => sum + (sale.total_sale || 0), 0)
-        + cyberServices
-            .filter((service: any) => {
-              const serviceDate = new Date(service.date).toISOString().split("T")[0];
-              return serviceDate === todayStr;
-            })
-            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
-
-      const dailyProfit = salesData
-        .filter((sale: any) => {
-          if (!sale.sale_date) return false;
-          const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
-          return saleDate === todayStr;
-        })
-        .reduce((sum, sale) => sum + (sale.profit || 0), 0)
-        + cyberServices
-            .filter((service: any) => {
-              const serviceDate = new Date(service.date).toISOString().split("T")[0];
-              return serviceDate === todayStr;
-            })
-            .reduce((sum: number, service: any) => sum + (service.amount || 0), 0);
-
-      const yesterdayProfit = salesData
-        .filter((sale: any) => {
-          if (!sale.sale_date) return false;
-          const saleDate = new Date(sale.sale_date).toISOString().split("T")[0];
-          return saleDate === yesterdayStr;
-        })
-        .reduce((sum, sale) => sum + (sale.profit || 0), 0);
+      // All sales/profit metrics now come from server-side aggregation (already calculated above)
 
       const investmentCategories = new Set(
         investmentsData.map((inv: any) => inv.category).filter(Boolean)
@@ -682,14 +614,27 @@ export default function FinancialDashboard() {
               ✨ Comprehensive financial overview and business metrics for your
               organization
             </p>
-            {/* Export Button */}
-            <button
-              onClick={generateFinancialReport}
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105"
-            >
-              <Download className="w-4 h-4" />
-              <span className="text-sm">Export Report</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={generateFinancialReport}
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105"
+              >
+                <Download className="w-4 h-4" />
+                <span className="text-sm">Export Report</span>
+              </button>
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing || loading}
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Refresh financial data"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                <span className="text-sm">Refresh</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -710,10 +655,7 @@ export default function FinancialDashboard() {
                   Total Sales (All Sources)
                 </p>
                 <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  KES {(
-                    sales.reduce((sum: number, sale: any) => sum + (sale.total_sale || 0), 0) +
-                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
-                  ).toLocaleString()}
+                  KES {stats.totalSales.toLocaleString()}
                 </p>
               </div>
               <Receipt className="w-6 h-6 sm:w-8 sm:h-8" />
@@ -728,10 +670,7 @@ export default function FinancialDashboard() {
                   Total Profit (All Sources)
                 </p>
                 <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  KES {(
-                    sales.reduce((sum: number, sale: any) => sum + (sale.profit || 0), 0) +
-                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
-                  ).toLocaleString()}
+                  KES {stats.totalProfit.toLocaleString()}
                 </p>
               </div>
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
@@ -746,10 +685,7 @@ export default function FinancialDashboard() {
                   Total Revenue (Cash at Hand)
                 </p>
                 <p className="text-lg sm:text-xl md:text-2xl font-bold">
-                  KES {(
-                    sales.reduce((sum: number, sale: any) => sum + (sale.total_sale || 0), 0) +
-                    cyberServices.reduce((sum: number, service: any) => sum + (service.amount || 0), 0)
-                  ).toLocaleString()}
+                  KES {stats.totalSales.toLocaleString()}
                 </p>
               </div>
               <DollarSign className="w-6 h-6 sm:w-8 sm:h-8" />
