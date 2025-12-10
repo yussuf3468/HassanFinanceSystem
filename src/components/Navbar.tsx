@@ -112,28 +112,30 @@ const Navbar = memo(
 
     return (
       <header
-        className={`fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-white/20 z-[100] transition-all duration-300 ${
-          isScrolled ? "shadow-2xl bg-slate-900/98" : ""
+        className={`fixed top-0 left-0 right-0 bg-gradient-to-r from-slate-900/98 via-purple-900/98 to-slate-900/98 backdrop-blur-xl shadow-2xl border-b-2 border-purple-500/30 z-[100] transition-all duration-500 ease-out ${
+          isScrolled ? "shadow-purple-900/50 border-b-2 border-purple-400/40" : ""
         }`}
+        style={{ backdropFilter: 'blur(20px)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               <div className="flex-shrink-0">
-                <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent animate-gradient-x">
                   HASSAN BOOKSHOP
                 </h1>
-                <p className="text-xs text-slate-300 hidden sm:block">
-                  Your trusted bookstore
+                <p className="text-[10px] sm:text-xs text-purple-300/80 hidden sm:block font-medium">
+                  ⚡ Your trusted bookstore
                 </p>
               </div>
             </div>
 
-            {/* Desktop Search */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
+            {/* Desktop Search - Enhanced */}
+            <div className="hidden md:flex flex-1 max-w-lg mx-6 lg:mx-8">
+              <div className="relative w-full group">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 blur"></div>
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5 z-10 group-focus-within:text-purple-300 transition-colors" />
                 <input
                   type="text"
                   placeholder="Search products... / Raadi alaabta..."
@@ -143,7 +145,7 @@ const Navbar = memo(
                   onBlur={() =>
                     setTimeout(() => setShowSearchSuggestions(false), 200)
                   }
-                  className="w-full pl-11 pr-4 py-2.5 bg-white/10 border-2 border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm shadow-lg transition-all hover:bg-white/15"
+                  className="relative w-full pl-12 pr-4 py-3 bg-white/5 border-2 border-white/10 text-white placeholder-slate-400/70 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400/50 text-sm shadow-lg transition-all duration-300 hover:bg-white/10 hover:border-white/20"
                 />
 
                 {/* Search Suggestions */}
@@ -166,16 +168,17 @@ const Navbar = memo(
             </div>
 
             {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3">
               {/* Cart */}
               <button
                 onClick={onCartClick}
-                className="relative p-2 text-slate-300 hover:text-purple-300 transition-colors"
+                className="relative p-3 text-slate-300 hover:text-white transition-all duration-300 hover:scale-110 group"
                 aria-label={`Shopping cart with ${cart.totalItems} items`}
               >
-                <ShoppingCart className="w-6 h-6" />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <ShoppingCart className="w-6 h-6 relative z-10" />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center font-bold shadow-lg animate-bounce-subtle px-1">
                     {cart.totalItems > 99 ? "99+" : cart.totalItems}
                   </span>
                 )}
@@ -246,7 +249,7 @@ const Navbar = memo(
                 ) : (
                   <button
                     onClick={onAuthClick}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors flex items-center space-x-2 shadow-lg"
+                    className="bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white px-5 py-2.5 rounded-xl hover:from-purple-700 hover:via-purple-600 hover:to-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-purple-500/50 hover:scale-105 font-semibold"
                   >
                     <User className="w-4 h-4" />
                     <span>Sign In</span>
@@ -255,11 +258,11 @@ const Navbar = memo(
               </div>
             </div>
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button - Enhanced */}
             <div className="md:hidden">
               <button
                 onClick={toggleMobileMenu}
-                className="p-2 text-slate-300 hover:text-purple-300 transition-colors"
+                className="p-2.5 text-slate-300 hover:text-white transition-all duration-300 hover:bg-white/10 rounded-xl hover:scale-110"
                 aria-label="Toggle mobile menu"
               >
                 {isMobileMenuOpen ? (
@@ -271,20 +274,21 @@ const Navbar = memo(
             </div>
           </div>
 
-          {/* Mobile Search - Always visible */}
-          <div className="md:hidden pb-3 pt-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
+          {/* Mobile Search - Enhanced with better visibility */}
+          <div className="md:hidden pb-4 pt-2">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-300 blur-sm"></div>
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-400 w-5 h-5 z-10 group-focus-within:text-purple-300 transition-colors" />
               <input
                 type="text"
-                placeholder="Search products... / Raadi alaabta..."
+                placeholder="Search... / Raadi..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 onFocus={() => setShowSearchSuggestions(true)}
                 onBlur={() =>
                   setTimeout(() => setShowSearchSuggestions(false), 200)
                 }
-                className="w-full pl-11 pr-4 py-3 bg-white/10 border-2 border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm shadow-lg"
+                className="relative w-full pl-12 pr-4 py-3.5 bg-white/5 border-2 border-white/10 text-white placeholder-slate-400/70 rounded-2xl focus:ring-4 focus:ring-purple-500/30 focus:border-purple-400/50 text-base shadow-xl transition-all duration-300"
               />
 
               {/* Mobile Search Suggestions */}

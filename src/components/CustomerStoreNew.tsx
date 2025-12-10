@@ -74,18 +74,19 @@ const ProductCard = memo(
     return (
       <div
         data-product-id={product.id}
-        className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-400 overflow-hidden group border border-white/20 ring-highlight-target"
+        className="bg-gradient-to-br from-white/10 via-purple-900/20 to-white/5 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden group border-2 border-white/20 hover:border-purple-500/40 ring-highlight-target transform hover:scale-105 hover:-translate-y-2 animate-slide-up"
+        style={{ animationDelay: `${index * 50}ms` }}
       >
         {/* Product Image */}
         <div
-          className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-white/5 to-white/10"
+          className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-white/5 to-purple-900/10"
           onClick={handleQuickView}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-48 sm:h-52 md:h-56 object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-700 ease-out"
-            fallbackClassName="w-full h-48 sm:h-52 md:h-56"
+            className="w-full h-52 sm:h-56 md:h-64 object-contain p-3 sm:p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
+            fallbackClassName="w-full h-52 sm:h-56 md:h-64"
             onClick={handleQuickView}
             priority={index < 3}
             preload={index < 6}
@@ -93,102 +94,107 @@ const ProductCard = memo(
           />
 
           {/* Elegant Quick View Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white/95 backdrop-blur-md text-slate-900 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:shadow-xl border border-white/30"
+              className="bg-white text-slate-900 px-6 py-3 rounded-2xl font-bold text-sm transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 shadow-2xl hover:shadow-white/30 border-2 border-white hover:scale-110"
             >
-              Quick View
+              👁️ Quick View
             </button>
           </div>
 
-          {/* Refined Wishlist Button */}
+          {/* Wishlist Button */}
           <button
             onClick={toggleLike}
-            className={`absolute top-4 right-4 w-10 h-10 rounded-full backdrop-blur-md transition-all duration-300 flex items-center justify-center ${
+            className={`absolute top-4 right-4 w-11 h-11 rounded-full backdrop-blur-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:scale-125 ${
               isLiked
-                ? "bg-rose-500/90 text-white shadow-lg shadow-rose-500/25"
-                : "bg-white/80 text-slate-400 hover:bg-white/95 hover:text-rose-500 hover:shadow-md"
+                ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-rose-500/50"
+                : "bg-white/90 text-slate-400 hover:bg-white hover:text-rose-500"
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-current animate-scale-in" : ""}`} />
           </button>
 
-          {/* Minimal Featured Badge */}
+          {/* Featured Badge */}
           {product.featured && (
-            <div className="absolute top-4 left-4 bg-amber-400/95 backdrop-blur-sm text-amber-900 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
-              <Star className="w-3 h-3 fill-current" />
-              <span>Featured</span>
+            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-900 px-3 py-2 rounded-2xl text-xs font-bold flex items-center space-x-1.5 shadow-lg shadow-amber-500/50 animate-bounce-subtle">
+              <Star className="w-4 h-4 fill-current" />
+              <span>⭐ Featured</span>
             </div>
           )}
 
-          {/* Subtle Low Stock Warning */}
+          {/* Low Stock Warning */}
           {product.quantity_in_stock <= product.reorder_level && (
-            <div className="absolute bottom-4 left-4 bg-orange-500/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
-              Only {product.quantity_in_stock} left
+            <div className="absolute bottom-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-2xl text-xs font-bold shadow-lg shadow-orange-500/50 animate-bounce-subtle">
+              🔥 Only {product.quantity_in_stock} left!
             </div>
           )}
         </div>
 
-        {/* Elegant Product Info */}
-        <div className="p-6">
+        {/* Product Info */}
+        <div className="p-5 sm:p-6">
           {/* Category Tag */}
           <div className="mb-3">
-            <span className="text-xs font-medium text-purple-300 uppercase tracking-wide">
-              {product.category}
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-300 bg-purple-500/20 px-3 py-1.5 rounded-full uppercase tracking-wide border border-purple-500/30">
+              📚 {product.category}
             </span>
           </div>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-white text-lg mb-3 line-clamp-2 leading-tight group-hover:text-purple-200 transition-colors duration-300">
+          <h3 className="font-bold text-white text-lg sm:text-xl mb-3 line-clamp-2 leading-tight group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-200 group-hover:to-blue-200 group-hover:bg-clip-text transition-all duration-300">
             {product.name}
           </h3>
 
           {/* Product Description */}
           {product.description && (
-            <p className="text-sm text-slate-300 mb-4 line-clamp-2 leading-relaxed">
+            <p className="text-sm text-slate-300/90 mb-4 line-clamp-2 leading-relaxed">
               {product.description}
             </p>
           )}
 
           {/* Price & Stock Info */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex flex-col">
-              <p className="text-2xl font-light text-white mb-1">
+              <p className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text mb-1 animate-gradient-x">
                 KES {product.selling_price.toLocaleString()}
               </p>
-              <p className="text-xs text-slate-400 flex items-center">
-                <Package className="w-3 h-3 mr-1.5" />
+              <p className="text-xs text-slate-400 flex items-center font-medium">
+                <Package className="w-3.5 h-3.5 mr-1.5" />
                 {product.quantity_in_stock} in stock
               </p>
             </div>
           </div>
 
-          {/* Refined Add to Cart Button */}
+          {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
             disabled={product.quantity_in_stock === 0 || isAddingToCart}
-            className={`w-full py-3.5 px-4 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
+            className={`w-full py-4 px-4 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-2xl ${
               product.quantity_in_stock === 0
-                ? "bg-white/10 text-slate-400 cursor-not-allowed border border-white/20"
+                ? "bg-slate-700 text-slate-400 cursor-not-allowed border-2 border-slate-600"
                 : isAddingToCart
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
-                : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:shadow-purple-500/25 active:from-purple-800 active:to-blue-800"
+                ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-green-500/50 scale-105"
+                : "bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white hover:from-purple-700 hover:via-purple-600 hover:to-blue-700 hover:shadow-purple-500/50 active:scale-95 hover:scale-105"
             }`}
           >
-            <ShoppingCart
-              className={`w-4 h-4 ${isAddingToCart ? "animate-pulse" : ""}`}
-            />
-            <span>
-              {product.quantity_in_stock === 0
-                ? "Out of Stock"
-                : isAddingToCart
-                ? "Adding..."
-                : "Add to Cart"}
-            </span>
+            {product.quantity_in_stock === 0 ? (
+              <>
+                <span>❌ Out of Stock</span>
+              </>
+            ) : isAddingToCart ? (
+              <>
+                <span className="animate-spin text-xl">⚡</span>
+                <span>Adding...</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-5 h-5" />
+                <span>Add to Cart</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -437,7 +443,7 @@ export default function CustomerStore({
       />
 
       {/* Spacer for fixed navbar */}
-      <div className="h-[88px] md:h-16"></div>
+      <div className="h-[120px] md:h-[88px]"></div>
 
       {/* Hero Section */}
       <HeroSection

@@ -93,50 +93,53 @@ const AdvancedFilters = memo(
 
     return (
       <div className="w-full">
-        {/* Mobile Filter Toggle */}
-        <div className="flex items-center justify-between gap-4 mb-4">
+        {/* Mobile Filter Toggle - Enhanced */}
+        <div className="flex items-center justify-between gap-3 mb-6">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all font-medium"
+            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl text-white hover:from-purple-600/30 hover:to-blue-600/30 transition-all duration-300 font-semibold shadow-lg hover:shadow-purple-500/30 hover:scale-105"
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span>Filters & Sort</span>
+            <SlidersHorizontal className="w-5 h-5" />
+            <span className="text-sm sm:text-base">Filters & Sort</span>
             {activeFilterCount > 0 && (
-              <span className="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg animate-bounce-subtle">
                 {activeFilterCount}
               </span>
             )}
           </button>
 
-          <div className="text-sm text-slate-300">
-            <span className="font-semibold">{resultCount}</span> products found
+          <div className="flex items-center gap-2 px-4 py-3 bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl">
+            <span className="text-sm text-slate-400">Found:</span>
+            <span className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">
+              {resultCount}
+            </span>
           </div>
         </div>
 
         {/* Filter Panel */}
         {isOpen && (
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 mb-6 animate-in slide-in-from-top-2 duration-200">
+          <div className="bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl border-2 border-purple-500/30 rounded-3xl p-6 mb-6 animate-slide-up shadow-2xl shadow-purple-900/30">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5" />
+              <h3 className="text-xl font-bold text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text flex items-center gap-3">
+                <SlidersHorizontal className="w-6 h-6 text-purple-400" />
                 Filters & Sort
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-90"
               >
-                <X className="w-5 h-5 text-slate-300" />
+                <X className="w-6 h-6 text-slate-300" />
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Sort Options */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <ArrowUpDown className="w-4 h-4 text-purple-400" />
-                  <h4 className="font-semibold text-white">Sort By</h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <ArrowUpDown className="w-5 h-5 text-purple-400" />
+                  <h4 className="font-bold text-white text-lg">Sort By</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {sortOptions.map((option) => (
                     <button
                       key={option.value}
@@ -144,16 +147,16 @@ const AdvancedFilters = memo(
                         onSortChange(option.value);
                         setIsOpen(false);
                       }}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all font-medium ${
+                      className={`flex items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-300 font-semibold shadow-lg hover:scale-105 ${
                         activeSortBy === option.value
-                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
-                          : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"
+                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-purple-500/50 scale-105"
+                          : "bg-white/5 text-slate-300 hover:bg-white/10 border-2 border-white/10 hover:border-purple-500/30"
                       }`}
                     >
-                      <span>{option.icon}</span>
+                      <span className="text-lg">{option.icon}</span>
                       <span className="text-sm">{option.label}</span>
                       {activeSortBy === option.value && (
-                        <Check className="w-4 h-4 ml-auto" />
+                        <Check className="w-5 h-5 ml-auto animate-scale-in" />
                       )}
                     </button>
                   ))}
@@ -161,24 +164,24 @@ const AdvancedFilters = memo(
               </div>
 
               {/* Divider */}
-              <div className="border-t border-white/20"></div>
+              <div className="border-t-2 border-purple-500/20"></div>
 
               {/* Categories */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Package className="w-4 h-4 text-purple-400" />
-                  <h4 className="font-semibold text-white">Categories</h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <Package className="w-5 h-5 text-purple-400" />
+                  <h4 className="font-bold text-white text-lg">Categories</h4>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() =>
                       onFilterChange({ ...activeFilters, category: undefined })
                     }
-                    className={`px-4 py-2 rounded-full transition-all font-medium text-sm ${
+                    className={`px-4 py-2.5 rounded-full transition-all duration-300 font-semibold text-sm shadow-md hover:scale-105 ${
                       !activeFilters.category ||
                       activeFilters.category === "all"
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                        : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"
+                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-purple-500/50"
+                        : "bg-white/5 text-slate-300 hover:bg-white/10 border-2 border-white/10 hover:border-purple-500/30"
                     }`}
                   >
                     All Categories
@@ -187,10 +190,10 @@ const AdvancedFilters = memo(
                     <button
                       key={category}
                       onClick={() => handleCategoryToggle(category)}
-                      className={`px-4 py-2 rounded-full transition-all font-medium text-sm ${
+                      className={`px-4 py-2.5 rounded-full transition-all duration-300 font-semibold text-sm shadow-md hover:scale-105 ${
                         activeFilters.category === category
-                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                          : "bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10"
+                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-purple-500/50"
+                          : "bg-white/5 text-slate-300 hover:bg-white/10 border-2 border-white/10 hover:border-purple-500/30"
                       }`}
                     >
                       {category}
