@@ -55,17 +55,21 @@ const Navbar = memo(
         const value = e.target.value;
         onSearchChange(value);
 
-        // If user is searching, automatically scroll to products section
+        // If user is searching, automatically scroll to products section with offset for fixed navbar
         if (value.trim()) {
           setTimeout(() => {
             const productsSection = document.getElementById("products-section");
             if (productsSection) {
-              productsSection.scrollIntoView({
+              const navbarHeight = 140; // Account for fixed navbar height
+              const elementPosition = productsSection.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+              window.scrollTo({
+                top: offsetPosition,
                 behavior: "smooth",
-                block: "start",
               });
             }
-          }, 100);
+          }, 150);
         }
       },
       [onSearchChange]
@@ -113,9 +117,11 @@ const Navbar = memo(
     return (
       <header
         className={`fixed top-0 left-0 right-0 bg-gradient-to-r from-slate-900/98 via-purple-900/98 to-slate-900/98 backdrop-blur-xl shadow-2xl border-b-2 border-purple-500/30 z-[100] transition-all duration-500 ease-out ${
-          isScrolled ? "shadow-purple-900/50 border-b-2 border-purple-400/40" : ""
+          isScrolled
+            ? "shadow-purple-900/50 border-b-2 border-purple-400/40"
+            : ""
         }`}
-        style={{ backdropFilter: 'blur(20px)' }}
+        style={{ backdropFilter: "blur(20px)" }}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-18">

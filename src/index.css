@@ -274,71 +274,74 @@ body {
   }
 }
 
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
   }
-
-  @keyframes bounce-subtle {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-3px);
-    }
+  100% {
+    background-position: 200% 0;
   }
+}
 
-  @keyframes gradient-x {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-
-  @keyframes slide-up {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  50% {
+    transform: translateY(-3px);
   }
+}
 
-  @keyframes scale-in {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
+@keyframes gradient-x {
+  0%,
+  100% {
+    background-position: 0% 50%;
   }
-
-  .animate-bounce-subtle {
-    animation: bounce-subtle 2s ease-in-out infinite;
+  50% {
+    background-position: 100% 50%;
   }
+}
 
-  .animate-gradient-x {
-    background-size: 200% 200%;
-    animation: gradient-x 3s ease infinite;
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
   }
-
-  .animate-slide-up {
-    animation: slide-up 0.3s ease-out;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
+}
 
-  .animate-scale-in {
-    animation: scale-in 0.3s ease-out;
-  }@keyframes fadeInUp {
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 3s ease infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);

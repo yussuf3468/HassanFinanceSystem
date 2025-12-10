@@ -115,7 +115,11 @@ const ProductCard = memo(
                 : "bg-white/90 text-slate-400 hover:bg-white hover:text-rose-500"
             }`}
           >
-            <Heart className={`w-5 h-5 ${isLiked ? "fill-current animate-scale-in" : ""}`} />
+            <Heart
+              className={`w-5 h-5 ${
+                isLiked ? "fill-current animate-scale-in" : ""
+              }`}
+            />
           </button>
 
           {/* Featured Badge */}
@@ -263,6 +267,25 @@ export default function CustomerStore({
     loadProducts();
   }, [loadProducts]);
 
+  // Auto-scroll to products section when search term changes and results are ready
+  useEffect(() => {
+    if (debouncedSearchTerm.trim()) {
+      setTimeout(() => {
+        const productsSection = document.getElementById("products-section");
+        if (productsSection) {
+          const navbarHeight = 140; // Account for fixed navbar height
+          const elementPosition = productsSection.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 200);
+    }
+  }, [debouncedSearchTerm]);
+
   // Enhanced filtering and search with fuzzy matching
   const filteredProducts = useMemo(() => {
     let filtered = products;
@@ -340,16 +363,49 @@ export default function CustomerStore({
     setSelectedCategory(category);
     setFilters((prev) => ({ ...prev, category: undefined })); // Clear advanced filter
     setCurrentPage(1); // Reset to first page on category change
+    
+    // Scroll to products section
+    setTimeout(() => {
+      const productsSection = document.getElementById("products-section");
+      if (productsSection) {
+        const navbarHeight = 140;
+        const elementPosition = productsSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }
+    }, 100);
   }, []);
 
   const handleFilterChange = useCallback((newFilters: FilterOptions) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page on filter change
+    
+    // Scroll to products section
+    setTimeout(() => {
+      const productsSection = document.getElementById("products-section");
+      if (productsSection) {
+        const navbarHeight = 140;
+        const elementPosition = productsSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }
+    }, 100);
   }, []);
 
   const handleSortChange = useCallback((newSortBy: SortOption) => {
     setSortBy(newSortBy);
     setCurrentPage(1); // Reset to first page on sort change
+    
+    // Scroll to products section
+    setTimeout(() => {
+      const productsSection = document.getElementById("products-section");
+      if (productsSection) {
+        const navbarHeight = 140;
+        const elementPosition = productsSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }
+    }, 100);
   }, []);
 
   const handleCartClick = useCallback(() => {
