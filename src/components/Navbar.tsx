@@ -61,8 +61,10 @@ const Navbar = memo(
             const productsSection = document.getElementById("products-section");
             if (productsSection) {
               const navbarHeight = 140; // Account for fixed navbar height
-              const elementPosition = productsSection.getBoundingClientRect().top;
-              const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+              const elementPosition =
+                productsSection.getBoundingClientRect().top;
+              const offsetPosition =
+                elementPosition + window.pageYOffset - navbarHeight;
 
               window.scrollTo({
                 top: offsetPosition,

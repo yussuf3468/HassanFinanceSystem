@@ -130,12 +130,7 @@ const ProductCard = memo(
             </div>
           )}
 
-          {/* Low Stock Warning */}
-          {product.quantity_in_stock <= product.reorder_level && (
-            <div className="absolute bottom-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-2xl text-xs font-bold shadow-lg shadow-orange-500/50 animate-bounce-subtle">
-              🔥 Only {product.quantity_in_stock} left!
-            </div>
-          )}
+
         </div>
 
         {/* Product Info */}
@@ -159,36 +154,24 @@ const ProductCard = memo(
             </p>
           )}
 
-          {/* Price & Stock Info */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex flex-col">
-              <p className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text mb-1 animate-gradient-x">
-                KES {product.selling_price.toLocaleString()}
-              </p>
-              <p className="text-xs text-slate-400 flex items-center font-medium">
-                <Package className="w-3.5 h-3.5 mr-1.5" />
-                {product.quantity_in_stock} in stock
-              </p>
-            </div>
+          {/* Price */}
+          <div className="mb-5">
+            <p className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text animate-gradient-x">
+              KES {product.selling_price.toLocaleString()}
+            </p>
           </div>
 
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            disabled={product.quantity_in_stock === 0 || isAddingToCart}
+            disabled={isAddingToCart}
             className={`w-full py-4 px-4 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-2xl ${
-              product.quantity_in_stock === 0
-                ? "bg-slate-700 text-slate-400 cursor-not-allowed border-2 border-slate-600"
-                : isAddingToCart
+              isAddingToCart
                 ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-green-500/50 scale-105"
                 : "bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white hover:from-purple-700 hover:via-purple-600 hover:to-blue-700 hover:shadow-purple-500/50 active:scale-95 hover:scale-105"
             }`}
           >
-            {product.quantity_in_stock === 0 ? (
-              <>
-                <span>❌ Out of Stock</span>
-              </>
-            ) : isAddingToCart ? (
+            {isAddingToCart ? (
               <>
                 <span className="animate-spin text-xl">⚡</span>
                 <span>Adding...</span>
@@ -250,7 +233,6 @@ export default function CustomerStore({
         .from("products")
         .select("*")
         .eq("published", true)
-        .gt("quantity_in_stock", 0)
         .order("featured", { ascending: false })
         .order("name");
 
@@ -275,7 +257,8 @@ export default function CustomerStore({
         if (productsSection) {
           const navbarHeight = 140; // Account for fixed navbar height
           const elementPosition = productsSection.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+          const offsetPosition =
+            elementPosition + window.pageYOffset - navbarHeight;
 
           window.scrollTo({
             top: offsetPosition,
@@ -363,14 +346,15 @@ export default function CustomerStore({
     setSelectedCategory(category);
     setFilters((prev) => ({ ...prev, category: undefined })); // Clear advanced filter
     setCurrentPage(1); // Reset to first page on category change
-    
+
     // Scroll to products section
     setTimeout(() => {
       const productsSection = document.getElementById("products-section");
       if (productsSection) {
         const navbarHeight = 140;
         const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - navbarHeight;
         window.scrollTo({ top: offsetPosition, behavior: "smooth" });
       }
     }, 100);
@@ -379,14 +363,15 @@ export default function CustomerStore({
   const handleFilterChange = useCallback((newFilters: FilterOptions) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page on filter change
-    
+
     // Scroll to products section
     setTimeout(() => {
       const productsSection = document.getElementById("products-section");
       if (productsSection) {
         const navbarHeight = 140;
         const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - navbarHeight;
         window.scrollTo({ top: offsetPosition, behavior: "smooth" });
       }
     }, 100);
@@ -395,14 +380,15 @@ export default function CustomerStore({
   const handleSortChange = useCallback((newSortBy: SortOption) => {
     setSortBy(newSortBy);
     setCurrentPage(1); // Reset to first page on sort change
-    
+
     // Scroll to products section
     setTimeout(() => {
       const productsSection = document.getElementById("products-section");
       if (productsSection) {
         const navbarHeight = 140;
         const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - navbarHeight;
         window.scrollTo({ top: offsetPosition, behavior: "smooth" });
       }
     }, 100);
