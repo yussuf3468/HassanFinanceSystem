@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import {
   Search,
   ShoppingCart,
@@ -36,8 +36,19 @@ const Navbar = memo(
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const cart = useCart();
     const { user, signOut } = useAuth();
+
+    // Track scroll position for enhanced navbar
+    useEffect(() => {
+      const handleScroll = () => {
+        setIsScrolled(window.scrollY > 10);
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const handleSearchChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +111,11 @@ const Navbar = memo(
     }, []);
 
     return (
-      <header className="bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50">
+      <header
+        className={`bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-[100] transition-all duration-300 ${
+          isScrolled ? "shadow-2xl bg-slate-900/98" : ""
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -118,7 +133,7 @@ const Navbar = memo(
             {/* Desktop Search */}
             <div className="hidden md:flex flex-1 max-w-md mx-8">
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
                 <input
                   type="text"
                   placeholder="Search products... / Raadi alaabta..."
@@ -128,7 +143,7 @@ const Navbar = memo(
                   onBlur={() =>
                     setTimeout(() => setShowSearchSuggestions(false), 200)
                   }
-                  className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 text-white placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white/10 border-2 border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm shadow-lg transition-all hover:bg-white/15"
                 />
 
                 {/* Search Suggestions */}
@@ -256,16 +271,38 @@ const Navbar = memo(
             </div>
           </div>
 
-          {/* Mobile Search */}
-          <div className="md:hidden pb-4">
+          {/* Mobile Search - Always visible */}
+          <div className="md:hidden pb-3 pt-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products... / Raadi alaabta..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 text-white placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                onFocus={() => setShowSearchSuggestions(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowSearchSuggestions(false), 200)
+                }
+                className="w-full pl-11 pr-4 py-3 bg-white/10 border-2 border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm shadow-lg"
+              />
+
+              {/* Mobile Search Suggestions */}
+              <SearchSuggestions
+                searchTerm={searchTerm}
+                products={products}
+                onSelectProduct={(product) => {
+                  onProductSelect?.(product);
+                  highlightProduct(product.id);
+                  setShowSearchSuggestions(false);
+                  setIsMobileMenuOpen(false);
+                }}
+                onSelectSearch={(term) => {
+                  onSearchChange(term);
+                  setShowSearchSuggestions(false);
+                }}
+                isVisible={showSearchSuggestions}
+                onClose={() => setShowSearchSuggestions(false)}
               />
             </div>
           </div>

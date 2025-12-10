@@ -14,9 +14,19 @@ import AuthModal from "./AuthModal";
 import ProductQuickView from "./ProductQuickView";
 import CheckoutModal from "./CheckoutModal";
 import OptimizedImage from "./OptimizedImage";
+import AdvancedFilters from "./AdvancedFilters";
 import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
 import type { Database } from "../lib/database.types";
+import {
+  searchProducts,
+  sortProducts,
+  filterProducts,
+  getCategories,
+  getPriceRange,
+  type FilterOptions,
+  type SortOption,
+} from "../utils/searchUtils";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 
@@ -204,6 +214,10 @@ export default function CustomerStore({
     null
   );
 
+  // Enhanced search and filter states
+  const [filters, setFilters] = useState<FilterOptions>({});
+  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+
   // Pagination constants
   const PRODUCTS_PER_PAGE = 12;
 
@@ -213,22 +227,11 @@ export default function CustomerStore({
   const cart = useCart();
   const { user } = useAuth();
 
-  const categories = useMemo(
-    () => [
-      "all",
-      "Books",
-      "Backpacks",
-      "Bottles",
-      "Electronics",
-      "Pens",
-      "Notebooks",
-      "Pencils",
-      "Erasers",
-      "Markers",
-      "Other",
-    ],
-    []
-  );
+  // Get dynamic categories from products
+  const categories = useMemo(() => getCategories(products), [products]);
+
+  // Get price range from products
+  const priceRange = useMemo(() => getPriceRange(products), [products]);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -254,31 +257,53 @@ export default function CustomerStore({
     loadProducts();
   }, [loadProducts]);
 
+  // Enhanced filtering and search with fuzzy matching
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
-    // Filter by search term (using debounced value)
-    if (debouncedSearchTerm) {
+    // Apply category filter first
+    if (filters.category && filters.category !== "all") {
       filtered = filtered.filter(
-        (product) =>
-          product.name
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()) ||
-          product.category
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase())
+        (product) => product.category === filters.category
       );
-    }
-
-    // Filter by category
-    if (selectedCategory !== "all") {
+    } else if (selectedCategory !== "all") {
       filtered = filtered.filter(
         (product) => product.category === selectedCategory
       );
     }
 
+    // Apply other filters (price, stock, featured)
+    filtered = filterProducts(filtered, filters);
+
+    // Apply search with fuzzy matching if there's a search term
+    if (debouncedSearchTerm) {
+      const searchResults = searchProducts(filtered, debouncedSearchTerm, {
+        fuzzyThreshold: 0.7,
+        includeDescription: true,
+        maxResults: 1000,
+      });
+
+      // Sort search results
+      const sortedResults = sortProducts(searchResults, sortBy);
+
+      return sortedResults.map((result) => result.product);
+    }
+
+    // If no search term, just return filtered products
+    // Sort by price or name if selected
+    if (sortBy !== "relevance") {
+      const mockResults = filtered.map((product) => ({
+        product,
+        score: 1,
+        matchType: "exact" as const,
+        matchedFields: [] as string[],
+      }));
+      const sorted = sortProducts(mockResults, sortBy);
+      return sorted.map((r) => r.product);
+    }
+
     return filtered;
-  }, [products, debouncedSearchTerm, selectedCategory]);
+  }, [products, debouncedSearchTerm, selectedCategory, filters, sortBy]);
 
   // Paginated products
   const paginatedProducts = useMemo(() => {
@@ -307,7 +332,18 @@ export default function CustomerStore({
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategory(category);
+    setFilters((prev) => ({ ...prev, category: undefined })); // Clear advanced filter
     setCurrentPage(1); // Reset to first page on category change
+  }, []);
+
+  const handleFilterChange = useCallback((newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page on filter change
+  }, []);
+
+  const handleSortChange = useCallback((newSortBy: SortOption) => {
+    setSortBy(newSortBy);
+    setCurrentPage(1); // Reset to first page on sort change
   }, []);
 
   const handleCartClick = useCallback(() => {
@@ -412,7 +448,7 @@ export default function CustomerStore({
         id="products-section"
         className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
       >
-        {/* Section Header */},
+        {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-xl border border-white/20 text-purple-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
             <Package className="w-4 h-4" />
@@ -429,7 +465,19 @@ export default function CustomerStore({
             electronics. Quality guaranteed, prices unmatched.
           </p>
         </div>
-        {/* Category Filter */}
+
+        {/* Advanced Filters and Sort */}
+        <AdvancedFilters
+          categories={categories}
+          priceRange={priceRange}
+          activeFilters={filters}
+          activeSortBy={sortBy}
+          onFilterChange={handleFilterChange}
+          onSortChange={handleSortChange}
+          resultCount={filteredProducts.length}
+        />
+
+        {/* Category Filter (Legacy - kept for quick access) */}
         <div className="mb-12">
           {/* Mobile Filter Design */}
           <div className="block lg:hidden">

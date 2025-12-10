@@ -9,11 +9,13 @@ Your website is currently **NOT indexed by Google yet**. Here's exactly what you
 ### 1. Submit to Google Search Console ⭐ **MOST IMPORTANT**
 
 **Steps:**
+
 1. Go to: https://search.google.com/search-console
 2. Click "Start Now" and sign in with a Google account
 3. Click "Add Property"
 4. Enter: `https://hassan.lenzro.com`
 5. Choose verification method:
+
    - **HTML Tag Method** (Easiest):
      - Copy the meta tag Google gives you
      - I'll add it to your index.html file
@@ -21,6 +23,7 @@ Your website is currently **NOT indexed by Google yet**. Here's exactly what you
      - Add TXT record to your domain DNS settings
 
 6. After verification, submit your sitemap:
+
    - In Search Console, go to "Sitemaps"
    - Enter: `https://hassan.lenzro.com/sitemap.xml`
    - Click "Submit"
@@ -39,6 +42,7 @@ Your website is currently **NOT indexed by Google yet**. Here's exactly what you
 This is **ESSENTIAL** for appearing in "bookshop eastleigh" searches!
 
 **Steps:**
+
 1. Go to: https://business.google.com
 2. Click "Manage Now" and sign in
 3. Enter your business name: **Hassan Bookshop**
@@ -62,6 +66,7 @@ This is **ESSENTIAL** for appearing in "bookshop eastleigh" searches!
 ### 3. Submit to Bing (Microsoft) Search
 
 **Steps:**
+
 1. Go to: https://www.bing.com/webmasters
 2. Sign in with Microsoft account
 3. Add your site: `https://hassan.lenzro.com`
@@ -75,6 +80,7 @@ This is **ESSENTIAL** for appearing in "bookshop eastleigh" searches!
 Create business profiles on:
 
 ### Facebook Business Page
+
 - Name: Hassan Bookshop Eastleigh
 - Category: Bookstore
 - Location: Eastleigh, Nairobi
@@ -83,12 +89,14 @@ Create business profiles on:
 - Post daily updates
 
 ### Instagram Business
+
 - @hassanbookshop
 - Link website in bio
 - Post product photos daily
 - Use hashtags: #NairobiBooks #EastleighBookshop #KenyaBooks
 
 ### WhatsApp Business
+
 - Number: +254 722 979 547
 - Create catalog of products
 - Add business hours
@@ -125,16 +133,20 @@ Create business profiles on:
 ## 🔥 Quick SEO Boost Tips
 
 ### Get Your First Reviews
+
 - Ask 10 customers to review on Google Business Profile
 - Reviews = Higher rankings!
 
 ### Post Content
+
 - Create a blog section
 - Write about: "Best Textbooks in Nairobi"
 - Post on social media with location tags
 
 ### Local Keywords
+
 Use these in your content:
+
 - "bookshop eastleigh nairobi"
 - "books eastleigh section one"
 - "textbooks nairobi eastleigh"
@@ -145,13 +157,13 @@ Use these in your content:
 
 ## ⏱️ TIMELINE EXPECTATIONS
 
-| Action | When You'll See Results |
-|--------|------------------------|
-| Google Search Console submission | 24-48 hours (indexing starts) |
-| Google Business Profile | 1-3 days (appears on Maps) |
-| Appear in search results | 1-2 weeks |
-| Rank in top 10 | 1-3 months (with consistent effort) |
-| Local pack (Map results) | 2-4 weeks (with Google Business) |
+| Action                           | When You'll See Results             |
+| -------------------------------- | ----------------------------------- |
+| Google Search Console submission | 24-48 hours (indexing starts)       |
+| Google Business Profile          | 1-3 days (appears on Maps)          |
+| Appear in search results         | 1-2 weeks                           |
+| Rank in top 10                   | 1-3 months (with consistent effort) |
+| Local pack (Map results)         | 2-4 weeks (with Google Business)    |
 
 ---
 
@@ -172,6 +184,7 @@ Your website is **brand new** and Google doesn't know it exists yet because:
 ## 📞 NEED HELP?
 
 If you need assistance with:
+
 - Google Search Console verification
 - Google Business Profile setup
 - Adding the verification meta tag
@@ -196,6 +209,7 @@ Let me know and I'll help you add it to your website!
 ## 📍 TARGET SEARCHES TO RANK FOR
 
 Once indexed, you'll start appearing for:
+
 - "bookshop eastleigh"
 - "hassan bookshop"
 - "books eastleigh nairobi"
@@ -205,4 +219,3 @@ Once indexed, you'll start appearing for:
 - "where to buy books in eastleigh"
 
 Good luck! 🎉
-
