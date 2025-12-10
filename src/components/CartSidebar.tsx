@@ -17,7 +17,7 @@ export default function CartSidebar({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110]">
       <div className="absolute right-0 top-0 h-full w-full sm:w-96 bg-white/10 backdrop-blur-2xl shadow-xl border-l border-white/20">
         {/* Header */}
         <div className="p-4 border-b border-white/20 bg-gradient-to-r from-blue-600 to-blue-700">

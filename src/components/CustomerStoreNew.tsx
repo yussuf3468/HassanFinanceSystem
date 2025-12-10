@@ -129,8 +129,6 @@ const ProductCard = memo(
               <span>⭐ Featured</span>
             </div>
           )}
-
-
         </div>
 
         {/* Product Info */}

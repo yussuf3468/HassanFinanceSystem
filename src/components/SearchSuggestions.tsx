@@ -93,7 +93,7 @@ const SearchSuggestions = memo(
     }));
 
     return (
-      <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-xl shadow-2xl border border-white/20 z-50 max-h-96 overflow-y-auto">
+      <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-xl shadow-2xl border border-white/20 z-[105] max-h-96 overflow-y-auto">
         {searchTerm.trim() === "" ? (
           // Show recent and trending when no search term
           <div className="p-4 space-y-4">

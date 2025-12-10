@@ -64,7 +64,7 @@ const ProductQuickView = memo(
     if (!isOpen || !product) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[101] flex items-center justify-center p-4">
         <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
@@ -176,8 +176,6 @@ const ProductQuickView = memo(
                 </p>
               </div>
 
-
-
               {/* Quantity Selector */}
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-slate-300">
@@ -195,9 +193,11 @@ const ProductQuickView = memo(
                       type="number"
                       min="1"
                       value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) =>
+                        setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                      }
                       className="w-20 px-3 py-2 text-center font-bold text-white bg-transparent border-none focus:outline-none focus:ring-0"
-                      style={{ appearance: 'textfield' }}
+                      style={{ appearance: "textfield" }}
                     />
                     <button
                       onClick={() => setQuantity(quantity + 1)}
