@@ -18,7 +18,7 @@ export default function Sales() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
 
-  // ❌ Removed useEffect - data now comes from cached hooks!
+  //  Removed useEffect - data now comes from cached hooks!
 
   // Sort latest sales first by sale_date (fallback to created_at or id)
   const sortedSales = useMemo(() => {
