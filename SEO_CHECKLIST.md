@@ -32,9 +32,9 @@
 ### 1. Google Search Console Setup ⭐ PRIORITY
 
 1. Go to [Google Search Console](https://search.google.com/search-console)
-2. Add your property: `https://hassanbookshop.vercel.app`
+2. Add your property: `https://hassan.lenzro.com`
 3. Verify ownership (DNS or HTML file method)
-4. Submit your sitemap: `https://hassanbookshop.vercel.app/sitemap.xml`
+4. Submit your sitemap: `https://hassan.lenzro.com/sitemap.xml`
 5. Request indexing for homepage
 6. Monitor for crawl errors
 
@@ -46,7 +46,7 @@
    - **Category:** Book Store, Educational Supply Store
    - **Address:** Global Apartments, Section One, Eastleigh, Nairobi
    - **Phone:** +254 722 979 547
-   - **Website:** https://hassanbookshop.vercel.app
+   - **Website:** https://hassan.lenzro.com
    - **Hours:** Mon-Sun 8:00 AM - 8:00 PM
 3. Add high-quality photos (storefront, products, interior)
 4. Encourage customer reviews
@@ -267,3 +267,4 @@
 - [Google Business Profile Help](https://support.google.com/business/)
 
 **Remember:** SEO is a marathon, not a sprint. Consistent effort over 3-6 months will yield the best results! 🚀
+

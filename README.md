@@ -1,7 +1,7 @@
 # Hassan Bookshop 📚 - Best Bookstore in Eastleigh, Nairobi Kenya
 
-[![Live Site](https://img.shields.io/badge/Live-Hassan%20Bookshop-purple?style=for-the-badge)](https://hassanbookshop.vercel.app)
-[![Made in Kenya](https://img.shields.io/badge/Made%20in-Kenya%20🇰🇪-green?style=for-the-badge)](https://hassanbookshop.vercel.app)
+[![Live Site](https://img.shields.io/badge/Live-Hassan%20Bookshop-purple?style=for-the-badge)](https://hassan.lenzro.com)
+[![Made in Kenya](https://img.shields.io/badge/Made%20in-Kenya%20🇰🇪-green?style=for-the-badge)](https://hassan.lenzro.com)
 [![Contact](https://img.shields.io/badge/Call-%2B254%20722%20979%20547-blue?style=for-the-badge)](tel:+254722979547)
 
 > 🏆 **Leading Educational Bookstore in Eastleigh, Nairobi** - Your trusted partner for textbooks, stationery, electronics, and school supplies with over 10,000+ products in stock!
@@ -374,3 +374,4 @@ Created by Yussuf Hassan Muse
 ---
 
 **Hassan Financial System** - Modern, Beautiful, and Powerful Financial Management 💼✨
+

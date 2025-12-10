@@ -89,9 +89,7 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
           <div>
-            <h2 className="text-2xl font-bold text-white">
-              Staff Login
-            </h2>
+            <h2 className="text-2xl font-bold text-white">Staff Login</h2>
             <p className="text-slate-300 text-sm">
               Sign in to access the system
             </p>
@@ -192,7 +190,8 @@ const AuthModal = memo(({ isOpen, onClose }: AuthModalProps) => {
           {/* Admin Note */}
           <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3">
             <p className="text-blue-300 text-sm text-center">
-              <strong>Staff Access Only:</strong> Contact administrator if you need access
+              <strong>Staff Access Only:</strong> Contact administrator if you
+              need access
             </p>
           </div>
         </form>

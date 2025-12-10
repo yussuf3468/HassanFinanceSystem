@@ -17,7 +17,7 @@
     "Hassan Bookshop"
   ],
   "author": "Yussuf Muse <yussufh080@gmail.com>",
-  "homepage": "https://hassanbookshop.vercel.app",
+  "homepage": "https://hassan.lenzro.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/yussuf3468/HassanFinanceSystem.git"
@@ -77,3 +77,4 @@
     "vite": "5.4.8"
   }
 }
+

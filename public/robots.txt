@@ -11,7 +11,7 @@ Disallow: /api/
 Disallow: /private/
 
 # Sitemap
-Sitemap: https://hassanbookshop.vercel.app/sitemap.xml
+Sitemap: https://hassan.lenzro.com/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
@@ -30,3 +30,4 @@ Crawl-delay: 0
 
 User-agent: Slurp
 Allow: /
+
