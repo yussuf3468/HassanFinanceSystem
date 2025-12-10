@@ -425,7 +425,7 @@ export default function CustomerStore({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
-      {/* Navbar */}
+      {/* Navbar - Fixed */}
       <Navbar
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
@@ -435,6 +435,9 @@ export default function CustomerStore({
         products={products}
         onProductSelect={handleProductSelect}
       />
+
+      {/* Spacer for fixed navbar */}
+      <div className="h-[88px] md:h-16"></div>
 
       {/* Hero Section */}
       <HeroSection

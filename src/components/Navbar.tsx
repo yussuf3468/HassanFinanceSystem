@@ -112,7 +112,7 @@ const Navbar = memo(
 
     return (
       <header
-        className={`bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-[100] transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-white/20 z-[100] transition-all duration-300 ${
           isScrolled ? "shadow-2xl bg-slate-900/98" : ""
         }`}
       >
