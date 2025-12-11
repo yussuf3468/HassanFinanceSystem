@@ -8,6 +8,7 @@ import {
   Printer,
   ShoppingCart,
 } from "lucide-react";
+import { searchProducts } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
@@ -954,17 +955,19 @@ export default function SaleForm({
                 {lineItems.map((li, idx) => {
                   const product = productById(li.product_id);
                   const comp = computed.find((c) => c.line.id === li.id)!;
-                  const filtered = products.filter(
-                    (p) =>
-                      p.name
-                        .toLowerCase()
-                        .includes(li.searchTerm.toLowerCase()) ||
-                      p.product_id
-                        .toLowerCase()
-                        .includes(li.searchTerm.toLowerCase()) ||
-                      p.category
-                        .toLowerCase()
-                        .includes(li.searchTerm.toLowerCase())
+
+                  // Use fuzzy search for better matching (tolerates typos)
+                  const searchResults = searchProducts(
+                    products,
+                    li.searchTerm,
+                    {
+                      fuzzyThreshold: 0.6, // Lower threshold for more lenient matching
+                      includeDescription: true,
+                      maxResults: 50,
+                    }
+                  );
+                  const filtered = searchResults.map(
+                    (result) => result.product
                   );
 
                   return (
