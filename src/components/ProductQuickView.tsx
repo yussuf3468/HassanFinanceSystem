@@ -15,7 +15,7 @@ interface ProductQuickViewProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, quantity?: number) => void;
 }
 
 const ProductQuickView = memo(
@@ -27,9 +27,7 @@ const ProductQuickView = memo(
     const handleAddToCart = useCallback(() => {
       if (!product) return;
 
-      for (let i = 0; i < quantity; i++) {
-        onAddToCart(product);
-      }
+      onAddToCart(product, quantity);
 
       toast.success(`Added ${quantity} ${product.name}(s) to cart!`, {
         position: "bottom-right",

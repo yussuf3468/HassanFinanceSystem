@@ -112,9 +112,6 @@ export default function CartSidebar({
                                 )
                               }
                               className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white border border-white/20"
-                              disabled={
-                                item.quantity >= item.product.quantity_in_stock
-                              }
                             >
                               <Plus className="w-3 h-3" />
                             </button>

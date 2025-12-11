@@ -43,7 +43,7 @@ const ProductCard = memo(
     index = 0,
   }: {
     product: Product;
-    onAddToCart: (product: Product) => void;
+    onAddToCart: (product: Product, quantity?: number) => void;
     onQuickView?: (product: Product) => void;
     index?: number;
   }) => {
@@ -326,8 +326,8 @@ export default function CustomerStore({
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
   const handleAddToCart = useCallback(
-    (product: Product) => {
-      cart.addItem(product);
+    (product: Product, quantity = 1) => {
+      cart.addItem(product, quantity);
 
       // Show success toast notification with feedback
       compactToast.addToCart(product.name);
