@@ -254,7 +254,7 @@ export default function Reports() {
           pageHeight - 10
         );
         doc.text(
-          "Al Kalam Bookshop - Confidential",
+          "Hassan Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
           { align: "center" }
@@ -263,7 +263,7 @@ export default function Reports() {
     });
 
     // Save the PDF
-    const filename = `Al_Kalam_Inventory_Report_${
+    const filename = `Hassan_Bookshop_Inventory_Report_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -503,7 +503,7 @@ export default function Reports() {
           pageHeight - 10
         );
         doc.text(
-          "Al Kalam Bookshop - Confidential",
+          "Hassan Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
           { align: "center" }
@@ -512,7 +512,7 @@ export default function Reports() {
     });
 
     // Save the PDF
-    const filename = `Al_Kalam_Sales_Report_${rangeLabel}_${
+    const filename = `Hassan_Bookshop_Sales_Report_${rangeLabel}_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);

@@ -726,7 +726,7 @@ export default function SaleForm({
             <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
-                  AL KALAM BOOKSHOP
+                  HASSAN BOOKSHOP
                 </h1>
                 <p className="text-xs text-gray-700">
                   Quality Educational Materials & Supplies
