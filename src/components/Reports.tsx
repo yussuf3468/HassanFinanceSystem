@@ -171,22 +171,54 @@ export default function Reports() {
       (sum, p) => sum + p.selling_price * p.quantity_in_stock,
       0
     );
+    const potentialProfit = totalPotentialRevenue - totalInventoryValue;
     const inStock = products.filter((p) => p.quantity_in_stock > 0).length;
     const outOfStock = products.filter((p) => p.quantity_in_stock === 0).length;
+    const lowStock = products.filter((p) => p.quantity_in_stock > 0 && p.quantity_in_stock <= 10).length;
 
+    doc.setTextColor(0, 0, 0);
     doc.text(`Total Products: ${totalProducts}`, 14, 58);
     doc.text(`Products In Stock: ${inStock}`, 14, 64);
-    doc.text(`Out of Stock: ${outOfStock}`, 14, 70);
+    
+    // Low stock in amber/orange color
+    if (lowStock > 0) {
+      doc.setTextColor(245, 158, 11); // Amber-500
+      doc.text(`⚠ Low Stock Items: ${lowStock}`, 14, 70);
+    }
+    
+    // Out of stock in red color
+    if (outOfStock > 0) {
+      doc.setTextColor(239, 68, 68); // Red-500
+      doc.text(`Out of Stock: ${outOfStock}`, 14, 76);
+    } else {
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Out of Stock: ${outOfStock}`, 14, 76);
+    }
+    
+    // Inventory value in blue color
+    doc.setTextColor(59, 130, 246); // Blue-500
+    doc.setFont("helvetica", "bold");
     doc.text(
       `Total Inventory Value: KES ${totalInventoryValue.toLocaleString()}`,
       105,
       58
     );
+    
+    // Potential revenue in green color
+    doc.setTextColor(34, 197, 94); // Green-500
     doc.text(
       `Potential Revenue: KES ${totalPotentialRevenue.toLocaleString()}`,
       105,
       64
     );
+    
+    // Potential profit in bold green
+    doc.text(
+      `Potential Profit: KES ${potentialProfit.toLocaleString()}`,
+      105,
+      70
+    );
+    doc.setFont("helvetica", "normal");
 
     // Product table
     const tableData = sortedProducts.map((p, index) => [
@@ -198,10 +230,11 @@ export default function Reports() {
       `KES ${p.buying_price.toLocaleString()}`,
       `KES ${p.selling_price.toLocaleString()}`,
       `KES ${(p.buying_price * p.quantity_in_stock).toLocaleString()}`,
+      `KES ${((p.selling_price - p.buying_price) * p.quantity_in_stock).toLocaleString()}`,
     ]);
 
     autoTable(doc, {
-      startY: 78,
+      startY: 84,
       head: [
         [
           "#",
@@ -209,9 +242,10 @@ export default function Reports() {
           "Product Name",
           "Category",
           "Stock",
-          "Buying Price",
-          "Selling Price",
+          "Buy Price",
+          "Sell Price",
           "Total Value",
+          "Pot. Profit",
         ],
       ],
       body: tableData,
@@ -229,13 +263,27 @@ export default function Reports() {
       },
       columnStyles: {
         0: { cellWidth: 8, halign: "center" },
-        1: { cellWidth: 20 },
-        2: { cellWidth: 38 },
-        3: { cellWidth: 22 },
+        1: { cellWidth: 18 },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 20 },
         4: { cellWidth: 12, halign: "center" },
-        5: { cellWidth: 24, halign: "right" },
-        6: { cellWidth: 24, halign: "right" },
-        7: { cellWidth: 32, halign: "right", fontStyle: "bold" },
+        5: { cellWidth: 20, halign: "right" },
+        6: { cellWidth: 20, halign: "right" },
+        7: { cellWidth: 24, halign: "right", fontStyle: "bold", textColor: [59, 130, 246] }, // Blue for value
+        8: { cellWidth: 24, halign: "right", fontStyle: "bold", textColor: [34, 197, 94] }, // Green for profit
+      },
+      didParseCell: (data) => {
+        // Color code stock levels
+        if (data.column.index === 4 && data.section === 'body') {
+          const stock = sortedProducts[data.row.index].quantity_in_stock;
+          if (stock === 0) {
+            data.cell.styles.textColor = [239, 68, 68]; // Red for out of stock
+            data.cell.styles.fontStyle = 'bold';
+          } else if (stock <= 10) {
+            data.cell.styles.textColor = [245, 158, 11]; // Amber for low stock
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
@@ -382,19 +430,38 @@ export default function Reports() {
     doc.setFont("helvetica", "normal");
 
     // Left column
+    doc.setTextColor(0, 0, 0);
     doc.text(`Total Transactions: ${totalTransactions}`, 14, 58);
     doc.text(`Total Items Sold: ${totalItems}`, 14, 64);
     doc.text(`Average Sale: KES ${Number(avgSale).toLocaleString()}`, 14, 70);
+    
+    // Average profit in green
+    doc.setTextColor(34, 197, 94); // Green-500
+    doc.setFont("helvetica", "bold");
     doc.text(
       `Average Profit: KES ${Number(avgProfit).toLocaleString()}`,
       14,
       76
     );
 
-    // Right column
+    // Right column - Revenue in blue
+    doc.setTextColor(59, 130, 246); // Blue-500
     doc.text(`Total Revenue: KES ${totalRevenue.toLocaleString()}`, 105, 58);
+    
+    // Total Profit in bold green
+    doc.setTextColor(34, 197, 94); // Green-500
     doc.text(`Total Profit: KES ${totalProfit.toLocaleString()}`, 105, 64);
+    
+    // Profit margin in green
     doc.text(`Profit Margin: ${profitMargin}%`, 105, 70);
+    
+    // Discounts in amber if any
+    if (totalDiscounts > 0) {
+      doc.setTextColor(245, 158, 11); // Amber-500
+    } else {
+      doc.setTextColor(0, 0, 0);
+    }
+    doc.setFont("helvetica", "normal");
     doc.text(
       `Total Discounts: KES ${totalDiscounts.toLocaleString()}`,
       105,
@@ -483,8 +550,18 @@ export default function Reports() {
         4: { cellWidth: 10, halign: "center" },
         5: { cellWidth: 20, halign: "right" },
         6: { cellWidth: 18, halign: "right" },
-        7: { cellWidth: 22, halign: "right", fontStyle: "bold" },
-        8: { cellWidth: 22, halign: "right", textColor: [34, 197, 94] },
+        7: { cellWidth: 22, halign: "right", fontStyle: "bold", textColor: [59, 130, 246] }, // Blue for revenue
+        8: { cellWidth: 22, halign: "right", fontStyle: "bold", textColor: [34, 197, 94] }, // Green for profit
+      },
+      didParseCell: (data) => {
+        // Color code discounts in amber if present
+        if (data.column.index === 6 && data.section === 'body') {
+          const discountText = data.cell.text[0];
+          if (discountText && discountText !== '-') {
+            data.cell.styles.textColor = [245, 158, 11]; // Amber for discounts
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
