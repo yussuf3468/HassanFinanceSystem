@@ -7,8 +7,10 @@ import {
   Trash2,
   Printer,
   ShoppingCart,
+  TrendingUp,
+  Clock,
 } from "lucide-react";
-import { searchProducts } from "../utils/searchUtils";
+import { searchProducts, getSearchSuggestions } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
@@ -956,6 +958,11 @@ export default function SaleForm({
                   const product = productById(li.product_id);
                   const comp = computed.find((c) => c.line.id === li.id)!;
 
+                  // Get search suggestions (like Google autocomplete)
+                  const suggestions = li.searchTerm && li.searchTerm.length >= 2
+                    ? getSearchSuggestions(products, li.searchTerm, 8)
+                    : [];
+
                   // Use fuzzy search for better matching (tolerates typos)
                   const searchResults = searchProducts(
                     products,
@@ -969,6 +976,11 @@ export default function SaleForm({
                   const filtered = searchResults.map(
                     (result) => result.product
                   );
+
+                  // Get top selling/featured products for quick access
+                  const quickAccessProducts = products
+                    .filter(p => p.featured || p.quantity_in_stock > 0)
+                    .slice(0, 5);
 
                   return (
                     <div
@@ -1023,63 +1035,159 @@ export default function SaleForm({
                               onFocus={() =>
                                 updateLine(li.id, { showDropdown: true })
                               }
-                              placeholder="Search product..."
+                              placeholder="Start typing to search products..."
                               className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                             />
-                            {li.showDropdown &&
-                              li.searchTerm &&
-                              filtered.length > 0 && (
-                                <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-64 overflow-y-auto">
-                                  {filtered.slice(0, 15).map((p) => (
-                                    <button
-                                      key={p.id}
-                                      type="button"
-                                      onClick={() =>
-                                        updateLine(li.id, {
-                                          product_id: p.id,
-                                          searchTerm: p.name,
-                                          showDropdown: false,
-                                        })
-                                      }
-                                      className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
-                                    >
-                                      {p.image_url ? (
-                                        <img
-                                          src={p.image_url}
-                                          alt={p.name}
-                                          className="w-10 h-10 object-cover rounded border border-white/10"
-                                        />
-                                      ) : (
-                                        <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
-                                          <Package className="w-5 h-5 text-slate-400" />
-                                        </div>
-                                      )}
-                                      <div className="min-w-0 flex-1">
-                                        <p className="font-medium text-white truncate">
-                                          {p.name}
-                                        </p>
-                                        <p className="text-xs text-slate-400 truncate">
-                                          {p.product_id} • Stock{" "}
-                                          {p.quantity_in_stock} • KES{" "}
-                                          {p.selling_price.toLocaleString()}
-                                        </p>
-                                      </div>
-                                    </button>
-                                  ))}
-                                  {filtered.length > 15 && (
-                                    <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
-                                      + {filtered.length - 15} more results
+                            
+                            {/* Predictive Suggestions Dropdown - Google Style */}
+                            {li.showDropdown && (
+                              <div className="absolute z-30 w-full mt-2 bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl max-h-96 overflow-y-auto">
+                                {/* Quick Access - When search is empty */}
+                                {!li.searchTerm && quickAccessProducts.length > 0 && (
+                                  <div className="border-b border-white/10">
+                                    <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                      <TrendingUp className="w-3 h-3" />
+                                      <span>Quick Access</span>
                                     </div>
-                                  )}
-                                </div>
-                              )}
-                            {li.showDropdown &&
-                              li.searchTerm &&
-                              filtered.length === 0 && (
-                                <div className="absolute z-30 w-full mt-2 bg-slate-800 border border-white/20 rounded-lg shadow-2xl p-4 text-center text-slate-400 text-sm">
-                                  No products match "{li.searchTerm}"
-                                </div>
-                              )}
+                                    {quickAccessProducts.map((p) => (
+                                      <button
+                                        key={p.id}
+                                        type="button"
+                                        onClick={() =>
+                                          updateLine(li.id, {
+                                            product_id: p.id,
+                                            searchTerm: p.name,
+                                            showDropdown: false,
+                                          })
+                                        }
+                                        className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors"
+                                      >
+                                        {p.image_url ? (
+                                          <img
+                                            src={p.image_url}
+                                            alt={p.name}
+                                            className="w-8 h-8 object-cover rounded border border-white/10"
+                                          />
+                                        ) : (
+                                          <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                            <Package className="w-4 h-4 text-slate-400" />
+                                          </div>
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-white text-xs truncate">
+                                            {p.name}
+                                          </p>
+                                          <p className="text-xs text-slate-400">
+                                            KES {p.selling_price.toLocaleString()}
+                                          </p>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Search Suggestions - Like Google */}
+                                {suggestions.length > 0 && li.searchTerm && (
+                                  <div className="border-b border-white/10">
+                                    <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                      <Search className="w-3 h-3" />
+                                      <span>Suggestions</span>
+                                    </div>
+                                    {suggestions.map((suggestion, idx) => {
+                                      const matchingProduct = products.find(
+                                        (p) => p.name === suggestion || p.category === suggestion
+                                      );
+                                      return (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() =>
+                                            updateLine(li.id, {
+                                              searchTerm: suggestion,
+                                              showDropdown: true,
+                                            })
+                                          }
+                                          className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors group"
+                                        >
+                                          <Clock className="w-4 h-4 text-slate-400 group-hover:text-purple-400" />
+                                          <span className="text-white">
+                                            {suggestion.split(new RegExp(`(${li.searchTerm})`, 'gi')).map((part, i) =>
+                                              part.toLowerCase() === li.searchTerm.toLowerCase() ? (
+                                                <span key={i} className="font-bold text-purple-300">{part}</span>
+                                              ) : (
+                                                <span key={i}>{part}</span>
+                                              )
+                                            )}
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+
+                                {/* Full Product Results */}
+                                {li.searchTerm && filtered.length > 0 && (
+                                  <div>
+                                    {suggestions.length > 0 && (
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                        <Package className="w-3 h-3" />
+                                        <span>Products ({filtered.length})</span>
+                                      </div>
+                                    )}
+                                    {filtered.slice(0, 15).map((p) => (
+                                      <button
+                                        key={p.id}
+                                        type="button"
+                                        onClick={() =>
+                                          updateLine(li.id, {
+                                            product_id: p.id,
+                                            searchTerm: p.name,
+                                            showDropdown: false,
+                                          })
+                                        }
+                                        className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
+                                      >
+                                        {p.image_url ? (
+                                          <img
+                                            src={p.image_url}
+                                            alt={p.name}
+                                            className="w-10 h-10 object-cover rounded border border-white/10"
+                                          />
+                                        ) : (
+                                          <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                            <Package className="w-5 h-5 text-slate-400" />
+                                          </div>
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-white truncate">
+                                            {p.name}
+                                          </p>
+                                          <p className="text-xs text-slate-400 truncate">
+                                            {p.product_id} • Stock{" "}
+                                            {p.quantity_in_stock} • KES{" "}
+                                            {p.selling_price.toLocaleString()}
+                                          </p>
+                                        </div>
+                                      </button>
+                                    ))}
+                                    {filtered.length > 15 && (
+                                      <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
+                                        + {filtered.length - 15} more results
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* No Results */}
+                                {li.searchTerm && filtered.length === 0 && (
+                                  <div className="p-4 text-center text-slate-400 text-sm">
+                                    <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
+                                    <p className="font-medium">No products found</p>
+                                    <p className="text-xs mt-1">Try a different search term</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
 
