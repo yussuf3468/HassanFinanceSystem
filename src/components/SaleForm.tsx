@@ -1063,8 +1063,13 @@ export default function SaleForm({
                               onFocus={() =>
                                 updateLine(li.id, { showDropdown: true })
                               }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateLine(li.id, { showDropdown: true });
+                              }}
                               placeholder="Start typing to search products..."
                               className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                              autoComplete="off"
                             />
 
                             {/* Predictive Suggestions Dropdown - Google Style */}
