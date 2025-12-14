@@ -419,6 +419,21 @@ export default function SaleForm({
     const transactionId = crypto.randomUUID();
 
     try {
+      // Calculate overall discount distribution
+      // Distribute overall discount proportionally across line items
+      const overallDiscountNum = parseFloat(overallDiscountValue) || 0;
+      let overallDiscountAmount = 0;
+      
+      if (overallDiscountType === "percentage" && overallDiscountNum > 0) {
+        overallDiscountAmount = (subtotalAfterLineDiscounts * overallDiscountNum) / 100;
+      } else if (overallDiscountType === "amount" && overallDiscountNum > 0) {
+        overallDiscountAmount = overallDiscountNum;
+      }
+      
+      if (overallDiscountAmount > subtotalAfterLineDiscounts) {
+        overallDiscountAmount = subtotalAfterLineDiscounts;
+      }
+
       // ✅ All items should have sufficient stock now (handled above)
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
@@ -427,17 +442,29 @@ export default function SaleForm({
             ? parseFloat(c.line.discount_value || "0")
             : 0;
 
+        // Calculate this line's share of the overall discount (proportional to its subtotal)
+        const lineProportionOfTotal = subtotalAfterLineDiscounts > 0 
+          ? c.final_total / subtotalAfterLineDiscounts 
+          : 0;
+        const lineOverallDiscount = overallDiscountAmount * lineProportionOfTotal;
+        
+        // Final total for this line after overall discount
+        const lineFinalTotal = c.final_total - lineOverallDiscount;
+        
+        // Adjust profit to account for overall discount
+        const lineFinalProfit = c.profit - lineOverallDiscount;
+
         const { error: lineError } = await supabase.from("sales").insert({
           transaction_id: transactionId,
           product_id: c.product.id,
           quantity_sold: c.quantity,
           selling_price: c.product.selling_price,
           buying_price: c.product.buying_price,
-          total_sale: c.final_total,
-          profit: c.profit,
+          total_sale: lineFinalTotal,
+          profit: lineFinalProfit,
           payment_method: paymentMethod,
           sold_by: soldBy,
-          discount_amount: c.discount_amount,
+          discount_amount: c.discount_amount + lineOverallDiscount,
           discount_percentage,
           original_price: c.product.selling_price,
           final_price: c.final_unit_price,
@@ -959,9 +986,10 @@ export default function SaleForm({
                   const comp = computed.find((c) => c.line.id === li.id)!;
 
                   // Get search suggestions (like Google autocomplete)
-                  const suggestions = li.searchTerm && li.searchTerm.length >= 2
-                    ? getSearchSuggestions(products, li.searchTerm, 8)
-                    : [];
+                  const suggestions =
+                    li.searchTerm && li.searchTerm.length >= 2
+                      ? getSearchSuggestions(products, li.searchTerm, 8)
+                      : [];
 
                   // Use fuzzy search for better matching (tolerates typos)
                   const searchResults = searchProducts(
@@ -979,7 +1007,7 @@ export default function SaleForm({
 
                   // Get top selling/featured products for quick access
                   const quickAccessProducts = products
-                    .filter(p => p.featured || p.quantity_in_stock > 0)
+                    .filter((p) => p.featured || p.quantity_in_stock > 0)
                     .slice(0, 5);
 
                   return (
@@ -1038,53 +1066,55 @@ export default function SaleForm({
                               placeholder="Start typing to search products..."
                               className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                             />
-                            
+
                             {/* Predictive Suggestions Dropdown - Google Style */}
                             {li.showDropdown && (
                               <div className="absolute z-30 w-full mt-2 bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl max-h-96 overflow-y-auto">
                                 {/* Quick Access - When search is empty */}
-                                {!li.searchTerm && quickAccessProducts.length > 0 && (
-                                  <div className="border-b border-white/10">
-                                    <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
-                                      <TrendingUp className="w-3 h-3" />
-                                      <span>Quick Access</span>
-                                    </div>
-                                    {quickAccessProducts.map((p) => (
-                                      <button
-                                        key={p.id}
-                                        type="button"
-                                        onClick={() =>
-                                          updateLine(li.id, {
-                                            product_id: p.id,
-                                            searchTerm: p.name,
-                                            showDropdown: false,
-                                          })
-                                        }
-                                        className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors"
-                                      >
-                                        {p.image_url ? (
-                                          <img
-                                            src={p.image_url}
-                                            alt={p.name}
-                                            className="w-8 h-8 object-cover rounded border border-white/10"
-                                          />
-                                        ) : (
-                                          <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center border border-white/10">
-                                            <Package className="w-4 h-4 text-slate-400" />
+                                {!li.searchTerm &&
+                                  quickAccessProducts.length > 0 && (
+                                    <div className="border-b border-white/10">
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                        <TrendingUp className="w-3 h-3" />
+                                        <span>Quick Access</span>
+                                      </div>
+                                      {quickAccessProducts.map((p) => (
+                                        <button
+                                          key={p.id}
+                                          type="button"
+                                          onClick={() =>
+                                            updateLine(li.id, {
+                                              product_id: p.id,
+                                              searchTerm: p.name,
+                                              showDropdown: false,
+                                            })
+                                          }
+                                          className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors"
+                                        >
+                                          {p.image_url ? (
+                                            <img
+                                              src={p.image_url}
+                                              alt={p.name}
+                                              className="w-8 h-8 object-cover rounded border border-white/10"
+                                            />
+                                          ) : (
+                                            <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center border border-white/10">
+                                              <Package className="w-4 h-4 text-slate-400" />
+                                            </div>
+                                          )}
+                                          <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-white text-xs truncate">
+                                              {p.name}
+                                            </p>
+                                            <p className="text-xs text-slate-400">
+                                              KES{" "}
+                                              {p.selling_price.toLocaleString()}
+                                            </p>
                                           </div>
-                                        )}
-                                        <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-white text-xs truncate">
-                                            {p.name}
-                                          </p>
-                                          <p className="text-xs text-slate-400">
-                                            KES {p.selling_price.toLocaleString()}
-                                          </p>
-                                        </div>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
 
                                 {/* Search Suggestions - Like Google */}
                                 {suggestions.length > 0 && li.searchTerm && (
@@ -1095,7 +1125,9 @@ export default function SaleForm({
                                     </div>
                                     {suggestions.map((suggestion, idx) => {
                                       const matchingProduct = products.find(
-                                        (p) => p.name === suggestion || p.category === suggestion
+                                        (p) =>
+                                          p.name === suggestion ||
+                                          p.category === suggestion
                                       );
                                       return (
                                         <button
@@ -1111,13 +1143,26 @@ export default function SaleForm({
                                         >
                                           <Clock className="w-4 h-4 text-slate-400 group-hover:text-purple-400" />
                                           <span className="text-white">
-                                            {suggestion.split(new RegExp(`(${li.searchTerm})`, 'gi')).map((part, i) =>
-                                              part.toLowerCase() === li.searchTerm.toLowerCase() ? (
-                                                <span key={i} className="font-bold text-purple-300">{part}</span>
-                                              ) : (
-                                                <span key={i}>{part}</span>
+                                            {suggestion
+                                              .split(
+                                                new RegExp(
+                                                  `(${li.searchTerm})`,
+                                                  "gi"
+                                                )
                                               )
-                                            )}
+                                              .map((part, i) =>
+                                                part.toLowerCase() ===
+                                                li.searchTerm.toLowerCase() ? (
+                                                  <span
+                                                    key={i}
+                                                    className="font-bold text-purple-300"
+                                                  >
+                                                    {part}
+                                                  </span>
+                                                ) : (
+                                                  <span key={i}>{part}</span>
+                                                )
+                                              )}
                                           </span>
                                         </button>
                                       );
@@ -1131,7 +1176,9 @@ export default function SaleForm({
                                     {suggestions.length > 0 && (
                                       <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
                                         <Package className="w-3 h-3" />
-                                        <span>Products ({filtered.length})</span>
+                                        <span>
+                                          Products ({filtered.length})
+                                        </span>
                                       </div>
                                     )}
                                     {filtered.slice(0, 15).map((p) => (
@@ -1182,8 +1229,12 @@ export default function SaleForm({
                                 {li.searchTerm && filtered.length === 0 && (
                                   <div className="p-4 text-center text-slate-400 text-sm">
                                     <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
-                                    <p className="font-medium">No products found</p>
-                                    <p className="text-xs mt-1">Try a different search term</p>
+                                    <p className="font-medium">
+                                      No products found
+                                    </p>
+                                    <p className="text-xs mt-1">
+                                      Try a different search term
+                                    </p>
                                   </div>
                                 )}
                               </div>
