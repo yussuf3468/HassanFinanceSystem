@@ -77,6 +77,7 @@ export default function SaleForm({
   const queryClient = useQueryClient();
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [soldBy, setSoldBy] = useState("");
+  const [quickSaleMode, setQuickSaleMode] = useState(false);
   const [lineItems, setLineItems] = useState<LineItem[]>([
     {
       id: crypto.randomUUID(),
@@ -124,6 +125,58 @@ export default function SaleForm({
     } catch (error) {
       console.error("Error loading customers:", error);
     }
+  }
+
+  // Draft sale functions
+  function saveDraft() {
+    const draftData = {
+      soldBy,
+      paymentMethod,
+      lineItems,
+      overallDiscountType,
+      overallDiscountValue,
+      selectedCustomerId,
+      customerSearch,
+      quickSaleMode,
+      timestamp: new Date().toISOString(),
+    };
+    localStorage.setItem("saleFormDraft", JSON.stringify(draftData));
+    alert("✅ Draft saved successfully!");
+  }
+
+  function loadDraft() {
+    const savedDraft = localStorage.getItem("saleFormDraft");
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+        setSoldBy(draftData.soldBy || "");
+        setPaymentMethod(draftData.paymentMethod || "Cash");
+        setLineItems(draftData.lineItems || [{
+          id: crypto.randomUUID(),
+          product_id: "",
+          quantity: "",
+          discount_type: "none",
+          discount_value: "",
+          searchTerm: "",
+          showDropdown: false,
+        }]);
+        setOverallDiscountType(draftData.overallDiscountType || "none");
+        setOverallDiscountValue(draftData.overallDiscountValue || "");
+        setSelectedCustomerId(draftData.selectedCustomerId || "00000000-0000-0000-0000-000000000001");
+        setCustomerSearch(draftData.customerSearch || "");
+        setQuickSaleMode(draftData.quickSaleMode || false);
+        alert("✅ Draft loaded successfully!");
+      } catch (error) {
+        console.error("Error loading draft:", error);
+        alert("❌ Failed to load draft");
+      }
+    } else {
+      alert("ℹ️ No saved draft found");
+    }
+  }
+
+  function clearDraft() {
+    localStorage.removeItem("saleFormDraft");
   }
 
   // Stock receive modal state
@@ -770,6 +823,10 @@ export default function SaleForm({
     setOverallDiscountType("none");
     setOverallDiscountValue("");
     setReceipt(null);
+    setQuickSaleMode(false);
+    setSelectedCustomerId("00000000-0000-0000-0000-000000000001");
+    setCustomerSearch("");
+    clearDraft(); // Clear draft when starting new sale
   }
 
   return (
@@ -966,6 +1023,41 @@ export default function SaleForm({
             className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
+            {/* Quick Sale Mode Toggle */}
+            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/40 rounded-xl p-3 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    Quick Sale Mode
+                  </p>
+                  <p className="text-xs text-green-300">
+                    Auto-select Khalid & Cash for faster checkout
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuickSaleMode(!quickSaleMode);
+                  if (!quickSaleMode) {
+                    setSoldBy("Khalid");
+                    setPaymentMethod("Cash");
+                  }
+                }}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 ${
+                  quickSaleMode ? "bg-green-600" : "bg-gray-600"
+                }`}
+                style={{ WebkitTapHighlightColor: "rgba(34,197,94,0.3)" }}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    quickSaleMode ? "translate-x-7" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
             {/* Staff & Payment - Moved to top for better UX */}
             <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
               <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
@@ -1756,6 +1848,22 @@ export default function SaleForm({
 
             {/* Action Buttons - Improved for mobile touch */}
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
+              <button
+                type="button"
+                onClick={loadDraft}
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg font-medium text-base touch-manipulation active:scale-95 flex items-center justify-center space-x-2"
+              >
+                <Clock className="w-5 h-5" />
+                <span>Load Draft</span>
+              </button>
+              <button
+                type="button"
+                onClick={saveDraft}
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-lg hover:from-yellow-700 hover:to-amber-700 transition-all shadow-lg font-medium text-base touch-manipulation active:scale-95 flex items-center justify-center space-x-2"
+              >
+                <Package className="w-5 h-5" />
+                <span>Save Draft</span>
+              </button>
               <button
                 type="button"
                 onClick={onClose}
