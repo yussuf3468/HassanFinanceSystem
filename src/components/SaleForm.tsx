@@ -10,7 +10,6 @@ import {
   TrendingUp,
   Clock,
   Users,
-  AlertCircle,
 } from "lucide-react";
 import { searchProducts, getSearchSuggestions } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -100,8 +99,13 @@ export default function SaleForm({
 
   // Customer selection state
   const [customers, setCustomers] = useState<InternalCustomer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState("00000000-0000-0000-0000-000000000001"); // Default to Walk-in Customer
-  
+  const [selectedCustomerId, setSelectedCustomerId] = useState(
+    "00000000-0000-0000-0000-000000000001"
+  ); // Default to Walk-in Customer
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+  const customerDropdownRef = useRef<HTMLDivElement>(null);
+
   // Load customers on component mount
   useEffect(() => {
     loadCustomers();
@@ -144,6 +148,16 @@ export default function SaleForm({
   useEffect(() => {
     function handleClickOutside(e: MouseEvent | TouchEvent) {
       const target = e.target as Node;
+
+      // Close customer dropdown
+      if (
+        customerDropdownRef.current &&
+        !customerDropdownRef.current.contains(target)
+      ) {
+        setShowCustomerDropdown(false);
+      }
+
+      // Close product line dropdowns
       setLineItems((items) =>
         items.map((li) => {
           const ref = dropdownRefs.current[li.id];
@@ -483,8 +497,10 @@ export default function SaleForm({
         // Adjust profit to account for overall discount
         const lineFinalProfit = c.profit - lineOverallDiscount;
 
-        const selectedCustomer = customers.find((cust) => cust.id === selectedCustomerId);
-        
+        const selectedCustomer = customers.find(
+          (cust) => cust.id === selectedCustomerId
+        );
+
         const { error: lineError } = await supabase.from("sales").insert({
           transaction_id: transactionId,
           product_id: c.product.id,
@@ -1001,71 +1017,192 @@ export default function SaleForm({
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="relative" ref={customerDropdownRef}>
                   <label className="flex items-center space-x-1 text-sm font-medium text-slate-300 mb-2">
                     <Users className="w-4 h-4" />
-                    <span>Customer</span>
+                    <span>Customer *</span>
                   </label>
-                  <select
-                    value={selectedCustomerId}
-                    onChange={(e) => setSelectedCustomerId(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
-                  >
-                    {customers.map((c) => (
-                      <option
-                        key={c.id}
-                        value={c.id}
-                        className="bg-slate-900 text-white"
-                      >
-                        {c.customer_name}
-                        {c.credit_balance > 0 && ` (Owes: KES ${c.credit_balance.toLocaleString()})`}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={customerSearch}
+                      onChange={(e) => {
+                        setCustomerSearch(e.target.value);
+                        setShowCustomerDropdown(true);
+                      }}
+                      onFocus={() => setShowCustomerDropdown(true)}
+                      placeholder="Search or select customer..."
+                      className="w-full min-h-[48px] px-4 py-2.5 pr-10 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
+                      autoComplete="off"
+                    />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  </div>
+
+                  {/* Selected Customer Display */}
+                  {(() => {
+                    const selected = customers.find(
+                      (c) => c.id === selectedCustomerId
+                    );
+                    return (
+                      selected && (
+                        <div className="mt-2 p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                                {selected.customer_name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-white font-medium text-sm">
+                                  {selected.customer_name}
+                                </p>
+                                {selected.credit_balance > 0 && (
+                                  <p className="text-xs text-red-400">
+                                    Owes: KES{" "}
+                                    {selected.credit_balance.toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            {selected.id !==
+                              "00000000-0000-0000-0000-000000000001" && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCustomerId(
+                                    "00000000-0000-0000-0000-000000000001"
+                                  );
+                                  setCustomerSearch("");
+                                }}
+                                className="p-1 hover:bg-red-500/20 rounded text-red-400"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    );
+                  })()}
+
+                  {/* Customer Dropdown */}
+                  {showCustomerDropdown && (
+                    <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-80 overflow-y-auto">
+                      {(() => {
+                        const filtered = customers.filter(
+                          (c) =>
+                            c.customer_name
+                              .toLowerCase()
+                              .includes(customerSearch.toLowerCase()) ||
+                            (c.phone && c.phone.includes(customerSearch))
+                        );
+
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="p-4 text-center text-slate-400">
+                              No customers found
+                            </div>
+                          );
+                        }
+
+                        return filtered.map((customer) => (
+                          <button
+                            key={customer.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCustomerId(customer.id);
+                              setCustomerSearch(customer.customer_name);
+                              setShowCustomerDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 ${
+                              selectedCustomerId === customer.id
+                                ? "bg-purple-500/20"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                                  {customer.customer_name
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="text-white font-medium">
+                                    {customer.customer_name}
+                                  </p>
+                                  {customer.phone && (
+                                    <p className="text-xs text-slate-400">
+                                      {customer.phone}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              {customer.credit_balance > 0 && (
+                                <div className="text-right">
+                                  <p className="text-xs text-slate-400">
+                                    Balance
+                                  </p>
+                                  <p className="text-sm font-bold text-red-400">
+                                    KES{" "}
+                                    {customer.credit_balance.toLocaleString()}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Customer Balance Warning */}
+              {/* Customer Balance Info */}
               {(() => {
-                const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
-                if (selectedCustomer && selectedCustomer.id !== "00000000-0000-0000-0000-000000000001") {
+                const selectedCustomer = customers.find(
+                  (c) => c.id === selectedCustomerId
+                );
+                if (
+                  selectedCustomer &&
+                  selectedCustomer.id !== "00000000-0000-0000-0000-000000000001"
+                ) {
                   const newBalance = selectedCustomer.credit_balance + total;
-                  const isOverLimit = newBalance > selectedCustomer.credit_limit;
-                  
+
                   return (
-                    <div className={`mt-2 p-3 rounded-lg border ${
-                      isOverLimit 
-                        ? 'bg-red-500/10 border-red-500/30' 
-                        : selectedCustomer.credit_balance > 0 
-                          ? 'bg-yellow-500/10 border-yellow-500/30'
-                          : 'bg-blue-500/10 border-blue-500/30'
-                    }`}>
-                      <div className="flex items-start space-x-2">
-                        <AlertCircle className={`w-5 h-5 mt-0.5 ${
-                          isOverLimit ? 'text-red-400' : 'text-yellow-400'
-                        }`} />
-                        <div className="flex-1 text-sm">
-                          <p className={`font-medium ${
-                            isOverLimit ? 'text-red-300' : 'text-yellow-300'
-                          }`}>
-                            Customer: {selectedCustomer.customer_name}
+                    <div className="mt-2 p-4 rounded-xl border bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white flex-shrink-0">
+                          <Users className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-white text-lg mb-2">
+                            {selectedCustomer.customer_name}
                           </p>
-                          <p className="text-slate-300 mt-1">
-                            Current Balance: <span className="font-bold text-white">KES {selectedCustomer.credit_balance.toLocaleString()}</span>
-                          </p>
-                          <p className="text-slate-300">
-                            After Sale: <span className={`font-bold ${isOverLimit ? 'text-red-400' : 'text-white'}`}>
-                              KES {newBalance.toLocaleString()}
-                            </span>
-                          </p>
-                          <p className="text-slate-300">
-                            Credit Limit: <span className="font-bold text-white">KES {selectedCustomer.credit_limit.toLocaleString()}</span>
-                          </p>
-                          {isOverLimit && (
-                            <p className="text-red-400 mt-2 font-medium">
-                              ⚠️ Warning: This sale will exceed the customer's credit limit by KES {(newBalance - selectedCustomer.credit_limit).toLocaleString()}
-                            </p>
-                          )}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-xs text-slate-400">
+                                Current Balance
+                              </p>
+                              <p
+                                className={`text-lg font-bold ${
+                                  selectedCustomer.credit_balance > 0
+                                    ? "text-red-400"
+                                    : "text-green-400"
+                                }`}
+                              >
+                                KES{" "}
+                                {selectedCustomer.credit_balance.toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-xs text-slate-400">
+                                After Sale
+                              </p>
+                              <p className="text-lg font-bold text-white">
+                                KES {newBalance.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

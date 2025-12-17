@@ -69,7 +69,6 @@ export interface InternalCustomer {
   email: string | null;
   address: string | null;
   credit_balance: number;
-  credit_limit: number;
   total_purchases: number;
   total_payments: number;
   notes: string | null;

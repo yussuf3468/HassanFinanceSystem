@@ -28,13 +28,12 @@ export default function CustomerManagement() {
   const [selectedCustomer, setSelectedCustomer] =
     useState<InternalCustomer | null>(null);
   const [payments, setPayments] = useState<CustomerPayment[]>([]);
-  
+
   const [formData, setFormData] = useState({
     customer_name: "",
     phone: "",
     email: "",
     address: "",
-    credit_limit: "0",
     notes: "",
   });
 
@@ -89,7 +88,6 @@ export default function CustomerManagement() {
       phone: "",
       email: "",
       address: "",
-      credit_limit: "0",
       notes: "",
     });
     setShowModal(true);
@@ -102,7 +100,6 @@ export default function CustomerManagement() {
       phone: customer.phone || "",
       email: customer.email || "",
       address: customer.address || "",
-      credit_limit: customer.credit_limit.toString(),
       notes: customer.notes || "",
     });
     setShowModal(true);
@@ -121,7 +118,6 @@ export default function CustomerManagement() {
             phone: formData.phone || undefined,
             email: formData.email || undefined,
             address: formData.address || undefined,
-            credit_limit: parseFloat(formData.credit_limit) || 0,
             notes: formData.notes || undefined,
             updated_at: new Date().toISOString(),
           } as any)
@@ -136,7 +132,6 @@ export default function CustomerManagement() {
           phone: formData.phone || null,
           email: formData.email || null,
           address: formData.address || null,
-          credit_limit: parseFloat(formData.credit_limit) || 0,
           notes: formData.notes || null,
           credit_balance: 0,
           total_purchases: 0,
@@ -240,9 +235,10 @@ export default function CustomerManagement() {
 
   const filteredCustomers = customers.filter(
     (c) =>
-      c.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (c.phone && c.phone.includes(searchTerm)) ||
-      (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      c.id !== "00000000-0000-0000-0000-000000000001" && // Exclude walk-in customer
+      (c.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.phone && c.phone.includes(searchTerm)) ||
+        (c.email && c.email.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   const totalCreditBalance = customers.reduce(
@@ -292,9 +288,7 @@ export default function CustomerManagement() {
           <div className="flex items-center justify-between mb-2">
             <Users className="w-8 h-8 text-purple-400" />
           </div>
-          <p className="text-2xl font-bold text-white">
-            {customers.length}
-          </p>
+          <p className="text-2xl font-bold text-white">{customers.length}</p>
           <p className="text-sm text-slate-400">Total Customers</p>
         </div>
 
@@ -302,7 +296,9 @@ export default function CustomerManagement() {
           <div className="flex items-center justify-between mb-2">
             <AlertCircle className="w-8 h-8 text-red-400" />
           </div>
-          <p className="text-2xl font-bold text-white">{customersWithBalance}</p>
+          <p className="text-2xl font-bold text-white">
+            {customersWithBalance}
+          </p>
           <p className="text-sm text-slate-400">With Balance</p>
         </div>
 
@@ -356,9 +352,6 @@ export default function CustomerManagement() {
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Credit Balance
-                </th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Credit Limit
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Total Purchases
@@ -416,9 +409,6 @@ export default function CustomerManagement() {
                     >
                       KES {customer.credit_balance.toLocaleString()}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 text-right text-slate-300">
-                    KES {customer.credit_limit.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 text-right text-slate-300">
                     KES {customer.total_purchases.toLocaleString()}
@@ -544,23 +534,6 @@ export default function CustomerManagement() {
                   }
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Customer address"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Credit Limit (KES)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.credit_limit}
-                  onChange={(e) =>
-                    setFormData({ ...formData, credit_limit: e.target.value })
-                  }
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="0.00"
                 />
               </div>
 
@@ -717,8 +690,10 @@ export default function CustomerManagement() {
                             KES {payment.amount.toLocaleString()}
                           </p>
                           <p className="text-xs text-slate-400">
-                            {new Date(payment.payment_date).toLocaleDateString()} •{" "}
-                            {payment.payment_method} • {payment.processed_by}
+                            {new Date(
+                              payment.payment_date
+                            ).toLocaleDateString()}{" "}
+                            • {payment.payment_method} • {payment.processed_by}
                           </p>
                         </div>
                         <CheckCircle className="w-5 h-5 text-green-400" />

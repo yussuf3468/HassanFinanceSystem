@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS customers (
   email VARCHAR(255),
   address TEXT,
   credit_balance DECIMAL(10, 2) DEFAULT 0.00,
-  credit_limit DECIMAL(10, 2) DEFAULT 0.00,
   total_purchases DECIMAL(10, 2) DEFAULT 0.00,
   total_payments DECIMAL(10, 2) DEFAULT 0.00,
   notes TEXT,
@@ -100,13 +99,12 @@ CREATE TRIGGER process_customer_payment_trigger
   EXECUTE FUNCTION process_customer_payment();
 
 -- Insert walk-in customer (default for one-time customers)
-INSERT INTO customers (id, customer_name, phone, email, address, credit_balance, credit_limit, is_active, notes)
+INSERT INTO customers (id, customer_name, phone, email, address, credit_balance, is_active, notes)
 VALUES 
-  ('00000000-0000-0000-0000-000000000001', 'Walk-in Customer', NULL, NULL, NULL, 0.00, 0.00, true, 'Default customer for cash sales and one-time customers')
+  ('00000000-0000-0000-0000-000000000001', 'Walk-in Customer', NULL, NULL, NULL, 0.00, true, 'Default customer for cash sales and one-time customers')
 ON CONFLICT (id) DO NOTHING;
 
 COMMENT ON TABLE customers IS 'Stores customer information with credit balance tracking';
 COMMENT ON COLUMN customers.credit_balance IS 'Current outstanding balance (amount owed by customer)';
-COMMENT ON COLUMN customers.credit_limit IS 'Maximum credit allowed for this customer';
 COMMENT ON COLUMN customers.total_purchases IS 'Total amount of all purchases made';
 COMMENT ON COLUMN customers.total_payments IS 'Total amount of all payments received';
