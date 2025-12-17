@@ -981,7 +981,8 @@ export default function SaleForm({
                     required
                     value={soldBy}
                     onChange={(e) => setSoldBy(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation relative z-10"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     <option value="" className="bg-slate-900 text-white">
                       -- Select Staff Member --

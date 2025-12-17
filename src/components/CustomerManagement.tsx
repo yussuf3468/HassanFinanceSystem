@@ -14,10 +14,13 @@ import {
   AlertCircle,
   CheckCircle,
   X,
+  FileText,
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import type { InternalCustomer, CustomerPayment } from "../types";
 import { toast } from "react-toastify";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function CustomerManagement() {
   const [customers, setCustomers] = useState<InternalCustomer[]>([]);
@@ -231,6 +234,210 @@ export default function CustomerManagement() {
     }
   }
 
+  const generateCustomerPDF = async (customer: InternalCustomer) => {
+    try {
+      toast.info("Generating PDF...");
+
+      // Fetch customer's sales history
+      const { data: sales, error: salesError } = await supabase
+        .from("sales")
+        .select(`
+          id,
+          sale_date,
+          quantity_sold,
+          selling_price,
+          total_sale,
+          payment_method,
+          products (
+            name
+          )
+        `)
+        .eq("customer_id", customer.id)
+        .order("sale_date", { ascending: true });
+
+      if (salesError) throw salesError;
+
+      // Fetch customer's payment history
+      const { data: payments, error: paymentsError } = await (supabase as any)
+        .from("customer_payments")
+        .select("*")
+        .eq("customer_id", customer.id)
+        .order("payment_date", { ascending: true });
+
+      if (paymentsError) throw paymentsError;
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let yPos = 20;
+
+      // Header
+      doc.setFillColor(139, 92, 246);
+      doc.rect(0, 0, pageWidth, 40, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text("CUSTOMER STATEMENT", pageWidth / 2, 20, { align: "center" });
+      doc.setFontSize(12);
+      doc.text("Hassan Bookshop", pageWidth / 2, 30, { align: "center" });
+
+      yPos = 50;
+      doc.setTextColor(0, 0, 0);
+
+      // Customer Information
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("Customer Information", 14, yPos);
+      yPos += 8;
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Name: ${customer.customer_name}`, 14, yPos);
+      yPos += 6;
+      if (customer.phone) {
+        doc.text(`Phone: ${customer.phone}`, 14, yPos);
+        yPos += 6;
+      }
+      if (customer.email) {
+        doc.text(`Email: ${customer.email}`, 14, yPos);
+        yPos += 6;
+      }
+      if (customer.address) {
+        doc.text(`Address: ${customer.address}`, 14, yPos);
+        yPos += 6;
+      }
+
+      doc.text(`Statement Date: ${new Date().toLocaleDateString()}`, 14, yPos);
+      yPos += 10;
+
+      // Sales History
+      if (sales && sales.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Purchase History", 14, yPos);
+        yPos += 5;
+
+        const salesData = sales.map((sale: any) => [
+          new Date(sale.sale_date).toLocaleDateString(),
+          sale.products?.name || "N/A",
+          sale.quantity_sold.toString(),
+          `$${sale.selling_price.toFixed(2)}`,
+          `$${sale.total_sale.toFixed(2)}`,
+          sale.payment_method || "Credit",
+        ]);
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Date", "Product", "Qty", "Unit Price", "Total", "Payment"]],
+          body: salesData,
+          theme: "striped",
+          headStyles: {
+            fillColor: [139, 92, 246],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+          },
+          styles: {
+            fontSize: 10,
+          },
+        });
+
+        yPos = (doc as any).lastAutoTable.finalY + 10;
+      }
+
+      // Payment History
+      if (payments && payments.length > 0) {
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Payment History", 14, yPos);
+        yPos += 5;
+
+        const paymentsData = payments.map((payment: any) => [
+          new Date(payment.payment_date).toLocaleDateString(),
+          `$${payment.amount.toFixed(2)}`,
+          payment.payment_method || "Cash",
+          payment.notes || "-",
+        ]);
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Date", "Amount", "Method", "Notes"]],
+          body: paymentsData,
+          theme: "striped",
+          headStyles: {
+            fillColor: [59, 130, 246],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+          },
+          styles: {
+            fontSize: 10,
+          },
+        });
+
+        yPos = (doc as any).lastAutoTable.finalY + 10;
+      }
+
+      // Summary
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Account Summary", 14, yPos);
+      yPos += 8;
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Total Purchases: $${customer.total_purchases.toFixed(2)}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Total Payments: $${customer.total_payments.toFixed(2)}`, 14, yPos);
+      yPos += 6;
+
+      // Current Balance with color
+      const balanceText = customer.credit_balance > 0
+        ? `Amount Owed: $${customer.credit_balance.toFixed(2)}`
+        : customer.credit_balance < 0
+        ? `Prepaid Credit: $${Math.abs(customer.credit_balance).toFixed(2)}`
+        : `Balance: $0.00`;
+
+      if (customer.credit_balance > 0) {
+        doc.setTextColor(220, 38, 38); // Red for debt
+      } else if (customer.credit_balance < 0) {
+        doc.setTextColor(34, 197, 94); // Green for credit
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text(balanceText, 14, yPos);
+
+      // Footer
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      const footerY = doc.internal.pageSize.getHeight() - 15;
+      doc.text("Thank you for your business!", pageWidth / 2, footerY, {
+        align: "center",
+      });
+      doc.text(
+        `Generated on ${new Date().toLocaleString()}`,
+        pageWidth / 2,
+        footerY + 5,
+        { align: "center" }
+      );
+
+      // Save the PDF
+      doc.save(`${customer.customer_name}_Statement_${new Date().toLocaleDateString().replace(/\//g, "-")}.pdf`);
+      toast.success("PDF generated successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF");
+    }
+  };
+
   const filteredCustomers = customers.filter(
     (c) =>
       c.id !== "00000000-0000-0000-0000-000000000001" && // Exclude walk-in customer
@@ -440,6 +647,13 @@ export default function CustomerManagement() {
                           <DollarSign className="w-4 h-4" />
                         </button>
                       )}
+                      <button
+                        onClick={() => generateCustomerPDF(customer)}
+                        className="p-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-colors"
+                        title="Export Statement"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => openEditModal(customer)}
                         className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
