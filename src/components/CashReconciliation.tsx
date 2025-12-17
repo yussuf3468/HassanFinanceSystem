@@ -85,8 +85,8 @@ export default function CashReconciliation() {
       const { data: cyberData, error: cyberError } = await supabase
         .from("cyber_services" as any)
         .select("amount")
-        .gte("service_date", `${selectedDate}T00:00:00`)
-        .lt("service_date", `${selectedDate}T23:59:59`);
+        .gte("date", `${selectedDate}T00:00:00`)
+        .lt("date", `${selectedDate}T23:59:59`);
 
       if (cyberError) throw cyberError;
 
