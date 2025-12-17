@@ -24,6 +24,7 @@ import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import CashReconciliation from "./components/CashReconciliation";
+import CustomerManagement from "./components/CustomerManagement";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -118,6 +119,7 @@ function AppContent() {
         {activeTab === "inventory" && <Inventory />}
         {activeTab === "sales" && <Sales />}
         {activeTab === "sales-history" && <SalesHistory />}
+        {activeTab === "customers" && <CustomerManagement />}
         {activeTab === "returns" && <Returns />}
         {activeTab === "orders" && <Orders />}
         {activeTab === "search" && <Search />}

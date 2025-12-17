@@ -9,11 +9,13 @@ import {
   ShoppingCart,
   TrendingUp,
   Clock,
+  Users,
+  AlertCircle,
 } from "lucide-react";
 import { searchProducts, getSearchSuggestions } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import type { Product } from "../types";
+import type { Product, InternalCustomer } from "../types";
 import { invalidateAfterSale } from "../utils/cacheInvalidation";
 import { StockReceiveModal } from "./StockReceiveModal";
 
@@ -95,6 +97,30 @@ export default function SaleForm({
 
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+
+  // Customer selection state
+  const [customers, setCustomers] = useState<InternalCustomer[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState("00000000-0000-0000-0000-000000000001"); // Default to Walk-in Customer
+  
+  // Load customers on component mount
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  async function loadCustomers() {
+    try {
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .eq("is_active", true)
+        .order("customer_name");
+
+      if (error) throw error;
+      setCustomers((data as unknown as InternalCustomer[]) || []);
+    } catch (error) {
+      console.error("Error loading customers:", error);
+    }
+  }
 
   // Stock receive modal state
   const [showStockModal, setShowStockModal] = useState(false);
@@ -457,6 +483,8 @@ export default function SaleForm({
         // Adjust profit to account for overall discount
         const lineFinalProfit = c.profit - lineOverallDiscount;
 
+        const selectedCustomer = customers.find((cust) => cust.id === selectedCustomerId);
+        
         const { error: lineError } = await supabase.from("sales").insert({
           transaction_id: transactionId,
           product_id: c.product.id,
@@ -471,6 +499,8 @@ export default function SaleForm({
           discount_percentage,
           original_price: c.product.selling_price,
           final_price: c.final_unit_price,
+          customer_id: selectedCustomerId,
+          customer_name: selectedCustomer?.customer_name || "Walk-in Customer",
         });
 
         if (lineError) throw lineError;
@@ -971,7 +1001,78 @@ export default function SaleForm({
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="flex items-center space-x-1 text-sm font-medium text-slate-300 mb-2">
+                    <Users className="w-4 h-4" />
+                    <span>Customer</span>
+                  </label>
+                  <select
+                    value={selectedCustomerId}
+                    onChange={(e) => setSelectedCustomerId(e.target.value)}
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
+                  >
+                    {customers.map((c) => (
+                      <option
+                        key={c.id}
+                        value={c.id}
+                        className="bg-slate-900 text-white"
+                      >
+                        {c.customer_name}
+                        {c.credit_balance > 0 && ` (Owes: KES ${c.credit_balance.toLocaleString()})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              {/* Customer Balance Warning */}
+              {(() => {
+                const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
+                if (selectedCustomer && selectedCustomer.id !== "00000000-0000-0000-0000-000000000001") {
+                  const newBalance = selectedCustomer.credit_balance + total;
+                  const isOverLimit = newBalance > selectedCustomer.credit_limit;
+                  
+                  return (
+                    <div className={`mt-2 p-3 rounded-lg border ${
+                      isOverLimit 
+                        ? 'bg-red-500/10 border-red-500/30' 
+                        : selectedCustomer.credit_balance > 0 
+                          ? 'bg-yellow-500/10 border-yellow-500/30'
+                          : 'bg-blue-500/10 border-blue-500/30'
+                    }`}>
+                      <div className="flex items-start space-x-2">
+                        <AlertCircle className={`w-5 h-5 mt-0.5 ${
+                          isOverLimit ? 'text-red-400' : 'text-yellow-400'
+                        }`} />
+                        <div className="flex-1 text-sm">
+                          <p className={`font-medium ${
+                            isOverLimit ? 'text-red-300' : 'text-yellow-300'
+                          }`}>
+                            Customer: {selectedCustomer.customer_name}
+                          </p>
+                          <p className="text-slate-300 mt-1">
+                            Current Balance: <span className="font-bold text-white">KES {selectedCustomer.credit_balance.toLocaleString()}</span>
+                          </p>
+                          <p className="text-slate-300">
+                            After Sale: <span className={`font-bold ${isOverLimit ? 'text-red-400' : 'text-white'}`}>
+                              KES {newBalance.toLocaleString()}
+                            </span>
+                          </p>
+                          <p className="text-slate-300">
+                            Credit Limit: <span className="font-bold text-white">KES {selectedCustomer.credit_limit.toLocaleString()}</span>
+                          </p>
+                          {isOverLimit && (
+                            <p className="text-red-400 mt-2 font-medium">
+                              ⚠️ Warning: This sale will exceed the customer's credit limit by KES {(newBalance - selectedCustomer.credit_limit).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             {/* Line Items */}
@@ -1132,7 +1233,8 @@ export default function SaleForm({
                                       <span>Suggestions</span>
                                     </div>
                                     {suggestions.map((suggestion, idx) => {
-                                      const matchingProduct = products.find(
+                                      // Find matching product for suggestion
+                                      products.find(
                                         (p) =>
                                           p.name === suggestion ||
                                           p.category === suggestion

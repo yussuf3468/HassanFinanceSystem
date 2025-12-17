@@ -21,6 +21,7 @@ import {
   RotateCcw,
   Receipt,
   Calculator,
+  Users,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -94,6 +95,12 @@ export default function Layout({
       label: "Sales Transaction Log",
       icon: Receipt,
       color: "from-purple-600 to-indigo-600",
+    },
+    {
+      id: "customers",
+      label: "Macaamiisha",
+      icon: Users,
+      color: "from-pink-600 to-rose-600",
     },
     {
       id: "returns",
