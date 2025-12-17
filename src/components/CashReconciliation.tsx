@@ -223,6 +223,25 @@ export default function CashReconciliation() {
     },
   });
 
+  // Delete reconciliation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("cash_reconciliation" as any)
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
+      alert("✅ Reconciliation deleted successfully!");
+    },
+    onError: (error: any) => {
+      alert(`❌ Error deleting: ${error.message}`);
+    },
+  });
+
   const expectedTotal =
     (salesTotals?.Cash || 0) +
     (salesTotals?.Mpesa || 0) +
@@ -300,25 +319,59 @@ export default function CashReconciliation() {
                         <span>{rec.shift}</span>
                       </div>
                     </div>
-                    <div
-                      className={`px-4 py-2 rounded-lg font-bold ${
-                        rec.status === "balanced"
-                          ? "bg-green-500/20 text-green-300"
-                          : rec.status === "over"
-                          ? "bg-blue-500/20 text-blue-300"
-                          : "bg-red-500/20 text-red-300"
-                      }`}
-                    >
-                      {rec.status === "balanced" && (
-                        <CheckCircle className="w-5 h-5 inline mr-2" />
-                      )}
-                      {rec.status === "over" && (
-                        <TrendingUp className="w-5 h-5 inline mr-2" />
-                      )}
-                      {rec.status === "short" && (
-                        <TrendingDown className="w-5 h-5 inline mr-2" />
-                      )}
-                      {rec.status.toUpperCase()}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`px-4 py-2 rounded-lg font-bold ${
+                          rec.status === "balanced"
+                            ? "bg-green-500/20 text-green-300"
+                            : rec.status === "over"
+                            ? "bg-blue-500/20 text-blue-300"
+                            : "bg-red-500/20 text-red-300"
+                        }`}
+                      >
+                        {rec.status === "balanced" && (
+                          <CheckCircle className="w-5 h-5 inline mr-2" />
+                        )}
+                        {rec.status === "over" && (
+                          <TrendingUp className="w-5 h-5 inline mr-2" />
+                        )}
+                        {rec.status === "short" && (
+                          <TrendingDown className="w-5 h-5 inline mr-2" />
+                        )}
+                        {rec.status.toUpperCase()}
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Delete this reconciliation record from ${new Date(
+                                rec.reconciliation_date
+                              ).toLocaleDateString()}?`
+                            )
+                          ) {
+                            deleteMutation.mutate(rec.id);
+                          }
+                        }}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg transition-colors"
+                        style={{
+                          touchAction: "manipulation",
+                          WebkitTapHighlightColor: "rgba(239, 68, 68, 0.3)",
+                        }}
+                      >
+                        <svg
+                          className="w-5 h-5 text-red-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
                     </div>
                   </div>
 
@@ -419,10 +472,17 @@ export default function CashReconciliation() {
               value={shift}
               onChange={(e) => setShift(e.target.value)}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
+              style={{ colorScheme: "dark" }}
             >
-              <option value="Full Day">Full Day</option>
-              <option value="Morning">Morning</option>
-              <option value="Evening">Evening</option>
+              <option value="Full Day" className="bg-slate-800 text-white">
+                Full Day
+              </option>
+              <option value="Morning" className="bg-slate-800 text-white">
+                Morning
+              </option>
+              <option value="Evening" className="bg-slate-800 text-white">
+                Evening
+              </option>
             </select>
           </div>
           <div>
