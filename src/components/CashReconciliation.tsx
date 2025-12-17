@@ -1,14 +1,26 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
-import { Calculator, DollarSign, TrendingUp, TrendingDown, CheckCircle, AlertTriangle, Calendar, User, FileText, Save, History } from 'lucide-react';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
+import {
+  Calculator,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  CheckCircle,
+  AlertTriangle,
+  Calendar,
+  User,
+  FileText,
+  Save,
+  History,
+} from "lucide-react";
 
 interface SalesTotals {
   Cash: number;
   Mpesa: number;
-  'Till Number': number;
+  "Till Number": number;
   Card: number;
-  'Bank Transfer': number;
+  "Bank Transfer": number;
 }
 
 interface ReconciliationRecord {
@@ -35,49 +47,70 @@ interface ReconciliationRecord {
   variance_total: number;
   reconciled_by: string;
   notes: string;
-  status: 'balanced' | 'over' | 'short';
+  status: "balanced" | "over" | "short";
   created_at: string;
 }
 
 export default function CashReconciliation() {
   const queryClient = useQueryClient();
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [shift, setShift] = useState('Full Day');
-  const [reconciledBy, setReconciledBy] = useState('');
-  const [notes, setNotes] = useState('');
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [shift, setShift] = useState("Full Day");
+  const [reconciledBy, setReconciledBy] = useState("");
+  const [notes, setNotes] = useState("");
   const [showHistory, setShowHistory] = useState(false);
-  
+
   // Actual counted amounts
-  const [actualCash, setActualCash] = useState('0');
-  const [actualMpesa, setActualMpesa] = useState('0');
-  const [actualTillNumber, setActualTillNumber] = useState('0');
-  const [actualCard, setActualCard] = useState('0');
-  const [actualBankTransfer, setActualBankTransfer] = useState('0');
+  const [actualCash, setActualCash] = useState("0");
+  const [actualMpesa, setActualMpesa] = useState("0");
+  const [actualTillNumber, setActualTillNumber] = useState("0");
+  const [actualCard, setActualCard] = useState("0");
+  const [actualBankTransfer, setActualBankTransfer] = useState("0");
 
-  // Fetch today's sales totals
+  // Fetch today's sales totals (including cyber services)
   const { data: salesTotals } = useQuery({
-    queryKey: ['sales-totals', selectedDate],
+    queryKey: ["sales-totals", selectedDate],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sales')
-        .select('payment_method, total_sale')
-        .gte('sale_date', `${selectedDate}T00:00:00`)
-        .lt('sale_date', `${selectedDate}T23:59:59`);
+      // Get sales totals
+      const { data: salesData, error: salesError } = await supabase
+        .from("sales")
+        .select("payment_method, total_sale")
+        .gte("sale_date", `${selectedDate}T00:00:00`)
+        .lt("sale_date", `${selectedDate}T23:59:59`);
 
-      if (error) throw error;
+      if (salesError) throw salesError;
+
+      // Get cyber services totals
+      const { data: cyberData, error: cyberError } = await supabase
+        .from("cyber_services" as any)
+        .select("payment_method, amount_charged")
+        .gte("service_date", `${selectedDate}T00:00:00`)
+        .lt("service_date", `${selectedDate}T23:59:59`);
+
+      if (cyberError) throw cyberError;
 
       const totals: SalesTotals = {
         Cash: 0,
         Mpesa: 0,
-        'Till Number': 0,
+        "Till Number": 0,
         Card: 0,
-        'Bank Transfer': 0,
+        "Bank Transfer": 0,
       };
 
-      data?.forEach((sale) => {
+      // Add sales totals
+      salesData?.forEach((sale) => {
         const method = sale.payment_method as keyof SalesTotals;
         if (method in totals) {
           totals[method] += Number(sale.total_sale);
+        }
+      });
+
+      // Add cyber services totals
+      cyberData?.forEach((service: any) => {
+        const method = service.payment_method as keyof SalesTotals;
+        if (method in totals) {
+          totals[method] += Number(service.amount_charged);
         }
       });
 
@@ -88,12 +121,12 @@ export default function CashReconciliation() {
 
   // Fetch reconciliation history
   const { data: reconciliations, isLoading: loadingHistory } = useQuery({
-    queryKey: ['reconciliations'],
+    queryKey: ["reconciliations"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('cash_reconciliation' as any)
-        .select('*')
-        .order('reconciliation_date', { ascending: false })
+        .from("cash_reconciliation" as any)
+        .select("*")
+        .order("reconciliation_date", { ascending: false })
         .limit(30);
 
       if (error) throw error;
@@ -105,74 +138,107 @@ export default function CashReconciliation() {
   // Save reconciliation
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const expectedTotal = (salesTotals?.Cash || 0) + (salesTotals?.Mpesa || 0) + 
-                           (salesTotals?.['Till Number'] || 0) + (salesTotals?.Card || 0) + 
-                           (salesTotals?.['Bank Transfer'] || 0);
-      
-      const actualTotal = parseFloat(actualCash) + parseFloat(actualMpesa) + 
-                         parseFloat(actualTillNumber) + parseFloat(actualCard) + 
-                         parseFloat(actualBankTransfer);
+      const expectedTotal =
+        (salesTotals?.Cash || 0) +
+        (salesTotals?.Mpesa || 0) +
+        (salesTotals?.["Till Number"] || 0) +
+        (salesTotals?.Card || 0) +
+        (salesTotals?.["Bank Transfer"] || 0);
 
-      const varianceCash = parseFloat(actualCash) - (salesTotals?.Cash || 0);
-      const varianceMpesa = parseFloat(actualMpesa) - (salesTotals?.Mpesa || 0);
-      const varianceTillNumber = parseFloat(actualTillNumber) - (salesTotals?.['Till Number'] || 0);
-      const varianceCard = parseFloat(actualCard) - (salesTotals?.Card || 0);
-      const varianceBankTransfer = parseFloat(actualBankTransfer) - (salesTotals?.['Bank Transfer'] || 0);
+      const actualTotal =
+        parseFloat(actualCash || "0") +
+        parseFloat(actualMpesa || "0") +
+        parseFloat(actualTillNumber || "0") +
+        parseFloat(actualCard || "0") +
+        parseFloat(actualBankTransfer || "0");
+
+      const varianceCash =
+        parseFloat(actualCash || "0") - (salesTotals?.Cash || 0);
+      const varianceMpesa =
+        parseFloat(actualMpesa || "0") - (salesTotals?.Mpesa || 0);
+      const varianceTillNumber =
+        parseFloat(actualTillNumber || "0") -
+        (salesTotals?.["Till Number"] || 0);
+      const varianceCard =
+        parseFloat(actualCard || "0") - (salesTotals?.Card || 0);
+      const varianceBankTransfer =
+        parseFloat(actualBankTransfer || "0") -
+        (salesTotals?.["Bank Transfer"] || 0);
       const varianceTotal = actualTotal - expectedTotal;
 
-      const status = varianceTotal === 0 ? 'balanced' : varianceTotal > 0 ? 'over' : 'short';
+      const status =
+        varianceTotal === 0 ? "balanced" : varianceTotal > 0 ? "over" : "short";
 
-      const { error } = await supabase.from('cash_reconciliation' as any).insert({
-        reconciliation_date: selectedDate,
-        shift,
-        expected_cash: salesTotals?.Cash || 0,
-        expected_mpesa: salesTotals?.Mpesa || 0,
-        expected_till_number: salesTotals?.['Till Number'] || 0,
-        expected_card: salesTotals?.Card || 0,
-        expected_bank_transfer: salesTotals?.['Bank Transfer'] || 0,
-        expected_total: expectedTotal,
-        actual_cash: parseFloat(actualCash),
-        actual_mpesa: parseFloat(actualMpesa),
-        actual_till_number: parseFloat(actualTillNumber),
-        actual_card: parseFloat(actualCard),
-        actual_bank_transfer: parseFloat(actualBankTransfer),
-        actual_total: actualTotal,
-        variance_cash: varianceCash,
-        variance_mpesa: varianceMpesa,
-        variance_till_number: varianceTillNumber,
-        variance_card: varianceCard,
-        variance_bank_transfer: varianceBankTransfer,
-        variance_total: varianceTotal,
-        reconciled_by: reconciledBy,
-        notes,
-        status,
-      });
+      const { data, error } = await supabase
+        .from("cash_reconciliation" as any)
+        .insert({
+          reconciliation_date: selectedDate,
+          shift,
+          expected_cash: salesTotals?.Cash || 0,
+          expected_mpesa: salesTotals?.Mpesa || 0,
+          expected_till_number: salesTotals?.["Till Number"] || 0,
+          expected_card: salesTotals?.Card || 0,
+          expected_bank_transfer: salesTotals?.["Bank Transfer"] || 0,
+          expected_total: expectedTotal,
+          actual_cash: parseFloat(actualCash || "0"),
+          actual_mpesa: parseFloat(actualMpesa || "0"),
+          actual_till_number: parseFloat(actualTillNumber || "0"),
+          actual_card: parseFloat(actualCard || "0"),
+          actual_bank_transfer: parseFloat(actualBankTransfer || "0"),
+          actual_total: actualTotal,
+          variance_cash: varianceCash,
+          variance_mpesa: varianceMpesa,
+          variance_till_number: varianceTillNumber,
+          variance_card: varianceCard,
+          variance_bank_transfer: varianceBankTransfer,
+          variance_total: varianceTotal,
+          reconciled_by: reconciledBy,
+          notes,
+          status,
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reconciliations'] });
-      alert('✅ Cash reconciliation saved successfully!');
+      queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
+      alert("✅ Cash reconciliation saved successfully!");
       // Reset form
-      setActualCash('0');
-      setActualMpesa('0');
-      setActualTillNumber('0');
-      setActualCard('0');
-      setActualBankTransfer('0');
-      setNotes('');
+      setActualCash("0");
+      setActualMpesa("0");
+      setActualTillNumber("0");
+      setActualCard("0");
+      setActualBankTransfer("0");
+      setNotes("");
     },
-    onError: (error) => {
-      alert(`❌ Error saving reconciliation: ${error.message}`);
+    onError: (error: any) => {
+      console.error("Full error:", error);
+      alert(
+        `❌ Error saving reconciliation: ${
+          error.message || error.toString()
+        }\n\nCheck console for details.`
+      );
     },
   });
 
-  const expectedTotal = (salesTotals?.Cash || 0) + (salesTotals?.Mpesa || 0) + 
-                       (salesTotals?.['Till Number'] || 0) + (salesTotals?.Card || 0) + 
-                       (salesTotals?.['Bank Transfer'] || 0);
-  
-  const actualTotal = parseFloat(actualCash || '0') + parseFloat(actualMpesa || '0') + 
-                     parseFloat(actualTillNumber || '0') + parseFloat(actualCard || '0') + 
-                     parseFloat(actualBankTransfer || '0');
+  const expectedTotal =
+    (salesTotals?.Cash || 0) +
+    (salesTotals?.Mpesa || 0) +
+    (salesTotals?.["Till Number"] || 0) +
+    (salesTotals?.Card || 0) +
+    (salesTotals?.["Bank Transfer"] || 0);
+
+  const actualTotal =
+    parseFloat(actualCash || "0") +
+    parseFloat(actualMpesa || "0") +
+    parseFloat(actualTillNumber || "0") +
+    parseFloat(actualCard || "0") +
+    parseFloat(actualBankTransfer || "0");
 
   const varianceTotal = actualTotal - expectedTotal;
 
@@ -183,7 +249,9 @@ export default function CashReconciliation() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <History className="w-8 h-8 text-purple-400" />
-              <h1 className="text-3xl font-bold text-white">Reconciliation History</h1>
+              <h1 className="text-3xl font-bold text-white">
+                Reconciliation History
+              </h1>
             </div>
             <button
               onClick={() => setShowHistory(false)}
@@ -203,9 +271,11 @@ export default function CashReconciliation() {
                 <div
                   key={rec.id}
                   className={`bg-white/10 backdrop-blur-lg border-2 rounded-xl p-6 ${
-                    rec.status === 'balanced' ? 'border-green-500/30' : 
-                    rec.status === 'over' ? 'border-blue-500/30' : 
-                    'border-red-500/30'
+                    rec.status === "balanced"
+                      ? "border-green-500/30"
+                      : rec.status === "over"
+                      ? "border-blue-500/30"
+                      : "border-red-500/30"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -213,12 +283,15 @@ export default function CashReconciliation() {
                       <div className="flex items-center gap-3 mb-2">
                         <Calendar className="w-5 h-5 text-purple-400" />
                         <h3 className="text-xl font-bold text-white">
-                          {new Date(rec.reconciliation_date).toLocaleDateString('en-US', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
+                          {new Date(rec.reconciliation_date).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </h3>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-slate-300">
@@ -230,35 +303,58 @@ export default function CashReconciliation() {
                         <span>{rec.shift}</span>
                       </div>
                     </div>
-                    <div className={`px-4 py-2 rounded-lg font-bold ${
-                      rec.status === 'balanced' ? 'bg-green-500/20 text-green-300' : 
-                      rec.status === 'over' ? 'bg-blue-500/20 text-blue-300' : 
-                      'bg-red-500/20 text-red-300'
-                    }`}>
-                      {rec.status === 'balanced' && <CheckCircle className="w-5 h-5 inline mr-2" />}
-                      {rec.status === 'over' && <TrendingUp className="w-5 h-5 inline mr-2" />}
-                      {rec.status === 'short' && <TrendingDown className="w-5 h-5 inline mr-2" />}
+                    <div
+                      className={`px-4 py-2 rounded-lg font-bold ${
+                        rec.status === "balanced"
+                          ? "bg-green-500/20 text-green-300"
+                          : rec.status === "over"
+                          ? "bg-blue-500/20 text-blue-300"
+                          : "bg-red-500/20 text-red-300"
+                      }`}
+                    >
+                      {rec.status === "balanced" && (
+                        <CheckCircle className="w-5 h-5 inline mr-2" />
+                      )}
+                      {rec.status === "over" && (
+                        <TrendingUp className="w-5 h-5 inline mr-2" />
+                      )}
+                      {rec.status === "short" && (
+                        <TrendingDown className="w-5 h-5 inline mr-2" />
+                      )}
                       {rec.status.toUpperCase()}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div className="bg-black/20 rounded-lg p-4">
-                      <p className="text-xs text-slate-400 mb-1">Expected Total</p>
-                      <p className="text-2xl font-bold text-white">Ksh {rec.expected_total.toLocaleString()}</p>
+                      <p className="text-xs text-slate-400 mb-1">
+                        Expected Total
+                      </p>
+                      <p className="text-2xl font-bold text-white">
+                        Ksh {rec.expected_total.toLocaleString()}
+                      </p>
                     </div>
                     <div className="bg-black/20 rounded-lg p-4">
-                      <p className="text-xs text-slate-400 mb-1">Actual Total</p>
-                      <p className="text-2xl font-bold text-white">Ksh {rec.actual_total.toLocaleString()}</p>
+                      <p className="text-xs text-slate-400 mb-1">
+                        Actual Total
+                      </p>
+                      <p className="text-2xl font-bold text-white">
+                        Ksh {rec.actual_total.toLocaleString()}
+                      </p>
                     </div>
                     <div className="bg-black/20 rounded-lg p-4">
                       <p className="text-xs text-slate-400 mb-1">Variance</p>
-                      <p className={`text-2xl font-bold ${
-                        rec.variance_total === 0 ? 'text-green-400' : 
-                        rec.variance_total > 0 ? 'text-blue-400' : 
-                        'text-red-400'
-                      }`}>
-                        {rec.variance_total >= 0 ? '+' : ''}Ksh {rec.variance_total.toLocaleString()}
+                      <p
+                        className={`text-2xl font-bold ${
+                          rec.variance_total === 0
+                            ? "text-green-400"
+                            : rec.variance_total > 0
+                            ? "text-blue-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {rec.variance_total >= 0 ? "+" : ""}Ksh{" "}
+                        {rec.variance_total.toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -288,8 +384,12 @@ export default function CashReconciliation() {
           <div className="flex items-center gap-3">
             <Calculator className="w-10 h-10 text-purple-400" />
             <div>
-              <h1 className="text-4xl font-bold text-white">Cash Reconciliation</h1>
-              <p className="text-slate-300">Count physical cash and compare to system records</p>
+              <h1 className="text-4xl font-bold text-white">
+                Cash Reconciliation
+              </h1>
+              <p className="text-slate-300">
+                Count physical cash and compare to system records
+              </p>
             </div>
           </div>
           <button
@@ -304,7 +404,9 @@ export default function CashReconciliation() {
         {/* Date and Shift Selection */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Date</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Date
+            </label>
             <input
               type="date"
               value={selectedDate}
@@ -313,7 +415,9 @@ export default function CashReconciliation() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Shift</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Shift
+            </label>
             <select
               value={shift}
               onChange={(e) => setShift(e.target.value)}
@@ -325,7 +429,9 @@ export default function CashReconciliation() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Reconciled By *</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">
+              Reconciled By *
+            </label>
             <input
               type="text"
               value={reconciledBy}
@@ -341,9 +447,13 @@ export default function CashReconciliation() {
           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-3">
               <DollarSign className="w-8 h-8 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Expected Total</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Expected Total
+              </h3>
             </div>
-            <p className="text-4xl font-bold text-white">Ksh {expectedTotal.toLocaleString()}</p>
+            <p className="text-4xl font-bold text-white">
+              Ksh {expectedTotal.toLocaleString()}
+            </p>
             <p className="text-sm text-slate-300 mt-2">From system sales</p>
           </div>
 
@@ -352,30 +462,49 @@ export default function CashReconciliation() {
               <Calculator className="w-8 h-8 text-purple-400" />
               <h3 className="text-lg font-semibold text-white">Actual Total</h3>
             </div>
-            <p className="text-4xl font-bold text-white">Ksh {actualTotal.toLocaleString()}</p>
+            <p className="text-4xl font-bold text-white">
+              Ksh {actualTotal.toLocaleString()}
+            </p>
             <p className="text-sm text-slate-300 mt-2">Physically counted</p>
           </div>
 
-          <div className={`bg-gradient-to-br rounded-xl p-6 border-2 ${
-            varianceTotal === 0 ? 'from-green-500/20 to-emerald-500/20 border-green-500/50' : 
-            varianceTotal > 0 ? 'from-blue-500/20 to-sky-500/20 border-blue-500/50' : 
-            'from-red-500/20 to-rose-500/20 border-red-500/50'
-          }`}>
+          <div
+            className={`bg-gradient-to-br rounded-xl p-6 border-2 ${
+              varianceTotal === 0
+                ? "from-green-500/20 to-emerald-500/20 border-green-500/50"
+                : varianceTotal > 0
+                ? "from-blue-500/20 to-sky-500/20 border-blue-500/50"
+                : "from-red-500/20 to-rose-500/20 border-red-500/50"
+            }`}
+          >
             <div className="flex items-center gap-3 mb-3">
-              {varianceTotal === 0 ? <CheckCircle className="w-8 h-8 text-green-400" /> : 
-               varianceTotal > 0 ? <TrendingUp className="w-8 h-8 text-blue-400" /> : 
-               <TrendingDown className="w-8 h-8 text-red-400" />}
+              {varianceTotal === 0 ? (
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              ) : varianceTotal > 0 ? (
+                <TrendingUp className="w-8 h-8 text-blue-400" />
+              ) : (
+                <TrendingDown className="w-8 h-8 text-red-400" />
+              )}
               <h3 className="text-lg font-semibold text-white">Variance</h3>
             </div>
-            <p className={`text-4xl font-bold ${
-              varianceTotal === 0 ? 'text-green-400' : 
-              varianceTotal > 0 ? 'text-blue-400' : 
-              'text-red-400'
-            }`}>
-              {varianceTotal >= 0 ? '+' : ''}Ksh {varianceTotal.toLocaleString()}
+            <p
+              className={`text-4xl font-bold ${
+                varianceTotal === 0
+                  ? "text-green-400"
+                  : varianceTotal > 0
+                  ? "text-blue-400"
+                  : "text-red-400"
+              }`}
+            >
+              {varianceTotal >= 0 ? "+" : ""}Ksh{" "}
+              {varianceTotal.toLocaleString()}
             </p>
             <p className="text-sm text-slate-300 mt-2">
-              {varianceTotal === 0 ? '✅ Balanced' : varianceTotal > 0 ? '📈 Over' : '📉 Short'}
+              {varianceTotal === 0
+                ? "✅ Balanced"
+                : varianceTotal > 0
+                ? "📈 Over"
+                : "📉 Short"}
             </p>
           </div>
         </div>
@@ -383,31 +512,72 @@ export default function CashReconciliation() {
         {/* Payment Methods Table */}
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-purple-600/30 to-blue-600/30 px-6 py-4 border-b border-white/10">
-            <h2 className="text-xl font-bold text-white">Payment Methods Breakdown</h2>
+            <h2 className="text-xl font-bold text-white">
+              Payment Methods Breakdown
+            </h2>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-white/5">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Payment Method</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Expected (Ksh)</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Actual (Ksh)</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">Variance</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    Payment Method
+                  </th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
+                    Expected (Ksh)
+                  </th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
+                    Actual (Ksh)
+                  </th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-slate-300">
+                    Variance
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
                 {[
-                  { name: 'Cash', expected: salesTotals?.Cash || 0, actual: actualCash, setActual: setActualCash },
-                  { name: 'Mpesa', expected: salesTotals?.Mpesa || 0, actual: actualMpesa, setActual: setActualMpesa },
-                  { name: 'Till Number', expected: salesTotals?.['Till Number'] || 0, actual: actualTillNumber, setActual: setActualTillNumber },
-                  { name: 'Card', expected: salesTotals?.Card || 0, actual: actualCard, setActual: setActualCard },
-                  { name: 'Bank Transfer', expected: salesTotals?.['Bank Transfer'] || 0, actual: actualBankTransfer, setActual: setActualBankTransfer },
+                  {
+                    name: "Cash",
+                    expected: salesTotals?.Cash || 0,
+                    actual: actualCash,
+                    setActual: setActualCash,
+                  },
+                  {
+                    name: "Mpesa",
+                    expected: salesTotals?.Mpesa || 0,
+                    actual: actualMpesa,
+                    setActual: setActualMpesa,
+                  },
+                  {
+                    name: "Till Number",
+                    expected: salesTotals?.["Till Number"] || 0,
+                    actual: actualTillNumber,
+                    setActual: setActualTillNumber,
+                  },
+                  {
+                    name: "Card",
+                    expected: salesTotals?.Card || 0,
+                    actual: actualCard,
+                    setActual: setActualCard,
+                  },
+                  {
+                    name: "Bank Transfer",
+                    expected: salesTotals?.["Bank Transfer"] || 0,
+                    actual: actualBankTransfer,
+                    setActual: setActualBankTransfer,
+                  },
                 ].map((method) => {
-                  const variance = parseFloat(method.actual || '0') - method.expected;
+                  const variance =
+                    parseFloat(method.actual || "0") - method.expected;
                   return (
-                    <tr key={method.name} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-4 text-white font-medium">{method.name}</td>
+                    <tr
+                      key={method.name}
+                      className="hover:bg-white/5 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-white font-medium">
+                        {method.name}
+                      </td>
                       <td className="px-6 py-4 text-right text-slate-300">
                         {method.expected.toLocaleString()}
                       </td>
@@ -422,12 +592,17 @@ export default function CashReconciliation() {
                           placeholder="0.00"
                         />
                       </td>
-                      <td className={`px-6 py-4 text-right font-bold ${
-                        variance === 0 ? 'text-slate-400' : 
-                        variance > 0 ? 'text-blue-400' : 
-                        'text-red-400'
-                      }`}>
-                        {variance >= 0 ? '+' : ''}{variance.toLocaleString()}
+                      <td
+                        className={`px-6 py-4 text-right font-bold ${
+                          variance === 0
+                            ? "text-slate-400"
+                            : variance > 0
+                            ? "text-blue-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {variance >= 0 ? "+" : ""}
+                        {variance.toLocaleString()}
                       </td>
                     </tr>
                   );
@@ -439,7 +614,9 @@ export default function CashReconciliation() {
 
         {/* Notes */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Notes (optional)</label>
+          <label className="block text-sm font-medium text-slate-300 mb-2">
+            Notes (optional)
+          </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -451,18 +628,34 @@ export default function CashReconciliation() {
 
         {/* Warnings */}
         {varianceTotal !== 0 && (
-          <div className={`mb-6 p-4 rounded-lg border-2 flex items-start gap-3 ${
-            varianceTotal > 0 ? 'bg-blue-500/10 border-blue-500/30' : 'bg-red-500/10 border-red-500/30'
-          }`}>
-            <AlertTriangle className={`w-6 h-6 ${varianceTotal > 0 ? 'text-blue-400' : 'text-red-400'}`} />
+          <div
+            className={`mb-6 p-4 rounded-lg border-2 flex items-start gap-3 ${
+              varianceTotal > 0
+                ? "bg-blue-500/10 border-blue-500/30"
+                : "bg-red-500/10 border-red-500/30"
+            }`}
+          >
+            <AlertTriangle
+              className={`w-6 h-6 ${
+                varianceTotal > 0 ? "text-blue-400" : "text-red-400"
+              }`}
+            />
             <div>
-              <h4 className={`font-bold mb-1 ${varianceTotal > 0 ? 'text-blue-300' : 'text-red-300'}`}>
-                {varianceTotal > 0 ? 'Cash Over' : 'Cash Short'}
+              <h4
+                className={`font-bold mb-1 ${
+                  varianceTotal > 0 ? "text-blue-300" : "text-red-300"
+                }`}
+              >
+                {varianceTotal > 0 ? "Cash Over" : "Cash Short"}
               </h4>
               <p className="text-sm text-slate-300">
-                {varianceTotal > 0 
-                  ? `You have Ksh ${Math.abs(varianceTotal).toLocaleString()} more than expected. Please verify counts and add notes.`
-                  : `You are short Ksh ${Math.abs(varianceTotal).toLocaleString()}. Please recount and investigate discrepancy.`}
+                {varianceTotal > 0
+                  ? `You have Ksh ${Math.abs(
+                      varianceTotal
+                    ).toLocaleString()} more than expected. Please verify counts and add notes.`
+                  : `You are short Ksh ${Math.abs(
+                      varianceTotal
+                    ).toLocaleString()}. Please recount and investigate discrepancy.`}
               </p>
             </div>
           </div>
@@ -475,16 +668,29 @@ export default function CashReconciliation() {
               alert('Please enter your name in "Reconciled By" field');
               return;
             }
-            if (confirm(`Save reconciliation with ${varianceTotal === 0 ? 'BALANCED' : varianceTotal > 0 ? 'OVER' : 'SHORT'} status?`)) {
+            if (
+              confirm(
+                `Save reconciliation with ${
+                  varianceTotal === 0
+                    ? "BALANCED"
+                    : varianceTotal > 0
+                    ? "OVER"
+                    : "SHORT"
+                } status?`
+              )
+            ) {
               saveMutation.mutate();
             }
           }}
           disabled={saveMutation.isPending || !reconciledBy.trim()}
           className="w-full px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-3"
-          style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'rgba(139, 92, 246, 0.3)' }}
+          style={{
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "rgba(139, 92, 246, 0.3)",
+          }}
         >
           <Save className="w-6 h-6" />
-          {saveMutation.isPending ? 'Saving...' : 'Save Reconciliation'}
+          {saveMutation.isPending ? "Saving..." : "Save Reconciliation"}
         </button>
       </div>
     </div>
