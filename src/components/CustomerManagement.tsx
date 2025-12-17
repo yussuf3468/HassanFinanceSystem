@@ -38,6 +38,7 @@ export default function CustomerManagement() {
     email: "",
     address: "",
     notes: "",
+    opening_balance: "",
   });
 
   const [paymentData, setPaymentData] = useState({
@@ -92,6 +93,7 @@ export default function CustomerManagement() {
       email: "",
       address: "",
       notes: "",
+      opening_balance: "",
     });
     setShowModal(true);
   }
@@ -104,6 +106,7 @@ export default function CustomerManagement() {
       email: customer.email || "",
       address: customer.address || "",
       notes: customer.notes || "",
+      opening_balance: "",
     });
     setShowModal(true);
   }
@@ -130,20 +133,27 @@ export default function CustomerManagement() {
         toast.success("Customer updated successfully");
       } else {
         // Create new customer
+        const openingBalance = parseFloat(formData.opening_balance) || 0;
+        
         const { error } = await supabase.from("customers").insert({
           customer_name: formData.customer_name,
           phone: formData.phone || null,
           email: formData.email || null,
           address: formData.address || null,
           notes: formData.notes || null,
-          credit_balance: 0,
+          credit_balance: openingBalance,
           total_purchases: 0,
           total_payments: 0,
           is_active: true,
         } as any);
 
         if (error) throw error;
-        toast.success("Customer added successfully");
+        
+        if (openingBalance > 0) {
+          toast.success(`Customer added with opening balance: KES ${openingBalance.toLocaleString()}`);
+        } else {
+          toast.success("Customer added successfully");
+        }
       }
 
       setShowModal(false);
@@ -768,6 +778,30 @@ export default function CustomerManagement() {
                   placeholder="Additional notes about the customer"
                 />
               </div>
+
+              {!selectedCustomer && (
+                <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-4">
+                  <label className="text-sm font-medium text-amber-300 mb-2 flex items-center space-x-2">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Opening Balance (Preexisting Debt)</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.opening_balance}
+                    onChange={(e) =>
+                      setFormData({ ...formData, opening_balance: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                  <p className="text-xs text-amber-300 mt-2">
+                    💡 Enter any debt this customer already owes from before using this system.
+                    Leave blank or 0 if no preexisting debt.
+                  </p>
+                </div>
+              )}
 
               <div className="flex space-x-3 pt-4">
                 <button
