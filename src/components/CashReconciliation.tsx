@@ -81,10 +81,10 @@ export default function CashReconciliation() {
 
       if (salesError) throw salesError;
 
-      // Get cyber services totals
+      // Get cyber services totals (all as Cash)
       const { data: cyberData, error: cyberError } = await supabase
         .from("cyber_services" as any)
-        .select("payment_method, amount_charged")
+        .select("amount_charged")
         .gte("service_date", `${selectedDate}T00:00:00`)
         .lt("service_date", `${selectedDate}T23:59:59`);
 
@@ -106,12 +106,9 @@ export default function CashReconciliation() {
         }
       });
 
-      // Add cyber services totals
+      // Add cyber services totals to Cash
       cyberData?.forEach((service: any) => {
-        const method = service.payment_method as keyof SalesTotals;
-        if (method in totals) {
-          totals[method] += Number(service.amount_charged);
-        }
+        totals.Cash += Number(service.amount_charged);
       });
 
       return totals;
