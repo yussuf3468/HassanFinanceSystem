@@ -423,13 +423,14 @@ export default function SaleForm({
       // Distribute overall discount proportionally across line items
       const overallDiscountNum = parseFloat(overallDiscountValue) || 0;
       let overallDiscountAmount = 0;
-      
+
       if (overallDiscountType === "percentage" && overallDiscountNum > 0) {
-        overallDiscountAmount = (subtotalAfterLineDiscounts * overallDiscountNum) / 100;
+        overallDiscountAmount =
+          (subtotalAfterLineDiscounts * overallDiscountNum) / 100;
       } else if (overallDiscountType === "amount" && overallDiscountNum > 0) {
         overallDiscountAmount = overallDiscountNum;
       }
-      
+
       if (overallDiscountAmount > subtotalAfterLineDiscounts) {
         overallDiscountAmount = subtotalAfterLineDiscounts;
       }
@@ -443,14 +444,16 @@ export default function SaleForm({
             : 0;
 
         // Calculate this line's share of the overall discount (proportional to its subtotal)
-        const lineProportionOfTotal = subtotalAfterLineDiscounts > 0 
-          ? c.final_total / subtotalAfterLineDiscounts 
-          : 0;
-        const lineOverallDiscount = overallDiscountAmount * lineProportionOfTotal;
-        
+        const lineProportionOfTotal =
+          subtotalAfterLineDiscounts > 0
+            ? c.final_total / subtotalAfterLineDiscounts
+            : 0;
+        const lineOverallDiscount =
+          overallDiscountAmount * lineProportionOfTotal;
+
         // Final total for this line after overall discount
         const lineFinalTotal = c.final_total - lineOverallDiscount;
-        
+
         // Adjust profit to account for overall discount
         const lineFinalProfit = c.profit - lineOverallDiscount;
 

@@ -20,6 +20,7 @@ import {
   TrendingUp,
   RotateCcw,
   Receipt,
+  Calculator,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -111,6 +112,12 @@ export default function Layout({
       label: "Deynta Macaamiisha",
       icon: CreditCard,
       color: "from-teal-600 to-cyan-600",
+    },
+    {
+      id: "cash-reconciliation",
+      label: "Cash Reconciliation",
+      icon: Calculator,
+      color: "from-green-600 to-emerald-600",
     },
   ];
 

@@ -23,6 +23,7 @@ import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import CashReconciliation from "./components/CashReconciliation";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -128,6 +129,7 @@ function AppContent() {
         {activeTab === "debts" && <DebtManagement />}
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
+        {activeTab === "cash-reconciliation" && <CashReconciliation />}
       </Layout>
 
       {/* PWA Install Prompt for iOS and Android */}
