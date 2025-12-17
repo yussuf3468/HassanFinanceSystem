@@ -973,7 +973,7 @@ export default function SaleForm({
                 <span>Sale Information</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className="relative z-40">
                   <label className="block text-sm font-medium text-slate-300 mb-2">
                     Sold By (Staff) *
                   </label>
@@ -981,8 +981,7 @@ export default function SaleForm({
                     required
                     value={soldBy}
                     onChange={(e) => setSoldBy(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation relative z-10"
-                    style={{ pointerEvents: 'auto' }}
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation appearance-none cursor-pointer"
                   >
                     <option value="" className="bg-slate-900 text-white">
                       -- Select Staff Member --
@@ -998,14 +997,14 @@ export default function SaleForm({
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="relative z-40">
                   <label className="block text-sm font-medium text-slate-300 mb-2">
                     Payment Method *
                   </label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
+                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation appearance-none cursor-pointer"
                   >
                     {paymentMethods.map((m) => (
                       <option
@@ -1018,7 +1017,7 @@ export default function SaleForm({
                     ))}
                   </select>
                 </div>
-                <div className="relative" ref={customerDropdownRef}>
+                <div className="relative z-30" ref={customerDropdownRef}>
                   <label className="flex items-center space-x-1 text-sm font-medium text-slate-300 mb-2">
                     <Users className="w-4 h-4" />
                     <span>Customer *</span>
