@@ -56,8 +56,8 @@ CREATE OR REPLACE FUNCTION update_customer_balance()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    -- When a sale is made, increase credit balance
-    IF NEW.customer_id IS NOT NULL THEN
+    -- When a sale is made, increase credit balance (except for Walk-in Customer)
+    IF NEW.customer_id IS NOT NULL AND NEW.customer_id != '00000000-0000-0000-0000-000000000001' THEN
       UPDATE customers 
       SET credit_balance = credit_balance + NEW.total_sale,
           total_purchases = total_purchases + NEW.total_sale,
@@ -102,7 +102,15 @@ CREATE TRIGGER process_customer_payment_trigger
 INSERT INTO customers (id, customer_name, phone, email, address, credit_balance, is_active, notes)
 VALUES 
   ('00000000-0000-0000-0000-000000000001', 'Walk-in Customer', NULL, NULL, NULL, 0.00, true, 'Default customer for cash sales and one-time customers')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET credit_balance = 0.00, total_purchases = 0.00, total_payments = 0.00;
+
+-- Reset Walk-in Customer balance to 0 (in case it has accumulated any balance)
+UPDATE customers 
+SET credit_balance = 0.00, 
+    total_purchases = 0.00, 
+    total_payments = 0.00,
+    updated_at = NOW()
+WHERE id = '00000000-0000-0000-0000-000000000001';
 
 COMMENT ON TABLE customers IS 'Stores customer information with credit balance tracking';
 COMMENT ON COLUMN customers.credit_balance IS 'Current outstanding balance (amount owed by customer)';

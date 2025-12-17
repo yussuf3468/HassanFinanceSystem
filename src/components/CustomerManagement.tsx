@@ -202,10 +202,7 @@ export default function CustomerManagement() {
       return;
     }
 
-    if (amount > selectedCustomer.credit_balance) {
-      toast.error("Payment amount cannot exceed credit balance");
-      return;
-    }
+    // Allow overpayment - customer can prepay for future purchases
 
     try {
       const { error } = await supabase.from("customer_payments" as any).insert({
@@ -219,11 +216,12 @@ export default function CustomerManagement() {
 
       if (error) throw error;
 
-      toast.success(
-        `Payment of KES ${amount.toLocaleString()} received from ${
-          selectedCustomer.customer_name
-        }`
-      );
+      const newBalance = selectedCustomer.credit_balance - amount;
+      const message = newBalance <= 0 
+        ? `Payment received! ${selectedCustomer.customer_name} now has KES ${Math.abs(newBalance).toLocaleString()} prepaid credit.`
+        : `Payment of KES ${amount.toLocaleString()} received from ${selectedCustomer.customer_name}`;
+      
+      toast.success(message);
       setPaymentData({ amount: "", payment_method: "cash", notes: "" });
       loadCustomers();
       loadPayments(selectedCustomer.id);
@@ -400,15 +398,20 @@ export default function CustomerManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span
-                      className={`font-bold ${
-                        customer.credit_balance > 0
-                          ? "text-red-400"
-                          : "text-green-400"
-                      }`}
-                    >
-                      KES {customer.credit_balance.toLocaleString()}
-                    </span>
+                    <div>
+                      <span
+                        className={`font-bold ${
+                          customer.credit_balance > 0
+                            ? "text-red-400"
+                            : customer.credit_balance < 0
+                            ? "text-green-400"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {customer.credit_balance > 0 ? "Owes: " : customer.credit_balance < 0 ? "Prepaid: " : ""}
+                        KES {Math.abs(customer.credit_balance).toLocaleString()}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right text-slate-300">
                     KES {customer.total_purchases.toLocaleString()}
@@ -595,15 +598,40 @@ export default function CustomerManagement() {
 
             <div className="p-6 space-y-4">
               {/* Current Balance */}
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+              <div className={`border rounded-lg p-4 ${
+                selectedCustomer.credit_balance > 0 
+                  ? 'bg-red-500/20 border-red-500/30'
+                  : selectedCustomer.credit_balance < 0
+                  ? 'bg-green-500/20 border-green-500/30'
+                  : 'bg-slate-500/20 border-slate-500/30'
+              }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-400">Current Balance</p>
-                    <p className="text-3xl font-bold text-red-400">
-                      KES {selectedCustomer.credit_balance.toLocaleString()}
+                    <p className="text-sm text-slate-400">
+                      {selectedCustomer.credit_balance > 0 
+                        ? 'Amount Owed'
+                        : selectedCustomer.credit_balance < 0
+                        ? 'Prepaid Credit'
+                        : 'Current Balance'
+                      }
+                    </p>
+                    <p className={`text-3xl font-bold ${
+                      selectedCustomer.credit_balance > 0 
+                        ? 'text-red-400'
+                        : selectedCustomer.credit_balance < 0
+                        ? 'text-green-400'
+                        : 'text-slate-400'
+                    }`}>
+                      KES {Math.abs(selectedCustomer.credit_balance).toLocaleString()}
                     </p>
                   </div>
-                  <CreditCard className="w-12 h-12 text-red-400" />
+                  <CreditCard className={`w-12 h-12 ${
+                    selectedCustomer.credit_balance > 0 
+                      ? 'text-red-400'
+                      : selectedCustomer.credit_balance < 0
+                      ? 'text-green-400'
+                      : 'text-slate-400'
+                  }`} />
                 </div>
               </div>
 
@@ -617,15 +645,17 @@ export default function CustomerManagement() {
                     type="number"
                     step="0.01"
                     min="0.01"
-                    max={selectedCustomer.credit_balance}
                     required
                     value={paymentData.amount}
                     onChange={(e) =>
                       setPaymentData({ ...paymentData, amount: e.target.value })
                     }
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="0.00"
+                    placeholder="Enter any amount (can be more than balance)"
                   />
+                  <p className="text-xs text-slate-400 mt-1">
+                    💡 Tip: Pay more than owed to create prepaid credit for future purchases
+                  </p>
                 </div>
 
                 <div>
