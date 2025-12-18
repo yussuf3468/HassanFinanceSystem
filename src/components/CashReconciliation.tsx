@@ -13,6 +13,7 @@ import {
   FileText,
   Save,
   History,
+  Wallet,
 } from "lucide-react";
 
 interface SalesTotals {
@@ -60,6 +61,16 @@ export default function CashReconciliation() {
   const [reconciledBy, setReconciledBy] = useState("");
   const [notes, setNotes] = useState("");
   const [showHistory, setShowHistory] = useState(false);
+  
+  // Running Balance States
+  const [runningBalance, setRunningBalance] = useState<number>(() => {
+    const saved = localStorage.getItem("storeRunningBalance");
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [showBalanceModal, setShowBalanceModal] = useState(() => {
+    return !localStorage.getItem("storeRunningBalance");
+  });
+  const [initialBalance, setInitialBalance] = useState("");
 
   // Actual counted amounts
   const [actualCash, setActualCash] = useState("0");
@@ -67,6 +78,24 @@ export default function CashReconciliation() {
   const [actualTillNumber, setActualTillNumber] = useState("0");
   const [actualCard, setActualCard] = useState("0");
   const [actualBankTransfer, setActualBankTransfer] = useState("0");
+
+  // Fetch today's expenses
+  const { data: todayExpenses } = useQuery({
+    queryKey: ["today-expenses", selectedDate],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("expenses")
+        .select("amount")
+        .gte("incurred_on", `${selectedDate}T00:00:00`)
+        .lt("incurred_on", `${selectedDate}T23:59:59`);
+
+      if (error) throw error;
+      
+      const total = data?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0;
+      return total;
+    },
+    staleTime: 10000,
+  });
 
   // Fetch today's sales totals (including cyber services)
   const { data: salesTotals } = useQuery({
@@ -204,7 +233,21 @@ export default function CashReconciliation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
-      alert("✅ Cash reconciliation saved successfully!");
+      
+      // Update running balance: add actual cash collected, subtract today's expenses
+      const cashCollected = parseFloat(actualCash || "0");
+      const expensesAmount = todayExpenses || 0;
+      const newBalance = runningBalance + cashCollected - expensesAmount;
+      setRunningBalance(newBalance);
+      localStorage.setItem("storeRunningBalance", newBalance.toString());
+      
+      alert(
+        `✅ Cash reconciliation saved!\n\n` +
+        `💰 Cash Added: KES ${cashCollected.toLocaleString()}\n` +
+        `💸 Expenses Deducted: KES ${expensesAmount.toLocaleString()}\n` +
+        `🏦 New Running Balance: KES ${newBalance.toLocaleString()}`
+      );
+      
       // Reset form
       setActualCash("0");
       setActualMpesa("0");
@@ -499,6 +542,35 @@ export default function CashReconciliation() {
           </div>
         </div>
 
+        {/* Running Balance Card - Prominent Display */}
+        <div className="mb-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-2xl p-6 shadow-2xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Wallet className="w-10 h-10 text-green-400" />
+                <h2 className="text-2xl font-bold text-white">Store Running Balance</h2>
+              </div>
+              <p className="text-5xl font-black text-green-400 mb-2">
+                KES {runningBalance.toLocaleString()}
+              </p>
+              <p className="text-sm text-green-300">
+                💰 Current cash available at store
+              </p>
+              {todayExpenses && todayExpenses > 0 && (
+                <p className="text-xs text-amber-300 mt-2">
+                  ⚠️ Today's expenses (KES {todayExpenses.toLocaleString()}) will be deducted on reconciliation
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setShowBalanceModal(true)}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all"
+            >
+              Update Balance
+            </button>
+          </div>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6">
@@ -750,6 +822,81 @@ export default function CashReconciliation() {
           {saveMutation.isPending ? "Saving..." : "Save Reconciliation"}
         </button>
       </div>
+
+      {/* Initial/Update Balance Modal */}
+      {showBalanceModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <DollarSign className="w-8 h-8 text-green-400" />
+              <h2 className="text-2xl font-bold text-white">
+                {runningBalance === 0 ? "Set Initial Balance" : "Update Running Balance"}
+              </h2>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-slate-300 mb-4">
+                {runningBalance === 0
+                  ? "🏪 How much cash do you currently have at the store? This will be your starting balance."
+                  : `💰 Current Balance: KES ${runningBalance.toLocaleString()}`}
+              </p>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                {runningBalance === 0 ? "Initial Cash Amount *" : "New Balance Amount *"}
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={initialBalance}
+                onChange={(e) => setInitialBalance(e.target.value)}
+                placeholder="0.00"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-green-500 text-lg font-semibold"
+                autoFocus
+              />
+              <p className="text-xs text-slate-400 mt-2">
+                💡 Count the physical cash in your till/drawer and enter the exact amount
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  const amount = parseFloat(initialBalance);
+                  if (isNaN(amount) || amount < 0) {
+                    alert("Please enter a valid amount");
+                    return;
+                  }
+                  setRunningBalance(amount);
+                  localStorage.setItem("storeRunningBalance", amount.toString());
+                  setShowBalanceModal(false);
+                  setInitialBalance("");
+                  alert(`✅ Running balance ${runningBalance === 0 ? 'set' : 'updated'} to: KES ${amount.toLocaleString()}`);
+                }}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all"
+              >
+                {runningBalance === 0 ? "Set Balance" : "Update Balance"}
+              </button>
+              {runningBalance !== 0 && (
+                <button
+                  onClick={() => {
+                    setShowBalanceModal(false);
+                    setInitialBalance("");
+                  }}
+                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+
+            {runningBalance === 0 && (
+              <p className="text-amber-300 text-sm mt-4 text-center">
+                ⚠️ You must set an initial balance to continue
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
