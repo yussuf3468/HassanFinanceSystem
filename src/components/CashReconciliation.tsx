@@ -512,6 +512,26 @@ export default function CashReconciliation() {
 
         {/* Running Balances - 3 Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-500/50 rounded-xl p-5 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Wallet className="w-7 h-7 text-amber-400" />
+              <h3 className="text-lg font-bold text-white">
+                Total Store Balance
+              </h3>
+            </div>
+            <p className="text-3xl font-black text-amber-400 mb-1">
+              KES{" "}
+              {(
+                cashBalance +
+                mpesaAgentBalance +
+                mpesaPhoneBalance
+              ).toLocaleString()}
+            </p>
+            <p className="text-xs text-amber-300">
+              💰 Combined balance (All accounts)
+            </p>
+          </div>
+
           <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-5 shadow-xl">
             <div className="flex items-center gap-2 mb-2">
               <Wallet className="w-7 h-7 text-green-400" />
@@ -543,26 +563,6 @@ export default function CashReconciliation() {
               KES {mpesaPhoneBalance.toLocaleString()}
             </p>
             <p className="text-xs text-purple-300">☎️ Phone balance</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-500/50 rounded-xl p-5 shadow-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Wallet className="w-7 h-7 text-amber-400" />
-              <h3 className="text-lg font-bold text-white">
-                Total Store Balance
-              </h3>
-            </div>
-            <p className="text-3xl font-black text-amber-400 mb-1">
-              KES{" "}
-              {(
-                cashBalance +
-                mpesaAgentBalance +
-                mpesaPhoneBalance
-              ).toLocaleString()}
-            </p>
-            <p className="text-xs text-amber-300">
-              💰 Combined balance (All accounts)
-            </p>
           </div>
         </div>
 
