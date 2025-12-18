@@ -134,7 +134,7 @@ export default function CustomerManagement() {
       } else {
         // Create new customer
         const openingBalance = parseFloat(formData.opening_balance) || 0;
-        
+
         const { error } = await supabase.from("customers").insert({
           customer_name: formData.customer_name,
           phone: formData.phone || null,
@@ -148,9 +148,11 @@ export default function CustomerManagement() {
         } as any);
 
         if (error) throw error;
-        
+
         if (openingBalance > 0) {
-          toast.success(`Customer added with opening balance: KES ${openingBalance.toLocaleString()}`);
+          toast.success(
+            `Customer added with opening balance: KES ${openingBalance.toLocaleString()}`
+          );
         } else {
           toast.success("Customer added successfully");
         }
@@ -230,10 +232,17 @@ export default function CustomerManagement() {
       if (error) throw error;
 
       const newBalance = selectedCustomer.credit_balance - amount;
-      const message = newBalance <= 0 
-        ? `Payment received! ${selectedCustomer.customer_name} now has KES ${Math.abs(newBalance).toLocaleString()} prepaid credit.`
-        : `Payment of KES ${amount.toLocaleString()} received from ${selectedCustomer.customer_name}`;
-      
+      const message =
+        newBalance <= 0
+          ? `Payment received! ${
+              selectedCustomer.customer_name
+            } now has KES ${Math.abs(
+              newBalance
+            ).toLocaleString()} prepaid credit.`
+          : `Payment of KES ${amount.toLocaleString()} received from ${
+              selectedCustomer.customer_name
+            }`;
+
       toast.success(message);
       setPaymentData({ amount: "", payment_method: "cash", notes: "" });
       loadCustomers();
@@ -251,7 +260,8 @@ export default function CustomerManagement() {
       // Fetch customer's sales history
       const { data: sales, error: salesError } = await supabase
         .from("sales")
-        .select(`
+        .select(
+          `
           id,
           sale_date,
           quantity_sold,
@@ -261,7 +271,8 @@ export default function CustomerManagement() {
           products (
             name
           )
-        `)
+        `
+        )
         .eq("customer_id", customer.id)
         .order("sale_date", { ascending: true });
 
@@ -402,17 +413,26 @@ export default function CustomerManagement() {
 
       doc.setFontSize(11);
       doc.setFont("helvetica", "normal");
-      doc.text(`Total Purchases: $${customer.total_purchases.toFixed(2)}`, 14, yPos);
+      doc.text(
+        `Total Purchases: $${customer.total_purchases.toFixed(2)}`,
+        14,
+        yPos
+      );
       yPos += 6;
-      doc.text(`Total Payments: $${customer.total_payments.toFixed(2)}`, 14, yPos);
+      doc.text(
+        `Total Payments: $${customer.total_payments.toFixed(2)}`,
+        14,
+        yPos
+      );
       yPos += 6;
 
       // Current Balance with color
-      const balanceText = customer.credit_balance > 0
-        ? `Amount Owed: $${customer.credit_balance.toFixed(2)}`
-        : customer.credit_balance < 0
-        ? `Prepaid Credit: $${Math.abs(customer.credit_balance).toFixed(2)}`
-        : `Balance: $0.00`;
+      const balanceText =
+        customer.credit_balance > 0
+          ? `Amount Owed: $${customer.credit_balance.toFixed(2)}`
+          : customer.credit_balance < 0
+          ? `Prepaid Credit: $${Math.abs(customer.credit_balance).toFixed(2)}`
+          : `Balance: $0.00`;
 
       if (customer.credit_balance > 0) {
         doc.setTextColor(220, 38, 38); // Red for debt
@@ -440,7 +460,11 @@ export default function CustomerManagement() {
       );
 
       // Save the PDF
-      doc.save(`${customer.customer_name}_Statement_${new Date().toLocaleDateString().replace(/\//g, "-")}.pdf`);
+      doc.save(
+        `${customer.customer_name}_Statement_${new Date()
+          .toLocaleDateString()
+          .replace(/\//g, "-")}.pdf`
+      );
       toast.success("PDF generated successfully!");
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -625,7 +649,11 @@ export default function CustomerManagement() {
                             : "text-slate-400"
                         }`}
                       >
-                        {customer.credit_balance > 0 ? "Owes: " : customer.credit_balance < 0 ? "Prepaid: " : ""}
+                        {customer.credit_balance > 0
+                          ? "Owes: "
+                          : customer.credit_balance < 0
+                          ? "Prepaid: "
+                          : ""}
                         KES {Math.abs(customer.credit_balance).toLocaleString()}
                       </span>
                     </div>
@@ -791,14 +819,17 @@ export default function CustomerManagement() {
                     min="0"
                     value={formData.opening_balance}
                     onChange={(e) =>
-                      setFormData({ ...formData, opening_balance: e.target.value })
+                      setFormData({
+                        ...formData,
+                        opening_balance: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     placeholder="0.00"
                   />
                   <p className="text-xs text-amber-300 mt-2">
-                    💡 Enter any debt this customer already owes from before using this system.
-                    Leave blank or 0 if no preexisting debt.
+                    💡 Enter any debt this customer already owes from before
+                    using this system. Leave blank or 0 if no preexisting debt.
                   </p>
                 </div>
               )}
@@ -846,40 +877,48 @@ export default function CustomerManagement() {
 
             <div className="p-6 space-y-4">
               {/* Current Balance */}
-              <div className={`border rounded-lg p-4 ${
-                selectedCustomer.credit_balance > 0 
-                  ? 'bg-red-500/20 border-red-500/30'
-                  : selectedCustomer.credit_balance < 0
-                  ? 'bg-green-500/20 border-green-500/30'
-                  : 'bg-slate-500/20 border-slate-500/30'
-              }`}>
+              <div
+                className={`border rounded-lg p-4 ${
+                  selectedCustomer.credit_balance > 0
+                    ? "bg-red-500/20 border-red-500/30"
+                    : selectedCustomer.credit_balance < 0
+                    ? "bg-green-500/20 border-green-500/30"
+                    : "bg-slate-500/20 border-slate-500/30"
+                }`}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-400">
-                      {selectedCustomer.credit_balance > 0 
-                        ? 'Amount Owed'
+                      {selectedCustomer.credit_balance > 0
+                        ? "Amount Owed"
                         : selectedCustomer.credit_balance < 0
-                        ? 'Prepaid Credit'
-                        : 'Current Balance'
-                      }
+                        ? "Prepaid Credit"
+                        : "Current Balance"}
                     </p>
-                    <p className={`text-3xl font-bold ${
-                      selectedCustomer.credit_balance > 0 
-                        ? 'text-red-400'
-                        : selectedCustomer.credit_balance < 0
-                        ? 'text-green-400'
-                        : 'text-slate-400'
-                    }`}>
-                      KES {Math.abs(selectedCustomer.credit_balance).toLocaleString()}
+                    <p
+                      className={`text-3xl font-bold ${
+                        selectedCustomer.credit_balance > 0
+                          ? "text-red-400"
+                          : selectedCustomer.credit_balance < 0
+                          ? "text-green-400"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      KES{" "}
+                      {Math.abs(
+                        selectedCustomer.credit_balance
+                      ).toLocaleString()}
                     </p>
                   </div>
-                  <CreditCard className={`w-12 h-12 ${
-                    selectedCustomer.credit_balance > 0 
-                      ? 'text-red-400'
-                      : selectedCustomer.credit_balance < 0
-                      ? 'text-green-400'
-                      : 'text-slate-400'
-                  }`} />
+                  <CreditCard
+                    className={`w-12 h-12 ${
+                      selectedCustomer.credit_balance > 0
+                        ? "text-red-400"
+                        : selectedCustomer.credit_balance < 0
+                        ? "text-green-400"
+                        : "text-slate-400"
+                    }`}
+                  />
                 </div>
               </div>
 
@@ -902,7 +941,8 @@ export default function CustomerManagement() {
                     placeholder="Enter any amount (can be more than balance)"
                   />
                   <p className="text-xs text-slate-400 mt-1">
-                    💡 Tip: Pay more than owed to create prepaid credit for future purchases
+                    💡 Tip: Pay more than owed to create prepaid credit for
+                    future purchases
                   </p>
                 </div>
 

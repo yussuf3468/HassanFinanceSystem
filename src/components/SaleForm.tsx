@@ -151,18 +151,24 @@ export default function SaleForm({
         const draftData = JSON.parse(savedDraft);
         setSoldBy(draftData.soldBy || "");
         setPaymentMethod(draftData.paymentMethod || "Cash");
-        setLineItems(draftData.lineItems || [{
-          id: crypto.randomUUID(),
-          product_id: "",
-          quantity: "",
-          discount_type: "none",
-          discount_value: "",
-          searchTerm: "",
-          showDropdown: false,
-        }]);
+        setLineItems(
+          draftData.lineItems || [
+            {
+              id: crypto.randomUUID(),
+              product_id: "",
+              quantity: "",
+              discount_type: "none",
+              discount_value: "",
+              searchTerm: "",
+              showDropdown: false,
+            },
+          ]
+        );
         setOverallDiscountType(draftData.overallDiscountType || "none");
         setOverallDiscountValue(draftData.overallDiscountValue || "");
-        setSelectedCustomerId(draftData.selectedCustomerId || "00000000-0000-0000-0000-000000000001");
+        setSelectedCustomerId(
+          draftData.selectedCustomerId || "00000000-0000-0000-0000-000000000001"
+        );
         setCustomerSearch(draftData.customerSearch || "");
         setQuickSaleMode(draftData.quickSaleMode || false);
         alert("✅ Draft loaded successfully!");
@@ -1148,13 +1154,20 @@ export default function SaleForm({
                                   {selected.customer_name}
                                 </p>
                                 {selected.credit_balance !== 0 && (
-                                  <p className={`text-xs ${
-                                    selected.credit_balance > 0 
-                                      ? 'text-red-400' 
-                                      : 'text-green-400'
-                                  }`}>
-                                    {selected.credit_balance > 0 ? 'Owes: ' : 'Credit: '}
-                                    KES {Math.abs(selected.credit_balance).toLocaleString()}
+                                  <p
+                                    className={`text-xs ${
+                                      selected.credit_balance > 0
+                                        ? "text-red-400"
+                                        : "text-green-400"
+                                    }`}
+                                  >
+                                    {selected.credit_balance > 0
+                                      ? "Owes: "
+                                      : "Credit: "}
+                                    KES{" "}
+                                    {Math.abs(
+                                      selected.credit_balance
+                                    ).toLocaleString()}
                                   </p>
                                 )}
                               </div>
@@ -1236,14 +1249,21 @@ export default function SaleForm({
                               {customer.credit_balance !== 0 && (
                                 <div className="text-right">
                                   <p className="text-xs text-slate-400">
-                                    {customer.credit_balance > 0 ? 'Owes' : 'Credit'}
+                                    {customer.credit_balance > 0
+                                      ? "Owes"
+                                      : "Credit"}
                                   </p>
-                                  <p className={`text-sm font-bold ${
-                                    customer.credit_balance > 0 
-                                      ? 'text-red-400' 
-                                      : 'text-green-400'
-                                  }`}>
-                                    KES {Math.abs(customer.credit_balance).toLocaleString()}
+                                  <p
+                                    className={`text-sm font-bold ${
+                                      customer.credit_balance > 0
+                                        ? "text-red-400"
+                                        : "text-green-400"
+                                    }`}
+                                  >
+                                    KES{" "}
+                                    {Math.abs(
+                                      customer.credit_balance
+                                    ).toLocaleString()}
                                   </p>
                                 </div>
                               )}
@@ -1280,12 +1300,11 @@ export default function SaleForm({
                           <div className="grid grid-cols-2 gap-3">
                             <div className="bg-white/5 rounded-lg p-2">
                               <p className="text-xs text-slate-400">
-                                {selectedCustomer.credit_balance > 0 
+                                {selectedCustomer.credit_balance > 0
                                   ? "Owes"
                                   : selectedCustomer.credit_balance < 0
                                   ? "Prepaid Credit"
-                                  : "Balance"
-                                }
+                                  : "Balance"}
                               </p>
                               <p
                                 className={`text-lg font-bold ${
@@ -1297,21 +1316,29 @@ export default function SaleForm({
                                 }`}
                               >
                                 KES{" "}
-                                {Math.abs(selectedCustomer.credit_balance).toLocaleString()}
+                                {Math.abs(
+                                  selectedCustomer.credit_balance
+                                ).toLocaleString()}
                               </p>
                             </div>
                             <div className="bg-white/5 rounded-lg p-2">
                               <p className="text-xs text-slate-400">
                                 After Sale
                               </p>
-                              <p className={`text-lg font-bold ${
-                                newBalance > 0 
-                                  ? "text-red-400"
+                              <p
+                                className={`text-lg font-bold ${
+                                  newBalance > 0
+                                    ? "text-red-400"
+                                    : newBalance < 0
+                                    ? "text-green-400"
+                                    : "text-white"
+                                }`}
+                              >
+                                {newBalance > 0
+                                  ? "Owes: "
                                   : newBalance < 0
-                                  ? "text-green-400"
-                                  : "text-white"
-                              }`}>
-                                {newBalance > 0 ? "Owes: " : newBalance < 0 ? "Credit: " : ""}
+                                  ? "Credit: "
+                                  : ""}
                                 KES {Math.abs(newBalance).toLocaleString()}
                               </p>
                             </div>

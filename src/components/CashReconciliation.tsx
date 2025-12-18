@@ -61,7 +61,7 @@ export default function CashReconciliation() {
   const [reconciledBy, setReconciledBy] = useState("");
   const [notes, setNotes] = useState("");
   const [showHistory, setShowHistory] = useState(false);
-  
+
   // Running Balance States - 3 separate balances
   const [cashBalance, setCashBalance] = useState<number>(() => {
     const saved = localStorage.getItem("storeCashBalance");
@@ -81,16 +81,14 @@ export default function CashReconciliation() {
   const [initialCashBalance, setInitialCashBalance] = useState("");
   const [initialMpesaAgentBalance, setInitialMpesaAgentBalance] = useState("");
   const [initialMpesaPhoneBalance, setInitialMpesaPhoneBalance] = useState("");
-  
+
   // Today's expenses input
   const [todayExpenses, setTodayExpenses] = useState("0");
 
-  // Actual counted amounts
+  // Actual counted amounts - Only 3 payment methods
   const [actualCash, setActualCash] = useState("0");
   const [actualMpesa, setActualMpesa] = useState("0");
   const [actualTillNumber, setActualTillNumber] = useState("0");
-  const [actualCard, setActualCard] = useState("0");
-  const [actualBankTransfer, setActualBankTransfer] = useState("0");
 
   // Fetch today's sales totals (including cyber services)
   const { data: salesTotals } = useQuery({
@@ -169,9 +167,7 @@ export default function CashReconciliation() {
       const actualTotal =
         parseFloat(actualCash || "0") +
         parseFloat(actualMpesa || "0") +
-        parseFloat(actualTillNumber || "0") +
-        parseFloat(actualCard || "0") +
-        parseFloat(actualBankTransfer || "0");
+        parseFloat(actualTillNumber || "0");
 
       const varianceCash =
         parseFloat(actualCash || "0") - (salesTotals?.Cash || 0);
@@ -180,11 +176,7 @@ export default function CashReconciliation() {
       const varianceTillNumber =
         parseFloat(actualTillNumber || "0") -
         (salesTotals?.["Till Number"] || 0);
-      const varianceCard =
-        parseFloat(actualCard || "0") - (salesTotals?.Card || 0);
-      const varianceBankTransfer =
-        parseFloat(actualBankTransfer || "0") -
-        (salesTotals?.["Bank Transfer"] || 0);
+
       const varianceTotal = actualTotal - expectedTotal;
 
       const status =
@@ -198,20 +190,20 @@ export default function CashReconciliation() {
           expected_cash: salesTotals?.Cash || 0,
           expected_mpesa: salesTotals?.Mpesa || 0,
           expected_till_number: salesTotals?.["Till Number"] || 0,
-          expected_card: salesTotals?.Card || 0,
-          expected_bank_transfer: salesTotals?.["Bank Transfer"] || 0,
+          expected_card: 0,
+          expected_bank_transfer: 0,
           expected_total: expectedTotal,
           actual_cash: parseFloat(actualCash || "0"),
           actual_mpesa: parseFloat(actualMpesa || "0"),
           actual_till_number: parseFloat(actualTillNumber || "0"),
-          actual_card: parseFloat(actualCard || "0"),
-          actual_bank_transfer: parseFloat(actualBankTransfer || "0"),
+          actual_card: 0,
+          actual_bank_transfer: 0,
           actual_total: actualTotal,
           variance_cash: varianceCash,
           variance_mpesa: varianceMpesa,
           variance_till_number: varianceTillNumber,
-          variance_card: varianceCard,
-          variance_bank_transfer: varianceBankTransfer,
+          variance_card: 0,
+          variance_bank_transfer: 0,
           variance_total: varianceTotal,
           reconciled_by: reconciledBy,
           notes,
@@ -228,56 +220,66 @@ export default function CashReconciliation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
-      
+
       // Update 3 running balances
       const cashCollected = parseFloat(actualCash || "0");
       const mpesaCollected = parseFloat(actualMpesa || "0");
       const tillCollected = parseFloat(actualTillNumber || "0");
       const expensesAmount = parseFloat(todayExpenses || "0");
-      
+
       // Cash balance: add cash, subtract expenses
       const newCashBalance = cashBalance + cashCollected - expensesAmount;
       setCashBalance(newCashBalance);
       localStorage.setItem("storeCashBalance", newCashBalance.toString());
-      
+
       // Mpesa Agent balance: add mpesa
       const newMpesaAgentBalance = mpesaAgentBalance + mpesaCollected;
       setMpesaAgentBalance(newMpesaAgentBalance);
-      localStorage.setItem("storeMpesaAgentBalance", newMpesaAgentBalance.toString());
-      
+      localStorage.setItem(
+        "storeMpesaAgentBalance",
+        newMpesaAgentBalance.toString()
+      );
+
       // Mpesa Phone balance: add till number (treating as phone balance)
       const newMpesaPhoneBalance = mpesaPhoneBalance + tillCollected;
       setMpesaPhoneBalance(newMpesaPhoneBalance);
-      localStorage.setItem("storeMpesaPhoneBalance", newMpesaPhoneBalance.toString());
-      
+      localStorage.setItem(
+        "storeMpesaPhoneBalance",
+        newMpesaPhoneBalance.toString()
+      );
+
       // Show success message
-      const message = document.createElement('div');
-      message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
+      const message = document.createElement("div");
+      message.className =
+        "fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md";
       message.innerHTML = `
         <div class="font-bold text-lg mb-2">✅ Reconciliation Saved!</div>
         <div class="text-sm space-y-1">
           <div>💵 Cash Balance: KES ${newCashBalance.toLocaleString()}</div>
           <div>📱 Mpesa Agent: KES ${newMpesaAgentBalance.toLocaleString()}</div>
           <div>☎️ Mpesa Phone: KES ${newMpesaPhoneBalance.toLocaleString()}</div>
-          ${expensesAmount > 0 ? `<div class="text-amber-200">💸 Expenses: -KES ${expensesAmount.toLocaleString()}</div>` : ''}
+          ${
+            expensesAmount > 0
+              ? `<div class="text-amber-200">💸 Expenses: -KES ${expensesAmount.toLocaleString()}</div>`
+              : ""
+          }
         </div>
       `;
       document.body.appendChild(message);
       setTimeout(() => message.remove(), 5000);
-      
+
       // Reset form
       setActualCash("0");
       setActualMpesa("0");
       setActualTillNumber("0");
-      setActualCard("0");
-      setActualBankTransfer("0");
       setTodayExpenses("0");
       setNotes("");
     },
     onError: (error: any) => {
       console.error("Full error:", error);
-      const message = document.createElement('div');
-      message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
+      const message = document.createElement("div");
+      message.className =
+        "fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md";
       message.innerHTML = `
         <div class="font-bold text-lg mb-2">❌ Error Saving</div>
         <div class="text-sm">${error.message || error.toString()}</div>
@@ -287,46 +289,15 @@ export default function CashReconciliation() {
     },
   });
 
-  // Delete reconciliation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("cash_reconciliation" as any)
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
-      const message = document.createElement('div');
-      message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
-      message.innerHTML = '<div class="font-bold">✅ Reconciliation deleted successfully!</div>';
-      document.body.appendChild(message);
-      setTimeout(() => message.remove(), 3000);
-    },
-    onError: (error: any) => {
-      const message = document.createElement('div');
-      message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
-      message.innerHTML = `<div class="font-bold">❌ Error: ${error.message}</div>`;
-      document.body.appendChild(message);
-      setTimeout(() => message.remove(), 3000);
-    },
-  });
-
   const expectedTotal =
     (salesTotals?.Cash || 0) +
     (salesTotals?.Mpesa || 0) +
-    (salesTotals?.["Till Number"] || 0) +
-    (salesTotals?.Card || 0) +
-    (salesTotals?.["Bank Transfer"] || 0);
+    (salesTotals?.["Till Number"] || 0);
 
   const actualTotal =
     parseFloat(actualCash || "0") +
     parseFloat(actualMpesa || "0") +
-    parseFloat(actualTillNumber || "0") +
-    parseFloat(actualCard || "0") +
-    parseFloat(actualBankTransfer || "0");
+    parseFloat(actualTillNumber || "0");
 
   const varianceTotal = actualTotal - expectedTotal;
 
@@ -412,38 +383,6 @@ export default function CashReconciliation() {
                         )}
                         {rec.status.toUpperCase()}
                       </div>
-                      <button
-                        onClick={() => {
-                          if (
-                            confirm(
-                              `Delete this reconciliation record from ${new Date(
-                                rec.reconciliation_date
-                              ).toLocaleDateString()}?`
-                            )
-                          ) {
-                            deleteMutation.mutate(rec.id);
-                          }
-                        }}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg transition-colors"
-                        style={{
-                          touchAction: "manipulation",
-                          WebkitTapHighlightColor: "rgba(239, 68, 68, 0.3)",
-                        }}
-                      >
-                        <svg
-                          className="w-5 h-5 text-red-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
                     </div>
                   </div>
 
@@ -712,34 +651,22 @@ export default function CashReconciliation() {
               <tbody className="divide-y divide-white/10">
                 {[
                   {
-                    name: "Cash",
+                    name: "💵 Cash",
                     expected: salesTotals?.Cash || 0,
                     actual: actualCash,
                     setActual: setActualCash,
                   },
                   {
-                    name: "Mpesa",
+                    name: "📱 Mpesa Agent",
                     expected: salesTotals?.Mpesa || 0,
                     actual: actualMpesa,
                     setActual: setActualMpesa,
                   },
                   {
-                    name: "Till Number",
+                    name: "☎️ Mpesa Phone (Till)",
                     expected: salesTotals?.["Till Number"] || 0,
                     actual: actualTillNumber,
                     setActual: setActualTillNumber,
-                  },
-                  {
-                    name: "Card",
-                    expected: salesTotals?.Card || 0,
-                    actual: actualCard,
-                    setActual: setActualCard,
-                  },
-                  {
-                    name: "Bank Transfer",
-                    expected: salesTotals?.["Bank Transfer"] || 0,
-                    actual: actualBankTransfer,
-                    setActual: setActualBankTransfer,
                   },
                 ].map((method) => {
                   const variance =
@@ -802,7 +729,8 @@ export default function CashReconciliation() {
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-amber-500"
           />
           <p className="text-sm text-amber-300 mt-2">
-            💡 Enter total expenses paid today (will be deducted from cash balance)
+            💡 Enter total expenses paid today (will be deducted from cash
+            balance)
           </p>
         </div>
 
@@ -859,23 +787,39 @@ export default function CashReconciliation() {
         <button
           onClick={() => {
             if (!reconciledBy.trim()) {
-              const message = document.createElement('div');
-              message.className = 'fixed top-4 right-4 bg-amber-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
-              message.innerHTML = '<div class="font-bold">⚠️ Please enter your name in "Reconciled By" field</div>';
+              const message = document.createElement("div");
+              message.className =
+                "fixed top-4 right-4 bg-amber-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50";
+              message.innerHTML =
+                '<div class="font-bold">⚠️ Please enter your name in "Reconciled By" field</div>';
               document.body.appendChild(message);
               setTimeout(() => message.remove(), 3000);
               return;
             }
-            
-            const statusText = varianceTotal === 0 ? "BALANCED" : varianceTotal > 0 ? "OVER" : "SHORT";
-            const confirmDiv = document.createElement('div');
-            confirmDiv.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50';
+
+            const statusText =
+              varianceTotal === 0
+                ? "BALANCED"
+                : varianceTotal > 0
+                ? "OVER"
+                : "SHORT";
+            const confirmDiv = document.createElement("div");
+            confirmDiv.className =
+              "fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50";
             confirmDiv.innerHTML = `
               <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-md">
                 <div class="text-center mb-6">
-                  <div class="text-4xl mb-3">${varianceTotal === 0 ? '✅' : varianceTotal > 0 ? '📈' : '📉'}</div>
+                  <div class="text-4xl mb-3">${
+                    varianceTotal === 0 ? "✅" : varianceTotal > 0 ? "📈" : "📉"
+                  }</div>
                   <h3 class="text-2xl font-bold text-white mb-2">Confirm Save</h3>
-                  <p class="text-slate-300">Save reconciliation with <span class="font-bold ${varianceTotal === 0 ? 'text-green-400' : varianceTotal > 0 ? 'text-blue-400' : 'text-red-400'}">${statusText}</span> status?</p>
+                  <p class="text-slate-300">Save reconciliation with <span class="font-bold ${
+                    varianceTotal === 0
+                      ? "text-green-400"
+                      : varianceTotal > 0
+                      ? "text-blue-400"
+                      : "text-red-400"
+                  }">${statusText}</span> status?</p>
                 </div>
                 <div class="flex gap-3">
                   <button id="confirm-yes" class="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700">
@@ -888,15 +832,19 @@ export default function CashReconciliation() {
               </div>
             `;
             document.body.appendChild(confirmDiv);
-            
-            document.getElementById('confirm-yes')?.addEventListener('click', () => {
-              confirmDiv.remove();
-              saveMutation.mutate();
-            });
-            
-            document.getElementById('confirm-no')?.addEventListener('click', () => {
-              confirmDiv.remove();
-            });
+
+            document
+              .getElementById("confirm-yes")
+              ?.addEventListener("click", () => {
+                confirmDiv.remove();
+                saveMutation.mutate();
+              });
+
+            document
+              .getElementById("confirm-no")
+              ?.addEventListener("click", () => {
+                confirmDiv.remove();
+              });
           }}
           disabled={saveMutation.isPending || !reconciledBy.trim()}
           className="w-full px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-3"
@@ -943,7 +891,9 @@ export default function CashReconciliation() {
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-green-500 text-lg font-semibold"
                   autoFocus
                 />
-                <p className="text-xs text-slate-400 mt-1">Current: KES {cashBalance.toLocaleString()}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Current: KES {cashBalance.toLocaleString()}
+                </p>
               </div>
 
               {/* Mpesa Agent Balance */}
@@ -960,7 +910,9 @@ export default function CashReconciliation() {
                   placeholder="0.00"
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 text-lg font-semibold"
                 />
-                <p className="text-xs text-slate-400 mt-1">Current: KES {mpesaAgentBalance.toLocaleString()}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Current: KES {mpesaAgentBalance.toLocaleString()}
+                </p>
               </div>
 
               {/* Mpesa Phone Balance */}
@@ -977,7 +929,9 @@ export default function CashReconciliation() {
                   placeholder="0.00"
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 text-lg font-semibold"
                 />
-                <p className="text-xs text-slate-400 mt-1">Current: KES {mpesaPhoneBalance.toLocaleString()}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Current: KES {mpesaPhoneBalance.toLocaleString()}
+                </p>
               </div>
             </div>
 
@@ -987,31 +941,49 @@ export default function CashReconciliation() {
                   const cash = parseFloat(initialCashBalance);
                   const agent = parseFloat(initialMpesaAgentBalance);
                   const phone = parseFloat(initialMpesaPhoneBalance);
-                  
-                  if (isNaN(cash) || cash < 0 || isNaN(agent) || agent < 0 || isNaN(phone) || phone < 0) {
-                    const message = document.createElement('div');
-                    message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
-                    message.innerHTML = '<div class=\"font-bold\">⚠️ Please enter valid amounts for all balances</div>';
+
+                  if (
+                    isNaN(cash) ||
+                    cash < 0 ||
+                    isNaN(agent) ||
+                    agent < 0 ||
+                    isNaN(phone) ||
+                    phone < 0
+                  ) {
+                    const message = document.createElement("div");
+                    message.className =
+                      "fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50";
+                    message.innerHTML =
+                      '<div class="font-bold">⚠️ Please enter valid amounts for all balances</div>';
                     document.body.appendChild(message);
                     setTimeout(() => message.remove(), 3000);
                     return;
                   }
-                  
+
                   setCashBalance(cash);
                   setMpesaAgentBalance(agent);
                   setMpesaPhoneBalance(phone);
                   localStorage.setItem("storeCashBalance", cash.toString());
-                  localStorage.setItem("storeMpesaAgentBalance", agent.toString());
-                  localStorage.setItem("storeMpesaPhoneBalance", phone.toString());
+                  localStorage.setItem(
+                    "storeMpesaAgentBalance",
+                    agent.toString()
+                  );
+                  localStorage.setItem(
+                    "storeMpesaPhoneBalance",
+                    phone.toString()
+                  );
                   setShowBalanceModal(false);
                   setInitialCashBalance("");
                   setInitialMpesaAgentBalance("");
                   setInitialMpesaPhoneBalance("");
-                  
-                  const message = document.createElement('div');
-                  message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+
+                  const message = document.createElement("div");
+                  message.className =
+                    "fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50";
                   message.innerHTML = `
-                    <div class="font-bold text-lg mb-2">✅ Balances ${cashBalance === 0 ? 'Set' : 'Updated'}!</div>
+                    <div class="font-bold text-lg mb-2">✅ Balances ${
+                      cashBalance === 0 ? "Set" : "Updated"
+                    }!</div>
                     <div class="text-sm space-y-1">
                       <div>💵 Cash: KES ${cash.toLocaleString()}</div>
                       <div>📱 Agent: KES ${agent.toLocaleString()}</div>
