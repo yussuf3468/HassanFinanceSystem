@@ -63,21 +63,43 @@ export default function CashReconciliation() {
   const [showHistory, setShowHistory] = useState(false);
 
   // Running Balance States - 3 separate balances
-  const [cashBalance, setCashBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("storeCashBalance");
-    return saved ? parseFloat(saved) : 0;
+  // Fetch current store balances from database
+  const { data: storeBalances } = useQuery({
+    queryKey: ["store-balances"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_balances" as any)
+        .select("*")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        // If no record exists, create one
+        if (error.code === "PGRST116") {
+          const { data: newData, error: insertError } = await supabase
+            .from("store_balances" as any)
+            .insert({
+              cash_balance: 0,
+              mpesa_agent_balance: 0,
+              mpesa_phone_balance: 0,
+            })
+            .select()
+            .single();
+          if (insertError) throw insertError;
+          return newData;
+        }
+        throw error;
+      }
+      return data;
+    },
+    staleTime: 10000,
   });
-  const [mpesaAgentBalance, setMpesaAgentBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("storeMpesaAgentBalance");
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [mpesaPhoneBalance, setMpesaPhoneBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("storeMpesaPhoneBalance");
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [showBalanceModal, setShowBalanceModal] = useState(() => {
-    return !localStorage.getItem("storeCashBalance");
-  });
+
+  const cashBalance = (storeBalances as any)?.cash_balance || 0;
+  const mpesaAgentBalance = (storeBalances as any)?.mpesa_agent_balance || 0;
+  const mpesaPhoneBalance = (storeBalances as any)?.mpesa_phone_balance || 0;
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [initialCashBalance, setInitialCashBalance] = useState("");
   const [initialMpesaAgentBalance, setInitialMpesaAgentBalance] = useState("");
   const [initialMpesaPhoneBalance, setInitialMpesaPhoneBalance] = useState("");
@@ -218,10 +240,10 @@ export default function CashReconciliation() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
 
-      // Update 3 running balances
+      // Update 3 running balances in database
       const cashCollected = parseFloat(actualCash || "0");
       const mpesaCollected = parseFloat(actualMpesa || "0");
       const tillCollected = parseFloat(actualTillNumber || "0");
@@ -229,24 +251,25 @@ export default function CashReconciliation() {
 
       // Cash balance: add cash, subtract expenses
       const newCashBalance = cashBalance + cashCollected - expensesAmount;
-      setCashBalance(newCashBalance);
-      localStorage.setItem("storeCashBalance", newCashBalance.toString());
 
       // Mpesa Agent balance: add mpesa
       const newMpesaAgentBalance = mpesaAgentBalance + mpesaCollected;
-      setMpesaAgentBalance(newMpesaAgentBalance);
-      localStorage.setItem(
-        "storeMpesaAgentBalance",
-        newMpesaAgentBalance.toString()
-      );
 
       // Mpesa Phone balance: add till number (treating as phone balance)
       const newMpesaPhoneBalance = mpesaPhoneBalance + tillCollected;
-      setMpesaPhoneBalance(newMpesaPhoneBalance);
-      localStorage.setItem(
-        "storeMpesaPhoneBalance",
-        newMpesaPhoneBalance.toString()
-      );
+
+      // Update database
+      await supabase
+        .from("store_balances" as any)
+        .update({
+          cash_balance: newCashBalance,
+          mpesa_agent_balance: newMpesaAgentBalance,
+          mpesa_phone_balance: newMpesaPhoneBalance,
+        })
+        .eq("id", (storeBalances as any)?.id);
+
+      // Invalidate query to refetch
+      queryClient.invalidateQueries({ queryKey: ["store-balances"] });
 
       // Show success message
       const message = document.createElement("div");
@@ -957,7 +980,7 @@ export default function CashReconciliation() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => {
+                onClick={async () => {
                   const cash = parseFloat(initialCashBalance);
                   const agent = parseFloat(initialMpesaAgentBalance);
                   const phone = parseFloat(initialMpesaPhoneBalance);
@@ -980,18 +1003,21 @@ export default function CashReconciliation() {
                     return;
                   }
 
-                  setCashBalance(cash);
-                  setMpesaAgentBalance(agent);
-                  setMpesaPhoneBalance(phone);
-                  localStorage.setItem("storeCashBalance", cash.toString());
-                  localStorage.setItem(
-                    "storeMpesaAgentBalance",
-                    agent.toString()
-                  );
-                  localStorage.setItem(
-                    "storeMpesaPhoneBalance",
-                    phone.toString()
-                  );
+                  // Update database
+                  await supabase
+                    .from("store_balances" as any)
+                    .update({
+                      cash_balance: cash,
+                      mpesa_agent_balance: agent,
+                      mpesa_phone_balance: phone,
+                    })
+                    .eq("id", (storeBalances as any)?.id);
+
+                  // Invalidate query to refetch
+                  queryClient.invalidateQueries({
+                    queryKey: ["store-balances"],
+                  });
+
                   setShowBalanceModal(false);
                   setInitialCashBalance("");
                   setInitialMpesaAgentBalance("");
