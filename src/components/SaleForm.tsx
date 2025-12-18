@@ -60,13 +60,7 @@ interface ReceiptData {
   total_profit: number;
 }
 
-const paymentMethods = [
-  "Cash",
-  "Mpesa",
-  "Till Number",
-  "Card",
-  "Bank Transfer",
-];
+const paymentMethods = ["Cash", "Mpesa Agent", "Mpesa Phone"];
 const staffMembers = ["Khalid", "Zakaria", "Yussuf"];
 
 export default function SaleForm({

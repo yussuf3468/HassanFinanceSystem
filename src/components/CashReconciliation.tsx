@@ -544,6 +544,26 @@ export default function CashReconciliation() {
             </p>
             <p className="text-xs text-purple-300">☎️ Phone balance</p>
           </div>
+
+          <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-2 border-amber-500/50 rounded-xl p-5 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Wallet className="w-7 h-7 text-amber-400" />
+              <h3 className="text-lg font-bold text-white">
+                Total Store Balance
+              </h3>
+            </div>
+            <p className="text-3xl font-black text-amber-400 mb-1">
+              KES{" "}
+              {(
+                cashBalance +
+                mpesaAgentBalance +
+                mpesaPhoneBalance
+              ).toLocaleString()}
+            </p>
+            <p className="text-xs text-amber-300">
+              💰 Combined balance (All accounts)
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end mb-6">
