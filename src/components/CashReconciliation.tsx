@@ -62,15 +62,28 @@ export default function CashReconciliation() {
   const [notes, setNotes] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   
-  // Running Balance States
-  const [runningBalance, setRunningBalance] = useState<number>(() => {
-    const saved = localStorage.getItem("storeRunningBalance");
+  // Running Balance States - 3 separate balances
+  const [cashBalance, setCashBalance] = useState<number>(() => {
+    const saved = localStorage.getItem("storeCashBalance");
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [mpesaAgentBalance, setMpesaAgentBalance] = useState<number>(() => {
+    const saved = localStorage.getItem("storeMpesaAgentBalance");
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [mpesaPhoneBalance, setMpesaPhoneBalance] = useState<number>(() => {
+    const saved = localStorage.getItem("storeMpesaPhoneBalance");
     return saved ? parseFloat(saved) : 0;
   });
   const [showBalanceModal, setShowBalanceModal] = useState(() => {
-    return !localStorage.getItem("storeRunningBalance");
+    return !localStorage.getItem("storeCashBalance");
   });
-  const [initialBalance, setInitialBalance] = useState("");
+  const [initialCashBalance, setInitialCashBalance] = useState("");
+  const [initialMpesaAgentBalance, setInitialMpesaAgentBalance] = useState("");
+  const [initialMpesaPhoneBalance, setInitialMpesaPhoneBalance] = useState("");
+  
+  // Today's expenses input
+  const [todayExpenses, setTodayExpenses] = useState("0");
 
   // Actual counted amounts
   const [actualCash, setActualCash] = useState("0");
@@ -78,24 +91,6 @@ export default function CashReconciliation() {
   const [actualTillNumber, setActualTillNumber] = useState("0");
   const [actualCard, setActualCard] = useState("0");
   const [actualBankTransfer, setActualBankTransfer] = useState("0");
-
-  // Fetch today's expenses
-  const { data: todayExpenses } = useQuery({
-    queryKey: ["today-expenses", selectedDate],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("expenses")
-        .select("amount")
-        .gte("incurred_on", `${selectedDate}T00:00:00`)
-        .lt("incurred_on", `${selectedDate}T23:59:59`);
-
-      if (error) throw error;
-      
-      const total = data?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0;
-      return total;
-    },
-    staleTime: 10000,
-  });
 
   // Fetch today's sales totals (including cyber services)
   const { data: salesTotals } = useQuery({
@@ -234,19 +229,41 @@ export default function CashReconciliation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
       
-      // Update running balance: add actual cash collected, subtract today's expenses
+      // Update 3 running balances
       const cashCollected = parseFloat(actualCash || "0");
-      const expensesAmount = todayExpenses || 0;
-      const newBalance = runningBalance + cashCollected - expensesAmount;
-      setRunningBalance(newBalance);
-      localStorage.setItem("storeRunningBalance", newBalance.toString());
+      const mpesaCollected = parseFloat(actualMpesa || "0");
+      const tillCollected = parseFloat(actualTillNumber || "0");
+      const expensesAmount = parseFloat(todayExpenses || "0");
       
-      alert(
-        `✅ Cash reconciliation saved!\n\n` +
-        `💰 Cash Added: KES ${cashCollected.toLocaleString()}\n` +
-        `💸 Expenses Deducted: KES ${expensesAmount.toLocaleString()}\n` +
-        `🏦 New Running Balance: KES ${newBalance.toLocaleString()}`
-      );
+      // Cash balance: add cash, subtract expenses
+      const newCashBalance = cashBalance + cashCollected - expensesAmount;
+      setCashBalance(newCashBalance);
+      localStorage.setItem("storeCashBalance", newCashBalance.toString());
+      
+      // Mpesa Agent balance: add mpesa
+      const newMpesaAgentBalance = mpesaAgentBalance + mpesaCollected;
+      setMpesaAgentBalance(newMpesaAgentBalance);
+      localStorage.setItem("storeMpesaAgentBalance", newMpesaAgentBalance.toString());
+      
+      // Mpesa Phone balance: add till number (treating as phone balance)
+      const newMpesaPhoneBalance = mpesaPhoneBalance + tillCollected;
+      setMpesaPhoneBalance(newMpesaPhoneBalance);
+      localStorage.setItem("storeMpesaPhoneBalance", newMpesaPhoneBalance.toString());
+      
+      // Show success message
+      const message = document.createElement('div');
+      message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
+      message.innerHTML = `
+        <div class="font-bold text-lg mb-2">✅ Reconciliation Saved!</div>
+        <div class="text-sm space-y-1">
+          <div>💵 Cash Balance: KES ${newCashBalance.toLocaleString()}</div>
+          <div>📱 Mpesa Agent: KES ${newMpesaAgentBalance.toLocaleString()}</div>
+          <div>☎️ Mpesa Phone: KES ${newMpesaPhoneBalance.toLocaleString()}</div>
+          ${expensesAmount > 0 ? `<div class="text-amber-200">💸 Expenses: -KES ${expensesAmount.toLocaleString()}</div>` : ''}
+        </div>
+      `;
+      document.body.appendChild(message);
+      setTimeout(() => message.remove(), 5000);
       
       // Reset form
       setActualCash("0");
@@ -254,15 +271,19 @@ export default function CashReconciliation() {
       setActualTillNumber("0");
       setActualCard("0");
       setActualBankTransfer("0");
+      setTodayExpenses("0");
       setNotes("");
     },
     onError: (error: any) => {
       console.error("Full error:", error);
-      alert(
-        `❌ Error saving reconciliation: ${
-          error.message || error.toString()
-        }\n\nCheck console for details.`
-      );
+      const message = document.createElement('div');
+      message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50 max-w-md';
+      message.innerHTML = `
+        <div class="font-bold text-lg mb-2">❌ Error Saving</div>
+        <div class="text-sm">${error.message || error.toString()}</div>
+      `;
+      document.body.appendChild(message);
+      setTimeout(() => message.remove(), 5000);
     },
   });
 
@@ -278,10 +299,18 @@ export default function CashReconciliation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
-      alert("✅ Reconciliation deleted successfully!");
+      const message = document.createElement('div');
+      message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+      message.innerHTML = '<div class="font-bold">✅ Reconciliation deleted successfully!</div>';
+      document.body.appendChild(message);
+      setTimeout(() => message.remove(), 3000);
     },
     onError: (error: any) => {
-      alert(`❌ Error deleting: ${error.message}`);
+      const message = document.createElement('div');
+      message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+      message.innerHTML = `<div class="font-bold">❌ Error: ${error.message}</div>`;
+      document.body.appendChild(message);
+      setTimeout(() => message.remove(), 3000);
     },
   });
 
@@ -542,33 +571,49 @@ export default function CashReconciliation() {
           </div>
         </div>
 
-        {/* Running Balance Card - Prominent Display */}
-        <div className="mb-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-2xl p-6 shadow-2xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Wallet className="w-10 h-10 text-green-400" />
-                <h2 className="text-2xl font-bold text-white">Store Running Balance</h2>
-              </div>
-              <p className="text-5xl font-black text-green-400 mb-2">
-                KES {runningBalance.toLocaleString()}
-              </p>
-              <p className="text-sm text-green-300">
-                💰 Current cash available at store
-              </p>
-              {todayExpenses && todayExpenses > 0 && (
-                <p className="text-xs text-amber-300 mt-2">
-                  ⚠️ Today's expenses (KES {todayExpenses.toLocaleString()}) will be deducted on reconciliation
-                </p>
-              )}
+        {/* Running Balances - 3 Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-5 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Wallet className="w-7 h-7 text-green-400" />
+              <h3 className="text-lg font-bold text-white">Cash Balance</h3>
             </div>
-            <button
-              onClick={() => setShowBalanceModal(true)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all"
-            >
-              Update Balance
-            </button>
+            <p className="text-3xl font-black text-green-400 mb-1">
+              KES {cashBalance.toLocaleString()}
+            </p>
+            <p className="text-xs text-green-300">💵 Physical cash at store</p>
           </div>
+
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-2 border-blue-500/50 rounded-xl p-5 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-7 h-7 text-blue-400" />
+              <h3 className="text-lg font-bold text-white">Mpesa Agent</h3>
+            </div>
+            <p className="text-3xl font-black text-blue-400 mb-1">
+              KES {mpesaAgentBalance.toLocaleString()}
+            </p>
+            <p className="text-xs text-blue-300">📱 Agent balance</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-2 border-purple-500/50 rounded-xl p-5 shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-7 h-7 text-purple-400" />
+              <h3 className="text-lg font-bold text-white">Mpesa Phone</h3>
+            </div>
+            <p className="text-3xl font-black text-purple-400 mb-1">
+              KES {mpesaPhoneBalance.toLocaleString()}
+            </p>
+            <p className="text-xs text-purple-300">☎️ Phone balance</p>
+          </div>
+        </div>
+
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => setShowBalanceModal(true)}
+            className="px-6 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-lg font-medium transition-all shadow-lg"
+          >
+            Update Balances
+          </button>
         </div>
 
         {/* Summary Cards */}
@@ -741,6 +786,26 @@ export default function CashReconciliation() {
           </div>
         </div>
 
+        {/* Today's Expenses */}
+        <div className="mb-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-6">
+          <label className="text-lg font-semibold text-amber-300 mb-3 flex items-center gap-2">
+            <TrendingDown className="w-6 h-6" />
+            Today's Expenses
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={todayExpenses}
+            onChange={(e) => setTodayExpenses(e.target.value)}
+            placeholder="0.00"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-amber-500"
+          />
+          <p className="text-sm text-amber-300 mt-2">
+            💡 Enter total expenses paid today (will be deducted from cash balance)
+          </p>
+        </div>
+
         {/* Notes */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -794,22 +859,44 @@ export default function CashReconciliation() {
         <button
           onClick={() => {
             if (!reconciledBy.trim()) {
-              alert('Please enter your name in "Reconciled By" field');
+              const message = document.createElement('div');
+              message.className = 'fixed top-4 right-4 bg-amber-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+              message.innerHTML = '<div class="font-bold">⚠️ Please enter your name in "Reconciled By" field</div>';
+              document.body.appendChild(message);
+              setTimeout(() => message.remove(), 3000);
               return;
             }
-            if (
-              confirm(
-                `Save reconciliation with ${
-                  varianceTotal === 0
-                    ? "BALANCED"
-                    : varianceTotal > 0
-                    ? "OVER"
-                    : "SHORT"
-                } status?`
-              )
-            ) {
+            
+            const statusText = varianceTotal === 0 ? "BALANCED" : varianceTotal > 0 ? "OVER" : "SHORT";
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50';
+            confirmDiv.innerHTML = `
+              <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-md">
+                <div class="text-center mb-6">
+                  <div class="text-4xl mb-3">${varianceTotal === 0 ? '✅' : varianceTotal > 0 ? '📈' : '📉'}</div>
+                  <h3 class="text-2xl font-bold text-white mb-2">Confirm Save</h3>
+                  <p class="text-slate-300">Save reconciliation with <span class="font-bold ${varianceTotal === 0 ? 'text-green-400' : varianceTotal > 0 ? 'text-blue-400' : 'text-red-400'}">${statusText}</span> status?</p>
+                </div>
+                <div class="flex gap-3">
+                  <button id="confirm-yes" class="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700">
+                    Yes, Save
+                  </button>
+                  <button id="confirm-no" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            `;
+            document.body.appendChild(confirmDiv);
+            
+            document.getElementById('confirm-yes')?.addEventListener('click', () => {
+              confirmDiv.remove();
               saveMutation.mutate();
-            }
+            });
+            
+            document.getElementById('confirm-no')?.addEventListener('click', () => {
+              confirmDiv.remove();
+            });
           }}
           disabled={saveMutation.isPending || !reconciledBy.trim()}
           className="w-full px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-3"
@@ -826,61 +913,125 @@ export default function CashReconciliation() {
       {/* Initial/Update Balance Modal */}
       {showBalanceModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl max-w-md w-full p-6">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl max-w-lg w-full p-6">
             <div className="flex items-center gap-3 mb-6">
-              <DollarSign className="w-8 h-8 text-green-400" />
+              <Wallet className="w-8 h-8 text-green-400" />
               <h2 className="text-2xl font-bold text-white">
-                {runningBalance === 0 ? "Set Initial Balance" : "Update Running Balance"}
+                {cashBalance === 0 ? "Set Initial Balances" : "Update Balances"}
               </h2>
             </div>
 
-            <div className="mb-6">
+            <div className="space-y-4 mb-6">
               <p className="text-slate-300 mb-4">
-                {runningBalance === 0
-                  ? "🏪 How much cash do you currently have at the store? This will be your starting balance."
-                  : `💰 Current Balance: KES ${runningBalance.toLocaleString()}`}
+                {cashBalance === 0
+                  ? "🏪 Enter your current balances to start tracking"
+                  : "💰 Update your current balances"}
               </p>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                {runningBalance === 0 ? "Initial Cash Amount *" : "New Balance Amount *"}
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={initialBalance}
-                onChange={(e) => setInitialBalance(e.target.value)}
-                placeholder="0.00"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-green-500 text-lg font-semibold"
-                autoFocus
-              />
-              <p className="text-xs text-slate-400 mt-2">
-                💡 Count the physical cash in your till/drawer and enter the exact amount
-              </p>
+
+              {/* Cash Balance */}
+              <div>
+                <label className="block text-sm font-medium text-green-300 mb-2">
+                  💵 Cash Balance *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={initialCashBalance}
+                  onChange={(e) => setInitialCashBalance(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-green-500 text-lg font-semibold"
+                  autoFocus
+                />
+                <p className="text-xs text-slate-400 mt-1">Current: KES {cashBalance.toLocaleString()}</p>
+              </div>
+
+              {/* Mpesa Agent Balance */}
+              <div>
+                <label className="block text-sm font-medium text-blue-300 mb-2">
+                  📱 Mpesa Agent Balance *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={initialMpesaAgentBalance}
+                  onChange={(e) => setInitialMpesaAgentBalance(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 text-lg font-semibold"
+                />
+                <p className="text-xs text-slate-400 mt-1">Current: KES {mpesaAgentBalance.toLocaleString()}</p>
+              </div>
+
+              {/* Mpesa Phone Balance */}
+              <div>
+                <label className="block text-sm font-medium text-purple-300 mb-2">
+                  ☎️ Mpesa Phone Balance *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={initialMpesaPhoneBalance}
+                  onChange={(e) => setInitialMpesaPhoneBalance(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 text-lg font-semibold"
+                />
+                <p className="text-xs text-slate-400 mt-1">Current: KES {mpesaPhoneBalance.toLocaleString()}</p>
+              </div>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  const amount = parseFloat(initialBalance);
-                  if (isNaN(amount) || amount < 0) {
-                    alert("Please enter a valid amount");
+                  const cash = parseFloat(initialCashBalance);
+                  const agent = parseFloat(initialMpesaAgentBalance);
+                  const phone = parseFloat(initialMpesaPhoneBalance);
+                  
+                  if (isNaN(cash) || cash < 0 || isNaN(agent) || agent < 0 || isNaN(phone) || phone < 0) {
+                    const message = document.createElement('div');
+                    message.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+                    message.innerHTML = '<div class=\"font-bold\">⚠️ Please enter valid amounts for all balances</div>';
+                    document.body.appendChild(message);
+                    setTimeout(() => message.remove(), 3000);
                     return;
                   }
-                  setRunningBalance(amount);
-                  localStorage.setItem("storeRunningBalance", amount.toString());
+                  
+                  setCashBalance(cash);
+                  setMpesaAgentBalance(agent);
+                  setMpesaPhoneBalance(phone);
+                  localStorage.setItem("storeCashBalance", cash.toString());
+                  localStorage.setItem("storeMpesaAgentBalance", agent.toString());
+                  localStorage.setItem("storeMpesaPhoneBalance", phone.toString());
                   setShowBalanceModal(false);
-                  setInitialBalance("");
-                  alert(`✅ Running balance ${runningBalance === 0 ? 'set' : 'updated'} to: KES ${amount.toLocaleString()}`);
+                  setInitialCashBalance("");
+                  setInitialMpesaAgentBalance("");
+                  setInitialMpesaPhoneBalance("");
+                  
+                  const message = document.createElement('div');
+                  message.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl z-50';
+                  message.innerHTML = `
+                    <div class="font-bold text-lg mb-2">✅ Balances ${cashBalance === 0 ? 'Set' : 'Updated'}!</div>
+                    <div class="text-sm space-y-1">
+                      <div>💵 Cash: KES ${cash.toLocaleString()}</div>
+                      <div>📱 Agent: KES ${agent.toLocaleString()}</div>
+                      <div>☎️ Phone: KES ${phone.toLocaleString()}</div>
+                    </div>
+                  `;
+                  document.body.appendChild(message);
+                  setTimeout(() => message.remove(), 4000);
                 }}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all"
               >
-                {runningBalance === 0 ? "Set Balance" : "Update Balance"}
+                {cashBalance === 0 ? "Set Balances" : "Update Balances"}
               </button>
-              {runningBalance !== 0 && (
+              {cashBalance !== 0 && (
                 <button
                   onClick={() => {
                     setShowBalanceModal(false);
-                    setInitialBalance("");
+                    setInitialCashBalance("");
+                    setInitialMpesaAgentBalance("");
+                    setInitialMpesaPhoneBalance("");
                   }}
                   className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition-all"
                 >
@@ -889,9 +1040,9 @@ export default function CashReconciliation() {
               )}
             </div>
 
-            {runningBalance === 0 && (
+            {cashBalance === 0 && (
               <p className="text-amber-300 text-sm mt-4 text-center">
-                ⚠️ You must set an initial balance to continue
+                ⚠️ You must set initial balances to continue
               </p>
             )}
           </div>
