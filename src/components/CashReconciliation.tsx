@@ -247,20 +247,22 @@ export default function CashReconciliation() {
       queryClient.invalidateQueries({ queryKey: ["reconciliations"] });
 
       // Update 3 running balances in database
-      const cashCollected = parseFloat(actualCash || "0");
-      const mpesaCollected = parseFloat(actualMpesa || "0");
-      const tillCollected = parseFloat(actualTillNumber || "0");
+      const actualCashCounted = parseFloat(actualCash || "0");
+      const actualMpesaCounted = parseFloat(actualMpesa || "0");
+      const actualTillCounted = parseFloat(actualTillNumber || "0");
       const expensesAmount = parseFloat(todayExpenses || "0");
       const depositsAmount = parseFloat(todayDeposits || "0");
 
-      // Cash balance: add cash, add deposits, subtract expenses
-      const newCashBalance = cashBalance + cashCollected + depositsAmount - expensesAmount;
+      // New balances are the actual counted amounts + deposits - expenses
+      // (actual counted already includes previous balance + today's sales)
+      const newCashBalance =
+        actualCashCounted + depositsAmount - expensesAmount;
 
-      // Mpesa Agent balance: add mpesa
-      const newMpesaAgentBalance = mpesaAgentBalance + mpesaCollected;
+      // Mpesa balances are the actual counted amounts
+      const newMpesaAgentBalance = actualMpesaCounted;
 
-      // Mpesa Phone balance: add till number (treating as phone balance)
-      const newMpesaPhoneBalance = mpesaPhoneBalance + tillCollected;
+      // Phone balance is the actual counted amount
+      const newMpesaPhoneBalance = actualTillCounted;
 
       // Update database
       await supabase
