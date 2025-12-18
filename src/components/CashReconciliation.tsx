@@ -99,7 +99,7 @@ export default function CashReconciliation() {
         .from("sales")
         .select("payment_method, total_sale")
         .gte("sale_date", `${selectedDate}T00:00:00`)
-        .lt("sale_date", `${selectedDate}T23:59:59`);
+        .lte("sale_date", `${selectedDate}T23:59:59`);
 
       if (salesError) throw salesError;
 
@@ -108,7 +108,7 @@ export default function CashReconciliation() {
         .from("cyber_services" as any)
         .select("amount")
         .gte("date", `${selectedDate}T00:00:00`)
-        .lt("date", `${selectedDate}T23:59:59`);
+        .lte("date", `${selectedDate}T23:59:59`);
 
       if (cyberError) throw cyberError;
 
