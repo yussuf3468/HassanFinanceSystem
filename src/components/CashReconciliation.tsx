@@ -104,8 +104,9 @@ export default function CashReconciliation() {
   const [initialMpesaAgentBalance, setInitialMpesaAgentBalance] = useState("");
   const [initialMpesaPhoneBalance, setInitialMpesaPhoneBalance] = useState("");
 
-  // Today's expenses input
+  // Today's expenses and deposits input
   const [todayExpenses, setTodayExpenses] = useState("0");
+  const [todayDeposits, setTodayDeposits] = useState("0");
 
   // Actual counted amounts - Only 3 payment methods
   const [actualCash, setActualCash] = useState("0");
@@ -230,6 +231,8 @@ export default function CashReconciliation() {
           reconciled_by: reconciledBy,
           notes,
           status,
+          expenses: parseFloat(todayExpenses || "0"),
+          deposits: parseFloat(todayDeposits || "0"),
         })
         .select();
 
@@ -248,9 +251,10 @@ export default function CashReconciliation() {
       const mpesaCollected = parseFloat(actualMpesa || "0");
       const tillCollected = parseFloat(actualTillNumber || "0");
       const expensesAmount = parseFloat(todayExpenses || "0");
+      const depositsAmount = parseFloat(todayDeposits || "0");
 
-      // Cash balance: add cash, subtract expenses
-      const newCashBalance = cashBalance + cashCollected - expensesAmount;
+      // Cash balance: add cash, add deposits, subtract expenses
+      const newCashBalance = cashBalance + cashCollected + depositsAmount - expensesAmount;
 
       // Mpesa Agent balance: add mpesa
       const newMpesaAgentBalance = mpesaAgentBalance + mpesaCollected;
@@ -282,6 +286,11 @@ export default function CashReconciliation() {
           <div>📱 Mpesa Agent: KES ${newMpesaAgentBalance.toLocaleString()}</div>
           <div>☎️ Mpesa Phone: KES ${newMpesaPhoneBalance.toLocaleString()}</div>
           ${
+            depositsAmount > 0
+              ? `<div class="text-green-200">💰 Deposits: +KES ${depositsAmount.toLocaleString()}</div>`
+              : ""
+          }
+          ${
             expensesAmount > 0
               ? `<div class="text-amber-200">💸 Expenses: -KES ${expensesAmount.toLocaleString()}</div>`
               : ""
@@ -296,6 +305,7 @@ export default function CashReconciliation() {
       setActualMpesa("0");
       setActualTillNumber("0");
       setTodayExpenses("0");
+      setTodayDeposits("0");
       setNotes("");
     },
     onError: (error: any) => {
@@ -443,11 +453,43 @@ export default function CashReconciliation() {
                     </div>
                   </div>
 
+                  {/* Expenses and Deposits */}
+                  {((rec as any).expenses > 0 || (rec as any).deposits > 0) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                      {(rec as any).deposits > 0 && (
+                        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5 text-green-400" />
+                            <div>
+                              <p className="text-xs text-slate-400">Deposits</p>
+                              <p className="text-lg font-bold text-green-400">
+                                +KES {(rec as any).deposits.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {(rec as any).expenses > 0 && (
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                          <div className="flex items-center gap-2">
+                            <TrendingDown className="w-5 h-5 text-amber-400" />
+                            <div>
+                              <p className="text-xs text-slate-400">Expenses</p>
+                              <p className="text-lg font-bold text-amber-400">
+                                -KES {(rec as any).expenses.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {rec.notes && (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
                       <div className="flex items-start gap-2">
-                        <FileText className="w-4 h-4 text-amber-400 mt-0.5" />
-                        <p className="text-sm text-amber-200">{rec.notes}</p>
+                        <FileText className="w-4 h-4 text-purple-400 mt-0.5" />
+                        <p className="text-sm text-purple-200">{rec.notes}</p>
                       </div>
                     </div>
                   )}
@@ -756,25 +798,47 @@ export default function CashReconciliation() {
           </div>
         </div>
 
-        {/* Today's Expenses */}
-        <div className="mb-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-6">
-          <label className="text-lg font-semibold text-amber-300 mb-3 flex items-center gap-2">
-            <TrendingDown className="w-6 h-6" />
-            Today's Expenses
-          </label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={todayExpenses}
-            onChange={(e) => setTodayExpenses(e.target.value)}
-            placeholder="0.00"
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-amber-500"
-          />
-          <p className="text-sm text-amber-300 mt-2">
-            💡 Enter total expenses paid today (will be deducted from cash
-            balance)
-          </p>
+        {/* Today's Deposits and Expenses */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Deposits */}
+          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-6">
+            <label className="text-lg font-semibold text-green-300 mb-3 flex items-center gap-2">
+              <TrendingUp className="w-6 h-6" />
+              Today's Deposits
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={todayDeposits}
+              onChange={(e) => setTodayDeposits(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-green-500"
+            />
+            <p className="text-sm text-green-300 mt-2">
+              💰 Money added to cash (deposits, owner funds, etc.)
+            </p>
+          </div>
+
+          {/* Expenses */}
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-6">
+            <label className="text-lg font-semibold text-amber-300 mb-3 flex items-center gap-2">
+              <TrendingDown className="w-6 h-6" />
+              Today's Expenses
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={todayExpenses}
+              onChange={(e) => setTodayExpenses(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-amber-500"
+            />
+            <p className="text-sm text-amber-300 mt-2">
+              💸 Money spent from cash (rent, utilities, etc.)
+            </p>
+          </div>
         </div>
 
         {/* Notes */}
