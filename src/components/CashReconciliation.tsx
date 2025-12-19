@@ -642,6 +642,48 @@ export default function CashReconciliation() {
           </button>
         </div>
 
+        {/* Previous Balance Display */}
+        <div className="mb-6 bg-gradient-to-r from-slate-700/50 to-slate-600/50 border border-slate-500/30 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-slate-300 mb-4 flex items-center gap-2">
+            <History className="w-5 h-5" />
+            Previous Closing Balance (From Last Reconciliation)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Cash</p>
+              <p className="text-xl font-bold text-green-400">
+                KES {cashBalance.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Mpesa Agent</p>
+              <p className="text-xl font-bold text-blue-400">
+                KES {mpesaAgentBalance.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Mpesa Phone</p>
+              <p className="text-xl font-bold text-purple-400">
+                KES {mpesaPhoneBalance.toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Total</p>
+              <p className="text-xl font-bold text-amber-400">
+                KES{" "}
+                {(
+                  cashBalance +
+                  mpesaAgentBalance +
+                  mpesaPhoneBalance
+                ).toLocaleString()}
+              </p>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-3">
+            💡 This is what you had at the end of last reconciliation
+          </p>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6">
@@ -654,7 +696,9 @@ export default function CashReconciliation() {
             <p className="text-4xl font-bold text-white">
               Ksh {expectedTotal.toLocaleString()}
             </p>
-            <p className="text-sm text-slate-300 mt-2">From system sales</p>
+            <p className="text-sm text-slate-300 mt-2">
+              From today's sales only
+            </p>
           </div>
 
           <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6">
@@ -665,7 +709,9 @@ export default function CashReconciliation() {
             <p className="text-4xl font-bold text-white">
               Ksh {actualTotal.toLocaleString()}
             </p>
-            <p className="text-sm text-slate-300 mt-2">Physically counted</p>
+            <p className="text-sm text-slate-300 mt-2">
+              What you entered below
+            </p>
           </div>
 
           <div
@@ -710,11 +756,43 @@ export default function CashReconciliation() {
         </div>
 
         {/* Payment Methods Table */}
+        {/* Clear Instructions */}
+        <div className="mb-6 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-blue-500/50 rounded-xl p-6">
+          <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+            📋 How to Close Daily Book
+          </h3>
+          <div className="space-y-2 text-sm text-slate-200">
+            <p>
+              <strong>Step 1:</strong> Count physical cash at store → Enter in
+              "💵 Cash" below
+            </p>
+            <p>
+              <strong>Step 2:</strong> Check Mpesa Agent account balance → Enter
+              in "📱 Mpesa (Agent)" below
+            </p>
+            <p>
+              <strong>Step 3:</strong> Check Mpesa Phone (Till) balance → Enter
+              in "☎️ Mpesa Phone (Till Number)" below
+            </p>
+            <p>
+              <strong>Step 4:</strong> If you brought extra money or paid
+              expenses, enter in Deposits/Expenses
+            </p>
+            <p className="text-amber-300 mt-3">
+              <strong>⚠️ Important:</strong> Enter the TOTAL amount you have now
+              (not just today's sales)
+            </p>
+          </div>
+        </div>
+
         <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-purple-600/30 to-blue-600/30 px-6 py-4 border-b border-white/10">
             <h2 className="text-xl font-bold text-white">
-              Payment Methods Breakdown
+              💰 Enter Counted Amounts
             </h2>
+            <p className="text-sm text-slate-300 mt-1">
+              System shows expected from sales, you enter what you actually have
+            </p>
           </div>
 
           <div className="overflow-x-auto">
@@ -818,7 +896,8 @@ export default function CashReconciliation() {
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-green-500"
             />
             <p className="text-sm text-green-300 mt-2">
-              💰 Money added to cash (deposits, owner funds, etc.)
+              💰 Extra money brought in today (not from sales - e.g., owner
+              deposit, bank withdrawal)
             </p>
           </div>
 
@@ -838,7 +917,8 @@ export default function CashReconciliation() {
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-xl font-semibold focus:ring-2 focus:ring-amber-500"
             />
             <p className="text-sm text-amber-300 mt-2">
-              💸 Money spent from cash (rent, utilities, etc.)
+              💸 Money taken out today (not sales - e.g., rent paid, utilities,
+              supplies)
             </p>
           </div>
         </div>
@@ -855,6 +935,50 @@ export default function CashReconciliation() {
             rows={3}
             className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500"
           />
+        </div>
+
+        {/* New Balance Preview */}
+        <div className="mb-6 bg-gradient-to-r from-emerald-600/20 to-green-600/20 border-2 border-emerald-500/50 rounded-xl p-6">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            📊 New Closing Balance Preview
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Cash Balance</p>
+              <p className="text-2xl font-bold text-green-400">
+                KES{" "}
+                {(
+                  parseFloat(actualCash || "0") +
+                  parseFloat(todayDeposits || "0") -
+                  parseFloat(todayExpenses || "0")
+                ).toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-400 mt-2">
+                {parseFloat(actualCash || "0").toLocaleString()} counted
+                {parseFloat(todayDeposits || "0") > 0 &&
+                  ` + ${parseFloat(todayDeposits).toLocaleString()} deposits`}
+                {parseFloat(todayExpenses || "0") > 0 &&
+                  ` - ${parseFloat(todayExpenses).toLocaleString()} expenses`}
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Mpesa Agent</p>
+              <p className="text-2xl font-bold text-blue-400">
+                KES {parseFloat(actualMpesa || "0").toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-400 mt-2">As counted</p>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">Mpesa Phone</p>
+              <p className="text-2xl font-bold text-purple-400">
+                KES {parseFloat(actualTillNumber || "0").toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-400 mt-2">As counted</p>
+            </div>
+          </div>
+          <p className="text-sm text-emerald-300 mt-4">
+            💡 These will be your starting balances for tomorrow
+          </p>
         </div>
 
         {/* Warnings */}
