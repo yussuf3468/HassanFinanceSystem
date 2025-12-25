@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Inventory from "./components/Inventory";
+import OrganizedInventory from "./components/OrganizedInventory";
 import Sales from "./components/Sales";
 import SalesHistory from "./components/SalesHistory";
 import Returns from "./components/Returns";
@@ -117,6 +118,7 @@ function AppContent() {
         {activeTab === "dashboard" && <Dashboard />}
         {activeTab === "staff-dashboard" && <StaffDashboard />}
         {activeTab === "inventory" && <Inventory />}
+        {activeTab === "organized-inventory" && <OrganizedInventory />}
         {activeTab === "sales" && <Sales />}
         {activeTab === "sales-history" && <SalesHistory />}
         {activeTab === "customers" && <CustomerManagement />}
