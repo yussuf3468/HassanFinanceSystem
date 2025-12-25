@@ -93,7 +93,6 @@ export default function SaleForm({
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
   const [showDraftHistory, setShowDraftHistory] = useState(false);
   const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
-  const [draftName, setDraftName] = useState("");
 
   // Customer selection state
   const [customers, setCustomers] = useState<InternalCustomer[]>([]);
@@ -141,9 +140,16 @@ export default function SaleForm({
   }
 
   async function saveDraft() {
+    // Prompt for draft name
+    const name = prompt("Enter a name for this draft:");
+    if (!name || name.trim() === "") {
+      alert("Draft name is required");
+      return;
+    }
+
     try {
       const draftData = {
-        draft_name: draftName || `Draft ${new Date().toLocaleString()}`,
+        draft_name: name.trim(),
         sold_by: soldBy,
         payment_method: paymentMethod,
         line_items: lineItems,
@@ -161,7 +167,6 @@ export default function SaleForm({
       if (error) throw error;
 
       alert("✅ Draft saved successfully!");
-      setDraftName("");
       await loadDraftHistory();
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -221,189 +226,119 @@ export default function SaleForm({
   }
 
   function printDraft(draft: any) {
-    // Create a new window for printing
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      alert("❌ Please allow pop-ups to print");
+    // Convert draft to receipt format
+    const lineItems = draft.line_items || [];
+    
+    // Calculate line items with product details
+    let subtotal = 0;
+    let totalLineDiscount = 0;
+    
+    const items = lineItems.map((item: any) => {
+      const product = products.find((p) => p.id === item.product_id);
+      const productName = product?.name || "Unknown Product";
+      const price = product?.selling_price || 0;
+      const quantity = parseFloat(item.quantity) || 0;
+      
+      // Calculate discount
+      let discountAmount = 0;
+      if (item.discount_type === "percentage") {
+        discountAmount = (price * quantity * parseFloat(item.discount_value || "0")) / 100;
+      } else if (item.discount_type === "amount") {
+        discountAmount = parseFloat(item.discount_value || "0");
+      }
+      
+      const lineTotal = price * quantity - discountAmount;
+      subtotal += price * quantity;
+      totalLineDiscount += discountAmount;
+
+      return {
+        product_name: productName,
+        quantity: quantity,
+        unit_price: price,
+        discount_amount: discountAmount,
+        line_total: lineTotal,
+      };
+    });
+
+    // Calculate overall discount
+    let overallDiscountAmount = 0;
+    if (draft.overall_discount_type === "percentage") {
+      overallDiscountAmount = (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
+    } else if (draft.overall_discount_type === "amount") {
+      overallDiscountAmount = parseFloat(draft.overall_discount_value || "0");
+    }
+
+    const total = subtotal - totalLineDiscount - overallDiscountAmount;
+
+    // Create receipt data matching the ReceiptData interface
+    const receiptData: ReceiptData = {
+      transactionId: `DRAFT-${draft.id.slice(0, 8).toUpperCase()}`,
+      created_at: new Date(draft.created_at),
+      sold_by: draft.sold_by || "Not set",
+      payment_method: draft.payment_method,
+      items: items.map((item: any) => ({
+        ...item,
+        original_total: item.unit_price * item.quantity,
+        final_unit_price: item.unit_price,
+        profit: 0, // Drafts don't calculate profit
+      })),
+      subtotal: subtotal,
+      total_line_discount: totalLineDiscount,
+      overall_discount_type: draft.overall_discount_type || "none",
+      overall_discount_value: parseFloat(draft.overall_discount_value || "0"),
+      overall_discount_amount: overallDiscountAmount,
+      total: total,
+      total_profit: 0, // Drafts don't calculate profit
+    };
+
+    // Use the existing print function
+    const html = createPrintHtml(receiptData);
+    const $iframe = document.createElement("iframe");
+    $iframe.style.position = "fixed";
+    $iframe.style.right = "0";
+    $iframe.style.bottom = "0";
+    $iframe.style.width = "0";
+    $iframe.style.height = "0";
+    $iframe.style.border = "0";
+    $iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild($iframe);
+
+    const cleanup = () => {
+      try {
+        document.body.removeChild($iframe);
+      } catch {}
+    };
+
+    const onReadyToPrint = () => {
+      try {
+        const win = $iframe.contentWindow;
+        if (!win) {
+          cleanup();
+          return;
+        }
+        win.onafterprint = cleanup;
+        win.print();
+      } catch (err) {
+        console.error("Print error:", err);
+        cleanup();
+      }
+    };
+
+    const doc = $iframe.contentDocument;
+    if (!doc) {
+      cleanup();
       return;
     }
 
-    // Get line items with product details
-    const lineItems = draft.line_items || [];
-    
-    // Calculate totals
-    let subtotal = 0;
-    const itemsHTML = lineItems
-      .map((item: any, index: number) => {
-        const product = products.find((p) => p.id === item.product_id);
-        const productName = product?.name || "Unknown Product";
-        const price = product?.selling_price || 0;
-        const quantity = parseFloat(item.quantity) || 0;
-        
-        // Calculate discount
-        let discountAmount = 0;
-        if (item.discount_type === "percentage") {
-          discountAmount = (price * quantity * parseFloat(item.discount_value || "0")) / 100;
-        } else if (item.discount_type === "amount") {
-          discountAmount = parseFloat(item.discount_value || "0");
-        }
-        
-        const lineTotal = price * quantity - discountAmount;
-        subtotal += lineTotal;
+    doc.open();
+    doc.write(html);
+    doc.close();
 
-        return `
-          <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${index + 1}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${productName}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${quantity}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">KES ${price.toFixed(2)}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">KES ${discountAmount.toFixed(2)}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>KES ${lineTotal.toFixed(2)}</strong></td>
-          </tr>
-        `;
-      })
-      .join("");
-
-    // Calculate overall discount
-    let overallDiscount = 0;
-    if (draft.overall_discount_type === "percentage") {
-      overallDiscount = (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
-    } else if (draft.overall_discount_type === "amount") {
-      overallDiscount = parseFloat(draft.overall_discount_value || "0");
+    if (doc.readyState === "complete") {
+      onReadyToPrint();
+    } else {
+      $iframe.onload = onReadyToPrint;
     }
-
-    const total = subtotal - overallDiscount;
-
-    // Build HTML content
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Draft - ${draft.draft_name || "Untitled"}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-          }
-          h1 {
-            text-align: center;
-            color: #333;
-            border-bottom: 2px solid #f59e0b;
-            padding-bottom: 10px;
-          }
-          .info-section {
-            margin: 20px 0;
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-          }
-          .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-          }
-          th {
-            background: #f59e0b;
-            color: white;
-            padding: 10px;
-            text-align: left;
-          }
-          .totals {
-            margin-top: 20px;
-            text-align: right;
-          }
-          .totals div {
-            margin: 5px 0;
-            font-size: 16px;
-          }
-          .total-amount {
-            font-size: 24px;
-            font-weight: bold;
-            color: #f59e0b;
-            border-top: 2px solid #333;
-            padding-top: 10px;
-            margin-top: 10px;
-          }
-          .footer {
-            margin-top: 40px;
-            text-align: center;
-            color: #666;
-            font-size: 12px;
-          }
-          @media print {
-            body {
-              padding: 0;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <h1>🧾 SALE DRAFT</h1>
-        
-        <div class="info-section">
-          <div class="info-row">
-            <strong>Draft Name:</strong>
-            <span>${draft.draft_name || "Untitled Draft"}</span>
-          </div>
-          <div class="info-row">
-            <strong>Sold By:</strong>
-            <span>${draft.sold_by || "Not set"}</span>
-          </div>
-          <div class="info-row">
-            <strong>Payment Method:</strong>
-            <span>${draft.payment_method}</span>
-          </div>
-          <div class="info-row">
-            <strong>Created:</strong>
-            <span>${new Date(draft.created_at).toLocaleString()}</span>
-          </div>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th style="text-align: center;">Qty</th>
-              <th style="text-align: right;">Price</th>
-              <th style="text-align: right;">Discount</th>
-              <th style="text-align: right;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHTML}
-          </tbody>
-        </table>
-
-        <div class="totals">
-          <div><strong>Subtotal:</strong> KES ${subtotal.toFixed(2)}</div>
-          ${overallDiscount > 0 ? `<div><strong>Overall Discount:</strong> -KES ${overallDiscount.toFixed(2)}</div>` : ""}
-          <div class="total-amount">TOTAL: KES ${total.toFixed(2)}</div>
-        </div>
-
-        <div class="footer">
-          <p>This is a draft and not a valid receipt</p>
-          <p>Printed on ${new Date().toLocaleString()}</p>
-        </div>
-
-        <script>
-          window.onload = function() {
-            window.print();
-          }
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
   }
 
   function clearDraft() {
@@ -2202,32 +2137,6 @@ export default function SaleForm({
             </div>
 
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-              {/* Draft Name Input */}
-              <div className="mb-6 bg-white/5 border border-white/10 rounded-lg p-4">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Save New Draft (Optional Name)
-                </label>
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={draftName}
-                    onChange={(e) => setDraftName(e.target.value)}
-                    placeholder="e.g., Customer ABC Order"
-                    className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500"
-                  />
-                  <button
-                    onClick={() => {
-                      saveDraft();
-                      setShowDraftHistory(false);
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg font-medium flex items-center gap-2"
-                  >
-                    <Package className="w-5 h-5" />
-                    Save
-                  </button>
-                </div>
-              </div>
-
               {/* Draft List */}
               {savedDrafts.length === 0 ? (
                 <div className="text-center py-12">
