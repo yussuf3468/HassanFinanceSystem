@@ -220,6 +220,192 @@ export default function SaleForm({
     }
   }
 
+  function printDraft(draft: any) {
+    // Create a new window for printing
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("❌ Please allow pop-ups to print");
+      return;
+    }
+
+    // Get line items with product details
+    const lineItems = draft.line_items || [];
+    
+    // Calculate totals
+    let subtotal = 0;
+    const itemsHTML = lineItems
+      .map((item: any, index: number) => {
+        const product = products.find((p) => p.id === item.product_id);
+        const productName = product?.name || "Unknown Product";
+        const price = product?.selling_price || 0;
+        const quantity = parseFloat(item.quantity) || 0;
+        
+        // Calculate discount
+        let discountAmount = 0;
+        if (item.discount_type === "percentage") {
+          discountAmount = (price * quantity * parseFloat(item.discount_value || "0")) / 100;
+        } else if (item.discount_type === "amount") {
+          discountAmount = parseFloat(item.discount_value || "0");
+        }
+        
+        const lineTotal = price * quantity - discountAmount;
+        subtotal += lineTotal;
+
+        return `
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${index + 1}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${productName}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${quantity}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">KES ${price.toFixed(2)}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">KES ${discountAmount.toFixed(2)}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>KES ${lineTotal.toFixed(2)}</strong></td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    // Calculate overall discount
+    let overallDiscount = 0;
+    if (draft.overall_discount_type === "percentage") {
+      overallDiscount = (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
+    } else if (draft.overall_discount_type === "amount") {
+      overallDiscount = parseFloat(draft.overall_discount_value || "0");
+    }
+
+    const total = subtotal - overallDiscount;
+
+    // Build HTML content
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Draft - ${draft.draft_name || "Untitled"}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            text-align: center;
+            color: #333;
+            border-bottom: 2px solid #f59e0b;
+            padding-bottom: 10px;
+          }
+          .info-section {
+            margin: 20px 0;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+          }
+          th {
+            background: #f59e0b;
+            color: white;
+            padding: 10px;
+            text-align: left;
+          }
+          .totals {
+            margin-top: 20px;
+            text-align: right;
+          }
+          .totals div {
+            margin: 5px 0;
+            font-size: 16px;
+          }
+          .total-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f59e0b;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+            margin-top: 10px;
+          }
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+          }
+          @media print {
+            body {
+              padding: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🧾 SALE DRAFT</h1>
+        
+        <div class="info-section">
+          <div class="info-row">
+            <strong>Draft Name:</strong>
+            <span>${draft.draft_name || "Untitled Draft"}</span>
+          </div>
+          <div class="info-row">
+            <strong>Sold By:</strong>
+            <span>${draft.sold_by || "Not set"}</span>
+          </div>
+          <div class="info-row">
+            <strong>Payment Method:</strong>
+            <span>${draft.payment_method}</span>
+          </div>
+          <div class="info-row">
+            <strong>Created:</strong>
+            <span>${new Date(draft.created_at).toLocaleString()}</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product</th>
+              <th style="text-align: center;">Qty</th>
+              <th style="text-align: right;">Price</th>
+              <th style="text-align: right;">Discount</th>
+              <th style="text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHTML}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div><strong>Subtotal:</strong> KES ${subtotal.toFixed(2)}</div>
+          ${overallDiscount > 0 ? `<div><strong>Overall Discount:</strong> -KES ${overallDiscount.toFixed(2)}</div>` : ""}
+          <div class="total-amount">TOTAL: KES ${total.toFixed(2)}</div>
+        </div>
+
+        <div class="footer">
+          <p>This is a draft and not a valid receipt</p>
+          <p>Printed on ${new Date().toLocaleString()}</p>
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  }
+
   function clearDraft() {
     // Reset form to default state
     setSoldBy("");
@@ -2078,6 +2264,13 @@ export default function SaleForm({
                             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg font-medium text-sm"
                           >
                             Load
+                          </button>
+                          <button
+                            onClick={() => printDraft(draft)}
+                            className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg font-medium text-sm flex items-center gap-1 justify-center"
+                          >
+                            <Printer className="w-4 h-4" />
+                            Print
                           </button>
                           <button
                             onClick={() => deleteDraft(draft.id)}
