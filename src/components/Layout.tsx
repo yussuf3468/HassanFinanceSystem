@@ -22,6 +22,7 @@ import {
   Receipt,
   Calculator,
   Users,
+  Layers,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -77,6 +78,12 @@ export default function Layout({
       label: "Inventory",
       icon: Package,
       color: "from-blue-600 to-cyan-600",
+    },
+    {
+      id: "organized-inventory",
+      label: "Browse Products",
+      icon: Layers,
+      color: "from-indigo-600 to-purple-600",
     },
     {
       id: "cyber-services",

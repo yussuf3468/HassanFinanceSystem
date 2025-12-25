@@ -91,6 +91,9 @@ export default function SaleForm({
 
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  const [showDraftHistory, setShowDraftHistory] = useState(false);
+  const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
+  const [draftName, setDraftName] = useState("");
 
   // Customer selection state
   const [customers, setCustomers] = useState<InternalCustomer[]>([]);
@@ -104,6 +107,7 @@ export default function SaleForm({
   // Load customers on component mount
   useEffect(() => {
     loadCustomers();
+    loadDraftHistory();
   }, []);
 
   async function loadCustomers() {
@@ -121,62 +125,121 @@ export default function SaleForm({
     }
   }
 
-  // Draft sale functions
-  function saveDraft() {
-    const draftData = {
-      soldBy,
-      paymentMethod,
-      lineItems,
-      overallDiscountType,
-      overallDiscountValue,
-      selectedCustomerId,
-      customerSearch,
-      quickSaleMode,
-      timestamp: new Date().toISOString(),
-    };
-    localStorage.setItem("saleFormDraft", JSON.stringify(draftData));
-    alert("✅ Draft saved successfully!");
+  // Draft sale functions - Database-backed
+  async function loadDraftHistory() {
+    try {
+      const { data, error } = await supabase
+        .from("sale_drafts" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setSavedDrafts(data || []);
+    } catch (error) {
+      console.error("Error loading draft history:", error);
+    }
   }
 
-  function loadDraft() {
-    const savedDraft = localStorage.getItem("saleFormDraft");
-    if (savedDraft) {
-      try {
-        const draftData = JSON.parse(savedDraft);
-        setSoldBy(draftData.soldBy || "");
-        setPaymentMethod(draftData.paymentMethod || "Cash");
-        setLineItems(
-          draftData.lineItems || [
-            {
-              id: crypto.randomUUID(),
-              product_id: "",
-              quantity: "",
-              discount_type: "none",
-              discount_value: "",
-              searchTerm: "",
-              showDropdown: false,
-            },
-          ]
-        );
-        setOverallDiscountType(draftData.overallDiscountType || "none");
-        setOverallDiscountValue(draftData.overallDiscountValue || "");
-        setSelectedCustomerId(
-          draftData.selectedCustomerId || "00000000-0000-0000-0000-000000000001"
-        );
-        setCustomerSearch(draftData.customerSearch || "");
-        setQuickSaleMode(draftData.quickSaleMode || false);
-        alert("✅ Draft loaded successfully!");
-      } catch (error) {
-        console.error("Error loading draft:", error);
-        alert("❌ Failed to load draft");
-      }
-    } else {
-      alert("ℹ️ No saved draft found");
+  async function saveDraft() {
+    try {
+      const draftData = {
+        draft_name: draftName || `Draft ${new Date().toLocaleString()}`,
+        sold_by: soldBy,
+        payment_method: paymentMethod,
+        line_items: lineItems,
+        overall_discount_type: overallDiscountType,
+        overall_discount_value: parseFloat(overallDiscountValue || "0"),
+        selected_customer_id: selectedCustomerId,
+        customer_search: customerSearch,
+        quick_sale_mode: quickSaleMode,
+      };
+
+      const { error } = await supabase
+        .from("sale_drafts" as any)
+        .insert(draftData);
+
+      if (error) throw error;
+
+      alert("✅ Draft saved successfully!");
+      setDraftName("");
+      await loadDraftHistory();
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("❌ Failed to save draft");
+    }
+  }
+
+  async function loadDraft(draft: any) {
+    try {
+      setSoldBy(draft.sold_by || "");
+      setPaymentMethod(draft.payment_method || "Cash");
+      setLineItems(
+        draft.line_items || [
+          {
+            id: crypto.randomUUID(),
+            product_id: "",
+            quantity: "",
+            discount_type: "none",
+            discount_value: "",
+            searchTerm: "",
+            showDropdown: false,
+          },
+        ]
+      );
+      setOverallDiscountType(draft.overall_discount_type || "none");
+      setOverallDiscountValue(draft.overall_discount_value?.toString() || "");
+      setSelectedCustomerId(
+        draft.selected_customer_id || "00000000-0000-0000-0000-000000000001"
+      );
+      setCustomerSearch(draft.customer_search || "");
+      setQuickSaleMode(draft.quick_sale_mode || false);
+      setShowDraftHistory(false);
+      alert("✅ Draft loaded successfully!");
+    } catch (error) {
+      console.error("Error loading draft:", error);
+      alert("❌ Failed to load draft");
+    }
+  }
+
+  async function deleteDraft(draftId: string) {
+    if (!confirm("Are you sure you want to delete this draft?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("sale_drafts" as any)
+        .delete()
+        .eq("id", draftId);
+
+      if (error) throw error;
+
+      alert("✅ Draft deleted successfully!");
+      await loadDraftHistory();
+    } catch (error) {
+      console.error("Error deleting draft:", error);
+      alert("❌ Failed to delete draft");
     }
   }
 
   function clearDraft() {
-    localStorage.removeItem("saleFormDraft");
+    // Reset form to default state
+    setSoldBy("");
+    setPaymentMethod("Cash");
+    setLineItems([
+      {
+        id: crypto.randomUUID(),
+        product_id: "",
+        quantity: "",
+        discount_type: "none",
+        discount_value: "",
+        searchTerm: "",
+        showDropdown: false,
+      },
+    ]);
+    setOverallDiscountType("none");
+    setOverallDiscountValue("");
+    setSelectedCustomerId("00000000-0000-0000-0000-000000000001");
+    setCustomerSearch("");
+    setQuickSaleMode(false);
   }
 
   // Stock receive modal state
@@ -1871,11 +1934,11 @@ export default function SaleForm({
             <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
               <button
                 type="button"
-                onClick={loadDraft}
+                onClick={() => setShowDraftHistory(true)}
                 className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg font-medium text-base touch-manipulation active:scale-95 flex items-center justify-center space-x-2"
               >
                 <Clock className="w-5 h-5" />
-                <span>Load Draft</span>
+                <span>Draft History ({savedDrafts.length})</span>
               </button>
               <button
                 type="button"
@@ -1934,6 +1997,105 @@ export default function SaleForm({
         onSkipItem={handleSkipItem}
         onCancel={handleCancelSale}
       />
+
+      {/* Draft History Modal */}
+      {showDraftHistory && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10">
+            <div className="bg-gradient-to-r from-amber-600/30 to-orange-600/30 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="w-6 h-6 text-amber-400" />
+                <h2 className="text-2xl font-bold text-white">Draft History</h2>
+              </div>
+              <button
+                onClick={() => setShowDraftHistory(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              {/* Draft Name Input */}
+              <div className="mb-6 bg-white/5 border border-white/10 rounded-lg p-4">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Save New Draft (Optional Name)
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={draftName}
+                    onChange={(e) => setDraftName(e.target.value)}
+                    placeholder="e.g., Customer ABC Order"
+                    className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    onClick={() => {
+                      saveDraft();
+                      setShowDraftHistory(false);
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg font-medium flex items-center gap-2"
+                  >
+                    <Package className="w-5 h-5" />
+                    Save
+                  </button>
+                </div>
+              </div>
+
+              {/* Draft List */}
+              {savedDrafts.length === 0 ? (
+                <div className="text-center py-12">
+                  <Clock className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400 text-lg">No saved drafts</p>
+                  <p className="text-slate-500 text-sm mt-2">
+                    Save your current sale to come back to it later
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {savedDrafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-white mb-1">
+                            {draft.draft_name || "Untitled Draft"}
+                          </h3>
+                          <div className="text-sm text-slate-400 space-y-1">
+                            <p>👤 Sold by: {draft.sold_by || "Not set"}</p>
+                            <p>💳 Payment: {draft.payment_method}</p>
+                            <p>📦 Items: {draft.line_items?.length || 0}</p>
+                            <p>
+                              🕒 {new Date(draft.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => loadDraft(draft)}
+                            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg font-medium text-sm"
+                          >
+                            Load
+                          </button>
+                          <button
+                            onClick={() => deleteDraft(draft.id)}
+                            className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 transition-all shadow-lg font-medium text-sm flex items-center gap-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
