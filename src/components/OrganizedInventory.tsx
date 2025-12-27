@@ -314,9 +314,9 @@ export default function OrganizedInventory() {
               nameLower.includes(`std${grade}`) ||
               nameLower.includes(`class ${grade}`) ||
               nameLower.includes(`class${grade}`) ||
-              nameLower === `g${grade}` ||
-              nameLower.startsWith(`g${grade} `) ||
-              nameLower.includes(` g${grade} `)
+              nameLower === `G${grade}` ||
+              nameLower.startsWith(`G${grade} `) ||
+              nameLower.includes(` G${grade} `)
             ) {
               subcategory = `Grade ${grade} - Textbooks`;
               break;
