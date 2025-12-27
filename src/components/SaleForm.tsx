@@ -228,25 +228,26 @@ export default function SaleForm({
   function printDraft(draft: any) {
     // Convert draft to receipt format
     const lineItems = draft.line_items || [];
-    
+
     // Calculate line items with product details
     let subtotal = 0;
     let totalLineDiscount = 0;
-    
+
     const items = lineItems.map((item: any) => {
       const product = products.find((p) => p.id === item.product_id);
       const productName = product?.name || "Unknown Product";
       const price = product?.selling_price || 0;
       const quantity = parseFloat(item.quantity) || 0;
-      
+
       // Calculate discount
       let discountAmount = 0;
       if (item.discount_type === "percentage") {
-        discountAmount = (price * quantity * parseFloat(item.discount_value || "0")) / 100;
+        discountAmount =
+          (price * quantity * parseFloat(item.discount_value || "0")) / 100;
       } else if (item.discount_type === "amount") {
         discountAmount = parseFloat(item.discount_value || "0");
       }
-      
+
       const lineTotal = price * quantity - discountAmount;
       subtotal += price * quantity;
       totalLineDiscount += discountAmount;
@@ -263,7 +264,8 @@ export default function SaleForm({
     // Calculate overall discount
     let overallDiscountAmount = 0;
     if (draft.overall_discount_type === "percentage") {
-      overallDiscountAmount = (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
+      overallDiscountAmount =
+        (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
     } else if (draft.overall_discount_type === "amount") {
       overallDiscountAmount = parseFloat(draft.overall_discount_value || "0");
     }

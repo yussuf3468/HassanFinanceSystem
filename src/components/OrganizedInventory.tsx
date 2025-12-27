@@ -758,16 +758,52 @@ export default function OrganizedInventory() {
                   if (name === "Pre-Primary - PP1") return 1;
                   if (name === "Pre-Primary - PP2") return 2;
                   if (name === "Pre-Primary - General") return 3;
-                  // Primary Grades
-                  if (name === "Grade 1 - Textbooks") return 10;
-                  if (name === "Grade 2 - Textbooks") return 11;
-                  if (name === "Grade 3 - Textbooks") return 12;
-                  if (name === "Grade 4 - Textbooks") return 13;
-                  if (name === "Grade 5 - Textbooks") return 14;
-                  if (name === "Grade 6 - Textbooks") return 15;
-                  if (name === "Grade 7 - Textbooks") return 16;
-                  if (name === "Grade 8 - Textbooks") return 17;
-                  if (name === "Grade 9 - Textbooks") return 18;
+                  // Primary Grades (support g1/g2/g3...)
+                  if (
+                    /^(g1|grade 1)/i.test(name) ||
+                    name === "Grade 1 - Textbooks"
+                  )
+                    return 10;
+                  if (
+                    /^(g2|grade 2)/i.test(name) ||
+                    name === "Grade 2 - Textbooks"
+                  )
+                    return 11;
+                  if (
+                    /^(g3|grade 3)/i.test(name) ||
+                    name === "Grade 3 - Textbooks"
+                  )
+                    return 12;
+                  if (
+                    /^(g4|grade 4)/i.test(name) ||
+                    name === "Grade 4 - Textbooks"
+                  )
+                    return 13;
+                  if (
+                    /^(g5|grade 5)/i.test(name) ||
+                    name === "Grade 5 - Textbooks"
+                  )
+                    return 14;
+                  if (
+                    /^(g6|grade 6)/i.test(name) ||
+                    name === "Grade 6 - Textbooks"
+                  )
+                    return 15;
+                  if (
+                    /^(g7|grade 7)/i.test(name) ||
+                    name === "Grade 7 - Textbooks"
+                  )
+                    return 16;
+                  if (
+                    /^(g8|grade 8)/i.test(name) ||
+                    name === "Grade 8 - Textbooks"
+                  )
+                    return 17;
+                  if (
+                    /^(g9|grade 9)/i.test(name) ||
+                    name === "Grade 9 - Textbooks"
+                  )
+                    return 18;
                   // Secondary Forms
                   if (name === "Form 1 - Secondary") return 20;
                   if (name === "Form 2 - Secondary") return 21;
@@ -1001,15 +1037,15 @@ export default function OrganizedInventory() {
                   if (name.startsWith("Pre-Primary - PP1")) return 1;
                   if (name.startsWith("Pre-Primary - PP2")) return 2;
                   if (name.startsWith("Pre-Primary - General")) return 3;
-                  if (name.startsWith("Grade 1")) return 10;
-                  if (name.startsWith("Grade 2")) return 11;
-                  if (name.startsWith("Grade 3")) return 12;
-                  if (name.startsWith("Grade 4")) return 13;
-                  if (name.startsWith("Grade 5")) return 14;
-                  if (name.startsWith("Grade 6")) return 15;
-                  if (name.startsWith("Grade 7")) return 16;
-                  if (name.startsWith("Grade 8")) return 17;
-                  if (name.startsWith("Grade 9")) return 18;
+                  if (/^(g1|grade 1)/i.test(name)) return 10;
+                  if (/^(g2|grade 2)/i.test(name)) return 11;
+                  if (/^(g3|grade 3)/i.test(name)) return 12;
+                  if (/^(g4|grade 4)/i.test(name)) return 13;
+                  if (/^(g5|grade 5)/i.test(name)) return 14;
+                  if (/^(g6|grade 6)/i.test(name)) return 15;
+                  if (/^(g7|grade 7)/i.test(name)) return 16;
+                  if (/^(g8|grade 8)/i.test(name)) return 17;
+                  if (/^(g9|grade 9)/i.test(name)) return 18;
                   if (name.startsWith("Form 1")) return 20;
                   if (name.startsWith("Form 2")) return 21;
                   if (name.startsWith("Form 3")) return 22;
