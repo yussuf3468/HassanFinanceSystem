@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Clock,
   Users,
+  DollarSign,
 } from "lucide-react";
 import { searchProducts, getSearchSuggestions } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -40,6 +41,9 @@ interface ReceiptData {
   transactionId: string;
   sold_by: string;
   payment_method: string;
+  customer_name?: string;
+  amount_paid?: number;
+  payment_status?: "Paid" | "Part Paid" | "Unpaid";
   created_at: Date;
   items: {
     product_name: string;
@@ -91,6 +95,7 @@ export default function SaleForm({
 
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  const [amountPaid, setAmountPaid] = useState("");
   const [showDraftHistory, setShowDraftHistory] = useState(false);
   const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
 
@@ -792,6 +797,16 @@ export default function SaleForm({
         overall_discount_amount: overallDiscountAmount,
         total,
         total_profit,
+        // Customer and payment info
+        customer_name: customers.find((c) => c.id === selectedCustomerId)
+          ?.customer_name || "Walk-in Customer",
+        amount_paid: parseFloat(amountPaid || "0"),
+        payment_status:
+          parseFloat(amountPaid || "0") >= total
+            ? "Paid"
+            : parseFloat(amountPaid || "0") > 0
+            ? "Part Paid"
+            : "Unpaid",
       };
 
       setReceipt(receiptData);
@@ -872,7 +887,15 @@ export default function SaleForm({
       </tr>
       <tr>
         <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
+        <td><strong>Customer:</strong> ${escapeHtml(r.customer_name || "Walk-in Customer")}</td>
+      </tr>
+      <tr>
         <td><strong>Payment:</strong> ${escapeHtml(r.payment_method)}</td>
+        <td><strong>Status:</strong> ${escapeHtml(r.payment_status || "Paid")}${
+    r.amount_paid !== undefined
+      ? ` - KES ${r.amount_paid.toLocaleString()}`
+      : ""
+  }</td>
       </tr>
     </tbody>
   </table>
@@ -1314,6 +1337,22 @@ export default function SaleForm({
                       autoComplete="off"
                     />
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="flex items-center space-x-1 text-sm font-medium text-slate-300 mb-2">
+                      <DollarSign className="w-4 h-4" />
+                      <span>Amount Paid</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={amountPaid}
+                      onChange={(e) => setAmountPaid(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
+                    />
                   </div>
 
                   {/* Selected Customer Display */}
