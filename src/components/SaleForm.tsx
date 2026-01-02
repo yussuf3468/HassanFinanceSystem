@@ -9,12 +9,11 @@ import {
   ShoppingCart,
   TrendingUp,
   Clock,
-  Users,
 } from "lucide-react";
-import { searchProducts, getSearchSuggestions } from "../utils/searchUtils";
+import { searchProducts } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import type { Product, InternalCustomer } from "../types";
+import type { Product } from "../types";
 import { invalidateAfterSale } from "../utils/cacheInvalidation";
 import { StockReceiveModal } from "./StockReceiveModal";
 
@@ -40,6 +39,9 @@ interface ReceiptData {
   transactionId: string;
   sold_by: string;
   payment_method: string;
+  customer_name: string;
+  payment_status: string;
+  amount_paid: number;
   created_at: Date;
   items: {
     product_name: string;
@@ -60,8 +62,14 @@ interface ReceiptData {
   total_profit: number;
 }
 
-const paymentMethods = ["Cash", "Mpesa Agent", "Mpesa Phone"];
-const staffMembers = ["Khalid", "Zakaria", "Yussuf"];
+const paymentMethods = [
+  "Cash",
+  "Mpesa",
+  "Till Number",
+  "Card",
+  "Bank Transfer",
+];
+const staffMembers = ["Mohamed", "Najib", "Isse", "Timo", "Samira"];
 
 export default function SaleForm({
   products,
@@ -71,7 +79,11 @@ export default function SaleForm({
   const queryClient = useQueryClient();
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [soldBy, setSoldBy] = useState("");
-  const [quickSaleMode, setQuickSaleMode] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<
+    "paid" | "not_paid" | "partial"
+  >("paid");
+  const [amountPaid, setAmountPaid] = useState("");
   const [lineItems, setLineItems] = useState<LineItem[]>([
     {
       id: crypto.randomUUID(),
@@ -89,281 +101,29 @@ export default function SaleForm({
     useState<DiscountType>("none");
   const [overallDiscountValue, setOverallDiscountValue] = useState("");
 
+  // Quick Sale Mode - Skip payment method selection
+  const [quickSaleMode, setQuickSaleMode] = useState(false);
+
+  // Sale Drafts
+  const [showDrafts, setShowDrafts] = useState(false);
+  const [savedDrafts, setSavedDrafts] = useState<
+    Array<{
+      id: string;
+      name: string;
+      timestamp: Date;
+      lineItems: LineItem[];
+      soldBy: string;
+      paymentMethod: string;
+      overallDiscountType: DiscountType;
+      overallDiscountValue: string;
+      customerName?: string;
+      paymentStatus?: string;
+      amountPaid?: string;
+    }>
+  >([]);
+
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
-  const [showDraftHistory, setShowDraftHistory] = useState(false);
-  const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
-
-  // Customer selection state
-  const [customers, setCustomers] = useState<InternalCustomer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState(
-    "00000000-0000-0000-0000-000000000001"
-  ); // Default to Walk-in Customer
-  const [customerSearch, setCustomerSearch] = useState("");
-  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
-  const customerDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Load customers on component mount
-  useEffect(() => {
-    loadCustomers();
-    loadDraftHistory();
-  }, []);
-
-  async function loadCustomers() {
-    try {
-      const { data, error } = await supabase
-        .from("customers")
-        .select("*")
-        .eq("is_active", true)
-        .order("customer_name");
-
-      if (error) throw error;
-      setCustomers((data as unknown as InternalCustomer[]) || []);
-    } catch (error) {
-      console.error("Error loading customers:", error);
-    }
-  }
-
-  // Draft sale functions - Database-backed
-  async function loadDraftHistory() {
-    try {
-      const { data, error } = await supabase
-        .from("sale_drafts" as any)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setSavedDrafts(data || []);
-    } catch (error) {
-      console.error("Error loading draft history:", error);
-    }
-  }
-
-  async function saveDraft() {
-    // Prompt for draft name
-    const name = prompt("Enter a name for this draft:");
-    if (!name || name.trim() === "") {
-      alert("Draft name is required");
-      return;
-    }
-
-    try {
-      const draftData = {
-        draft_name: name.trim(),
-        sold_by: soldBy,
-        payment_method: paymentMethod,
-        line_items: lineItems,
-        overall_discount_type: overallDiscountType,
-        overall_discount_value: parseFloat(overallDiscountValue || "0"),
-        selected_customer_id: selectedCustomerId,
-        customer_search: customerSearch,
-        quick_sale_mode: quickSaleMode,
-      };
-
-      const { error } = await supabase
-        .from("sale_drafts" as any)
-        .insert(draftData);
-
-      if (error) throw error;
-
-      alert("✅ Draft saved successfully!");
-      await loadDraftHistory();
-    } catch (error) {
-      console.error("Error saving draft:", error);
-      alert("❌ Failed to save draft");
-    }
-  }
-
-  async function loadDraft(draft: any) {
-    try {
-      setSoldBy(draft.sold_by || "");
-      setPaymentMethod(draft.payment_method || "Cash");
-      setLineItems(
-        draft.line_items || [
-          {
-            id: crypto.randomUUID(),
-            product_id: "",
-            quantity: "",
-            discount_type: "none",
-            discount_value: "",
-            searchTerm: "",
-            showDropdown: false,
-          },
-        ]
-      );
-      setOverallDiscountType(draft.overall_discount_type || "none");
-      setOverallDiscountValue(draft.overall_discount_value?.toString() || "");
-      setSelectedCustomerId(
-        draft.selected_customer_id || "00000000-0000-0000-0000-000000000001"
-      );
-      setCustomerSearch(draft.customer_search || "");
-      setQuickSaleMode(draft.quick_sale_mode || false);
-      setShowDraftHistory(false);
-      alert("✅ Draft loaded successfully!");
-    } catch (error) {
-      console.error("Error loading draft:", error);
-      alert("❌ Failed to load draft");
-    }
-  }
-
-  async function deleteDraft(draftId: string) {
-    if (!confirm("Are you sure you want to delete this draft?")) return;
-
-    try {
-      const { error } = await supabase
-        .from("sale_drafts" as any)
-        .delete()
-        .eq("id", draftId);
-
-      if (error) throw error;
-
-      alert("✅ Draft deleted successfully!");
-      await loadDraftHistory();
-    } catch (error) {
-      console.error("Error deleting draft:", error);
-      alert("❌ Failed to delete draft");
-    }
-  }
-
-  function printDraft(draft: any) {
-    // Convert draft to receipt format
-    const lineItems = draft.line_items || [];
-
-    // Calculate line items with product details
-    let subtotal = 0;
-    let totalLineDiscount = 0;
-
-    const items = lineItems.map((item: any) => {
-      const product = products.find((p) => p.id === item.product_id);
-      const productName = product?.name || "Unknown Product";
-      const price = product?.selling_price || 0;
-      const quantity = parseFloat(item.quantity) || 0;
-
-      // Calculate discount
-      let discountAmount = 0;
-      if (item.discount_type === "percentage") {
-        discountAmount =
-          (price * quantity * parseFloat(item.discount_value || "0")) / 100;
-      } else if (item.discount_type === "amount") {
-        discountAmount = parseFloat(item.discount_value || "0");
-      }
-
-      const lineTotal = price * quantity - discountAmount;
-      subtotal += price * quantity;
-      totalLineDiscount += discountAmount;
-
-      return {
-        product_name: productName,
-        quantity: quantity,
-        unit_price: price,
-        discount_amount: discountAmount,
-        line_total: lineTotal,
-      };
-    });
-
-    // Calculate overall discount
-    let overallDiscountAmount = 0;
-    if (draft.overall_discount_type === "percentage") {
-      overallDiscountAmount =
-        (subtotal * parseFloat(draft.overall_discount_value || "0")) / 100;
-    } else if (draft.overall_discount_type === "amount") {
-      overallDiscountAmount = parseFloat(draft.overall_discount_value || "0");
-    }
-
-    const total = subtotal - totalLineDiscount - overallDiscountAmount;
-
-    // Create receipt data matching the ReceiptData interface
-    const receiptData: ReceiptData = {
-      transactionId: `DRAFT-${draft.id.slice(0, 8).toUpperCase()}`,
-      created_at: new Date(draft.created_at),
-      sold_by: draft.sold_by || "Not set",
-      payment_method: draft.payment_method,
-      items: items.map((item: any) => ({
-        ...item,
-        original_total: item.unit_price * item.quantity,
-        final_unit_price: item.unit_price,
-        profit: 0, // Drafts don't calculate profit
-      })),
-      subtotal: subtotal,
-      total_line_discount: totalLineDiscount,
-      overall_discount_type: draft.overall_discount_type || "none",
-      overall_discount_value: parseFloat(draft.overall_discount_value || "0"),
-      overall_discount_amount: overallDiscountAmount,
-      total: total,
-      total_profit: 0, // Drafts don't calculate profit
-    };
-
-    // Use the existing print function
-    const html = createPrintHtml(receiptData);
-    const $iframe = document.createElement("iframe");
-    $iframe.style.position = "fixed";
-    $iframe.style.right = "0";
-    $iframe.style.bottom = "0";
-    $iframe.style.width = "0";
-    $iframe.style.height = "0";
-    $iframe.style.border = "0";
-    $iframe.setAttribute("aria-hidden", "true");
-    document.body.appendChild($iframe);
-
-    const cleanup = () => {
-      try {
-        document.body.removeChild($iframe);
-      } catch {}
-    };
-
-    const onReadyToPrint = () => {
-      try {
-        const win = $iframe.contentWindow;
-        if (!win) {
-          cleanup();
-          return;
-        }
-        win.onafterprint = cleanup;
-        win.print();
-      } catch (err) {
-        console.error("Print error:", err);
-        cleanup();
-      }
-    };
-
-    const doc = $iframe.contentDocument;
-    if (!doc) {
-      cleanup();
-      return;
-    }
-
-    doc.open();
-    doc.write(html);
-    doc.close();
-
-    if (doc.readyState === "complete") {
-      onReadyToPrint();
-    } else {
-      $iframe.onload = onReadyToPrint;
-    }
-  }
-
-  function clearDraft() {
-    // Reset form to default state
-    setSoldBy("");
-    setPaymentMethod("Cash");
-    setLineItems([
-      {
-        id: crypto.randomUUID(),
-        product_id: "",
-        quantity: "",
-        discount_type: "none",
-        discount_value: "",
-        searchTerm: "",
-        showDropdown: false,
-      },
-    ]);
-    setOverallDiscountType("none");
-    setOverallDiscountValue("");
-    setSelectedCustomerId("00000000-0000-0000-0000-000000000001");
-    setCustomerSearch("");
-    setQuickSaleMode(false);
-  }
 
   // Stock receive modal state
   const [showStockModal, setShowStockModal] = useState(false);
@@ -387,16 +147,6 @@ export default function SaleForm({
   useEffect(() => {
     function handleClickOutside(e: MouseEvent | TouchEvent) {
       const target = e.target as Node;
-
-      // Close customer dropdown
-      if (
-        customerDropdownRef.current &&
-        !customerDropdownRef.current.contains(target)
-      ) {
-        setShowCustomerDropdown(false);
-      }
-
-      // Close product line dropdowns
       setLineItems((items) =>
         items.map((li) => {
           const ref = dropdownRefs.current[li.id];
@@ -418,6 +168,23 @@ export default function SaleForm({
   }, []);
 
   function updateLine(id: string, patch: Partial<LineItem>) {
+    // Check for duplicate products when setting a product_id
+    if (patch.product_id && patch.product_id.trim() !== "") {
+      const isDuplicate = lineItems.some(
+        (li) => li.id !== id && li.product_id === patch.product_id
+      );
+
+      if (isDuplicate) {
+        const product = products.find((p) => p.id === patch.product_id);
+        alert(
+          `⚠️ "${
+            product?.name || "This product"
+          }" is already added to this sale!\n\nPlease update the quantity on the existing line instead of adding it again.`
+        );
+        return;
+      }
+    }
+
     setLineItems((items) =>
       items.map((li) => (li.id === id ? { ...li, ...patch } : li))
     );
@@ -440,6 +207,124 @@ export default function SaleForm({
 
   function removeLine(id: string) {
     setLineItems((items) => items.filter((li) => li.id !== id));
+  }
+
+  // Load drafts from database on mount
+  useEffect(() => {
+    async function loadDrafts() {
+      try {
+        const { data, error } = await supabase
+          .from("sale_drafts")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (data) {
+          setSavedDrafts(
+            data.map((d: any) => ({
+              id: d.id,
+              name: d.draft_name,
+              timestamp: new Date(d.created_at),
+              lineItems: d.line_items,
+              soldBy: d.sold_by,
+              paymentMethod: d.payment_method,
+              overallDiscountType: d.overall_discount_type,
+              overallDiscountValue: d.overall_discount_value,
+              customerName: d.customer_name,
+              paymentStatus: d.payment_status,
+              amountPaid: d.amount_paid,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error("Failed to load drafts:", e);
+      }
+    }
+    loadDrafts();
+  }, []);
+
+  async function saveDraft() {
+    const draftName = prompt(
+      "Enter a name for this draft:",
+      `Sale ${new Date().toLocaleTimeString()}`
+    );
+    if (!draftName) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("sale_drafts")
+        .insert({
+          draft_name: draftName,
+          line_items: lineItems,
+          sold_by: soldBy,
+          payment_method: paymentMethod,
+          overall_discount_type: overallDiscountType,
+          overall_discount_value: overallDiscountValue,
+          customer_name: customerName,
+          payment_status: paymentStatus,
+          amount_paid: amountPaid,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const newDraft = {
+          id: data.id,
+          name: data.draft_name,
+          timestamp: new Date(data.created_at),
+          lineItems: data.line_items,
+          soldBy: data.sold_by,
+          paymentMethod: data.payment_method,
+          overallDiscountType: data.overall_discount_type,
+          overallDiscountValue: data.overall_discount_value,
+          customerName: data.customer_name,
+          paymentStatus: data.payment_status,
+          amountPaid: data.amount_paid,
+        };
+        setSavedDrafts([newDraft, ...savedDrafts]);
+        alert(`✅ Draft "${draftName}" saved!`);
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft. Please try again.");
+    }
+  }
+
+  function loadDraft(draft: (typeof savedDrafts)[0]) {
+    if (!confirm(`Load draft "${draft.name}"? Current sale will be replaced.`))
+      return;
+
+    setLineItems(draft.lineItems);
+    setSoldBy(draft.soldBy);
+    setPaymentMethod(draft.paymentMethod);
+    setOverallDiscountType(draft.overallDiscountType);
+    setOverallDiscountValue(draft.overallDiscountValue);
+    setCustomerName(draft.customerName || "");
+    setPaymentStatus(
+      (draft.paymentStatus as "paid" | "not_paid" | "partial") || "paid"
+    );
+    setAmountPaid(draft.amountPaid || "");
+    setShowDrafts(false);
+  }
+
+  async function deleteDraft(draftId: string) {
+    try {
+      const { error } = await supabase
+        .from("sale_drafts")
+        .delete()
+        .eq("id", draftId);
+
+      if (error) throw error;
+
+      const updated = savedDrafts.filter((d) => d.id !== draftId);
+      setSavedDrafts(updated);
+    } catch (error) {
+      console.error("Error deleting draft:", error);
+      alert("Failed to delete draft. Please try again.");
+    }
   }
 
   const productById = (id: string) => products.find((p) => p.id === id);
@@ -684,6 +569,25 @@ export default function SaleForm({
       return;
     }
 
+    // Validate payment status and amount paid
+    if (paymentStatus === "partial") {
+      if (!amountPaid || parseFloat(amountPaid) <= 0) {
+        alert("Please enter the amount paid for partial payment.");
+        return;
+      }
+      if (parseFloat(amountPaid) >= total) {
+        alert(
+          "Partial payment amount must be less than the total amount. Please select 'Paid' if paying in full."
+        );
+        return;
+      }
+    }
+
+    // Auto-fill amount paid if not specified
+    if (!amountPaid || parseFloat(amountPaid) <= 0) {
+      setAmountPaid(total.toString());
+    }
+
     const stockCheck = validateStock();
 
     // ✅ Handle out-of-stock items with modal UI
@@ -698,23 +602,13 @@ export default function SaleForm({
     const transactionId = crypto.randomUUID();
 
     try {
-      // Calculate overall discount distribution
-      // Distribute overall discount proportionally across line items
-      const overallDiscountNum = parseFloat(overallDiscountValue) || 0;
-      let overallDiscountAmount = 0;
-
-      if (overallDiscountType === "percentage" && overallDiscountNum > 0) {
-        overallDiscountAmount =
-          (subtotalAfterLineDiscounts * overallDiscountNum) / 100;
-      } else if (overallDiscountType === "amount" && overallDiscountNum > 0) {
-        overallDiscountAmount = overallDiscountNum;
-      }
-
-      if (overallDiscountAmount > subtotalAfterLineDiscounts) {
-        overallDiscountAmount = subtotalAfterLineDiscounts;
-      }
-
       // ✅ All items should have sufficient stock now (handled above)
+      // Calculate how to distribute the overall discount proportionally
+      const totalBeforeOverallDiscount = computed.reduce(
+        (sum, c) => sum + c.final_total,
+        0
+      );
+
       for (const c of computed) {
         if (!c.product || c.quantity <= 0) continue;
         const discount_percentage =
@@ -722,23 +616,17 @@ export default function SaleForm({
             ? parseFloat(c.line.discount_value || "0")
             : 0;
 
-        // Calculate this line's share of the overall discount (proportional to its subtotal)
+        // Calculate this line's proportional share of the overall discount
         const lineProportionOfTotal =
-          subtotalAfterLineDiscounts > 0
-            ? c.final_total / subtotalAfterLineDiscounts
+          totalBeforeOverallDiscount > 0
+            ? c.final_total / totalBeforeOverallDiscount
             : 0;
-        const lineOverallDiscount =
+        const lineShareOfOverallDiscount =
           overallDiscountAmount * lineProportionOfTotal;
 
-        // Final total for this line after overall discount
-        const lineFinalTotal = c.final_total - lineOverallDiscount;
-
-        // Adjust profit to account for overall discount
-        const lineFinalProfit = c.profit - lineOverallDiscount;
-
-        const selectedCustomer = customers.find(
-          (cust) => cust.id === selectedCustomerId
-        );
+        // Apply the overall discount to this line's total and profit
+        const lineFinalTotal = c.final_total - lineShareOfOverallDiscount;
+        const lineFinalProfit = c.profit - lineShareOfOverallDiscount;
 
         const { error: lineError } = await supabase.from("sales").insert({
           transaction_id: transactionId,
@@ -750,12 +638,13 @@ export default function SaleForm({
           profit: lineFinalProfit,
           payment_method: paymentMethod,
           sold_by: soldBy,
-          discount_amount: c.discount_amount + lineOverallDiscount,
+          customer_name: customerName || "Walk-in Customer",
+          payment_status: paymentStatus,
+          amount_paid: parseFloat(amountPaid) || total,
+          discount_amount: c.discount_amount,
           discount_percentage,
           original_price: c.product.selling_price,
           final_price: c.final_unit_price,
-          customer_id: selectedCustomerId,
-          customer_name: selectedCustomer?.customer_name || "Walk-in Customer",
         });
 
         if (lineError) throw lineError;
@@ -772,6 +661,9 @@ export default function SaleForm({
         transactionId,
         sold_by: soldBy,
         payment_method: paymentMethod,
+        customer_name: customerName || "Walk-in Customer",
+        payment_status: paymentStatus,
+        amount_paid: parseFloat(amountPaid) || total,
         created_at: new Date(),
         items: computed
           .filter((c) => c.product && c.quantity > 0)
@@ -846,11 +738,26 @@ export default function SaleForm({
   table.items { width:100%; border-collapse:collapse; margin-top:8px; }
   table.items th, table.items td { border:1px solid #222; padding:4px 6px; vertical-align:top; }
   table.items th { background:#f2f2f2; font-weight:600; font-size:11px; }
+  table.items tbody { page-break-inside: auto; }
+  table.items tbody tr { page-break-inside: avoid; page-break-after: auto; }
   .num { text-align:right; }
+  
+  /* Prevent tfoot from repeating on each page */
+  table.items tfoot { 
+    display: table-footer-group;
+    page-break-inside: avoid;
+    page-break-before: auto;
+  }
   tfoot td { font-weight:600; }
+  
+  /* Keep summary section together on last page */
+  .summary-section {
+    page-break-inside: avoid;
+  }
+  
   .divider { margin:10px 0; border-top:1px solid #000; }
   .footnote { margin-top:12px; text-align:center; font-size:10px; color:#555; }
-  .signature { margin-top:18px; display:flex; justify-content:space-between; gap:16px; }
+  .signature { margin-top:18px; display:flex; justify-content:space-between; gap:16px; page-break-inside: avoid; }
   .sigbox { width:48%; border-top:1px solid #000; padding-top:4px; text-align:center; font-size:10px; }
   .mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
   .nowrap { white-space:nowrap; }
@@ -871,8 +778,17 @@ export default function SaleForm({
         <td class="mono nowrap"><strong>Date:</strong> ${r.created_at.toLocaleString()}</td>
       </tr>
       <tr>
-        <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
+        <td><strong>Customer:</strong> ${escapeHtml(r.customer_name)}</td>
         <td><strong>Payment:</strong> ${escapeHtml(r.payment_method)}</td>
+      </tr>
+      <tr>
+        <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
+        <td><strong>Payment Status:</strong> ${escapeHtml(
+          r.payment_status.replace("_", " ").toUpperCase()
+        )}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Amount Paid:</strong> KES ${r.amount_paid.toLocaleString()}</td>
       </tr>
     </tbody>
   </table>
@@ -890,33 +806,38 @@ export default function SaleForm({
     <tbody>
       ${rows}
     </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="4" style="text-align:right;">Subtotal</td>
-        <td class="num">KES ${r.subtotal.toLocaleString()}</td>
-      </tr>
-      <tr>
-        <td colspan="4" style="text-align:right;">Discount</td>
-        <td class="num">-KES ${(
-          r.total_line_discount + r.overall_discount_amount
-        ).toLocaleString()}</td>
-      </tr>
-      <tr>
-        <td colspan="4" style="text-align:right;">Total</td>
-        <td class="num">KES ${r.total.toLocaleString()}</td>
-      </tr>
-    </tfoot>
   </table>
 
-  <div class="divider"></div>
+  <div class="summary-section">
+    <table class="items" style="margin-top: 0; border-top: none;">
+      <tfoot>
+        <tr>
+          <td colspan="4" style="text-align:right;">Subtotal</td>
+          <td class="num">KES ${r.subtotal.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="text-align:right;">Discount</td>
+          <td class="num">-KES ${(
+            r.total_line_discount + r.overall_discount_amount
+          ).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="text-align:right;">Total</td>
+          <td class="num">KES ${r.total.toLocaleString()}</td>
+        </tr>
+      </tfoot>
+    </table>
 
-  <div class="signature">
-    <div class="sigbox">Customer Signature</div>
-    <div class="sigbox">Staff Signature</div>
-  </div>
+    <div class="divider"></div>
 
-  <div class="footnote">
-    Thank you for your purchase. Please keep this receipt for your records.
+    <div class="signature">
+      <div class="sigbox">Customer Signature</div>
+      <div class="sigbox">Staff Signature</div>
+    </div>
+
+    <div class="footnote">
+      Thank you for your purchase. Please keep this receipt for your records.
+    </div>
   </div>
 </body>
 </html>`;
@@ -992,6 +913,149 @@ export default function SaleForm({
     setTimeout(fireOnce, 300);
   }
 
+  function printDraft(draft: (typeof savedDrafts)[0]) {
+    // Convert draft to receipt format
+    const draftItems = draft.lineItems
+      .map((li) => {
+        const product = productById(li.product_id);
+        if (!product) return null;
+
+        const quantity = parseInt(li.quantity || "0") || 0;
+        const sellingPrice = parseFloat(product.selling_price);
+        const originalTotal = quantity * sellingPrice;
+
+        let discountAmount = 0;
+        if (li.discount_type === "percentage" && li.discount_value) {
+          const pct = parseFloat(li.discount_value) || 0;
+          discountAmount = (originalTotal * pct) / 100;
+        } else if (li.discount_type === "fixed" && li.discount_value) {
+          discountAmount = parseFloat(li.discount_value) || 0;
+        }
+
+        const lineTotal = originalTotal - discountAmount;
+        const finalUnitPrice =
+          quantity > 0 ? lineTotal / quantity : sellingPrice;
+        const buyingPrice = parseFloat(product.buying_price);
+        const profit = (finalUnitPrice - buyingPrice) * quantity;
+
+        return {
+          product_name: product.name,
+          quantity,
+          unit_price: sellingPrice,
+          original_total: originalTotal,
+          discount_amount: discountAmount,
+          final_unit_price: finalUnitPrice,
+          line_total: lineTotal,
+          profit,
+        };
+      })
+      .filter((item) => item !== null);
+
+    const subtotal = draftItems.reduce(
+      (sum, item) => sum + item.original_total,
+      0
+    );
+    const totalLineDiscount = draftItems.reduce(
+      (sum, item) => sum + item.discount_amount,
+      0
+    );
+
+    let overallDiscountAmount = 0;
+    const afterLineDiscounts = subtotal - totalLineDiscount;
+    if (
+      draft.overallDiscountType === "percentage" &&
+      draft.overallDiscountValue
+    ) {
+      const pct = parseFloat(draft.overallDiscountValue) || 0;
+      overallDiscountAmount = (afterLineDiscounts * pct) / 100;
+    } else if (
+      draft.overallDiscountType === "fixed" &&
+      draft.overallDiscountValue
+    ) {
+      overallDiscountAmount = parseFloat(draft.overallDiscountValue) || 0;
+    }
+
+    const total = afterLineDiscounts - overallDiscountAmount;
+    const totalProfit = draftItems.reduce((sum, item) => sum + item.profit, 0);
+
+    const receiptData: ReceiptData = {
+      transactionId: `DRAFT-${draft.id.substring(0, 8).toUpperCase()}`,
+      sold_by: draft.soldBy || "N/A",
+      payment_method: draft.paymentMethod || "N/A",
+      customer_name: draft.customerName || "Walk-in Customer",
+      payment_status: draft.paymentStatus || "paid",
+      amount_paid: parseFloat(draft.amountPaid || String(total)),
+      created_at: draft.timestamp,
+      items: draftItems,
+      subtotal,
+      total_line_discount: totalLineDiscount,
+      overall_discount_type: draft.overallDiscountType,
+      overall_discount_value: parseFloat(draft.overallDiscountValue) || 0,
+      overall_discount_amount: overallDiscountAmount,
+      total,
+      total_profit: totalProfit,
+    };
+
+    // Use the same print logic
+    const html = createPrintHtml(receiptData);
+    const $iframe = document.createElement("iframe");
+    $iframe.style.position = "fixed";
+    $iframe.style.right = "0";
+    $iframe.style.bottom = "0";
+    $iframe.style.width = "0";
+    $iframe.style.height = "0";
+    $iframe.style.border = "0";
+    $iframe.setAttribute("aria-hidden", "true");
+    document.body.appendChild($iframe);
+
+    const cleanup = () => {
+      try {
+        document.body.removeChild($iframe);
+      } catch {}
+    };
+
+    const onReadyToPrint = () => {
+      try {
+        const win = $iframe.contentWindow;
+        if (!win) {
+          cleanup();
+          alert("Failed to access print frame.");
+          return;
+        }
+        win.focus();
+        win.print();
+      } catch (e) {
+        console.error("Print failed:", e);
+        alert("Unable to print. Please try again.");
+      } finally {
+        setTimeout(cleanup, 500);
+      }
+    };
+
+    const doc = $iframe.contentWindow?.document;
+    if (!doc) {
+      cleanup();
+      alert("Failed to prepare print frame.");
+      return;
+    }
+
+    let fired = false;
+    const fireOnce = () => {
+      if (fired) return;
+      fired = true;
+      onReadyToPrint();
+    };
+
+    $iframe.onload = fireOnce;
+    $iframe.contentWindow?.addEventListener("load", fireOnce);
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    setTimeout(fireOnce, 300);
+  }
+
   function resetForm() {
     setLineItems([
       {
@@ -1008,19 +1072,17 @@ export default function SaleForm({
     setPaymentMethod("Cash");
     setOverallDiscountType("none");
     setOverallDiscountValue("");
+    setCustomerName("");
+    setPaymentStatus("paid");
+    setAmountPaid("");
     setReceipt(null);
-    setQuickSaleMode(false);
-    setSelectedCustomerId("00000000-0000-0000-0000-000000000001");
-    setCustomerSearch("");
-    clearDraft(); // Clear draft when starting new sale
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
-      <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-white/20 animate-scaleIn flex flex-col touch-auto">
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border-2 border-slate-100 animate-scaleIn flex flex-col touch-auto">
         {/* Header - Fixed */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 to-blue-500/50 rounded-t-2xl"></div>
+        <div className="relative bg-gradient-to-r from-amber-500 to-amber-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0 border-b-2 border-amber-400">
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -1028,14 +1090,14 @@ export default function SaleForm({
                 <h3 className="text-lg sm:text-2xl font-black text-white">
                   Record New Sale
                 </h3>
-                <p className="text-purple-100 text-xs sm:text-sm font-medium">
+                <p className="text-amber-50 text-xs sm:text-sm font-medium">
                   Multi-Product Sale System
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white"
+              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -1044,8 +1106,8 @@ export default function SaleForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl overflow-y-auto flex-1">
-            <div className="bg-white text-black rounded-lg border border-gray-300 p-4 sm:p-6 shadow-lg">
+          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 overflow-y-auto flex-1">
+            <div className="bg-white text-black rounded-xl border border-gray-300 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
                   HASSAN BOOKSHOP
@@ -1105,7 +1167,7 @@ export default function SaleForm({
                         <td className="px-3 py-2 text-right">
                           KES {it.unit_price.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2 text-right text-red-600">
+                        <td className="px-3 py-2 text-right text-rose-700">
                           {it.discount_amount > 0
                             ? "-" + it.discount_amount.toLocaleString()
                             : "-"}
@@ -1136,7 +1198,7 @@ export default function SaleForm({
                         >
                           Line Discounts
                         </td>
-                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                        <td className="px-3 py-2 text-right font-semibold text-rose-700">
                           -KES {receipt.total_line_discount.toLocaleString()}
                         </td>
                       </tr>
@@ -1151,7 +1213,7 @@ export default function SaleForm({
                           {receipt.overall_discount_type === "percentage" &&
                             ` (${receipt.overall_discount_value}%)`}
                         </td>
-                        <td className="px-3 py-2 text-right font-semibold text-red-600">
+                        <td className="px-3 py-2 text-right font-semibold text-rose-700">
                           -KES{" "}
                           {receipt.overall_discount_amount.toLocaleString()}
                         </td>
@@ -1181,20 +1243,20 @@ export default function SaleForm({
             <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={printReceipt}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg flex items-center justify-center space-x-2 hover:from-green-700 hover:to-emerald-700 font-medium shadow-lg"
+                className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl flex items-center justify-center space-x-2 hover:bg-emerald-700 font-medium shadow-lg"
               >
                 <Printer className="w-5 h-5" />
                 <span>Print Receipt</span>
               </button>
               <button
                 onClick={resetForm}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium shadow-lg"
+                className="w-full sm:w-auto px-6 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 font-medium shadow-lg"
               >
                 New Sale
               </button>
               <button
                 onClick={onSuccess}
-                className="w-full sm:w-auto px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 font-medium"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-100 font-medium"
               >
                 Close
               </button>
@@ -1206,19 +1268,19 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-white/5 backdrop-blur-xl"
+            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-amber-50"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Quick Sale Mode Toggle */}
-            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/40 rounded-xl p-3 flex items-center justify-between">
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">⚡</span>
                 <div>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-slate-900">
                     Quick Sale Mode
                   </p>
-                  <p className="text-xs text-green-300">
-                    Auto-select Khalid & Cash for faster checkout
+                  <p className="text-xs text-emerald-700">
+                    Skip payment selection for faster checkout
                   </p>
                 </div>
               </div>
@@ -1227,8 +1289,8 @@ export default function SaleForm({
                 onClick={() => {
                   setQuickSaleMode(!quickSaleMode);
                   if (!quickSaleMode) {
-                    setSoldBy("Khalid");
-                    setPaymentMethod("Cash");
+                    setSoldBy("Mohamed");
+                    setPaymentMethod("Till Number");
                   }
                 }}
                 className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 ${
@@ -1245,297 +1307,240 @@ export default function SaleForm({
             </div>
 
             {/* Staff & Payment - Moved to top for better UX */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
-              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
-                <span>📋</span>
-                <span>Sale Information</span>
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="relative z-40">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Sold By (Staff) *
-                  </label>
-                  <select
-                    required
-                    value={soldBy}
-                    onChange={(e) => setSoldBy(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation appearance-none cursor-pointer"
-                  >
-                    <option value="" className="bg-slate-900 text-white">
-                      -- Select Staff Member --
-                    </option>
-                    {staffMembers.map((s) => (
-                      <option
-                        key={s}
-                        value={s}
-                        className="bg-slate-900 text-white"
-                      >
-                        {s}
+            {!quickSaleMode && (
+              <div className="bg-white rounded-xl p-4 border-2 border-slate-200 shadow-sm">
+                <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center space-x-2">
+                  <span>📋</span>
+                  <span>Sale Information</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                      Sold By (Staff) *
+                    </label>
+                    <select
+                      required
+                      value={soldBy}
+                      onChange={(e) => setSoldBy(e.target.value)}
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                    >
+                      <option value="" className="bg-white text-slate-800">
+                        -- Select Staff Member --
                       </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="relative z-40">
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Payment Method *
-                  </label>
-                  <select
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full min-h-[48px] px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation appearance-none cursor-pointer"
-                  >
-                    {paymentMethods.map((m) => (
-                      <option
-                        key={m}
-                        value={m}
-                        className="bg-slate-900 text-white"
-                      >
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="relative z-30" ref={customerDropdownRef}>
-                  <label className="flex items-center space-x-1 text-sm font-medium text-slate-300 mb-2">
-                    <Users className="w-4 h-4" />
-                    <span>Customer *</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={customerSearch}
-                      onChange={(e) => {
-                        setCustomerSearch(e.target.value);
-                        setShowCustomerDropdown(true);
-                      }}
-                      onFocus={() => setShowCustomerDropdown(true)}
-                      placeholder="Search or select customer..."
-                      className="w-full min-h-[48px] px-4 py-2.5 pr-10 bg-white/10 border border-white/20 rounded-lg text-white text-base placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all touch-manipulation"
-                      autoComplete="off"
-                    />
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                      {staffMembers.map((s) => (
+                        <option
+                          key={s}
+                          value={s}
+                          className="bg-white text-slate-800"
+                        >
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                      Payment Method *
+                    </label>
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                    >
+                      {paymentMethods.map((m) => (
+                        <option
+                          key={m}
+                          value={m}
+                          className="bg-white text-slate-800"
+                        >
+                          {m}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* Selected Customer Display */}
-                  {(() => {
-                    const selected = customers.find(
-                      (c) => c.id === selectedCustomerId
-                    );
-                    return (
-                      selected && (
-                        <div className="mt-2 p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm">
-                                {selected.customer_name.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="text-white font-medium text-sm">
-                                  {selected.customer_name}
-                                </p>
-                                {selected.credit_balance !== 0 && (
-                                  <p
-                                    className={`text-xs ${
-                                      selected.credit_balance > 0
-                                        ? "text-red-400"
-                                        : "text-green-400"
-                                    }`}
-                                  >
-                                    {selected.credit_balance > 0
-                                      ? "Owes: "
-                                      : "Credit: "}
-                                    KES{" "}
-                                    {Math.abs(
-                                      selected.credit_balance
-                                    ).toLocaleString()}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                            {selected.id !==
-                              "00000000-0000-0000-0000-000000000001" && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedCustomerId(
-                                    "00000000-0000-0000-0000-000000000001"
-                                  );
-                                  setCustomerSearch("");
-                                }}
-                                className="p-1 hover:bg-red-500/20 rounded text-red-400"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    );
-                  })()}
+                  {/* Customer Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                      Customer Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                      placeholder="Walk-in Customer"
+                    />
+                  </div>
 
-                  {/* Customer Dropdown */}
-                  {showCustomerDropdown && (
-                    <div className="absolute z-50 w-full mt-1 bg-slate-800 border border-white/20 rounded-lg shadow-2xl max-h-80 overflow-y-auto">
-                      {(() => {
-                        const filtered = customers.filter(
-                          (c) =>
-                            c.customer_name
-                              .toLowerCase()
-                              .includes(customerSearch.toLowerCase()) ||
-                            (c.phone && c.phone.includes(customerSearch))
-                        );
+                  {/* Payment Status */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                      Payment Status <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={paymentStatus}
+                      onChange={(e) =>
+                        setPaymentStatus(
+                          e.target.value as "paid" | "not_paid" | "partial"
+                        )
+                      }
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                    >
+                      <option value="paid">Paid</option>
+                      <option value="partial">Partial Payment</option>
+                      <option value="not_paid">Not Paid</option>
+                    </select>
+                  </div>
 
-                        if (filtered.length === 0) {
-                          return (
-                            <div className="p-4 text-center text-slate-400">
-                              No customers found
-                            </div>
-                          );
-                        }
-
-                        return filtered.map((customer) => (
-                          <button
-                            key={customer.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCustomerId(customer.id);
-                              setCustomerSearch(customer.customer_name);
-                              setShowCustomerDropdown(false);
-                            }}
-                            className={`w-full px-4 py-3 text-left hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 ${
-                              selectedCustomerId === customer.id
-                                ? "bg-purple-500/20"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold">
-                                  {customer.customer_name
-                                    .charAt(0)
-                                    .toUpperCase()}
-                                </div>
-                                <div>
-                                  <p className="text-white font-medium">
-                                    {customer.customer_name}
-                                  </p>
-                                  {customer.phone && (
-                                    <p className="text-xs text-slate-400">
-                                      {customer.phone}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              {customer.credit_balance !== 0 && (
-                                <div className="text-right">
-                                  <p className="text-xs text-slate-400">
-                                    {customer.credit_balance > 0
-                                      ? "Owes"
-                                      : "Credit"}
-                                  </p>
-                                  <p
-                                    className={`text-sm font-bold ${
-                                      customer.credit_balance > 0
-                                        ? "text-red-400"
-                                        : "text-green-400"
-                                    }`}
-                                  >
-                                    KES{" "}
-                                    {Math.abs(
-                                      customer.credit_balance
-                                    ).toLocaleString()}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        ));
-                      })()}
+                  {/* Amount Paid - Only show for partial payment */}
+                  {paymentStatus === "partial" && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
+                        Amount Paid <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={amountPaid}
+                        onChange={(e) => setAmountPaid(e.target.value)}
+                        className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                        placeholder="Enter amount paid"
+                        step="0.01"
+                        min="0"
+                      />
                     </div>
                   )}
                 </div>
               </div>
+            )}
 
-              {/* Customer Balance Info */}
-              {(() => {
-                const selectedCustomer = customers.find(
-                  (c) => c.id === selectedCustomerId
-                );
-                if (
-                  selectedCustomer &&
-                  selectedCustomer.id !== "00000000-0000-0000-0000-000000000001"
-                ) {
-                  const newBalance = selectedCustomer.credit_balance + total;
+            {/* Quick Mode Info Banner */}
+            {quickSaleMode && (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 flex items-center space-x-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-green-600/30 rounded-full flex items-center justify-center">
+                  <span className="text-xl">💨</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-green-300">
+                    Quick Sale Active
+                  </p>
+                  <p className="text-xs text-green-400">
+                    Payment: Till Number • Sold by: Mohamed
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Bulk Sales by Grade */}
+            <div className="bg-white rounded-xl p-4 border-2 border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                  <span>📚</span>
+                  <span>Quick Add by Grade</span>
+                </h4>
+                <span className="text-xs text-slate-600">
+                  Click to load all books
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => {
+                  const gradeBooks = products.filter((p) => {
+                    const nameLower = p.name.toLowerCase();
+                    return (
+                      p.quantity_in_stock > 0 &&
+                      (nameLower.includes(`grade ${grade}`) ||
+                        nameLower.includes(`grade${grade}`) ||
+                        nameLower.includes(`std ${grade}`) ||
+                        nameLower.includes(`std${grade}`) ||
+                        nameLower.includes(`class ${grade}`) ||
+                        nameLower.includes(`class${grade}`))
+                    );
+                  });
 
                   return (
-                    <div className="mt-2 p-4 rounded-xl border bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white flex-shrink-0">
-                          <Users className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-white text-lg mb-2">
-                            {selectedCustomer.customer_name}
-                          </p>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-xs text-slate-400">
-                                {selectedCustomer.credit_balance > 0
-                                  ? "Owes"
-                                  : selectedCustomer.credit_balance < 0
-                                  ? "Prepaid Credit"
-                                  : "Balance"}
-                              </p>
-                              <p
-                                className={`text-lg font-bold ${
-                                  selectedCustomer.credit_balance > 0
-                                    ? "text-red-400"
-                                    : selectedCustomer.credit_balance < 0
-                                    ? "text-green-400"
-                                    : "text-slate-400"
-                                }`}
-                              >
-                                KES{" "}
-                                {Math.abs(
-                                  selectedCustomer.credit_balance
-                                ).toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-xs text-slate-400">
-                                After Sale
-                              </p>
-                              <p
-                                className={`text-lg font-bold ${
-                                  newBalance > 0
-                                    ? "text-red-400"
-                                    : newBalance < 0
-                                    ? "text-green-400"
-                                    : "text-white"
-                                }`}
-                              >
-                                {newBalance > 0
-                                  ? "Owes: "
-                                  : newBalance < 0
-                                  ? "Credit: "
-                                  : ""}
-                                KES {Math.abs(newBalance).toLocaleString()}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <button
+                      key={grade}
+                      type="button"
+                      onClick={() => {
+                        if (gradeBooks.length === 0) {
+                          alert(
+                            `No books found for Grade ${grade} with stock available.`
+                          );
+                          return;
+                        }
+
+                        // Check for duplicates before adding
+                        const newBooks = gradeBooks.filter((book) => {
+                          const exists = lineItems.some(
+                            (li) => li.product_id === book.id
+                          );
+                          return !exists;
+                        });
+
+                        if (newBooks.length === 0) {
+                          alert(
+                            `All Grade ${grade} books are already in the sale!`
+                          );
+                          return;
+                        }
+
+                        // Add all grade books to line items
+                        const newLineItems = newBooks.map((book) => ({
+                          id: crypto.randomUUID(),
+                          product_id: book.id,
+                          quantity: "1",
+                          discount_type: "none" as DiscountType,
+                          discount_value: "",
+                          searchTerm: book.name,
+                          showDropdown: false,
+                        }));
+
+                        setLineItems((items) => [...items, ...newLineItems]);
+
+                        // Show success message
+                        const skipped = gradeBooks.length - newBooks.length;
+                        const message =
+                          skipped > 0
+                            ? `✅ Added ${newBooks.length} Grade ${grade} books!\n\n(${skipped} already in sale)`
+                            : `✅ Added ${newBooks.length} Grade ${grade} books!`;
+
+                        alert(message);
+                      }}
+                      disabled={gradeBooks.length === 0}
+                      className={`relative px-3 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg active:scale-95 touch-manipulation border-2 ${
+                        gradeBooks.length === 0
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 border-slate-200"
+                          : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-amber-400"
+                      }`}
+                      style={{
+                        WebkitTapHighlightColor: "rgba(99, 102, 241, 0.3)",
+                      }}
+                    >
+                      <span className="block text-lg mb-0.5">
+                        Grade {grade}
+                      </span>
+                      <span className="block text-xs opacity-80">
+                        {gradeBooks.length}{" "}
+                        {gradeBooks.length === 1 ? "book" : "books"}
+                      </span>
+                    </button>
                   );
-                }
-                return null;
-              })()}
+                })}
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-amber-100/50">
+                <p className="text-xs text-slate-700 text-center">
+                  💡 Tip: Each book will be added with quantity 1. You can
+                  adjust quantities after adding.
+                </p>
+              </div>
             </div>
 
             {/* Line Items */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-base sm:text-lg font-bold text-white flex items-center space-x-2">
+                <h4 className="text-base sm:text-lg font-bold text-slate-900 flex items-center space-x-2">
                   <Package className="w-5 h-5" />
                   <span>Products ({lineItems.length})</span>
                 </h4>
@@ -1545,45 +1550,108 @@ export default function SaleForm({
                 {lineItems.map((li, idx) => {
                   const product = productById(li.product_id);
                   const comp = computed.find((c) => c.line.id === li.id)!;
-
-                  // Get search suggestions (like Google autocomplete)
-                  const suggestions =
-                    li.searchTerm && li.searchTerm.length >= 2
-                      ? getSearchSuggestions(products, li.searchTerm, 8)
-                      : [];
-
-                  // Use fuzzy search for better matching (tolerates typos)
+                  // Use advanced search with fuzzy matching
                   const searchResults = searchProducts(
                     products,
                     li.searchTerm,
                     {
-                      fuzzyThreshold: 0.6, // Lower threshold for more lenient matching
-                      includeDescription: true,
-                      maxResults: 50,
+                      fuzzyThreshold: 0.6, // More lenient (0.6 instead of default 0.7)
+                      includeDescription: false,
+                      maxResults: 15,
                     }
                   );
+
                   const filtered = searchResults.map(
                     (result) => result.product
                   );
 
-                  // Get top selling/featured products for quick access
+                  // Get best prediction for autocomplete (first result)
+                  const prediction =
+                    filtered.length > 0 && li.searchTerm
+                      ? filtered[0].name
+                      : "";
+
+                  // Calculate autocomplete suggestion
+                  const autocompleteSuggestion =
+                    prediction &&
+                    prediction
+                      .toLowerCase()
+                      .startsWith(li.searchTerm.toLowerCase())
+                      ? li.searchTerm + prediction.slice(li.searchTerm.length)
+                      : "";
+
+                  // Handle keyboard navigation
+                  const handleSearchKeyDown = (
+                    e: React.KeyboardEvent<HTMLInputElement>
+                  ) => {
+                    if (e.key === "Tab" && autocompleteSuggestion) {
+                      e.preventDefault();
+                      updateLine(li.id, {
+                        searchTerm: autocompleteSuggestion,
+                        showDropdown: true,
+                      });
+                    } else if (e.key === "Enter" && filtered.length > 0) {
+                      e.preventDefault();
+                      updateLine(li.id, {
+                        product_id: filtered[0].id,
+                        searchTerm: filtered[0].name,
+                        showDropdown: false,
+                      });
+                    } else if (e.key === "Escape") {
+                      updateLine(li.id, { showDropdown: false });
+                    }
+                  };
+
+                  // Quick Access - Top selling or featured products
                   const quickAccessProducts = products
-                    .filter((p) => p.featured || p.quantity_in_stock > 0)
+                    .filter((p) => p.quantity_in_stock > 0)
+                    .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
                     .slice(0, 5);
+
+                  // Generate suggestions like Google (product names and categories)
+                  const suggestions: string[] = [];
+                  if (li.searchTerm) {
+                    const searchLower = li.searchTerm.toLowerCase();
+                    const uniqueSuggestions = new Set<string>();
+
+                    // Add matching product names
+                    products.forEach((p) => {
+                      if (
+                        p.name.toLowerCase().includes(searchLower) &&
+                        p.name.toLowerCase() !== searchLower
+                      ) {
+                        uniqueSuggestions.add(p.name);
+                      }
+                    });
+
+                    // Add matching categories
+                    products.forEach((p) => {
+                      if (
+                        p.category.toLowerCase().includes(searchLower) &&
+                        p.category.toLowerCase() !== searchLower
+                      ) {
+                        uniqueSuggestions.add(p.category);
+                      }
+                    });
+
+                    suggestions.push(
+                      ...Array.from(uniqueSuggestions).slice(0, 3)
+                    );
+                  }
 
                   return (
                     <div
                       key={li.id}
                       ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white/5 border border-white/20 rounded-xl p-3 sm:p-4 space-y-3 hover:bg-white/10 transition-all"
+                      className="relative bg-white border-2 border-slate-200 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-2">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-purple-600/30 text-purple-200 text-xs font-bold">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-semibold text-xs">
                             {idx + 1}
                           </span>
                           {product && (
-                            <span className="text-xs px-2 py-1 bg-green-600/20 text-green-300 rounded border border-green-500/30">
+                            <span className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full font-semibold border border-emerald-300">
                               Stock: {product.quantity_in_stock}
                             </span>
                           )}
@@ -1592,7 +1660,7 @@ export default function SaleForm({
                           <button
                             type="button"
                             onClick={() => removeLine(li.id)}
-                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+                            className="p-2 rounded-xl hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
                             title="Remove line"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1603,11 +1671,25 @@ export default function SaleForm({
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {/* Product Search */}
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                            Product *
+                          <label className="flex items-center text-xs font-medium text-slate-600 mb-1.5">
+                            <span className="mr-2">🔍</span>
+                            Product *{" "}
+                            {autocompleteSuggestion && (
+                              <span className="text-amber-800 font-semibold text-xs ml-2 animate-pulse">
+                                Press Tab ↹ to complete
+                              </span>
+                            )}
                           </label>
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+                          <div className="relative group">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-800 pointer-events-none z-10 transition-all group-focus-within:text-amber-800 group-focus-within:scale-110" />
+
+                            {/* Autocomplete preview (ghost text) */}
+                            {autocompleteSuggestion && li.showDropdown && (
+                              <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none z-[5] text-sm text-slate-700 font-medium">
+                                {autocompleteSuggestion}
+                              </div>
+                            )}
+
                             <input
                               type="text"
                               value={li.searchTerm}
@@ -1621,26 +1703,23 @@ export default function SaleForm({
                                     : "",
                                 })
                               }
+                              onKeyDown={handleSearchKeyDown}
                               onFocus={() =>
                                 updateLine(li.id, { showDropdown: true })
                               }
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateLine(li.id, { showDropdown: true });
-                              }}
-                              placeholder="Start typing to search products..."
-                              className="w-full pl-9 pr-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                              autoComplete="off"
+                              placeholder="Type to search products..."
+                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-base text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all relative z-10 font-medium hover:border-amber-300 touch-manipulation"
+                              style={{ background: "transparent" }}
                             />
 
                             {/* Predictive Suggestions Dropdown - Google Style */}
                             {li.showDropdown && (
-                              <div className="absolute z-30 w-full mt-2 bg-slate-800/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl max-h-96 overflow-y-auto">
+                              <div className="absolute z-30 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
                                 {/* Quick Access - When search is empty */}
                                 {!li.searchTerm &&
                                   quickAccessProducts.length > 0 && (
-                                    <div className="border-b border-white/10">
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                    <div className="border-b border-amber-100/50">
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
                                         <TrendingUp className="w-3 h-3" />
                                         <span>Quick Access</span>
                                       </div>
@@ -1655,24 +1734,24 @@ export default function SaleForm({
                                               showDropdown: false,
                                             })
                                           }
-                                          className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors"
+                                          className="w-full text-left px-3 py-2 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors"
                                         >
                                           {p.image_url ? (
                                             <img
                                               src={p.image_url}
                                               alt={p.name}
-                                              className="w-8 h-8 object-cover rounded border border-white/10"
+                                              className="w-8 h-8 object-cover rounded border border-amber-100/50"
                                             />
                                           ) : (
-                                            <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center border border-white/10">
-                                              <Package className="w-4 h-4 text-slate-400" />
+                                            <div className="w-8 h-8 bg-white/90 rounded flex items-center justify-center border border-amber-100/50">
+                                              <Package className="w-4 h-4 text-slate-700 " />
                                             </div>
                                           )}
                                           <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-white text-xs truncate">
+                                            <p className="font-medium text-slate-900 text-xs truncate">
                                               {p.name}
                                             </p>
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-slate-700 ">
                                               KES{" "}
                                               {p.selling_price.toLocaleString()}
                                             </p>
@@ -1684,56 +1763,48 @@ export default function SaleForm({
 
                                 {/* Search Suggestions - Like Google */}
                                 {suggestions.length > 0 && li.searchTerm && (
-                                  <div className="border-b border-white/10">
-                                    <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                  <div className="border-b border-amber-100/50">
+                                    <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
                                       <Search className="w-3 h-3" />
                                       <span>Suggestions</span>
                                     </div>
-                                    {suggestions.map((suggestion, idx) => {
-                                      // Find matching product for suggestion
-                                      products.find(
-                                        (p) =>
-                                          p.name === suggestion ||
-                                          p.category === suggestion
-                                      );
-                                      return (
-                                        <button
-                                          key={idx}
-                                          type="button"
-                                          onClick={() =>
-                                            updateLine(li.id, {
-                                              searchTerm: suggestion,
-                                              showDropdown: true,
-                                            })
-                                          }
-                                          className="w-full text-left px-3 py-2 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors group"
-                                        >
-                                          <Clock className="w-4 h-4 text-slate-400 group-hover:text-purple-400" />
-                                          <span className="text-white">
-                                            {suggestion
-                                              .split(
-                                                new RegExp(
-                                                  `(${li.searchTerm})`,
-                                                  "gi"
-                                                )
+                                    {suggestions.map((suggestion, idx) => (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() =>
+                                          updateLine(li.id, {
+                                            searchTerm: suggestion,
+                                            showDropdown: true,
+                                          })
+                                        }
+                                        className="w-full text-left px-3 py-2 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors group"
+                                      >
+                                        <Clock className="w-4 h-4 text-slate-700 group-hover:text-amber-700 " />
+                                        <span className="text-white">
+                                          {suggestion
+                                            .split(
+                                              new RegExp(
+                                                `(${li.searchTerm})`,
+                                                "gi"
                                               )
-                                              .map((part, i) =>
-                                                part.toLowerCase() ===
-                                                li.searchTerm.toLowerCase() ? (
-                                                  <span
-                                                    key={i}
-                                                    className="font-bold text-purple-300"
-                                                  >
-                                                    {part}
-                                                  </span>
-                                                ) : (
-                                                  <span key={i}>{part}</span>
-                                                )
-                                              )}
-                                          </span>
-                                        </button>
-                                      );
-                                    })}
+                                            )
+                                            .map((part, i) =>
+                                              part.toLowerCase() ===
+                                              li.searchTerm.toLowerCase() ? (
+                                                <span
+                                                  key={i}
+                                                  className="font-bold text-amber-700 "
+                                                >
+                                                  {part}
+                                                </span>
+                                              ) : (
+                                                <span key={i}>{part}</span>
+                                              )
+                                            )}
+                                        </span>
+                                      </button>
+                                    ))}
                                   </div>
                                 )}
 
@@ -1741,7 +1812,7 @@ export default function SaleForm({
                                 {li.searchTerm && filtered.length > 0 && (
                                   <div>
                                     {suggestions.length > 0 && (
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
                                         <Package className="w-3 h-3" />
                                         <span>
                                           Products ({filtered.length})
@@ -1759,24 +1830,24 @@ export default function SaleForm({
                                             showDropdown: false,
                                           })
                                         }
-                                        className="w-full text-left px-3 py-2.5 hover:bg-purple-600/20 text-sm flex items-center space-x-2 transition-colors border-b border-white/5 last:border-0"
+                                        className="w-full text-left px-3 py-2.5 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 last:border-0"
                                       >
                                         {p.image_url ? (
                                           <img
                                             src={p.image_url}
                                             alt={p.name}
-                                            className="w-10 h-10 object-cover rounded border border-white/10"
+                                            className="w-10 h-10 object-cover rounded border border-amber-100/50"
                                           />
                                         ) : (
-                                          <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center border border-white/10">
-                                            <Package className="w-5 h-5 text-slate-400" />
+                                          <div className="w-10 h-10 bg-white/90 rounded flex items-center justify-center border border-amber-100/50">
+                                            <Package className="w-5 h-5 text-slate-700 " />
                                           </div>
                                         )}
                                         <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-white truncate">
+                                          <p className="font-medium text-slate-900 truncate">
                                             {p.name}
                                           </p>
-                                          <p className="text-xs text-slate-400 truncate">
+                                          <p className="text-xs text-slate-700 truncate">
                                             {p.product_id} • Stock{" "}
                                             {p.quantity_in_stock} • KES{" "}
                                             {p.selling_price.toLocaleString()}
@@ -1785,7 +1856,7 @@ export default function SaleForm({
                                       </button>
                                     ))}
                                     {filtered.length > 15 && (
-                                      <div className="px-3 py-2 text-xs text-center text-slate-400 bg-slate-900/50">
+                                      <div className="px-3 py-2 text-xs text-center text-slate-600 bg-slate-50">
                                         + {filtered.length - 15} more results
                                       </div>
                                     )}
@@ -1794,7 +1865,7 @@ export default function SaleForm({
 
                                 {/* No Results */}
                                 {li.searchTerm && filtered.length === 0 && (
-                                  <div className="p-4 text-center text-slate-400 text-sm">
+                                  <div className="p-4 text-center text-slate-700 text-sm">
                                     <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
                                     <p className="font-medium">
                                       No products found
@@ -1811,24 +1882,114 @@ export default function SaleForm({
 
                         {/* Quantity */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
                             Quantity *
                           </label>
-                          <input
-                            type="number"
-                            min={1}
-                            value={li.quantity}
-                            onChange={(e) =>
-                              updateLine(li.id, { quantity: e.target.value })
-                            }
-                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                            placeholder="Qty"
-                          />
+                          <div className="space-y-2">
+                            <input
+                              type="number"
+                              min={1}
+                              value={li.quantity}
+                              onChange={(e) =>
+                                updateLine(li.id, { quantity: e.target.value })
+                              }
+                              className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                              placeholder="Qty"
+                            />
+                            {/* Quick Quantity Buttons */}
+                            <div className="grid grid-cols-5 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = parseInt(li.quantity || "1");
+                                  updateLine(li.id, {
+                                    quantity: String(Math.max(1, current - 1)),
+                                  });
+                                }}
+                                className="px-2 py-1 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 rounded text-xs text-slate-900 font-medium transition-all active:scale-95"
+                                style={{
+                                  touchAction: "manipulation",
+                                  WebkitTapHighlightColor:
+                                    "rgba(139, 92, 246, 0.3)",
+                                }}
+                              >
+                                -1
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = parseInt(li.quantity || "1");
+                                  updateLine(li.id, {
+                                    quantity: String(current + 1),
+                                  });
+                                }}
+                                className="px-2 py-1 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 rounded text-xs text-slate-900 font-medium transition-all active:scale-95"
+                                style={{
+                                  touchAction: "manipulation",
+                                  WebkitTapHighlightColor:
+                                    "rgba(139, 92, 246, 0.3)",
+                                }}
+                              >
+                                +1
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = parseInt(li.quantity || "1");
+                                  updateLine(li.id, {
+                                    quantity: String(current * 2),
+                                  });
+                                }}
+                                className="px-2 py-1 bg-amber-500 hover:bg-amber-600 border border-amber-600 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-md"
+                                style={{
+                                  touchAction: "manipulation",
+                                  WebkitTapHighlightColor:
+                                    "rgba(139, 92, 246, 0.3)",
+                                }}
+                              >
+                                ×2
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = parseInt(li.quantity || "1");
+                                  updateLine(li.id, {
+                                    quantity: String(current * 5),
+                                  });
+                                }}
+                                className="px-2 py-1 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 border border-rose-400 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-lg shadow-amber-300/10"
+                                style={{
+                                  touchAction: "manipulation",
+                                  WebkitTapHighlightColor:
+                                    "rgba(139, 92, 246, 0.3)",
+                                }}
+                              >
+                                ×5
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = parseInt(li.quantity || "1");
+                                  updateLine(li.id, {
+                                    quantity: String(current * 10),
+                                  });
+                                }}
+                                className="px-2 py-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 border border-red-500/50 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-lg shadow-amber-300/10"
+                                style={{
+                                  touchAction: "manipulation",
+                                  WebkitTapHighlightColor:
+                                    "rgba(139, 92, 246, 0.3)",
+                                }}
+                              >
+                                ×10
+                              </button>
+                            </div>
+                          </div>
                         </div>
 
                         {/* Discount Type */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
                             Discount Type
                           </label>
                           <select
@@ -1839,23 +2000,23 @@ export default function SaleForm({
                                 discount_value: "",
                               })
                             }
-                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
                           >
                             <option
                               value="none"
-                              className="bg-slate-900 text-white"
+                              className="bg-white text-slate-800"
                             >
                               None
                             </option>
                             <option
                               value="percentage"
-                              className="bg-slate-900 text-white"
+                              className="bg-white text-slate-800"
                             >
                               Percentage (%)
                             </option>
                             <option
                               value="amount"
-                              className="bg-slate-900 text-white"
+                              className="bg-white text-slate-800"
                             >
                               Amount (KES)
                             </option>
@@ -1864,7 +2025,7 @@ export default function SaleForm({
 
                         {/* Discount Value */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
                             Discount Value
                           </label>
                           <input
@@ -1885,7 +2046,7 @@ export default function SaleForm({
                             step={
                               li.discount_type === "percentage" ? "0.01" : "1"
                             }
-                            className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             placeholder={
                               li.discount_type === "percentage" ? "10" : "100"
                             }
@@ -1895,38 +2056,38 @@ export default function SaleForm({
 
                       {/* Line Summary */}
                       {product && comp.quantity > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-white/10">
-                          <div className="bg-blue-500/10 rounded-md p-2 border border-blue-500/20">
-                            <span className="text-slate-400 block mb-0.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100">
+                          <div className="bg-amber-50 rounded-md p-2 border border-amber-200">
+                            <span className="text-slate-600 block mb-0.5">
                               Original
                             </span>
-                            <span className="font-bold text-blue-300">
+                            <span className="font-bold text-amber-700">
                               KES {comp.original_total.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-red-500/10 rounded-md p-2 border border-red-500/20">
-                            <span className="text-slate-400 block mb-0.5">
+                          <div className="bg-red-50 rounded-md p-2 border border-red-200">
+                            <span className="text-slate-600 block mb-0.5">
                               Discount
                             </span>
-                            <span className="font-bold text-red-300">
+                            <span className="font-bold text-red-600">
                               {comp.discount_amount > 0
                                 ? "-" + comp.discount_amount.toLocaleString()
                                 : "-"}
                             </span>
                           </div>
-                          <div className="bg-purple-500/10 rounded-md p-2 border border-purple-500/20">
-                            <span className="text-slate-400 block mb-0.5">
+                          <div className="bg-amber-50 rounded-md p-2 border border-amber-200">
+                            <span className="text-slate-600 block mb-0.5">
                               Line Total
                             </span>
-                            <span className="font-bold text-purple-300">
+                            <span className="font-bold text-amber-700">
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-green-500/10 rounded-md p-2 border border-green-500/20">
-                            <span className="text-slate-400 block mb-0.5">
+                          <div className="bg-emerald-50 rounded-md p-2 border border-emerald-200">
+                            <span className="text-slate-600 block mb-0.5">
                               Profit Est.
                             </span>
-                            <span className="font-bold text-green-300">
+                            <span className="font-bold text-emerald-700">
                               KES {comp.profit.toLocaleString()}
                             </span>
                           </div>
@@ -1941,7 +2102,7 @@ export default function SaleForm({
               <button
                 type="button"
                 onClick={addLine}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg font-medium"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg font-medium border-2 border-amber-400"
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Another Product Line</span>
@@ -1949,14 +2110,14 @@ export default function SaleForm({
             </div>
 
             {/* Overall Discount Section */}
-            <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-xl p-4 border border-orange-500/30">
-              <h4 className="text-sm font-bold text-white mb-3 flex items-center space-x-2">
+            <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
+              <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center space-x-2">
                 <span>🎁</span>
                 <span>Overall Discount (Applied to Total)</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-2">
                     Discount Type
                   </label>
                   <select
@@ -1965,24 +2126,24 @@ export default function SaleForm({
                       setOverallDiscountType(e.target.value as DiscountType);
                       setOverallDiscountValue("");
                     }}
-                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
                   >
-                    <option value="none" className="bg-slate-900 text-white">
+                    <option value="none" className="bg-white text-slate-800">
                       No Overall Discount
                     </option>
                     <option
                       value="percentage"
-                      className="bg-slate-900 text-white"
+                      className="bg-white text-slate-800"
                     >
                       Percentage (%)
                     </option>
-                    <option value="amount" className="bg-slate-900 text-white">
+                    <option value="amount" className="bg-white text-slate-800">
                       Fixed Amount (KES)
                     </option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-2">
+                  <label className="block text-xs font-medium text-slate-600 mb-2">
                     Discount Value
                   </label>
                   <input
@@ -1993,7 +2154,7 @@ export default function SaleForm({
                     min="0"
                     max={overallDiscountType === "percentage" ? 100 : undefined}
                     step={overallDiscountType === "percentage" ? "0.01" : "1"}
-                    className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     placeholder={
                       overallDiscountType === "percentage"
                         ? "e.g., 10 for 10%"
@@ -2005,48 +2166,48 @@ export default function SaleForm({
             </div>
 
             {/* Overall Totals */}
-            <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/40 space-y-3 shadow-lg">
-              <h4 className="text-base font-bold text-white mb-3 flex items-center space-x-2">
+            <div className="bg-white rounded-xl p-4 sm:p-6 border-2 border-slate-200 space-y-3 shadow-md">
+              <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
                 <span>💵</span>
                 <span>Sale Summary</span>
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-300">Subtotal:</span>
-                  <span className="font-semibold text-white">
+                  <span className="text-slate-600">Subtotal:</span>
+                  <span className="font-semibold text-slate-800">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 {total_line_discount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">Line Discounts:</span>
-                    <span className="font-semibold text-red-400">
+                    <span className="text-slate-600">Line Discounts:</span>
+                    <span className="font-semibold text-red-600">
                       -KES {total_line_discount.toLocaleString()}
                     </span>
                   </div>
                 )}
                 {overallDiscountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">
+                    <span className="text-slate-600">
                       Overall Discount
                       {overallDiscountType === "percentage" &&
                         ` (${overallDiscountValue}%)`}
                       :
                     </span>
-                    <span className="font-semibold text-red-400">
+                    <span className="font-semibold text-red-600">
                       -KES {overallDiscountAmount.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg border-t border-white/20 pt-3 font-bold">
-                  <span className="text-purple-300">Final Total:</span>
-                  <span className="text-purple-300">
+                <div className="flex justify-between text-lg border-t-2 border-amber-200 pt-3 font-bold">
+                  <span className="text-amber-700">Final Total:</span>
+                  <span className="text-amber-700">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-white/10">
-                  <span className="text-slate-300">Estimated Profit:</span>
-                  <span className="font-bold text-green-400">
+                <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
+                  <span className="text-slate-600">Estimated Profit:</span>
+                  <span className="font-bold text-emerald-700">
                     KES {total_profit.toLocaleString()}
                   </span>
                 </div>
@@ -2054,34 +2215,38 @@ export default function SaleForm({
             </div>
 
             {/* Action Buttons - Improved for mobile touch */}
-            <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
+            <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t-2 border-slate-200">
               <button
                 type="button"
-                onClick={() => setShowDraftHistory(true)}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg font-medium text-base touch-manipulation active:scale-95 flex items-center justify-center space-x-2"
+                onClick={() => setShowDrafts(!showDrafts)}
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all font-medium touch-manipulation active:scale-95 shadow-lg flex items-center justify-center space-x-2 border-2 border-amber-400"
+                style={{ WebkitTapHighlightColor: "rgba(245,158,11,0.3)" }}
               >
-                <Clock className="w-5 h-5" />
+                <span>📋</span>
                 <span>Draft History ({savedDrafts.length})</span>
               </button>
               <button
                 type="button"
                 onClick={saveDraft}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-yellow-600 to-amber-600 text-white rounded-lg hover:from-yellow-700 hover:to-amber-700 transition-all shadow-lg font-medium text-base touch-manipulation active:scale-95 flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all font-medium touch-manipulation active:scale-95 shadow-lg flex items-center justify-center space-x-2 border-2 border-orange-500"
+                style={{ WebkitTapHighlightColor: "rgba(251,191,36,0.3)" }}
               >
-                <Package className="w-5 h-5" />
+                <span>💾</span>
                 <span>Save Draft</span>
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-white/30 text-white rounded-lg hover:bg-white/10 transition-all font-medium touch-manipulation active:scale-95"
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium touch-manipulation active:scale-95"
+                style={{ WebkitTapHighlightColor: "rgba(255,255,255,0.2)" }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base touch-manipulation active:scale-95"
+                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base touch-manipulation active:scale-95 border-2 border-amber-400"
+                style={{ WebkitTapHighlightColor: "rgba(139,92,246,0.4)" }}
               >
                 {submitting ? (
                   <span className="flex items-center justify-center space-x-2">
@@ -2121,73 +2286,238 @@ export default function SaleForm({
         onCancel={handleCancelSale}
       />
 
-      {/* Draft History Modal */}
-      {showDraftHistory && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-white/10">
-            <div className="bg-gradient-to-r from-amber-600/30 to-orange-600/30 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+      {/* Drafts Panel Modal */}
+      {showDrafts && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {/* Header */}
+            <div className="bg-amber-50 border-b-2 border-amber-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Clock className="w-6 h-6 text-amber-400" />
-                <h2 className="text-2xl font-bold text-white">Draft History</h2>
+                <span className="text-2xl">📋</span>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    Saved Drafts
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    {savedDrafts.length} draft
+                    {savedDrafts.length !== 1 ? "s" : ""} saved
+                  </p>
+                </div>
               </div>
               <button
-                onClick={() => setShowDraftHistory(false)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                onClick={() => setShowDrafts(false)}
+                className="p-2 hover:bg-amber-100 rounded-xl transition-colors text-slate-700 hover:text-slate-900 border border-transparent hover:border-amber-300"
+                style={{
+                  touchAction: "manipulation",
+                  WebkitTapHighlightColor: "rgba(139, 92, 246, 0.3)",
+                }}
               >
-                <X className="w-6 h-6 text-white" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-              {/* Draft List */}
+            {/* Drafts List */}
+            <div className="overflow-y-auto max-h-[60vh] p-6">
               {savedDrafts.length === 0 ? (
                 <div className="text-center py-12">
-                  <Clock className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                  <p className="text-slate-400 text-lg">No saved drafts</p>
-                  <p className="text-slate-500 text-sm mt-2">
-                    Save your current sale to come back to it later
-                  </p>
+                  <span className="text-6xl mb-4 block opacity-50">📭</span>
+                  <p className="text-slate-400">No saved drafts yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {savedDrafts.map((draft) => (
                     <div
                       key={draft.id}
-                      className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all"
+                      className="bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-amber-300 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-white mb-1">
-                            {draft.draft_name || "Untitled Draft"}
-                          </h3>
-                          <div className="text-sm text-slate-400 space-y-1">
-                            <p>👤 Sold by: {draft.sold_by || "Not set"}</p>
-                            <p>💳 Payment: {draft.payment_method}</p>
-                            <p>📦 Items: {draft.line_items?.length || 0}</p>
-                            <p>
-                              🕒 {new Date(draft.created_at).toLocaleString()}
-                            </p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-lg font-semibold text-slate-900 truncate mb-1">
+                            {draft.name}
+                          </h4>
+                          <div className="flex flex-wrap gap-3 text-xs text-slate-700 mb-3">
+                            <span className="flex items-center gap-1">
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                              {new Date(draft.timestamp).toLocaleString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                />
+                              </svg>
+                              {draft.lineItems.length} item
+                              {draft.lineItems.length !== 1 ? "s" : ""}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                              {draft.soldBy}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                />
+                              </svg>
+                              {draft.paymentMethod}
+                            </span>
+                          </div>
+                          {/* Line Items Preview */}
+                          <div className="bg-slate-50 rounded-xl p-3 space-y-1 border border-slate-200">
+                            {draft.lineItems.slice(0, 3).map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="text-xs text-slate-600 flex justify-between"
+                              >
+                                <span className="truncate flex-1">
+                                  {products.find(
+                                    (p) => p.id === item.product_id
+                                  )?.name || "Unknown"}
+                                </span>
+                                <span className="text-slate-700 ml-2">
+                                  ×{item.quantity}
+                                </span>
+                              </div>
+                            ))}
+                            {draft.lineItems.length > 3 && (
+                              <div className="text-xs text-slate-700 italic">
+                                +{draft.lineItems.length - 3} more item
+                                {draft.lineItems.length - 3 !== 1 ? "s" : ""}
+                              </div>
+                            )}
                           </div>
                         </div>
+
+                        {/* Action Buttons */}
                         <div className="flex flex-col gap-2">
                           <button
                             onClick={() => loadDraft(draft)}
-                            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg font-medium text-sm"
+                            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl font-medium text-sm transition-all active:scale-95 shadow-lg flex items-center gap-2 whitespace-nowrap min-h-[44px]"
+                            style={{
+                              touchAction: "manipulation",
+                              WebkitTapHighlightColor:
+                                "rgba(139, 92, 246, 0.3)",
+                            }}
                           >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                              />
+                            </svg>
                             Load
                           </button>
                           <button
-                            onClick={() => printDraft(draft)}
-                            className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg font-medium text-sm flex items-center gap-1 justify-center"
+                            onClick={() => {
+                              printDraft(draft);
+                            }}
+                            className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-medium text-sm transition-all active:scale-95 shadow-lg flex items-center gap-2 whitespace-nowrap min-h-[44px]"
+                            style={{
+                              touchAction: "manipulation",
+                              WebkitTapHighlightColor:
+                                "rgba(139, 92, 246, 0.3)",
+                            }}
                           >
-                            <Printer className="w-4 h-4" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                              />
+                            </svg>
                             Print
                           </button>
                           <button
-                            onClick={() => deleteDraft(draft.id)}
-                            className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 transition-all shadow-lg font-medium text-sm flex items-center gap-1"
+                            onClick={() => {
+                              if (confirm(`Delete draft "${draft.name}"?`)) {
+                                deleteDraft(draft.id);
+                              }
+                            }}
+                            className="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-xl font-medium text-sm transition-all active:scale-95 shadow-lg flex items-center gap-2 whitespace-nowrap min-h-[44px]"
+                            style={{
+                              touchAction: "manipulation",
+                              WebkitTapHighlightColor:
+                                "rgba(139, 92, 246, 0.3)",
+                            }}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
                             Delete
                           </button>
                         </div>
