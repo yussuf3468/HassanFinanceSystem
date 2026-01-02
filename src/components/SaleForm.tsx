@@ -69,7 +69,7 @@ const paymentMethods = [
   "Card",
   "Bank Transfer",
 ];
-const staffMembers = ["Mohamed", "Najib", "Isse", "Timo", "Samira"];
+const staffMembers = ["Khalid", "Yussuf", "Zakaria"];
 
 export default function SaleForm({
   products,
@@ -1289,7 +1289,7 @@ export default function SaleForm({
                 onClick={() => {
                   setQuickSaleMode(!quickSaleMode);
                   if (!quickSaleMode) {
-                    setSoldBy("Mohamed");
+                    setSoldBy("Khalid");
                     setPaymentMethod("Till Number");
                   }
                 }}
@@ -1425,7 +1425,7 @@ export default function SaleForm({
                     Quick Sale Active
                   </p>
                   <p className="text-xs text-green-400">
-                    Payment: Till Number • Sold by: Mohamed
+                    Payment: Till Number • Sold by: Khalid
                   </p>
                 </div>
               </div>
