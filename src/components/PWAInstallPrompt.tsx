@@ -121,7 +121,9 @@ export default function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg mb-1">Install Hassan Bookshop App</h3>
+              <h3 className="font-bold text-lg mb-1">
+                Install Hassan Bookshop App
+              </h3>
               <p className="text-sm text-blue-100 mb-3">
                 Install this app on your iPhone for quick access and better
                 experience.
@@ -178,7 +180,9 @@ export default function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg mb-1">Install Hassan Bookshop App</h3>
+              <h3 className="font-bold text-lg mb-1">
+                Install Hassan Bookshop App
+              </h3>
               <p className="text-sm text-green-100 mb-3">
                 Install our app for quick access, offline support, and a better
                 experience!
