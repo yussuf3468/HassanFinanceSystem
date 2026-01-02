@@ -69,8 +69,10 @@ const PAYMENT_METHODS = [
 
 export default function CustomerCredit() {
   const queryClient = useQueryClient();
-  const { data: rawCredits = [], isLoading: creditsLoading } = useCustomerCredits();
-  const { data: payments = [], isLoading: paymentsLoading } = useCreditPayments();
+  const { data: rawCredits = [], isLoading: creditsLoading } =
+    useCustomerCredits();
+  const { data: payments = [], isLoading: paymentsLoading } =
+    useCreditPayments();
   const loading = creditsLoading || paymentsLoading;
 
   // Calculate balance and amount_paid for each credit
@@ -92,9 +94,10 @@ export default function CustomerCredit() {
   const [searchTerm, setSearchTerm] = useState("");
   const filteredCredits = useMemo(() => {
     if (!searchTerm.trim()) return credits;
-    return credits.filter((c: any) =>
-      c.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.customer_phone.toLowerCase().includes(searchTerm.toLowerCase())
+    return credits.filter(
+      (c: any) =>
+        c.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.customer_phone.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [credits, searchTerm]);
 
@@ -375,7 +378,9 @@ export default function CustomerCredit() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-lg">Loading customer credits...</div>
+        <div className="text-slate-900 text-lg">
+          Loading customer credits...
+        </div>
       </div>
     );
   }
@@ -383,13 +388,13 @@ export default function CustomerCredit() {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-2xl">
+      <div className="bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-200/60 rounded-3xl p-6 shadow-2xl shadow-amber-500/10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900">
               💳 Deymaha Macaamiisha
             </h1>
-            <p className="text-slate-300 mt-1">
+            <p className="text-slate-900/70 mt-1">
               Lacagta aan ku leenahay macaamiisha
             </p>
           </div>
@@ -399,7 +404,7 @@ export default function CustomerCredit() {
               setEditingCredit(null);
               setShowCreditForm(true);
             }}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-all duration-300 hover:scale-105 shadow-xl"
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-3 rounded-2xl font-semibold flex items-center space-x-2 transition-all duration-300 hover:scale-105 shadow-xl shadow-amber-400/10"
           >
             <Plus className="w-5 h-5" />
             <span>New Store Credit / Deyma Cusub</span>
@@ -409,54 +414,60 @@ export default function CustomerCredit() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur-xl border border-red-500/30 rounded-2xl p-5 shadow-lg">
+        <div className="bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur-xl border border-red-500/30 rounded-2xl p-5 shadow-lg shadow-amber-300/10">
           <div className="flex items-center justify-between mb-2">
             <AlertCircle className="w-8 h-8 text-red-400" />
             <TrendingUp className="w-5 h-5 text-red-300" />
           </div>
-          <p className="text-slate-300 text-sm">Total Credits</p>
+          <p className="text-slate-900/70 text-sm">Total Credits</p>
           <p className="text-2xl font-bold text-red-400 mt-1">
             KES {totalReceivable.toLocaleString()}
           </p>
-          <p className="text-xs text-slate-400 mt-1">Money we owe customers</p>
+          <p className="text-xs text-slate-900/60 mt-1">
+            Money we owe customers
+          </p>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-5 shadow-lg">
+        <div className="bg-gradient-to-br from-emerald-500/20 to-teal-500/20 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-5 shadow-lg shadow-amber-300/10">
           <div className="flex items-center justify-between mb-2">
             <CheckCircle className="w-8 h-8 text-emerald-400" />
             <HandCoins className="w-5 h-5 text-emerald-300" />
           </div>
-          <p className="text-slate-300 text-sm">Total Paid Back</p>
+          <p className="text-slate-900/70 text-sm">Total Paid Back</p>
           <p className="text-2xl font-bold text-emerald-400 mt-1">
             KES {totalCollected.toLocaleString()}
           </p>
-          <p className="text-xs text-slate-400 mt-1">Returned to customers</p>
+          <p className="text-xs text-slate-900/60 mt-1">
+            Returned to customers
+          </p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-5 shadow-lg">
+        <div className="bg-gradient-to-br from-amber-500/20 to-rose-500/20 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-5 shadow-lg shadow-amber-300/10">
           <div className="flex items-center justify-between mb-2">
-            <CreditCard className="w-8 h-8 text-purple-400" />
-            <Users className="w-5 h-5 text-purple-300" />
+            <CreditCard className="w-8 h-8 text-amber-400" />
+            <Users className="w-5 h-5 text-amber-300" />
           </div>
-          <p className="text-slate-300 text-sm">Total Credit / Wadarta</p>
-          <p className="text-2xl font-bold text-purple-400 mt-1">
+          <p className="text-slate-900/70 text-sm">Total Credit / Wadarta</p>
+          <p className="text-2xl font-bold text-amber-400 mt-1">
             KES {totalCreditGiven.toLocaleString()}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-900/60 mt-1">
             {credits.length} macaamiil
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-5 shadow-lg">
+        <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/20 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-5 shadow-lg shadow-amber-300/10">
           <div className="flex items-center justify-between mb-2">
             <Clock className="w-8 h-8 text-amber-400" />
             <DollarSign className="w-5 h-5 text-amber-300" />
           </div>
-          <p className="text-slate-300 text-sm">Overdue / Waqtigooda Dhaafay</p>
+          <p className="text-slate-900/70 text-sm">
+            Overdue / Waqtigooda Dhaafay
+          </p>
           <p className="text-2xl font-bold text-amber-400 mt-1">
             {overdueCredits.length}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-900/60 mt-1">
             Needs attention / Dib u eeg
           </p>
         </div>
@@ -466,31 +477,39 @@ export default function CustomerCredit() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <input
           type="text"
-          className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder:text-slate-400 w-full sm:w-96"
+          className="bg-white border border-amber-200/60 rounded-2xl px-4 py-2 text-slate-900 placeholder:text-slate-900/50 w-full sm:w-96"
           placeholder="Search customer by name or phone..."
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         {searchTerm.trim() && filteredCredits.length > 0 && (
-          <div className="text-slate-200 text-sm mt-2 sm:mt-0">
-            <strong>{filteredCredits[0].customer_name}</strong> owes you: <span className="font-bold text-emerald-400">KES {filteredCredits
-              .filter(c => c.customer_name.toLowerCase() === filteredCredits[0].customer_name.toLowerCase())
-              .reduce((sum, c) => sum + c.balance, 0)
-              .toLocaleString()}</span>
+          <div className="text-slate-900/70 text-sm mt-2 sm:mt-0">
+            <strong>{filteredCredits[0].customer_name}</strong> owes you:{" "}
+            <span className="font-bold text-emerald-400">
+              KES{" "}
+              {filteredCredits
+                .filter(
+                  (c) =>
+                    c.customer_name.toLowerCase() ===
+                    filteredCredits[0].customer_name.toLowerCase()
+                )
+                .reduce((sum, c) => sum + c.balance, 0)
+                .toLocaleString()}
+            </span>
           </div>
         )}
       </div>
-      <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 shadow-xl">
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+      <div className="bg-white border border-amber-200/60 rounded-2xl p-6 shadow-xl shadow-amber-400/10">
+        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center space-x-2">
           <Users className="w-6 h-6" />
           <span>Store Credits ({credits.length})</span>
         </h2>
 
-  {filteredCredits.length === 0 ? (
+        {filteredCredits.length === 0 ? (
           <div className="text-center py-12">
-            <CreditCard className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-            <p className="text-slate-400">No store credits recorded yet.</p>
-            <p className="text-slate-500 text-sm mt-2">
+            <CreditCard className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+            <p className="text-slate-900/60">No store credits recorded yet.</p>
+            <p className="text-slate-900/50 text-sm mt-2">
               Start tracking money you owe to customers
             </p>
           </div>
@@ -498,29 +517,29 @@ export default function CustomerCredit() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-3 px-4 text-slate-300 font-semibold">
+                <tr className="border-b border-amber-200/60">
+                  <th className="text-left py-3 px-4 text-slate-900/70 font-semibold">
                     Customer
                   </th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-left py-3 px-4 text-slate-900/70 font-semibold">
                     Contact
                   </th>
-                  <th className="text-right py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-right py-3 px-4 text-slate-900/70 font-semibold">
                     Total
                   </th>
-                  <th className="text-right py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-right py-3 px-4 text-slate-900/70 font-semibold">
                     Paid Back
                   </th>
-                  <th className="text-right py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-right py-3 px-4 text-slate-900/70 font-semibold">
                     Balance
                   </th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-left py-3 px-4 text-slate-900/70 font-semibold">
                     Due Date
                   </th>
-                  <th className="text-center py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-center py-3 px-4 text-slate-900/70 font-semibold">
                     Status
                   </th>
-                  <th className="text-center py-3 px-4 text-slate-300 font-semibold">
+                  <th className="text-center py-3 px-4 text-slate-900/70 font-semibold">
                     Actions
                   </th>
                 </tr>
@@ -529,33 +548,33 @@ export default function CustomerCredit() {
                 {credits.map((credit: any) => (
                   <tr
                     key={credit.id}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                    className="border-b border-amber-100/50 hover:bg-amber-50/40 transition-colors"
                   >
                     <td className="py-4 px-4">
-                      <div className="font-medium text-white">
+                      <div className="font-medium text-slate-900">
                         {credit.customer_name}
                       </div>
                       {credit.notes && (
-                        <div className="text-xs text-slate-400 mt-1">
+                        <div className="text-xs text-slate-900/60 mt-1">
                           {credit.notes}
                         </div>
                       )}
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex flex-col space-y-1">
-                        <div className="flex items-center space-x-1 text-slate-300 text-sm">
+                        <div className="flex items-center space-x-1 text-slate-900/70 text-sm">
                           <Phone className="w-3 h-3" />
                           <span>{credit.customer_phone}</span>
                         </div>
                         {credit.customer_email && (
-                          <div className="flex items-center space-x-1 text-slate-400 text-xs">
+                          <div className="flex items-center space-x-1 text-slate-900/60 text-xs">
                             <Mail className="w-3 h-3" />
                             <span>{credit.customer_email}</span>
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-right font-semibold text-white">
+                    <td className="py-4 px-4 text-right font-semibold text-slate-900">
                       KES {credit.total_amount.toLocaleString()}
                     </td>
                     <td className="py-4 px-4 text-right text-emerald-400 font-medium">
@@ -573,7 +592,7 @@ export default function CustomerCredit() {
                       </span>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="flex items-center space-x-1 text-slate-300 text-sm">
+                      <div className="flex items-center space-x-1 text-slate-900/70 text-sm">
                         <Calendar className="w-3 h-3" />
                         <span>{formatDate(credit.due_date)}</span>
                       </div>
@@ -595,7 +614,7 @@ export default function CustomerCredit() {
                         {credit.balance > 0 && (
                           <button
                             onClick={() => openPaymentForm(credit)}
-                            className="p-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 rounded-lg transition-colors"
+                            className="p-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 rounded-xl transition-colors"
                             title="Record Payment"
                           >
                             <HandCoins className="w-4 h-4" />
@@ -603,21 +622,21 @@ export default function CustomerCredit() {
                         )}
                         <button
                           onClick={() => viewPaymentHistory(credit)}
-                          className="p-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg transition-colors"
+                          className="p-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-xl transition-colors"
                           title="Payment History"
                         >
                           <Clock className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => openEditForm(credit)}
-                          className="p-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg transition-colors"
+                          className="p-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 rounded-xl transition-colors"
                           title="Edit"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteCredit(credit.id)}
-                          className="p-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 rounded-lg transition-colors"
+                          className="p-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 rounded-xl transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -635,8 +654,8 @@ export default function CustomerCredit() {
       {/* Add/Edit Credit Form Modal */}
       {showCreditForm && (
         <ModalPortal onClose={handleCloseCreditForm}>
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-white mb-6">
+          <div className="bg-white border border-amber-200/60 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">
               {editingCredit
                 ? "Edit Store Credit / Wax Ka Beddel"
                 : "New Store Credit / Deyma Cusub"}
@@ -644,7 +663,7 @@ export default function CustomerCredit() {
             <form onSubmit={handleCreditSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-900/70 mb-2">
                     Customer Name *
                   </label>
                   <input
@@ -657,13 +676,13 @@ export default function CustomerCredit() {
                         customer_name: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="Enter customer name / Gali magaca"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-900/70 mb-2">
                     Phone Number *
                   </label>
                   <input
@@ -676,13 +695,13 @@ export default function CustomerCredit() {
                         customer_phone: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="+254 or 07xx"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-900/70 mb-2">
                     Total Amount (KES) *
                   </label>
                   <input
@@ -697,13 +716,13 @@ export default function CustomerCredit() {
                         total_amount: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="0.00"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-900/70 mb-2">
                     Credit Date / Taariikhda Deynta *
                   </label>
                   <input
@@ -716,12 +735,12 @@ export default function CustomerCredit() {
                         credit_date: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-900/70 mb-2">
                     Due Date / Maalinta Bixinta
                   </label>
                   <input
@@ -730,13 +749,13 @@ export default function CustomerCredit() {
                     onChange={(e) =>
                       setCreditForm({ ...creditForm, due_date: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-900/70 mb-2">
                   Notes / Qoraal Dheeraad Ah
                 </label>
                 <textarea
@@ -745,7 +764,7 @@ export default function CustomerCredit() {
                   onChange={(e) =>
                     setCreditForm({ ...creditForm, notes: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Reason for credit, refund details, etc. / Sababta deynta"
                 />
               </div>
@@ -754,13 +773,13 @@ export default function CustomerCredit() {
                 <button
                   type="button"
                   onClick={handleCloseCreditForm}
-                  className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                  className="px-6 py-2 bg-white border border-amber-200/60 hover:bg-amber-50/40 text-slate-900 rounded-xl transition-colors"
                 >
                   Cancel / Jooji
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg font-semibold transition-all"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-semibold transition-all"
                 >
                   {editingCredit
                     ? "Update Credit / Cusboonaysii"
@@ -775,13 +794,13 @@ export default function CustomerCredit() {
       {/* Payment Form Modal */}
       {showPaymentForm && (
         <ModalPortal onClose={handleClosePaymentForm}>
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-lg w-full">
-            <h2 className="text-2xl font-bold text-white mb-6">
+          <div className="bg-white border border-amber-200/60 rounded-2xl p-6 max-w-lg w-full">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">
               Pay Back Customer / Macmiilka U Bixiso
             </h2>
             <form onSubmit={handlePaymentSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-900/70 mb-2">
                   Payment Amount (KES) / Lacagta La Bixinayo *
                 </label>
                 <input
@@ -796,13 +815,13 @@ export default function CustomerCredit() {
                       payment_amount: parseFloat(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-900/70 mb-2">
                   Payment Date / Taariikhda Bixinta *
                 </label>
                 <input
@@ -815,12 +834,12 @@ export default function CustomerCredit() {
                       payment_date: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-900/70 mb-2">
                   Payment Method / Qaabka Bixinta *
                 </label>
                 <select
@@ -832,7 +851,7 @@ export default function CustomerCredit() {
                       payment_method: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 >
                   {PAYMENT_METHODS.map((method) => (
                     <option key={method} value={method}>
@@ -843,7 +862,7 @@ export default function CustomerCredit() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium text-slate-900/70 mb-2">
                   Notes / Qoraal
                 </label>
                 <textarea
@@ -852,7 +871,7 @@ export default function CustomerCredit() {
                   onChange={(e) =>
                     setPaymentForm({ ...paymentForm, notes: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2 bg-white border border-amber-200/60 rounded-xl text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Payment reference, receipt number, etc. / Tixraac"
                 />
               </div>
@@ -861,13 +880,13 @@ export default function CustomerCredit() {
                 <button
                   type="button"
                   onClick={handleClosePaymentForm}
-                  className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                  className="px-6 py-2 bg-white border border-amber-200/60 hover:bg-amber-50/40 text-slate-900 rounded-xl transition-colors"
                 >
                   Cancel / Jooji
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg font-semibold transition-all"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-semibold transition-all"
                 >
                   Pay Customer / U Bixiso
                 </button>
@@ -880,30 +899,32 @@ export default function CustomerCredit() {
       {/* Payment History Modal */}
       {showPaymentHistory && selectedCredit && (
         <ModalPortal onClose={handleClosePaymentHistory}>
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-white/20 rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-white mb-4">
+          <div className="bg-white border border-amber-200/60 rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
               Payment History / Taariikhda Bixinta -{" "}
               {selectedCredit.customer_name}
             </h2>
-            <div className="bg-white/5 rounded-lg p-4 mb-6">
+            <div className="bg-amber-50/40 border border-amber-200/60 rounded-xl p-4 mb-6">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-slate-900/60 text-sm">
                     Total We Owe / Wadarta
                   </p>
-                  <p className="text-white font-bold text-lg">
+                  <p className="text-slate-900 font-bold text-lg">
                     KES {selectedCredit.total_amount.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Paid Back / Bixiyay</p>
-                  <p className="text-emerald-400 font-bold text-lg">
+                  <p className="text-slate-900/60 text-sm">
+                    Paid Back / Bixiyay
+                  </p>
+                  <p className="text-emerald-600 font-bold text-lg">
                     KES {selectedCredit.amount_paid.toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Still Owe / Haray</p>
-                  <p className="text-amber-400 font-bold text-lg">
+                  <p className="text-slate-900/60 text-sm">Still Owe / Haray</p>
+                  <p className="text-amber-600 font-bold text-lg">
                     KES {selectedCredit.balance.toLocaleString()}
                   </p>
                 </div>
@@ -916,22 +937,22 @@ export default function CustomerCredit() {
                 .map((payment: any) => (
                   <div
                     key={payment.id}
-                    className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
+                    className="bg-white border border-amber-200/60 rounded-xl p-4 hover:bg-amber-50/40 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center space-x-2">
                           <HandCoins className="w-5 h-5 text-emerald-400" />
-                          <span className="font-bold text-emerald-400 text-lg">
+                          <span className="font-bold text-emerald-600 text-lg">
                             KES {payment.payment_amount.toLocaleString()}
                           </span>
                         </div>
-                        <p className="text-slate-400 text-sm mt-1">
+                        <p className="text-slate-900/70 text-sm mt-1">
                           {formatDate(payment.payment_date)} •{" "}
                           {payment.payment_method}
                         </p>
                         {payment.notes && (
-                          <p className="text-slate-500 text-sm mt-1">
+                          <p className="text-slate-900/60 text-sm mt-1">
                             {payment.notes}
                           </p>
                         )}
@@ -942,7 +963,7 @@ export default function CustomerCredit() {
 
               {payments.filter((p: any) => p.credit_id === selectedCredit.id)
                 .length === 0 && (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-slate-900/60">
                   No payments recorded yet. / Weli ma jiro bixin la diiwaan
                   galiyay.
                 </div>
@@ -952,7 +973,7 @@ export default function CustomerCredit() {
             <div className="flex justify-end mt-6">
               <button
                 onClick={handleClosePaymentHistory}
-                className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                className="px-6 py-2 bg-white border border-amber-200/60 hover:bg-amber-50/40 text-slate-900 rounded-xl transition-colors"
               >
                 Close / Xir
               </button>

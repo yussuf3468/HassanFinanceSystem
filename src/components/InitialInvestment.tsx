@@ -208,10 +208,10 @@ export default function InitialInvestment() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-white">Loading investment records...</p>
           </div>
         </div>
@@ -220,22 +220,22 @@ export default function InitialInvestment() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-3 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-xl border border-white/20 mb-4 sm:mb-8">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm mb-4 sm:mb-8">
           <div className="flex flex-col gap-4 sm:gap-6">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent mb-2">
                 💰 Initial Investment Tracker
               </h1>
-              <p className="text-xs sm:text-base text-slate-300">
+              <p className="text-xs sm:text-base text-slate-700 ">
                 Record all startup costs and initial capital for your business
               </p>
             </div>
 
             <button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-emerald-600 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
+              className="bg-gradient-to-r from-emerald-600 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
             >
               <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Add Investment</span>
@@ -244,13 +244,13 @@ export default function InitialInvestment() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-8">
-          <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-lg border border-white/20">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-2xl p-3 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="bg-emerald-500/20 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-emerald-500/30">
+              <div className="bg-emerald-500/20 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-emerald-500/30">
                 <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-slate-300 mb-1">
+                <p className="text-xs sm:text-sm text-slate-600 mb-1">
                   Total Investment
                 </p>
                 <p className="text-lg sm:text-3xl font-bold text-white">
@@ -260,13 +260,13 @@ export default function InitialInvestment() {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-lg border border-white/20">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-2xl p-3 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="bg-blue-500/20 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-blue-500/30">
+              <div className="bg-gradient-to-br from-amber-50/40 to-white p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-amber-300">
                 <Banknote className="w-4 h-4 sm:w-6 sm:h-6 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-slate-300 mb-1">Investment Items</p>
+                <p className="text-sm text-slate-600 mb-1">Investment Items</p>
                 <p className="text-3xl font-bold text-white">
                   {investments.length}
                 </p>
@@ -274,13 +274,13 @@ export default function InitialInvestment() {
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-white/20">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
             <div className="flex items-center space-x-4">
-              <div className="bg-purple-500/20 p-3 rounded-xl border border-purple-500/30">
-                <Calendar className="w-6 h-6 text-purple-400" />
+              <div className="bg-gradient-to-br from-amber-50/40 to-white p-3 rounded-2xl border border-amber-300">
+                <Calendar className="w-6 h-6 text-amber-700 " />
               </div>
               <div>
-                <p className="text-sm text-slate-300 mb-1">Sources</p>
+                <p className="text-sm text-slate-600 mb-1">Sources</p>
                 <p className="text-3xl font-bold text-white">
                   {Object.keys(investmentsBySource).length}
                 </p>
@@ -289,29 +289,29 @@ export default function InitialInvestment() {
           </div>
         </div>
 
-        <div className="overflow-x-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 overflow-hidden mb-8">
-          <div className="p-6 border-b border-white/20">
+        <div className="overflow-x-auto bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden mb-8">
+          <div className="p-6 border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
             <h2 className="text-2xl font-semibold text-white">
               Investment Records
             </h2>
           </div>
 
           <table className="w-full">
-            <thead className="bg-white/5">
+            <thead className="bg-gradient-to-br from-white to-stone-50/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                   Source
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                   Notes
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                   Amount
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                   Actions
                 </th>
               </tr>
@@ -321,7 +321,7 @@ export default function InitialInvestment() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-12 text-center text-slate-400"
+                    className="px-6 py-12 text-center text-slate-700 "
                   >
                     <PiggyBank className="w-16 h-16 mx-auto mb-4 text-slate-500" />
                     <p className="text-lg font-medium mb-2">
@@ -336,9 +336,9 @@ export default function InitialInvestment() {
                 investments.map((inv) => (
                   <tr
                     key={inv.id}
-                    className="hover:bg-white/5 transition-colors"
+                    className="hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors"
                   >
-                    <td className="px-6 py-4 text-sm text-slate-300">
+                    <td className="px-6 py-4 text-sm text-slate-700 ">
                       {formatDate(inv.invested_on)}
                     </td>
                     <td className="px-6 py-4">
@@ -351,7 +351,7 @@ export default function InitialInvestment() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-300">
+                    <td className="px-6 py-4 text-sm text-slate-700 ">
                       {inv.notes || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-emerald-400">
@@ -361,13 +361,13 @@ export default function InitialInvestment() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(inv)}
-                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                          className="p-2 text-amber-800 font-semibold font-semibold hover:bg-gradient-to-br from-amber-50/40 to-white rounded-xl transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(inv.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -381,8 +381,8 @@ export default function InitialInvestment() {
         </div>
 
         {Object.keys(investmentsBySource).length > 0 && (
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/20">
-            <h3 className="text-2xl font-semibold text-white mb-6">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-6">
               Investment Breakdown by Source
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -391,20 +391,20 @@ export default function InitialInvestment() {
                 .map(([source, amount]) => (
                   <div
                     key={source}
-                    className="bg-white/5 backdrop-blur-xl rounded-xl p-4 hover:bg-white/10 transition-colors border border-white/20"
+                    className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-2xl p-4 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 transition-colors border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
                   >
                     <div className="flex items-center space-x-3 mb-2">
                       <div className="bg-emerald-500/20 p-1 rounded border border-emerald-500/30">
                         {getSourceIcon(source)}
                       </div>
-                      <p className="text-sm font-medium text-slate-300">
+                      <p className="text-sm font-medium text-slate-700 ">
                         {source}
                       </p>
                     </div>
-                    <p className="text-xl font-semibold text-white mb-2">
+                    <p className="text-xl font-semibold text-slate-900 mb-2">
                       KES {amount.toLocaleString()}
                     </p>
-                    <div className="w-full bg-white/10 rounded-full h-2">
+                    <div className="w-full bg-white/90 rounded-full h-2">
                       <div
                         className="bg-gradient-to-r from-emerald-500 to-green-500 h-2 rounded-full"
                         style={{
@@ -412,7 +412,7 @@ export default function InitialInvestment() {
                         }}
                       ></div>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-slate-700 mt-1">
                       {((amount / totalInvestment) * 100).toFixed(1)}% of total
                     </p>
                   </div>
@@ -425,14 +425,14 @@ export default function InitialInvestment() {
       {showForm && (
         <ModalPortal>
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[1000]">
-            <div className="bg-white/10 backdrop-blur-2xl rounded-3xl p-8 w-full max-w-md shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
-              <h3 className="text-2xl font-semibold text-white mb-6">
+            <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-3xl p-8 w-full max-w-md shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm max-h-[90vh] overflow-y-auto">
+              <h3 className="text-2xl font-semibold text-slate-900 mb-6">
                 {editingInvestment ? "Edit Investment" : "Add New Investment"}
               </h3>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Source
                   </label>
                   <select
@@ -443,7 +443,7 @@ export default function InitialInvestment() {
                         source: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-white/90 backdrop-blur-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   >
                     {INVESTMENT_SOURCES.map((s) => (
@@ -455,7 +455,7 @@ export default function InitialInvestment() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Amount (KES)
                   </label>
                   <input
@@ -469,14 +469,14 @@ export default function InitialInvestment() {
                         amount: parseFloat(e.target.value) || 0,
                       }))
                     }
-                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-white/90 backdrop-blur-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 placeholder-slate-400 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="0.00"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Date
                   </label>
                   <input
@@ -488,13 +488,13 @@ export default function InitialInvestment() {
                         invested_on: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-white/90 backdrop-blur-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Notes (Optional)
                   </label>
                   <textarea
@@ -505,7 +505,7 @@ export default function InitialInvestment() {
                         notes: e.target.value,
                       }))
                     }
-                    className="w-full px-4 py-3 bg-white/10 backdrop-blur-xl border border-white/20 text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-3 bg-white/90 backdrop-blur-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 placeholder-slate-400 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Additional details about this investment"
                     rows={3}
                   />
@@ -515,13 +515,13 @@ export default function InitialInvestment() {
                   <button
                     type="button"
                     onClick={closeForm}
-                    className="flex-1 px-6 py-3 border border-white/20 text-slate-300 rounded-xl hover:bg-white/10 transition-colors"
+                    className="flex-1 px-6 py-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-600 rounded-2xl hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-2xl hover:from-emerald-700 hover:to-green-700 transition-all duration-300 shadow-lg shadow-amber-300/10"
                   >
                     {editingInvestment ? "Update" : "Add"} Investment
                   </button>

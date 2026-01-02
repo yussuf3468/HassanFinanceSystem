@@ -49,7 +49,7 @@ const getToastConfig = (
     info: {
       className:
         "!bg-white !text-slate-900 !border-blue-200 !rounded-lg !shadow-lg !min-h-12 !text-sm",
-      progressClassName: "!bg-blue-500",
+      progressClassName: "!bg-amber-500",
     },
   };
 

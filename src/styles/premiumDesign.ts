@@ -1,62 +1,60 @@
 /**
- * Premium Design System - $50K Level UI
- * Mobile-first, Glassmorphism, Modern Gradients
+ * Professional POS Design System - Bookstore Theme
+ * Clean, readable, amber/stone palette for financial applications
  */
 
 export const premiumColors = {
-  // Deep sophisticated background gradients
+  // Clean professional backgrounds
   bgGradient: {
-    primary: "bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900",
-    secondary: "bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950",
-    accent: "bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950",
-    subtle:
-      "bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95",
+    primary: "bg-stone-50",
+    secondary: "bg-neutral-50",
+    accent: "bg-gradient-to-br from-amber-50 to-stone-50",
+    subtle: "bg-white",
   },
 
-  // Glassmorphism effects
+  // Solid cards (no glassmorphism for POS)
   glass: {
-    light: "bg-white/10 backdrop-blur-xl border border-white/20",
-    medium: "bg-white/5 backdrop-blur-2xl border border-white/10",
-    dark: "bg-black/20 backdrop-blur-xl border border-white/10",
-    card: "bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20",
-    hover:
-      "hover:bg-white/15 hover:border-white/30 hover:shadow-2xl hover:shadow-purple-500/20",
+    light: "bg-white border border-stone-200",
+    medium: "bg-white border border-stone-300",
+    dark: "bg-stone-100 border border-stone-200",
+    card: "bg-white border border-stone-200 shadow-sm",
+    hover: "hover:border-amber-500 hover:shadow-lg hover:shadow-amber-200",
   },
 
   // Accent gradients for CTAs and highlights
   accentGradient: {
-    purple: "bg-gradient-to-r from-purple-600 to-pink-600",
-    blue: "bg-gradient-to-r from-blue-600 to-cyan-600",
+    purple: "bg-gradient-to-r from-amber-500 to-amber-600",
+    blue: "bg-gradient-to-r from-blue-500 to-blue-600",
     teal: "bg-gradient-to-r from-teal-600 to-emerald-600",
-    gold: "bg-gradient-to-r from-amber-500 to-orange-600",
-    premium: "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600",
+    gold: "bg-gradient-to-r from-amber-500 to-amber-600",
+    premium: "bg-gradient-to-r from-amber-500 to-amber-600",
   },
 
   // Text colors with high contrast
   text: {
-    primary: "text-white",
-    secondary: "text-slate-200",
-    muted: "text-slate-400",
-    accent: "text-purple-400",
-    success: "text-emerald-400",
-    warning: "text-amber-400",
-    error: "text-rose-400",
+    primary: "text-slate-800",
+    secondary: "text-slate-700",
+    muted: "text-slate-600",
+    accent: "text-amber-700",
+    success: "text-emerald-800",
+    warning: "text-amber-800",
+    error: "text-rose-800",
     highlight:
-      "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400",
+      "text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-amber-700",
   },
 };
 
 export const premiumShadows = {
   glow: {
-    purple: "shadow-2xl shadow-purple-500/50",
-    blue: "shadow-2xl shadow-blue-500/50",
-    teal: "shadow-2xl shadow-teal-500/50",
-    pink: "shadow-2xl shadow-pink-500/50",
-    subtle: "shadow-xl shadow-black/50",
+    purple: "shadow-lg shadow-amber-200",
+    blue: "shadow-lg shadow-blue-200",
+    teal: "shadow-lg shadow-teal-200",
+    pink: "shadow-lg shadow-rose-200",
+    subtle: "shadow-md shadow-stone-200",
   },
-  card: "shadow-xl shadow-black/20",
-  cardHover: "hover:shadow-2xl hover:shadow-purple-500/30",
-  subtle: "shadow-xl shadow-black/50",
+  card: "shadow-sm shadow-stone-200",
+  cardHover: "hover:shadow-lg hover:shadow-amber-200",
+  subtle: "shadow-md shadow-stone-200",
 };
 
 export const premiumTypography = {
@@ -122,11 +120,11 @@ export const premiumCard = `
 
 export const premiumButton = {
   primary: `
-    ${premiumColors.accentGradient.premium}
+    bg-gradient-to-r from-emerald-600 to-teal-600
     ${premiumBorderRadius.button}
-    ${premiumShadows.glow.purple}
+    shadow-lg shadow-emerald-400/30
     ${premiumAnimations.transition}
-    hover:shadow-purple-500/70 hover:scale-105
+    hover:shadow-2xl hover:shadow-emerald-400/40 hover:scale-105
     active:scale-95
     text-white font-semibold
     px-6 py-3
@@ -136,16 +134,16 @@ export const premiumButton = {
     ${premiumColors.glass.light}
     ${premiumBorderRadius.button}
     ${premiumAnimations.transition}
-    hover:bg-white/20
-    text-white font-semibold
+    hover:bg-stone-100
+    text-slate-800 font-semibold
     px-6 py-3
   `.trim(),
 
   ghost: `
     ${premiumBorderRadius.button}
     ${premiumAnimations.transition}
-    hover:bg-white/10
-    text-slate-200 font-medium
+    hover:bg-stone-100
+    text-slate-700 font-medium
     px-4 py-2
   `.trim(),
 };
@@ -154,7 +152,7 @@ export const premiumInput = `
   ${premiumColors.glass.light}
   ${premiumBorderRadius.input}
   ${premiumAnimations.transitionFast}
-  focus:bg-white/15 focus:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-400/30
+  focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30
   ${premiumColors.text.primary}
   placeholder:text-slate-400
   px-4 py-3
@@ -171,34 +169,38 @@ export const premiumGrid = {
 // Status badges
 export const premiumBadge = {
   success: `
-    ${premiumColors.accentGradient.teal}
+    bg-gradient-to-br from-emerald-50/80 to-teal-50/60
     ${premiumBorderRadius.badge}
-    ${premiumShadows.glow.teal}
-    text-white text-xs font-bold
+    border border-emerald-200/60
+    shadow-sm
+    text-emerald-800 text-xs font-bold
     px-3 py-1
   `.trim(),
 
   warning: `
-    ${premiumColors.accentGradient.gold}
+    bg-gradient-to-br from-amber-50/80 to-orange-50/60
     ${premiumBorderRadius.badge}
-    ${premiumShadows.glow.subtle}
-    text-white text-xs font-bold
+    border border-amber-200/60
+    shadow-sm
+    text-amber-900 text-xs font-bold
     px-3 py-1
   `.trim(),
 
   error: `
-    bg-gradient-to-r from-rose-600 to-red-600
+    bg-gradient-to-br from-rose-50/80 to-red-50/60
     ${premiumBorderRadius.badge}
-    shadow-xl shadow-rose-500/50
-    text-white text-xs font-bold
+    border border-rose-200/60
+    shadow-sm
+    text-rose-800 text-xs font-bold
     px-3 py-1
   `.trim(),
 
   info: `
-    ${premiumColors.accentGradient.blue}
+    bg-gradient-to-br from-blue-50/80 to-sky-50/60
     ${premiumBorderRadius.badge}
-    ${premiumShadows.glow.blue}
-    text-white text-xs font-bold
+    border border-blue-200/60
+    shadow-sm
+    text-blue-800 text-xs font-bold
     px-3 py-1
   `.trim(),
 };
@@ -207,25 +209,24 @@ export const premiumBadge = {
 export const premiumNavbar = {
   container: `
     ${premiumColors.glass.light}
-    border-b border-white/10
-    backdrop-blur-2xl
+    border-b border-stone-200
     sticky top-0 z-50
     ${premiumShadows.subtle}
   `.trim(),
 
   link: `
     ${premiumAnimations.transitionFast}
-    hover:bg-white/10
+    hover:bg-stone-100
     ${premiumBorderRadius.subtle}
     px-4 py-2
-    text-slate-200 hover:text-white
+    text-slate-600 hover:text-slate-800
     font-medium
   `.trim(),
 
   linkActive: `
-    ${premiumColors.accentGradient.premium}
+    bg-amber-500
     ${premiumBorderRadius.subtle}
-    ${premiumShadows.glow.purple}
+    shadow-sm shadow-amber-200
     px-4 py-2
     text-white
     font-semibold
@@ -241,17 +242,17 @@ export const premiumTable = {
   `.trim(),
 
   header: `
-    bg-white/5
-    border-b border-white/10
-    text-slate-300 text-xs font-semibold uppercase tracking-wider
+    bg-stone-100
+    border-b border-stone-200
+    text-slate-700 text-xs font-semibold uppercase tracking-wider
     px-6 py-4
   `.trim(),
 
   row: `
-    border-b border-white/5
-    hover:bg-white/5
+    border-b border-stone-100
+    hover:bg-stone-50
     ${premiumAnimations.transitionFast}
-    text-slate-200
+    text-slate-800
     px-6 py-4
   `.trim(),
 

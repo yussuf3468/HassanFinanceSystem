@@ -150,8 +150,8 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-amber-100/50">
           <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-8 h-8 text-white" />
           </div>
@@ -163,12 +163,12 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
             Dalabka waa la diray - Your order has been received
           </p>
 
-          <div className="bg-blue-50 rounded-lg p-4 mb-6">
+          <div className="bg-blue-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-slate-600 mb-1">Order Number</p>
             <p className="text-xl font-bold text-blue-600">{orderNumber}</p>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-4 mb-6">
+          <div className="bg-slate-50 rounded-xl p-4 mb-6">
             <h3 className="font-semibold text-slate-800 mb-2">Order Details</h3>
             <div className="space-y-1 text-sm">
               <p>
@@ -191,7 +191,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-4 mb-6 border border-green-200">
+          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-4 mb-6 border border-green-200">
             <h3 className="font-semibold text-green-800 mb-3 text-sm">
               📋 Next Steps / Tallaabada Xigta
             </h3>
@@ -216,7 +216,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
               </div>
               {formData.email && (
                 <div className="flex items-start space-x-2">
-                  <span className="text-purple-600 flex-shrink-0 mt-0.5">
+                  <span className="text-amber-800 font-semibold font-semibold flex-shrink-0 mt-0.5">
                     📧
                   </span>
                   <p className="text-slate-700 font-medium">
@@ -230,7 +230,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
           <div className="space-y-3">
             <button
               onClick={onSuccess}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all font-medium"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-medium"
             >
               Continue Shopping
             </button>
@@ -258,7 +258,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -273,7 +273,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Checkout Form */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center space-x-2">
               <CreditCard className="w-6 h-6" />
               <span>Checkout Details</span>
@@ -292,7 +292,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   onChange={(e) =>
                     handleInputChange("customer_name", e.target.value)
                   }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.customer_name ? "border-red-500" : "border-slate-300"
                   }`}
                   placeholder="Enter your full name"
@@ -316,7 +316,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   onChange={(e) =>
                     handleInputChange("phone_number", e.target.value)
                   }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.phone_number ? "border-red-500" : "border-slate-300"
                   }`}
                   placeholder="+254 or 07xx xxx xxx"
@@ -359,7 +359,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.email ? "border-red-500" : "border-slate-300"
                   }`}
                   placeholder="your@email.com (for order updates)"
@@ -367,7 +367,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email}</p>
                 )}
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                   We'll send order updates to this email if provided
                 </p>
               </div>
@@ -382,7 +382,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                   rows={2}
                   value={formData.notes}
                   onChange={(e) => handleInputChange("notes", e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                   placeholder="Any special delivery instructions..."
                 />
               </div>
@@ -391,7 +391,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
               <button
                 type="submit"
                 disabled={loading || cart.items.length === 0}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>
@@ -412,7 +412,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
             <h3 className="text-xl font-bold text-slate-800 mb-6">
               Order Summary
             </h3>
@@ -421,9 +421,9 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
               {cart.items.map((item) => (
                 <div
                   key={item.product.id}
-                  className="flex items-center space-x-3 bg-slate-50 rounded-lg p-3"
+                  className="flex items-center space-x-3 bg-slate-50 rounded-xl p-3"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                  <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center flex-shrink-0 p-1">
                     {item.product.image_url ? (
                       <OptimizedImage
                         src={item.product.image_url}
@@ -431,7 +431,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                         preset="small"
                       />
                     ) : (
-                      <ShoppingBag className="w-4 h-4 text-slate-400" />
+                      <ShoppingBag className="w-4 h-4 text-slate-700 " />
                     )}
                   </div>
 
@@ -459,7 +459,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">
+                <span className="text-slate-700 ">
                   Subtotal ({cart.totalItems} items)
                 </span>
                 <span className="font-medium">
@@ -467,7 +467,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Delivery Fee</span>
+                <span className="text-slate-700 ">Delivery Fee</span>
                 <span className="font-medium text-green-600">
                   {deliveryFee > 0 ? `KES ${deliveryFee}` : "FREE"}
                 </span>

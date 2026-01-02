@@ -18,7 +18,7 @@ export default function Sales() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
 
-  //  Removed useEffect - data now comes from cached hooks!
+  // ❌ Removed useEffect - data now comes from cached hooks!
 
   // Sort latest sales first by sale_date (fallback to created_at or id)
   const sortedSales = useMemo(() => {
@@ -123,7 +123,7 @@ export default function Sales() {
   // if (loading) {
   //   return (
   //     <div className="flex items-center justify-center py-12">
-  //       <div className="text-white text-base font-medium">Loading sales...</div>
+  //       <div className="text-slate-900 text-base font-medium">Loading sales...</div>
   //     </div>
   //   );
   // }
@@ -132,10 +132,10 @@ export default function Sales() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white">
+          <h2 className="text-lg sm:text-xl font-black text-slate-900">
             Sales Records
           </h2>
-          <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
+          <p className="text-slate-600 mt-0.5 text-xs sm:text-sm">
             Track all your bookstore sales ({sales.length} total)
           </p>
         </div>
@@ -143,7 +143,7 @@ export default function Sales() {
           <button
             onClick={() => refetchSales()}
             disabled={isRefetching}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-400"
             title="Refresh sales data"
           >
             <RefreshCw
@@ -153,7 +153,7 @@ export default function Sales() {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 flex-1 sm:flex-initial font-bold text-sm"
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex-1 sm:flex-initial font-semibold text-sm border-2 border-emerald-400"
           >
             <Plus className="w-4 h-4" />
             <span>Record Sale</span>
@@ -161,43 +161,43 @@ export default function Sales() {
         </div>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-white/5 border-b border-white/10">
+            <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Quantity
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Total Sale
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Profit
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Sold By
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {sales.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-6 py-12 text-center text-slate-400"
+                    className="px-6 py-12 text-center text-slate-600"
                   >
                     No sales yet. Click "Record Sale" to get started.
                   </td>
@@ -208,12 +208,12 @@ export default function Sales() {
                   return (
                     <tr
                       key={sale.id}
-                      className="hover:bg-white/5 transition-colors"
+                      className="hover:bg-amber-50/50 transition-colors"
                     >
-                      <td className="px-6 py-4 text-slate-200">
+                      <td className="px-6 py-4 text-slate-800">
                         {formatDate(sale.created_at)}
                         <br />
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500">
                           {new Date(sale.created_at).toLocaleTimeString()}
                         </span>
                       </td>
@@ -223,21 +223,21 @@ export default function Sales() {
                             <img
                               src={product.image_url}
                               alt={product.name}
-                              className="w-10 h-10 object-cover rounded-lg border border-white/20"
+                              className="w-10 h-10 object-cover rounded-xl border-2 border-slate-200 shadow-sm"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
+                            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-slate-200">
                               <span className="text-slate-400 text-xs">
                                 No Image
                               </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-bold text-white text-sm">
+                            <p className="font-bold text-slate-900 text-sm">
                               {product?.name || "Unknown"}
                             </p>
                             {product?.description && (
-                              <p className="text-xs text-slate-400 truncate max-w-[200px]">
+                              <p className="text-xs text-slate-600 truncate max-w-[200px]">
                                 {product.description}
                               </p>
                             )}
@@ -247,23 +247,23 @@ export default function Sales() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-200 font-semibold">
+                      <td className="px-6 py-4 text-slate-800 font-semibold">
                         {sale.quantity_sold}
                       </td>
-                      <td className="px-6 py-4 font-bold text-white">
+                      <td className="px-6 py-4 font-bold text-slate-900">
                         KES {sale.total_sale.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300">
                           +KES {sale.profit.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300">
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-200 font-medium">
+                      <td className="px-6 py-4 text-slate-800 font-medium">
                         {sale.sold_by}
                       </td>
                       <td className="px-6 py-4">
@@ -274,7 +274,7 @@ export default function Sales() {
                               product?.name || "Unknown Product"
                             )
                           }
-                          className="inline-flex items-center justify-center w-8 h-8 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 rounded-lg transition-all duration-200 border border-rose-500/30 hover:border-rose-500/50"
+                          className="inline-flex items-center justify-center w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 border border-red-300 hover:border-red-400"
                           title="Tirtir Iibkan - Delete Sale"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -291,8 +291,8 @@ export default function Sales() {
 
       {/* Pagination Controls */}
       {sortedSales.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/4 backdrop-blur-md border border-white/8 rounded-xl">
-          <div className="text-sm text-white/80">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border-2 border-slate-100 shadow-sm rounded-xl">
+          <div className="text-sm text-slate-700">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, sortedSales.length)} of{" "}
             {sortedSales.length} sales
@@ -305,18 +305,18 @@ export default function Sales() {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
-              <option value={25} className="bg-gray-900 text-white">
+              <option value={25} className="bg-white text-slate-900">
                 25 per page
               </option>
-              <option value={50} className="bg-gray-900 text-white">
+              <option value={50} className="bg-white text-slate-900">
                 50 per page
               </option>
-              <option value={100} className="bg-gray-900 text-white">
+              <option value={100} className="bg-white text-slate-900">
                 100 per page
               </option>
-              <option value={200} className="bg-gray-900 text-white">
+              <option value={200} className="bg-white text-slate-900">
                 200 per page
               </option>
             </select>
@@ -325,12 +325,12 @@ export default function Sales() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
 
-              <span className="px-3 py-2 text-sm text-white/90">
+              <span className="px-3 py-2 text-sm text-slate-700 font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
 
@@ -339,7 +339,7 @@ export default function Sales() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>

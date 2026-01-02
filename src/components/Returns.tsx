@@ -127,60 +127,62 @@ export default function Returns() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white">Returns</h2>
-          <p className="text-slate-300 mt-0.5 text-xs sm:text-sm">
+          <h2 className="text-lg sm:text-xl font-black text-slate-900">
+            Returns
+          </h2>
+          <p className="text-slate-900/80 mt-0.5 text-xs sm:text-sm">
             Customer product returns & stock restorations
           </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-xl shadow-rose-500/25 hover:shadow-2xl hover:shadow-rose-500/40 w-full sm:w-auto font-bold text-sm"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 text-white px-4 py-2.5 rounded-2xl hover:scale-105 transition-all duration-300 shadow-lg shadow-rose-500/30 hover:shadow-xl hover:shadow-rose-500/40 w-full sm:w-auto font-bold text-sm"
         >
           <Plus className="w-4 h-4" />
           <span>Record Return</span>
         </button>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+      <div className="bg-gradient-to-br from-white via-amber-50/15 to-white border border-amber-200/60 shadow-sm rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-white/5 border-b border-white/10">
+            <thead className="bg-amber-50/40 border-b border-amber-200/60">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Qty Returned
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Refund
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Reason
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Condition
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Processed By
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-900/80 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-amber-100/50">
               {returns.length === 0 ? (
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-6 py-12 text-center text-slate-400"
+                    className="px-6 py-12 text-center text-slate-900/70"
                   >
                     No returns recorded yet.
                   </td>
@@ -191,12 +193,12 @@ export default function Returns() {
                   return (
                     <tr
                       key={r.id}
-                      className="hover:bg-white/5 transition-colors"
+                      className="hover:bg-gradient-to-br hover:from-amber-50/40 hover:to-white transition-colors"
                     >
-                      <td className="px-6 py-4 text-slate-200">
+                      <td className="px-6 py-4 text-slate-900">
                         {formatDate(r.return_date || r.created_at)}
                         <br />
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-700">
                           {new Date(
                             r.return_date || r.created_at
                           ).toLocaleTimeString()}
@@ -208,52 +210,52 @@ export default function Returns() {
                             <img
                               src={product.image_url}
                               alt={product.name}
-                              className="w-10 h-10 object-cover rounded-lg border border-white/20"
+                              className="w-10 h-10 object-cover rounded-xl border border-amber-300/70 shadow-sm"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
-                              <span className="text-slate-400 text-xs">
+                            <div className="w-10 h-10 bg-white/90 rounded-xl flex items-center justify-center border border-amber-300/70 shadow-sm">
+                              <span className="text-slate-700 text-xs">
                                 No Image
                               </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-bold text-white text-sm">
+                            <p className="font-bold text-slate-900 text-sm">
                               {product?.name || "Unknown"}
                             </p>
                             <p className="text-xs text-slate-500">
                               {product?.product_id || "-"}
                             </p>
                             {r.sale_id && (
-                              <p className="text-[10px] text-slate-400">
+                              <p className="text-[10px] text-slate-700">
                                 Sale: {r.sale_id}
                               </p>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-200 font-semibold">
+                      <td className="px-6 py-4 text-slate-900 font-semibold">
                         {r.quantity_returned}
                       </td>
-                      <td className="px-6 py-4 font-bold text-white">
+                      <td className="px-6 py-4 font-bold text-slate-900">
                         KES {Number(r.total_refund || 0).toLocaleString()}
                       </td>
                       <td
-                        className="px-6 py-4 text-slate-300 text-xs max-w-[150px] truncate"
+                        className="px-6 py-4 text-slate-600 text-xs max-w-[150px] truncate"
                         title={r.reason}
                       >
                         {r.reason || "-"}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-600/20 text-rose-400 border border-rose-500/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-600 border border-rose-300">
                           {r.condition || "-"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-200 font-medium">
+                      <td className="px-6 py-4 text-slate-900 font-medium">
                         {r.processed_by}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
                           {r.status || "pending"}
                         </span>
                       </td>
@@ -267,7 +269,7 @@ export default function Returns() {
                               product?.name || "Unknown Product"
                             )
                           }
-                          className="inline-flex items-center justify-center w-8 h-8 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 rounded-lg transition-all duration-200 border border-rose-500/30 hover:border-rose-500/50"
+                          className="inline-flex items-center justify-center w-8 h-8 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl transition-all duration-200 border border-rose-300 hover:border-rose-400"
                           title="Tirtir Soo Celin - Delete Return"
                         >
                           <Trash2 className="w-4 h-4" />

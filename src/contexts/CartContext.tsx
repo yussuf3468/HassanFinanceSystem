@@ -36,7 +36,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           item.product.id === product.id
             ? {
                 ...item,
-                quantity: item.quantity + quantity,
+                quantity: Math.min(
+                  item.quantity + quantity,
+                  product.quantity_in_stock
+                ),
               }
             : item
         );
@@ -46,7 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           ...currentItems,
           {
             product,
-            quantity: quantity,
+            quantity: Math.min(quantity, product.quantity_in_stock),
           },
         ];
       }
@@ -70,7 +73,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (item.product.id === productId) {
           return {
             ...item,
-            quantity: quantity,
+            quantity: Math.min(quantity, item.product.quantity_in_stock),
           };
         }
         return item;

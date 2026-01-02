@@ -40,7 +40,7 @@ export function ProductSkeleton({ count = 8 }: ProductSkeletonProps) {
 
 export function HeroSkeleton() {
   return (
-    <div className="relative min-h-[80vh] bg-gradient-to-br from-blue-50 via-white to-purple-50 animate-pulse">
+    <div className="relative min-h-[80vh] bg-gradient-to-br from-amber-50 via-white to-stone-50 animate-pulse">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side skeleton */}
@@ -55,8 +55,8 @@ export function HeroSkeleton() {
               <div className="h-4 bg-slate-200 rounded w-2/3"></div>
             </div>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start">
-              <div className="h-12 bg-slate-200 rounded-xl w-32"></div>
-              <div className="h-12 bg-slate-200 rounded-xl w-32"></div>
+              <div className="h-12 bg-slate-200 rounded-2xl w-32"></div>
+              <div className="h-12 bg-slate-200 rounded-2xl w-32"></div>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ export function HeaderSkeleton() {
         <div className="flex items-center justify-between h-16">
           <div className="h-8 bg-slate-200 rounded w-32"></div>
           <div className="flex items-center space-x-4">
-            <div className="h-10 bg-slate-200 rounded-xl w-64 hidden md:block"></div>
+            <div className="h-10 bg-slate-200 rounded-2xl w-64 hidden md:block"></div>
             <div className="flex space-x-2">
               <div className="h-10 w-10 bg-slate-200 rounded-full"></div>
               <div className="h-10 w-10 bg-slate-200 rounded-full"></div>

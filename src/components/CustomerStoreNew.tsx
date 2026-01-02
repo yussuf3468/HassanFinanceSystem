@@ -14,19 +14,9 @@ import AuthModal from "./AuthModal";
 import ProductQuickView from "./ProductQuickView";
 import CheckoutModal from "./CheckoutModal";
 import OptimizedImage from "./OptimizedImage";
-import AdvancedFilters from "./AdvancedFilters";
 import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
 import type { Database } from "../lib/database.types";
-import {
-  searchProducts,
-  sortProducts,
-  filterProducts,
-  getCategories,
-  getPriceRange,
-  type FilterOptions,
-  type SortOption,
-} from "../utils/searchUtils";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 
@@ -43,7 +33,7 @@ const ProductCard = memo(
     index = 0,
   }: {
     product: Product;
-    onAddToCart: (product: Product, quantity?: number) => void;
+    onAddToCart: (product: Product) => void;
     onQuickView?: (product: Product) => void;
     index?: number;
   }) => {
@@ -74,19 +64,18 @@ const ProductCard = memo(
     return (
       <div
         data-product-id={product.id}
-        className="bg-gradient-to-br from-white/10 via-purple-900/20 to-white/5 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden group border-2 border-white/20 hover:border-purple-500/40 ring-highlight-target transform hover:scale-105 hover:-translate-y-2 animate-slide-up"
-        style={{ animationDelay: `${index * 50}ms` }}
+        className="bg-white rounded-2xl shadow-sm hover:shadow-lg hover:shadow-amber-400/15 transition-all duration-400 overflow-hidden group border border-slate-200 hover:border-amber-300 ring-highlight-target"
       >
         {/* Product Image */}
         <div
-          className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-white/5 to-purple-900/10"
+          className="relative overflow-hidden cursor-pointer bg-slate-50/30"
           onClick={handleQuickView}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-52 sm:h-56 md:h-64 object-contain p-3 sm:p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
-            fallbackClassName="w-full h-52 sm:h-56 md:h-64"
+            className="w-full h-48 sm:h-52 md:h-56 object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-700 ease-out"
+            fallbackClassName="w-full h-48 sm:h-52 md:h-56"
             onClick={handleQuickView}
             priority={index < 3}
             preload={index < 6}
@@ -94,92 +83,102 @@ const ProductCard = memo(
           />
 
           {/* Elegant Quick View Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-purple-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white text-slate-900 px-6 py-3 rounded-2xl font-bold text-sm transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 shadow-2xl hover:shadow-white/30 border-2 border-white hover:scale-110"
+              className="bg-white text-slate-900 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 border border-amber-300"
             >
-              👁️ Quick View
+              Quick View
             </button>
           </div>
 
-          {/* Wishlist Button */}
+          {/* Refined Wishlist Button */}
           <button
             onClick={toggleLike}
-            className={`absolute top-4 right-4 w-11 h-11 rounded-full backdrop-blur-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:scale-125 ${
+            className={`absolute top-4 right-4 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center ${
               isLiked
-                ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-rose-500/50"
-                : "bg-white/90 text-slate-400 hover:bg-white hover:text-rose-500"
+                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25"
+                : "bg-white text-slate-600 hover:bg-amber-50 hover:text-rose-400 hover:shadow-md border border-slate-200 hover:border-amber-300 shadow-sm"
             }`}
           >
-            <Heart
-              className={`w-5 h-5 ${
-                isLiked ? "fill-current animate-scale-in" : ""
-              }`}
-            />
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
           </button>
 
-          {/* Featured Badge */}
+          {/* Minimal Featured Badge */}
           {product.featured && (
-            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-900 px-3 py-2 rounded-2xl text-xs font-bold flex items-center space-x-1.5 shadow-lg shadow-amber-500/50 animate-bounce-subtle">
-              <Star className="w-4 h-4 fill-current" />
-              <span>⭐ Featured</span>
+            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
+              <Star className="w-3 h-3 fill-current" />
+              <span>Featured</span>
+            </div>
+          )}
+
+          {/* Subtle Low Stock Warning */}
+          {product.quantity_in_stock <= product.reorder_level && (
+            <div className="absolute bottom-4 left-4 bg-gradient-to-br from-rose-50 to-white text-rose-700 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300">
+              Only {product.quantity_in_stock} left
             </div>
           )}
         </div>
 
-        {/* Product Info */}
-        <div className="p-5 sm:p-6">
+        {/* Elegant Product Info */}
+        <div className="p-6">
           {/* Category Tag */}
           <div className="mb-3">
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-300 bg-purple-500/20 px-3 py-1.5 rounded-full uppercase tracking-wide border border-purple-500/30">
-              📚 {product.category}
+            <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">
+              {product.category}
             </span>
           </div>
 
           {/* Product Name */}
-          <h3 className="font-bold text-white text-lg sm:text-xl mb-3 line-clamp-2 leading-tight group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-200 group-hover:to-blue-200 group-hover:bg-clip-text transition-all duration-300">
+          <h3 className="font-semibold text-slate-900 text-lg mb-3 line-clamp-2 leading-tight group-hover:text-amber-600 transition-colors duration-300">
             {product.name}
           </h3>
 
           {/* Product Description */}
           {product.description && (
-            <p className="text-sm text-slate-300/90 mb-4 line-clamp-2 leading-relaxed">
+            <p className="text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed">
               {product.description}
             </p>
           )}
 
-          {/* Price */}
-          <div className="mb-5">
-            <p className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text animate-gradient-x">
-              KES {product.selling_price.toLocaleString()}
-            </p>
+          {/* Price & Stock Info */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col">
+              <p className="text-2xl font-light text-slate-900 mb-1">
+                KES {product.selling_price.toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-600 flex items-center">
+                <Package className="w-3 h-3 mr-1.5" />
+                {product.quantity_in_stock} in stock
+              </p>
+            </div>
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Refined Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            disabled={isAddingToCart}
-            className={`w-full py-4 px-4 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-2xl ${
-              isAddingToCart
-                ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-green-500/50 scale-105"
-                : "bg-gradient-to-r from-purple-600 via-purple-500 to-blue-600 text-white hover:from-purple-700 hover:via-purple-600 hover:to-blue-700 hover:shadow-purple-500/50 active:scale-95 hover:scale-105"
+            disabled={product.quantity_in_stock === 0 || isAddingToCart}
+            className={`w-full py-3.5 px-4 rounded-2xl font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
+              product.quantity_in_stock === 0
+                ? "bg-slate-100 text-slate-500 cursor-not-allowed border border-slate-200"
+                : isAddingToCart
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                : "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 hover:shadow-lg hover:shadow-amber-400/20 active:from-amber-700 active:to-amber-800"
             }`}
           >
-            {isAddingToCart ? (
-              <>
-                <span className="animate-spin text-xl">⚡</span>
-                <span>Adding...</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-5 h-5" />
-                <span>Add to Cart</span>
-              </>
-            )}
+            <ShoppingCart
+              className={`w-4 h-4 ${isAddingToCart ? "animate-pulse" : ""}`}
+            />
+            <span>
+              {product.quantity_in_stock === 0
+                ? "Out of Stock"
+                : isAddingToCart
+                ? "Adding..."
+                : "Add to Cart"}
+            </span>
           </button>
         </div>
       </div>
@@ -205,10 +204,6 @@ export default function CustomerStore({
     null
   );
 
-  // Enhanced search and filter states
-  const [filters, setFilters] = useState<FilterOptions>({});
-  const [sortBy, setSortBy] = useState<SortOption>("relevance");
-
   // Pagination constants
   const PRODUCTS_PER_PAGE = 12;
 
@@ -218,11 +213,22 @@ export default function CustomerStore({
   const cart = useCart();
   const { user } = useAuth();
 
-  // Get dynamic categories from products
-  const categories = useMemo(() => getCategories(products), [products]);
-
-  // Get price range from products
-  const priceRange = useMemo(() => getPriceRange(products), [products]);
+  const categories = useMemo(
+    () => [
+      "all",
+      "Books",
+      "Backpacks",
+      "Bottles",
+      "Electronics",
+      "Pens",
+      "Notebooks",
+      "Pencils",
+      "Shapeners",
+      "Markers",
+      "Other",
+    ],
+    []
+  );
 
   const loadProducts = useCallback(async () => {
     try {
@@ -231,6 +237,7 @@ export default function CustomerStore({
         .from("products")
         .select("*")
         .eq("published", true)
+        .gt("quantity_in_stock", 0)
         .order("featured", { ascending: false })
         .order("name");
 
@@ -247,73 +254,31 @@ export default function CustomerStore({
     loadProducts();
   }, [loadProducts]);
 
-  // Auto-scroll to products section when search term changes and results are ready
-  useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      setTimeout(() => {
-        const productsSection = document.getElementById("products-section");
-        if (productsSection) {
-          const navbarHeight = 140; // Account for fixed navbar height
-          const elementPosition = productsSection.getBoundingClientRect().top;
-          const offsetPosition =
-            elementPosition + window.pageYOffset - navbarHeight;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
-          });
-        }
-      }, 200);
-    }
-  }, [debouncedSearchTerm]);
-
-  // Enhanced filtering and search with fuzzy matching
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
-    // Apply category filter first
-    if (filters.category && filters.category !== "all") {
+    // Filter by search term (using debounced value)
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(
-        (product) => product.category === filters.category
+        (product) =>
+          product.name
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()) ||
+          product.category
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase())
       );
-    } else if (selectedCategory !== "all") {
+    }
+
+    // Filter by category
+    if (selectedCategory !== "all") {
       filtered = filtered.filter(
         (product) => product.category === selectedCategory
       );
     }
 
-    // Apply other filters (price, stock, featured)
-    filtered = filterProducts(filtered, filters);
-
-    // Apply search with fuzzy matching if there's a search term
-    if (debouncedSearchTerm) {
-      const searchResults = searchProducts(filtered, debouncedSearchTerm, {
-        fuzzyThreshold: 0.7,
-        includeDescription: true,
-        maxResults: 1000,
-      });
-
-      // Sort search results
-      const sortedResults = sortProducts(searchResults, sortBy);
-
-      return sortedResults.map((result) => result.product);
-    }
-
-    // If no search term, just return filtered products
-    // Sort by price or name if selected
-    if (sortBy !== "relevance") {
-      const mockResults = filtered.map((product) => ({
-        product,
-        score: 1,
-        matchType: "exact" as const,
-        matchedFields: [] as string[],
-      }));
-      const sorted = sortProducts(mockResults, sortBy);
-      return sorted.map((r) => r.product);
-    }
-
     return filtered;
-  }, [products, debouncedSearchTerm, selectedCategory, filters, sortBy]);
+  }, [products, debouncedSearchTerm, selectedCategory]);
 
   // Paginated products
   const paginatedProducts = useMemo(() => {
@@ -326,8 +291,8 @@ export default function CustomerStore({
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
   const handleAddToCart = useCallback(
-    (product: Product, quantity = 1) => {
-      cart.addItem(product, quantity);
+    (product: Product) => {
+      cart.addItem(product);
 
       // Show success toast notification with feedback
       compactToast.addToCart(product.name);
@@ -342,54 +307,7 @@ export default function CustomerStore({
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategory(category);
-    setFilters((prev) => ({ ...prev, category: undefined })); // Clear advanced filter
     setCurrentPage(1); // Reset to first page on category change
-
-    // Scroll to products section
-    setTimeout(() => {
-      const productsSection = document.getElementById("products-section");
-      if (productsSection) {
-        const navbarHeight = 140;
-        const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - navbarHeight;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      }
-    }, 100);
-  }, []);
-
-  const handleFilterChange = useCallback((newFilters: FilterOptions) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page on filter change
-
-    // Scroll to products section
-    setTimeout(() => {
-      const productsSection = document.getElementById("products-section");
-      if (productsSection) {
-        const navbarHeight = 140;
-        const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - navbarHeight;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      }
-    }, 100);
-  }, []);
-
-  const handleSortChange = useCallback((newSortBy: SortOption) => {
-    setSortBy(newSortBy);
-    setCurrentPage(1); // Reset to first page on sort change
-
-    // Scroll to products section
-    setTimeout(() => {
-      const productsSection = document.getElementById("products-section");
-      if (productsSection) {
-        const navbarHeight = 140;
-        const elementPosition = productsSection.getBoundingClientRect().top;
-        const offsetPosition =
-          elementPosition + window.pageYOffset - navbarHeight;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      }
-    }, 100);
   }, []);
 
   const handleCartClick = useCallback(() => {
@@ -440,16 +358,16 @@ export default function CustomerStore({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
         {/* Navbar Skeleton */}
-        <div className="bg-white/10 backdrop-blur-xl shadow-lg border-b border-white/20 sticky top-0 z-50">
+        <div className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
-              <div className="h-8 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-lg w-48"></div>
-              <div className="h-10 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-lg w-64"></div>
+              <div className="h-8 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-48"></div>
+              <div className="h-10 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-64"></div>
               <div className="flex space-x-4">
-                <div className="h-10 w-10 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-full"></div>
-                <div className="h-10 w-20 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-lg"></div>
+                <div className="h-10 w-10 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-full"></div>
+                <div className="h-10 w-20 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg"></div>
               </div>
             </div>
           </div>
@@ -458,8 +376,8 @@ export default function CustomerStore({
         {/* Hero Skeleton */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
-            <div className="h-12 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-lg w-96 mx-auto mb-4"></div>
-            <div className="h-6 bg-gradient-to-r from-white/20 via-white/10 to-white/20 bg-[length:200%_100%] animate-shimmer rounded-lg w-64 mx-auto mb-8"></div>
+            <div className="h-12 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-96 mx-auto mb-4"></div>
+            <div className="h-6 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-64 mx-auto mb-8"></div>
           </div>
 
           {/* Products Skeleton */}
@@ -470,8 +388,8 @@ export default function CustomerStore({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden">
-      {/* Navbar - Fixed */}
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50 overflow-x-hidden">
+      {/* Navbar */}
       <Navbar
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
@@ -481,9 +399,6 @@ export default function CustomerStore({
         products={products}
         onProductSelect={handleProductSelect}
       />
-
-      {/* Spacer for fixed navbar */}
-      <div className="h-[120px] md:h-[88px]"></div>
 
       {/* Hero Section */}
       <HeroSection
@@ -497,43 +412,29 @@ export default function CustomerStore({
         id="products-section"
         className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
       >
-        {/* Section Header */}
+        {/* Section Header */},
         <div className="text-center mb-12">
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-xl border border-white/20 text-purple-300 px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white border border-amber-300 text-amber-700 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
             <Package className="w-4 h-4" />
             <span>Premium Collection</span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text mb-4">
+          <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-purple-300 mb-2 font-somali">
-            Alaabteenna
-          </p>
-          <p className="text-slate-300 max-w-2xl mx-auto">
+          <p className="text-xl text-amber-700 mb-2 font-somali">Alaabteenna</p>
+          <p className="text-slate-600 max-w-2xl mx-auto">
             Discover our carefully curated collection of books, stationery, and
             electronics. Quality guaranteed, prices unmatched.
           </p>
         </div>
-
-        {/* Advanced Filters and Sort */}
-        <AdvancedFilters
-          categories={categories}
-          priceRange={priceRange}
-          activeFilters={filters}
-          activeSortBy={sortBy}
-          onFilterChange={handleFilterChange}
-          onSortChange={handleSortChange}
-          resultCount={filteredProducts.length}
-        />
-
-        {/* Category Filter (Legacy - kept for quick access) */}
+        {/* Category Filter */}
         <div className="mb-12">
           {/* Mobile Filter Design */}
           <div className="block lg:hidden">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-4 mb-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
               <div className="flex items-center mb-4">
-                <Filter className="w-5 h-5 text-purple-300 mr-2" />
-                <span className="text-lg font-bold text-white">
+                <Filter className="w-5 h-5 text-amber-600 mr-2" />
+                <span className="text-lg font-bold text-slate-900">
                   Filter by Category
                 </span>
               </div>
@@ -542,10 +443,10 @@ export default function CustomerStore({
                   <button
                     key={category}
                     onClick={() => handleCategoryChange(category)}
-                    className={`px-3 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                    className={`px-3 py-2 rounded-2xl text-sm font-bold transition-all duration-300 ${
                       selectedCategory === category
-                        ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105"
-                        : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white hover:scale-105 border border-white/20"
+                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transform scale-105"
+                        : "bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:scale-105 border border-slate-200 hover:border-amber-300"
                     }`}
                   >
                     {category === "all" ? "All" : category}
@@ -559,8 +460,8 @@ export default function CustomerStore({
           <div className="hidden lg:block">
             <div className="overflow-x-auto scrollbar-hide pb-4">
               <div className="flex items-center justify-center space-x-3 min-w-max mx-auto">
-                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-xl rounded-full p-1 shadow-lg border border-white/20">
-                  <Filter className="w-5 h-5 text-purple-300 ml-3 flex-shrink-0" />
+                <div className="flex items-center space-x-2 bg-white rounded-full p-1 shadow-sm border border-slate-200">
+                  <Filter className="w-5 h-5 text-amber-600 ml-3 flex-shrink-0" />
                   <div className="flex space-x-1 pr-3">
                     {categories.map((category) => (
                       <button
@@ -568,8 +469,8 @@ export default function CustomerStore({
                         onClick={() => handleCategoryChange(category)}
                         className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
                           selectedCategory === category
-                            ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl transform scale-105"
-                            : "text-slate-300 hover:bg-white/10 hover:text-white hover:scale-105"
+                            ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transform scale-105"
+                            : "text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:scale-105"
                         }`}
                       >
                         {category === "all" ? "All" : category}
@@ -584,12 +485,12 @@ export default function CustomerStore({
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16">
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-12 max-w-md mx-auto border border-white/20">
+            <div className="bg-white rounded-3xl p-12 max-w-md mx-auto border border-slate-200 shadow-sm">
               <Package className="w-20 h-20 text-slate-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-3">
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">
                 No products found
               </h3>
-              <p className="text-slate-300 mb-6">
+              <p className="text-slate-600 mb-6">
                 Try adjusting your search or filters to find what you're looking
                 for
               </p>
@@ -598,7 +499,7 @@ export default function CustomerStore({
                   setSearchTerm("");
                   handleCategoryChange("all");
                 }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 font-semibold"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-semibold shadow-md"
               >
                 Show All Products
               </button>
@@ -623,13 +524,13 @@ export default function CustomerStore({
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-slate-900 hover:bg-amber-50 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
             >
               Previous
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-white font-medium px-3 py-2 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20">
+              <span className="text-slate-900 font-medium px-3 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
                 Page {currentPage} of {totalPages}
               </span>
             </div>
@@ -639,7 +540,7 @@ export default function CustomerStore({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-white/20 bg-white/10 backdrop-blur-xl rounded-lg text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-slate-900 hover:bg-amber-50 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
             >
               Next
             </button>
@@ -648,25 +549,29 @@ export default function CustomerStore({
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
+      <footer className="bg-slate-900 text-slate-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">HASSAN BOOKSHOP</h3>
-              <p className="text-slate-300">
+              <h3 className="text-xl font-bold mb-4 text-slate-200">
+                HASSAN BOOKSHOP
+              </h3>
+              <p className="text-slate-400">
                 Your trusted partner for books, stationery, and more. Quality
                 products, fast delivery, best prices.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Contact / Xiriir</h4>
-              <div className="space-y-2 text-slate-300">
+              <h4 className="font-semibold mb-4 text-slate-200">
+                Contact / Xiriir
+              </h4>
+              <div className="space-y-2 text-slate-400">
                 <p className="flex items-center space-x-2">
                   <span>📞</span>
                   <a
                     href="tel:+254722979547"
-                    className="hover:text-white transition-colors"
+                    className="hover:text-amber-400 transition-colors"
                   >
                     +254 722 979 547
                   </a>
@@ -674,10 +579,10 @@ export default function CustomerStore({
                 <p className="flex items-center space-x-2">
                   <span>📧</span>
                   <a
-                    href="mailto:yussufh080@gmail.com"
-                    className="hover:text-white transition-colors"
+                    href="mailto:galiyowabi@gmail.com"
+                    className="hover:text-amber-400 transition-colors"
                   >
-                    yussufh080@gmail.com
+                    galiyowabi@gmail.com
                   </a>
                 </p>
                 <p className="flex items-center space-x-2">
@@ -692,8 +597,8 @@ export default function CustomerStore({
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Categories</h4>
-              <div className="grid grid-cols-2 gap-2 text-slate-300">
+              <h4 className="font-semibold mb-4 text-slate-200">Categories</h4>
+              <div className="grid grid-cols-2 gap-2 text-slate-400">
                 <p>📚 Books</p>
                 <p>🎒 Backpacks</p>
                 <p>🖊️ Stationery</p>
@@ -714,13 +619,11 @@ export default function CustomerStore({
                   href="https://lenzro.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600/30 to-blue-600/30 hover:from-purple-600/40 hover:to-blue-600/40 border border-purple-500/40 hover:border-purple-400/60 rounded-lg transition-all hover:scale-105 font-bold text-purple-300 hover:text-purple-200 shadow-xl"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-br from-amber-500/10 to-amber-600/10 hover:from-amber-500/20 hover:to-amber-600/20 border border-amber-500/30 hover:border-amber-400/50 rounded-xl transition-all hover:scale-105 font-bold text-amber-400 hover:text-amber-300 shadow-sm"
                 >
                   <span className="text-lg">⚡</span>
                   <span>Lenzro</span>
-                  <span className="text-xs text-purple-400">
-                    Digital Agency
-                  </span>
+                  <span className="text-xs text-amber-500">Digital Agency</span>
                 </a>
               </div>
             </div>
@@ -766,8 +669,8 @@ export default function CustomerStore({
         pauseOnHover
         theme="light"
         className="!z-50"
-        toastClassName="!rounded-lg !shadow-lg !min-h-12 !text-sm !p-2"
-        progressClassName="!bg-gradient-to-r !from-blue-500 !to-purple-500"
+        toastClassName="!rounded-xl !shadow-lg !min-h-12 !text-sm !p-2"
+        progressClassName="!bg-gradient-to-r !from-blue-500 !to-amber-500"
         style={{
           fontSize: "14px",
         }}

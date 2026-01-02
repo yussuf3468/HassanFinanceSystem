@@ -125,7 +125,7 @@ export function useSales() {
         const { data, error } = await supabase
           .from("sales")
           .select(
-            "id,transaction_id,product_id,quantity_sold,selling_price,buying_price,total_sale,profit,payment_method,sold_by,discount_amount,discount_percentage,original_price,final_price,created_at,sale_date"
+            "id,transaction_id,product_id,quantity_sold,selling_price,buying_price,total_sale,profit,payment_method,sold_by,discount_amount,discount_percentage,original_price,final_price,created_at,sale_date,customer_name,payment_status,amount_paid"
           )
           .order("created_at", { ascending: false })
           .range(from, from + pageSize - 1);

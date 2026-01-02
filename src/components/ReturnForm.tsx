@@ -19,7 +19,7 @@ const paymentMethods = [
   "Card",
   "Bank Transfer",
 ];
-const staffMembers = ["Khalid", "Zakaria", "Yussuf"];
+const staffMembers = ["Khalid", "Yussuf", "Zakaria"];
 
 interface ReceiptItem {
   product_name: string;
@@ -210,22 +210,22 @@ export default function ReturnForm({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-rose-900 to-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto border border-white/20 animate-scaleIn print:static print:max-h-none print:overflow-visible print:shadow-none print:bg-white print:text-black">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[95vh] overflow-y-auto border border-amber-200/60 animate-scaleIn print:static print:max-h-none print:overflow-visible print:shadow-none print:bg-white print:text-black">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-rose-600 to-red-600 p-6 rounded-t-2xl print:hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/50 to-red-500/50 rounded-t-2xl"></div>
+        <div className="relative bg-gradient-to-r from-amber-500 to-amber-600 p-6 rounded-t-2xl print:hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-amber-500/20 rounded-t-2xl"></div>
           <div className="relative flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-black text-white">
                 ↩️ Record Product Return
               </h3>
-              <p className="text-rose-100 text-sm font-medium">
+              <p className="text-white/90 text-sm font-medium">
                 Capture returned items & restore stock
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white"
+              className="p-2 bg-white/20 hover:bg-white/30 rounded-2xl transition-all duration-300 hover:scale-110 text-white"
             >
               <X className="w-6 h-6" />
             </button>
@@ -234,28 +234,28 @@ export default function ReturnForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-6 space-y-6 bg-white/5 backdrop-blur-xl print:bg-white print:text-black">
+          <div className="p-6 space-y-6 print:bg-white print:text-black">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-white print:text-black">
+                <h2 className="text-xl font-bold text-slate-900 print:text-black">
                   Return Receipt
                 </h2>
-                <p className="text-slate-300 text-sm print:text-black">
+                <p className="text-slate-900/70 text-sm print:text-black">
                   Date: {receipt.return_date.toLocaleString()}
                 </p>
-                <p className="text-slate-300 text-sm print:text-black">
+                <p className="text-slate-900/70 text-sm print:text-black">
                   Processed By: {receipt.processed_by}
                   {receipt.payment_method
                     ? ` • Refund via ${receipt.payment_method}`
                     : ""}
                 </p>
                 {receipt.reason && (
-                  <p className="text-slate-300 text-sm print:text-black">
+                  <p className="text-slate-900/70 text-sm print:text-black">
                     Reason: {receipt.reason}
                   </p>
                 )}
                 {receipt.condition && (
-                  <p className="text-slate-300 text-sm print:text-black">
+                  <p className="text-slate-900/70 text-sm print:text-black">
                     Condition: {receipt.condition}
                   </p>
                 )}
@@ -263,50 +263,61 @@ export default function ReturnForm({
               <div className="print:hidden flex space-x-2">
                 <button
                   onClick={printReceipt}
-                  className="px-4 py-2 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg flex items-center space-x-2 hover:from-rose-700 hover:to-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl flex items-center space-x-2 hover:from-amber-600 hover:to-amber-700"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print</span>
                 </button>
                 <button
                   onClick={handleFinish}
-                  className="px-4 py-2 border border-white/30 text-white rounded-lg hover:bg-white/10"
+                  className="px-4 py-2 border border-amber-200/60 text-slate-900 rounded-xl hover:bg-amber-50/40"
                 >
                   Finish
                 </button>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-white/20 print:border-slate-300">
+            <div className="overflow-hidden rounded-2xl border border-amber-200/60 print:border-slate-300">
               <table className="w-full text-sm">
-                <thead className="bg-white/10 text-white print:bg-slate-100 print:text-black">
+                <thead className="bg-amber-50/40 text-slate-900 print:bg-slate-100 print:text-black">
                   <tr>
-                    <th className="px-4 py-2 text-left">Product</th>
-                    <th className="px-4 py-2 text-right">Qty</th>
-                    <th className="px-4 py-2 text-right">Unit Price</th>
-                    <th className="px-4 py-2 text-right">Refund Total</th>
+                    <th className="px-4 py-2 text-left text-slate-900/80">
+                      Product
+                    </th>
+                    <th className="px-4 py-2 text-right text-slate-900/80">
+                      Qty
+                    </th>
+                    <th className="px-4 py-2 text-right text-slate-900/80">
+                      Unit Price
+                    </th>
+                    <th className="px-4 py-2 text-right text-slate-900/80">
+                      Refund Total
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {receipt.items.map((it, i) => (
-                    <tr key={i} className="odd:bg-white/5 print:odd:bg-white">
+                    <tr
+                      key={i}
+                      className="odd:bg-white even:bg-amber-50/20 text-slate-900 print:odd:bg-white"
+                    >
                       <td className="px-4 py-2">{it.product_name}</td>
                       <td className="px-4 py-2 text-right">{it.quantity}</td>
                       <td className="px-4 py-2 text-right">
                         KES {it.unit_price.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right font-semibold text-rose-300 print:text-black">
+                      <td className="px-4 py-2 text-right font-semibold text-rose-600 print:text-black">
                         KES {it.total_refund.toLocaleString()}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-white/10 font-semibold print:bg-slate-100 print:text-black">
+                <tfoot className="bg-amber-50/40 font-semibold text-slate-900 print:bg-slate-100 print:text-black">
                   <tr>
                     <td className="px-4 py-2 text-right" colSpan={3}>
                       Total Refund
                     </td>
-                    <td className="px-4 py-2 text-right text-rose-300 print:text-black">
+                    <td className="px-4 py-2 text-right text-rose-600 print:text-black">
                       KES {receipt.total_refund.toLocaleString()}
                     </td>
                   </tr>
@@ -317,17 +328,14 @@ export default function ReturnForm({
         )}
 
         {!receipt && (
-          <form
-            onSubmit={handleSubmit}
-            className="p-6 space-y-8 bg-white/5 backdrop-blur-xl print:hidden"
-          >
+          <form onSubmit={handleSubmit} className="p-6 space-y-8 print:hidden">
             {/* Product Selection */}
             <div ref={dropdownRef}>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-900/70 mb-1">
                 Product *
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
                 <input
                   type="text"
                   value={searchTerm}
@@ -338,10 +346,10 @@ export default function ReturnForm({
                   }}
                   onFocus={() => setShowDropdown(true)}
                   placeholder="Search product..."
-                  className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 />
                 {showDropdown && searchTerm && filteredProducts.length > 0 && (
-                  <div className="absolute z-20 w-full mt-2 bg-slate-900 border border-white/20 rounded-lg shadow-xl max-h-56 overflow-y-auto">
+                  <div className="absolute z-20 w-full mt-2 bg-white border border-amber-200/60 rounded-xl shadow-xl max-h-56 overflow-y-auto">
                     {filteredProducts.map((p) => (
                       <button
                         key={p.id}
@@ -351,7 +359,7 @@ export default function ReturnForm({
                           setSearchTerm(p.name);
                           setShowDropdown(false);
                         }}
-                        className="w-full text-left px-3 py-2 hover:bg-white/10 text-sm flex items-center space-x-2"
+                        className="w-full text-left px-3 py-2 hover:bg-amber-50/40 text-sm flex items-center space-x-2"
                       >
                         {p.image_url ? (
                           <img
@@ -360,15 +368,15 @@ export default function ReturnForm({
                             className="w-8 h-8 object-cover rounded"
                           />
                         ) : (
-                          <div className="w-8 h-8 bg-white/10 rounded flex items-center justify-center">
-                            <Package className="w-4 h-4 text-slate-400" />
+                          <div className="w-8 h-8 bg-amber-50 rounded flex items-center justify-center">
+                            <Package className="w-4 h-4 text-amber-600" />
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="font-medium text-white truncate">
+                          <p className="font-medium text-slate-900 truncate">
                             {p.name}
                           </p>
-                          <p className="text-xs text-slate-400 truncate">
+                          <p className="text-xs text-slate-900/60 truncate">
                             {p.product_id} • Stock {p.quantity_in_stock} • KES{" "}
                             {p.selling_price.toLocaleString()}
                           </p>
@@ -383,7 +391,7 @@ export default function ReturnForm({
             {/* Quantity & Optional Sale Link */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Quantity Returned *
                 </label>
                 <input
@@ -391,11 +399,11 @@ export default function ReturnForm({
                   min={1}
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Link to Sale (Optional)
                 </label>
                 <input
@@ -403,7 +411,7 @@ export default function ReturnForm({
                   value={saleId}
                   onChange={(e) => setSaleId(e.target.value)}
                   placeholder="Paste Sale ID if available"
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
             </div>
@@ -411,27 +419,27 @@ export default function ReturnForm({
             {/* Refund Summary */}
             {product && qtyNum > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                <div className="bg-white/10 rounded-md p-2">
-                  <span className="text-slate-300 block">Unit Price</span>
-                  <span className="font-semibold text-rose-300">
+                <div className="bg-amber-50/40 border border-amber-200/60 rounded-md p-2">
+                  <span className="text-slate-900/60 block">Unit Price</span>
+                  <span className="font-semibold text-slate-900">
                     KES {product.selling_price.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-white/10 rounded-md p-2">
-                  <span className="text-slate-300 block">Qty</span>
-                  <span className="font-semibold text-white">{qtyNum}</span>
+                <div className="bg-amber-50/40 border border-amber-200/60 rounded-md p-2">
+                  <span className="text-slate-900/60 block">Qty</span>
+                  <span className="font-semibold text-slate-900">{qtyNum}</span>
                 </div>
-                <div className="bg-white/10 rounded-md p-2">
-                  <span className="text-slate-300 block">Refund Total</span>
-                  <span className="font-semibold text-rose-300">
+                <div className="bg-rose-50 border border-rose-200 rounded-md p-2">
+                  <span className="text-slate-900/60 block">Refund Total</span>
+                  <span className="font-semibold text-rose-600">
                     KES {refundTotal.toLocaleString()}
                   </span>
                 </div>
-                <div className="bg-white/10 rounded-md p-2">
-                  <span className="text-slate-300 block">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-md p-2">
+                  <span className="text-slate-900/60 block">
                     Stock After Return
                   </span>
-                  <span className="font-semibold text-green-400">
+                  <span className="font-semibold text-emerald-600">
                     {product.quantity_in_stock + qtyNum}
                   </span>
                 </div>
@@ -441,7 +449,7 @@ export default function ReturnForm({
             {/* Reason / Condition */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Reason
                 </label>
                 <input
@@ -449,24 +457,20 @@ export default function ReturnForm({
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="e.g. Damaged packaging"
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Condition
                 </label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 >
                   {["Sealed", "Opened", "Damaged", "Other"].map((c) => (
-                    <option
-                      key={c}
-                      value={c}
-                      className="bg-slate-900 text-white"
-                    >
+                    <option key={c} value={c}>
                       {c}
                     </option>
                   ))}
@@ -477,44 +481,34 @@ export default function ReturnForm({
             {/* Payment Method & Staff */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Refund Method
                 </label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 >
                   {paymentMethods.map((m) => (
-                    <option
-                      key={m}
-                      value={m}
-                      className="bg-slate-900 text-white"
-                    >
+                    <option key={m} value={m}>
                       {m}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-900/70 mb-1">
                   Processed By (Staff) *
                 </label>
                 <select
                   required
                   value={processedBy}
                   onChange={(e) => setProcessedBy(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 >
-                  <option value="" className="bg-slate-900 text-white">
-                    -- Select Staff Member --
-                  </option>
+                  <option value="">-- Select Staff Member --</option>
                   {staffMembers.map((s) => (
-                    <option
-                      key={s}
-                      value={s}
-                      className="bg-slate-900 text-white"
-                    >
+                    <option key={s} value={s}>
                       {s}
                     </option>
                   ))}
@@ -524,30 +518,30 @@ export default function ReturnForm({
 
             {/* Notes */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-900/70 mb-1">
                 Notes
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white focus:ring-2 focus:ring-rose-500"
+                className="w-full px-3 py-2 bg-white border border-amber-200/60 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-amber-500"
                 placeholder="Additional details..."
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
+            <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t border-amber-200/60">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-3 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors font-medium"
+                className="w-full sm:w-auto px-6 py-3 border border-amber-200/60 text-slate-900 rounded-xl hover:bg-amber-50/40 transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-lg hover:from-rose-700 hover:to-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 {submitting ? "Recording Return..." : "Record Return"}
               </button>

@@ -15,7 +15,7 @@ interface ProductQuickViewProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (product: Product, quantity?: number) => void;
+  onAddToCart: (product: Product) => void;
 }
 
 const ProductQuickView = memo(
@@ -27,7 +27,9 @@ const ProductQuickView = memo(
     const handleAddToCart = useCallback(() => {
       if (!product) return;
 
-      onAddToCart(product, quantity);
+      for (let i = 0; i < quantity; i++) {
+        onAddToCart(product);
+      }
 
       toast.success(`Added ${quantity} ${product.name}(s) to cart!`, {
         position: "bottom-right",
@@ -62,14 +64,14 @@ const ProductQuickView = memo(
     if (!isOpen || !product) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[101] flex items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 shadow-xl rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
-            <h2 className="text-2xl font-bold text-white">Quick View</h2>
+          <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-br from-amber-50 to-white">
+            <h2 className="text-2xl font-bold text-slate-900">Quick View</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
+              className="p-2 hover:bg-amber-100 rounded-full transition-colors text-slate-700"
             >
               <X className="w-6 h-6" />
             </button>
@@ -81,7 +83,7 @@ const ProductQuickView = memo(
               <div className="relative">
                 {product.image_url ? (
                   <div
-                    className={`relative overflow-hidden rounded-xl cursor-zoom-in bg-gradient-to-br from-white/5 to-white/10 ${
+                    className={`relative overflow-hidden rounded-2xl cursor-zoom-in bg-slate-50/30 ${
                       imageZoomed ? "transform scale-150" : ""
                     } transition-transform duration-300`}
                     onClick={() => setImageZoomed(!imageZoomed)}
@@ -91,19 +93,19 @@ const ProductQuickView = memo(
                       alt={product.name}
                       className="w-full h-64 sm:h-72 md:h-80 object-contain p-3"
                     />
-                    <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm rounded-full p-2">
-                      <ZoomIn className="w-4 h-4 text-white" />
+                    <div className="absolute top-3 right-3 bg-white/90 border border-slate-200 rounded-full p-2 shadow-sm">
+                      <ZoomIn className="w-4 h-4 text-slate-700" />
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-64 sm:h-72 md:h-80 bg-gradient-to-br from-white/5 to-white/10 rounded-xl flex items-center justify-center border border-white/20">
+                  <div className="w-full h-64 sm:h-72 md:h-80 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-200">
                     <Package className="w-16 h-16 text-slate-400" />
                   </div>
                 )}
 
                 {/* Featured Badge */}
                 {product.featured && (
-                  <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                  <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
                     <Star className="w-3 h-3 fill-current" />
                     <span>FEATURED</span>
                   </div>
@@ -115,9 +117,9 @@ const ProductQuickView = memo(
                 {[1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className="w-16 h-16 bg-white/10 rounded-lg border-2 border-white/20 hover:border-purple-500 cursor-pointer transition-colors"
+                    className="w-16 h-16 bg-white rounded-xl border-2 border-slate-200 hover:border-amber-400 cursor-pointer transition-colors"
                   >
-                    <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/10 rounded-md"></div>
+                    <div className="w-full h-full bg-slate-50/30 rounded-md"></div>
                   </div>
                 ))}
               </div>
@@ -126,16 +128,16 @@ const ProductQuickView = memo(
             {/* Product Details */}
             <div className="space-y-6">
               <div>
-                <span className="text-sm font-medium text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-1 rounded-full">
+                <span className="text-sm font-semibold text-amber-700 bg-gradient-to-br from-amber-50 to-white border border-amber-300 px-2 py-1 rounded-full">
                   {product.category}
                 </span>
-                <h1 className="text-3xl font-bold text-white mt-3 mb-2">
+                <h1 className="text-3xl font-bold text-slate-900 mt-3 mb-2">
                   {product.name}
                 </h1>
 
                 {/* Description */}
                 {product.description && (
-                  <p className="text-slate-300 text-sm leading-relaxed mb-4 bg-white/5 backdrop-blur-xl p-3 rounded-lg border-l-4 border-purple-500">
+                  <p className="text-slate-700 text-sm leading-relaxed mb-4 bg-white p-3 rounded-xl border-l-4 border-amber-500">
                     {product.description}
                   </p>
                 )}
@@ -150,7 +152,7 @@ const ProductQuickView = memo(
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-slate-300">
+                  <span className="text-sm text-slate-600">
                     (4.8) • 142 reviews
                   </span>
                 </div>
@@ -159,53 +161,70 @@ const ProductQuickView = memo(
               {/* Price */}
               <div className="space-y-2">
                 <div className="flex items-baseline space-x-3">
-                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">
+                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text">
                     KES {product.selling_price.toLocaleString()}
                   </span>
-                  <span className="text-lg text-slate-400 line-through">
+                  <span className="text-lg text-slate-500 line-through">
                     KES {(product.selling_price * 1.2).toLocaleString()}
                   </span>
-                  <span className="bg-red-500/20 border border-red-500/30 text-red-300 px-2 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-red-50 border border-red-300 text-red-700 px-2 py-1 rounded-full text-sm font-bold">
                     Save 20%
                   </span>
                 </div>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-600">
                   Including all taxes • Free shipping over KES 2,000
                 </p>
               </div>
 
+              {/* Stock Status */}
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    product.quantity_in_stock > 10
+                      ? "bg-green-500"
+                      : product.quantity_in_stock > 0
+                      ? "bg-amber-500"
+                      : "bg-red-500"
+                  }`}
+                ></div>
+                <span className="font-medium text-slate-700">
+                  {product.quantity_in_stock > 10
+                    ? "In Stock"
+                    : product.quantity_in_stock > 0
+                    ? `Only ${product.quantity_in_stock} left`
+                    : "Out of Stock"}
+                </span>
+              </div>
+
               {/* Quantity Selector */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-slate-300">
+                <label className="block text-sm font-medium text-slate-700">
                   Quantity
                 </label>
                 <div className="flex items-center space-x-3">
-                  <div className="flex items-center border-2 border-purple-500/30 bg-white/10 backdrop-blur-xl rounded-xl overflow-hidden">
+                  <div className="flex items-center border border-slate-200 bg-white rounded-lg">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-3 hover:bg-purple-500/20 transition-colors text-white font-bold text-lg"
+                      className="p-2 hover:bg-amber-50 transition-colors text-slate-700"
                     >
                       -
                     </button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={quantity}
-                      onChange={(e) =>
-                        setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-                      }
-                      className="w-20 px-3 py-2 text-center font-bold text-white bg-transparent border-none focus:outline-none focus:ring-0"
-                      style={{ appearance: "textfield" }}
-                    />
+                    <span className="px-4 py-2 font-medium text-slate-900">
+                      {quantity}
+                    </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="p-3 hover:bg-purple-500/20 transition-colors text-white font-bold text-lg"
+                      onClick={() =>
+                        setQuantity(
+                          Math.min(product.quantity_in_stock, quantity + 1)
+                        )
+                      }
+                      className="p-2 hover:bg-amber-50 transition-colors text-slate-700"
                     >
                       +
                     </button>
                   </div>
-                  <span className="text-sm text-slate-400">
-                    Enter any quantity
+                  <span className="text-sm text-slate-600">
+                    {product.quantity_in_stock} available
                   </span>
                 </div>
               </div>
@@ -214,7 +233,8 @@ const ProductQuickView = memo(
               <div className="space-y-3">
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 transition-all duration-300 font-bold text-lg flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/25 hover:scale-105 hover:shadow-purple-500/50"
+                  disabled={product.quantity_in_stock === 0}
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-6 rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg shadow-amber-300"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>
@@ -226,10 +246,10 @@ const ProductQuickView = memo(
                 <div className="flex space-x-3">
                   <button
                     onClick={toggleLike}
-                    className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
+                    className={`flex-1 py-3 px-4 rounded-2xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
                       isLiked
-                        ? "bg-red-500/20 text-red-300 border-2 border-red-500/30"
-                        : "bg-white/10 text-slate-300 border-2 border-white/20 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30"
+                        ? "bg-red-50 text-red-700 border-2 border-red-300"
+                        : "bg-white text-slate-700 border-2 border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                     }`}
                   >
                     <Heart
@@ -240,7 +260,7 @@ const ProductQuickView = memo(
 
                   <button
                     onClick={handleShare}
-                    className="flex-1 bg-white/10 text-slate-300 py-3 px-4 rounded-xl hover:bg-white/20 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-white/20"
+                    className="flex-1 bg-white text-slate-700 py-3 px-4 rounded-2xl hover:bg-amber-50 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-slate-200 hover:border-amber-300"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
@@ -249,24 +269,24 @@ const ProductQuickView = memo(
               </div>
 
               {/* Product Details */}
-              <div className="space-y-4 pt-6 border-t border-white/20">
-                <h3 className="font-bold text-white">Product Details</h3>
+              <div className="space-y-4 pt-6 border-t border-slate-200">
+                <h3 className="font-bold text-slate-900">Product Details</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Category:</span>
-                    <span className="font-medium text-white">
+                    <span className="text-slate-600">Category:</span>
+                    <span className="font-medium text-slate-900">
                       {product.category}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Product ID:</span>
-                    <span className="font-medium text-white">
+                    <span className="text-slate-600">Product ID:</span>
+                    <span className="font-medium text-slate-900">
                       {product.product_id}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Availability:</span>
-                    <span className="font-medium text-green-400">In Stock</span>
+                    <span className="text-slate-600">Availability:</span>
+                    <span className="font-medium text-green-600">In Stock</span>
                   </div>
                 </div>
               </div>

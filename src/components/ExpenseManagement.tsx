@@ -316,12 +316,12 @@ export default function ExpenseManagement() {
         {/* Stunning Animated Header */}
         <div className="mb-4 sm:mb-8 relative">
           {/* Background Glow Effects */}
-          <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 via-pink-400/20 to-purple-400/20 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-rose-100/30 to-amber-100/30 rounded-3xl blur-3xl"></div>
+          <div className="relative bg-white backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg border border-amber-100/50 overflow-hidden">
             {/* Animated Background Patterns */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-red-500 to-pink-500 rounded-full animate-pulse transform rotate-45"></div>
-              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-pulse transform rotate-12 animation-delay-1000"></div>
+              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-amber-500 to-rose-500 rounded-full animate-pulse transform rotate-45"></div>
+              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-amber-500 to-rose-400 rounded-full animate-pulse transform rotate-12 animation-delay-1000"></div>
             </div>
 
             <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
@@ -329,15 +329,15 @@ export default function ExpenseManagement() {
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-br from-red-500 to-pink-600 p-3 rounded-2xl shadow-lg">
-                      <Receipt className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce" />
+                    <div className="relative bg-gradient-to-br from-red-500 to-pink-600 p-3 rounded-2xl shadow-lg shadow-amber-300/10">
+                      <Receipt className="w-6 h-6 sm:w-8 sm:h-8 text-slate-900 animate-bounce" />
                     </div>
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-pink-200 animate-gradient">
                       💸 Expense Management
                     </h1>
-                    <p className="text-sm sm:text-base text-slate-300 font-semibold">
+                    <p className="text-sm sm:text-base text-slate-600 font-semibold">
                       Track and analyze all business expenses with style
                     </p>
                   </div>
@@ -348,7 +348,7 @@ export default function ExpenseManagement() {
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="px-3 sm:px-4 py-2 sm:py-3 bg-white/10 border border-white/20 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base text-white"
+                  className="px-3 sm:px-4 py-2 sm:py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base text-slate-800"
                 />
 
                 {categories.length === 0 && (
@@ -356,7 +356,7 @@ export default function ExpenseManagement() {
                     type="button"
                     onClick={seedDefaultCategories}
                     disabled={seeding}
-                    className="px-3 sm:px-4 py-2 sm:py-3 border border-purple-500/30 bg-purple-500/20 text-purple-300 rounded-lg sm:rounded-xl hover:bg-purple-500/30 transition-all text-sm sm:text-base disabled:opacity-60"
+                    className="px-3 sm:px-4 py-2 sm:py-3 border border-purple-500/30 bg-purple-500/20 text-purple-300 rounded-xl sm:rounded-2xl hover:bg-purple-500/30 transition-all text-sm sm:text-base disabled:opacity-60"
                     title="Insert a set of common expense categories"
                   >
                     {seeding ? "Seeding…" : "Seed Categories"}
@@ -365,7 +365,7 @@ export default function ExpenseManagement() {
 
                 <button
                   onClick={() => setShowForm(true)}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Add Expense</span>
@@ -383,7 +383,7 @@ export default function ExpenseManagement() {
         {/* Stunning Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div
-            className="group relative bg-white/10 backdrop-blur-2xl rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:shadow-red-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
+            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-red-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
             style={{ animationDelay: "0.1s" }}
           >
             {/* Animated Background */}
@@ -393,14 +393,14 @@ export default function ExpenseManagement() {
                 <p className="text-xs sm:text-sm font-semibold text-red-400 uppercase tracking-wide mb-2">
                   Total Expenses
                 </p>
-                <p className="text-xl sm:text-3xl font-black text-white group-hover:scale-105 transition-transform duration-300">
+                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
                   KES {totalExpenses.toLocaleString()}
                 </p>
               </div>
               <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 rounded-xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-red-500 to-red-600 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <TrendingDown className="w-5 h-5 text-white group-hover:animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+                <div className="relative bg-gradient-to-br from-red-500 to-red-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                  <TrendingDown className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
                 </div>
               </div>
             </div>
@@ -408,7 +408,7 @@ export default function ExpenseManagement() {
           </div>
 
           <div
-            className="group relative bg-white/10 backdrop-blur-2xl rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
+            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
             style={{ animationDelay: "0.2s" }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -417,14 +417,14 @@ export default function ExpenseManagement() {
                 <p className="text-xs sm:text-sm font-semibold text-blue-400 uppercase tracking-wide mb-2">
                   Total Records
                 </p>
-                <p className="text-xl sm:text-3xl font-black text-white group-hover:scale-105 transition-transform duration-300">
+                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
                   {expenses.length}
                 </p>
               </div>
               <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <Receipt className="w-5 h-5 text-white group-hover:animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+                <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                  <Receipt className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
                 </div>
               </div>
             </div>
@@ -432,7 +432,7 @@ export default function ExpenseManagement() {
           </div>
 
           <div
-            className="group relative bg-white/10 backdrop-blur-2xl rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
+            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
             style={{ animationDelay: "0.3s" }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-pink-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -441,7 +441,7 @@ export default function ExpenseManagement() {
                 <p className="text-xs sm:text-sm font-semibold text-purple-400 uppercase tracking-wide mb-2">
                   Average Expense
                 </p>
-                <p className="text-xl sm:text-3xl font-black text-white group-hover:scale-105 transition-transform duration-300">
+                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
                   KES{" "}
                   {averageExpense.toLocaleString(undefined, {
                     maximumFractionDigits: 0,
@@ -449,9 +449,9 @@ export default function ExpenseManagement() {
                 </p>
               </div>
               <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <Calendar className="w-5 h-5 text-white group-hover:animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+                <div className="relative bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                  <Calendar className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
                 </div>
               </div>
             </div>
@@ -462,11 +462,11 @@ export default function ExpenseManagement() {
         <div className="relative group">
           {/* Glow Effect */}
           <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-          <div className="relative bg-white/10 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            <div className="relative p-4 sm:p-6 border-b border-white/20 bg-white/5 backdrop-blur-xl">
+          <div className="relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
+            <div className="relative p-4 sm:p-6 border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl blur-sm opacity-60 animate-pulse"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
                   <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 p-2 rounded-xl">
                     <Receipt className="w-5 h-5 text-white" />
                   </div>
@@ -480,24 +480,24 @@ export default function ExpenseManagement() {
             {/* Desktop Table View */}
             <div className="hidden lg:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white/5 backdrop-blur-xl">
+                <thead className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Date
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Category
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Description
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Amount
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Type
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
                       Actions
                     </th>
                   </tr>
@@ -507,7 +507,7 @@ export default function ExpenseManagement() {
                     <tr>
                       <td
                         colSpan={6}
-                        className="px-6 py-12 text-center text-slate-400"
+                        className="px-6 py-12 text-center text-slate-700 "
                       >
                         <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-500" />
                         <p className="text-lg font-medium mb-2 text-white">
@@ -520,9 +520,9 @@ export default function ExpenseManagement() {
                     expenses.map((expense) => (
                       <tr
                         key={expense.id}
-                        className="hover:bg-white/5 transition-colors"
+                        className="hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors"
                       >
-                        <td className="px-6 py-4 text-sm text-slate-300">
+                        <td className="px-6 py-4 text-sm text-slate-700 ">
                           {formatDate(expense.date)}
                         </td>
                         <td className="px-6 py-4">
@@ -537,7 +537,7 @@ export default function ExpenseManagement() {
                           KES {expense.amount.toLocaleString()}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-300 border border-gray-500/30">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-600 border border-gray-500/30">
                             Expense
                           </span>
                         </td>
@@ -545,13 +545,13 @@ export default function ExpenseManagement() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleEdit(expense)}
-                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(expense.id)}
-                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -567,7 +567,7 @@ export default function ExpenseManagement() {
             {/* Mobile Card View */}
             <div className="lg:hidden">
               {expenses.length === 0 ? (
-                <div className="p-6 text-center text-slate-400">
+                <div className="p-6 text-center text-slate-700 ">
                   <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-500" />
                   <p className="text-lg font-medium mb-2 text-white">
                     No expenses recorded
@@ -581,7 +581,7 @@ export default function ExpenseManagement() {
                   {expenses.map((expense) => (
                     <div
                       key={expense.id}
-                      className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/20"
+                      className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
@@ -589,14 +589,14 @@ export default function ExpenseManagement() {
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
                               {expense.category || "Uncategorized"}
                             </span>
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-300 border border-gray-500/30">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-600 border border-gray-500/30">
                               Expense
                             </span>
                           </div>
-                          <h4 className="text-sm font-semibold text-white mb-1">
+                          <h4 className="text-sm font-semibold text-slate-900 mb-1">
                             {expense.description}
                           </h4>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-700 ">
                             {formatDate(expense.date)}
                           </p>
                         </div>
@@ -607,13 +607,13 @@ export default function ExpenseManagement() {
                           <div className="flex space-x-1">
                             <button
                               onClick={() => handleEdit(expense)}
-                              className="p-1 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                              className="p-1 text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(expense.id)}
-                              className="p-1 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                              className="p-1 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -633,14 +633,14 @@ export default function ExpenseManagement() {
           <div className="mt-6 sm:mt-8 relative group">
             {/* Glow Effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative bg-white/10 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/20 overflow-hidden">
+            <div className="relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
               {/* Animated Background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-2xl animate-pulse"></div>
 
               <div className="relative">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl blur-sm opacity-60 animate-pulse"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
                     <div className="relative bg-gradient-to-br from-purple-500 to-pink-600 p-2 rounded-xl">
                       <TrendingDown className="w-5 h-5 text-white" />
                     </div>
@@ -687,7 +687,7 @@ export default function ExpenseManagement() {
                           to: "to-red-600",
                           bg: "from-red-50",
                           bgTo: "to-red-100",
-                          text: "text-red-700",
+                          text: "text-rose-800",
                         },
                         {
                           from: "from-indigo-500",
@@ -702,27 +702,27 @@ export default function ExpenseManagement() {
                       return (
                         <div
                           key={category}
-                          className="group relative bg-white/10 backdrop-blur-xl rounded-xl p-4 shadow-lg border border-white/20 hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
+                          className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
                           style={{ animationDelay: `${index * 0.1}s` }}
                         >
                           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <div className="relative">
-                            <p className="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">
+                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
                               {category}
                             </p>
-                            <p className="text-xl font-black text-white mb-3 group-hover:scale-105 transition-transform duration-300">
+                            <p className="text-xl font-black text-slate-900 mb-3 group-hover:scale-105 transition-transform duration-300">
                               KES {amount.toLocaleString()}
                             </p>
                             <div className="relative">
-                              <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+                              <div className="w-full bg-white/90 rounded-full h-3 overflow-hidden">
                                 <div
-                                  className={`bg-gradient-to-r ${colorSet.from} ${colorSet.to} h-3 rounded-full transition-all duration-1000 ease-out shadow-lg`}
+                                  className={`bg-gradient-to-r ${colorSet.from} ${colorSet.to} h-3 rounded-full transition-all duration-1000 ease-out shadow-lg shadow-amber-300/10`}
                                   style={{
                                     width: `${(amount / totalExpenses) * 100}%`,
                                   }}
                                 ></div>
                               </div>
-                              <p className="text-xs text-slate-400 mt-1 font-medium">
+                              <p className="text-xs text-slate-700 mt-1 font-medium">
                                 {((amount / totalExpenses) * 100).toFixed(1)}%
                                 of total
                               </p>
@@ -746,7 +746,7 @@ export default function ExpenseManagement() {
             <div className="relative group">
               {/* Modal Glow Effect */}
               <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-1000 animate-pulse"></div>
-              <div className="relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-white/20">
+              <div className="relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                 {/* Animated Background Pattern */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-5">
                   <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-spin-slow"></div>
@@ -755,19 +755,24 @@ export default function ExpenseManagement() {
                 <div className="relative">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl blur-sm opacity-60 animate-pulse"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
                       <div className="relative bg-gradient-to-br from-purple-500 to-blue-600 p-2 rounded-xl">
                         <Plus className="w-5 h-5 text-white" />
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
-                      {editingExpense ? "✏️ Edit Expense" : "➕ Add New Expense"}
+                      {editingExpense
+                        ? "✏️ Edit Expense"
+                        : "➕ Add New Expense"}
                     </h3>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-3 sm:space-y-4"
+                  >
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-2">
                         Category
                       </label>
                       <select
@@ -778,18 +783,29 @@ export default function ExpenseManagement() {
                             category: e.target.value,
                           }))
                         }
-                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/10 border border-white/20 text-white rounded-lg sm:rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
                         required
                       >
-                        <option value="" disabled className="bg-slate-900 text-white">
+                        <option
+                          value=""
+                          disabled
+                          className="bg-slate-900 text-white"
+                        >
                           Select category
                         </option>
                         {/* Allow creating expenses without a category */}
-                        <option value="Uncategorized" className="bg-slate-900 text-white">
+                        <option
+                          value="Uncategorized"
+                          className="bg-slate-900 text-white"
+                        >
                           Uncategorized
                         </option>
                         {categories.map((cat) => (
-                          <option key={cat.id} value={cat.name || ""} className="bg-slate-900 text-white">
+                          <option
+                            key={cat.id}
+                            value={cat.name || ""}
+                            className="bg-slate-900 text-white"
+                          >
                             {cat.name}
                           </option>
                         ))}
@@ -797,7 +813,7 @@ export default function ExpenseManagement() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Description
                       </label>
                       <input
@@ -809,14 +825,14 @@ export default function ExpenseManagement() {
                             description: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
+                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
                         placeholder="Enter expense description"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Amount (KES)
                       </label>
                       <input
@@ -830,14 +846,14 @@ export default function ExpenseManagement() {
                             amount: parseFloat(e.target.value) || 0,
                           }))
                         }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
+                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
                         placeholder="0.00"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Date
                       </label>
                       <input
@@ -849,13 +865,13 @@ export default function ExpenseManagement() {
                             date: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Notes (optional)
                       </label>
                       <textarea
@@ -866,7 +882,7 @@ export default function ExpenseManagement() {
                             notes: e.target.value,
                           }))
                         }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
+                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
                         rows={3}
                       />
                     </div>
@@ -875,13 +891,13 @@ export default function ExpenseManagement() {
                       <button
                         type="button"
                         onClick={closeForm}
-                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-white/20 text-white rounded-lg sm:rounded-xl hover:bg-white/5 transition-colors text-sm sm:text-base"
+                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-xl sm:rounded-2xl hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors text-sm sm:text-base"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg sm:rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base"
+                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 rounded-xl sm:rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base"
                       >
                         {editingExpense ? "Update" : "Add"} Expense
                       </button>

@@ -19,7 +19,7 @@ const categories = [
   "Pens",
   "Notebooks",
   "Pencils",
-  "Erasers",
+  "Shapeners",
   "Markers",
   "Quran",
   "Print pepa",
@@ -31,12 +31,17 @@ const categories = [
   "Water color",
   "Crayons",
   "Kutub elmi",
-  "Tarmus",
   "Cup hot",
   "Speaker",
   "Locks/Qufulo",
   "Malab/Honey",
   "Other",
+  "Shower",
+  "Set",
+  "Dalad",
+  "Glue",
+  "Remote",
+  "Cello Tape",
 ];
 
 export default function ProductForm({
@@ -159,16 +164,16 @@ export default function ProductForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 overflow-y-auto">
       <div className="min-h-screen py-4 px-4 flex justify-center">
-        <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-xl shadow-xl max-w-2xl w-full h-fit my-4 max-h-[90vh] overflow-y-auto border border-white/20">
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/20 sticky top-0 bg-white/5 backdrop-blur-xl z-10">
-            <h3 className="text-lg sm:text-xl font-bold text-white">
-              {product ? "Edit Product" : "Add New Product"}
+        <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full h-fit my-4 max-h-[90vh] overflow-y-auto border-2 border-slate-100">
+          <div className="flex items-center justify-between p-5 sm:p-6 border-b-2 border-amber-100 sticky top-0 bg-gradient-to-r from-amber-50 via-white to-amber-50 z-10 shadow-sm">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+              {product ? "✏️ Edit Product" : "➕ Add New Product"}
             </h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+              className="p-2.5 hover:bg-amber-100 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 border border-transparent hover:border-amber-200"
             >
               <X className="w-5 h-5" />
             </button>
@@ -176,11 +181,12 @@ export default function ProductForm({
 
           <form
             onSubmit={handleSubmit}
-            className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-white/5 backdrop-blur-xl"
+            className="p-5 sm:p-7 space-y-5 sm:space-y-6 bg-gradient-to-br from-white via-slate-50/30 to-white"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">🆔</span>
                   Product ID *
                 </label>
                 <input
@@ -190,13 +196,14 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, product_id: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="BOOK001"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">📦</span>
                   Product Name *
                 </label>
                 <input
@@ -206,13 +213,14 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="Enter product name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">📂</span>
                   Category *
                 </label>
                 <select
@@ -221,13 +229,13 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 transition-all shadow-sm hover:border-amber-300"
                 >
                   {categories.map((cat) => (
                     <option
                       key={cat}
                       value={cat}
-                      className="bg-slate-900 text-white"
+                      className="bg-white text-slate-900"
                     >
                       {cat}
                     </option>
@@ -236,29 +244,34 @@ export default function ProductForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">🖼️</span>
                   Product Image
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <input
                     type="url"
                     value={formData.image_url}
                     onChange={(e) =>
                       setFormData({ ...formData, image_url: e.target.value })
                     }
-                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                    className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                     placeholder="Or paste image URL: https://example.com/image.jpg"
                   />
-                  <div className="text-center text-slate-400">OR</div>
+                  <div className="text-center text-slate-500 font-medium text-sm">
+                    OR
+                  </div>
                   <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-white/20 border-dashed rounded-lg cursor-pointer bg-white/5 hover:bg-white/10">
+                    <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-amber-300 rounded-2xl cursor-pointer bg-gradient-to-br from-amber-50/50 to-white hover:from-amber-100/50 hover:to-amber-50/30 transition-all hover:border-amber-400 group">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-4 text-slate-400" />
-                        <p className="mb-2 text-sm text-slate-300">
+                        <div className="p-3 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl mb-3 group-hover:scale-110 transition-transform">
+                          <Upload className="w-7 h-7 text-amber-600" />
+                        </div>
+                        <p className="mb-2 text-sm text-slate-700 font-semibold">
                           <span className="font-semibold">Click to upload</span>{" "}
                           product image
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-600">
                           PNG, JPG or WEBP (MAX. 5MB)
                         </p>
                       </div>
@@ -278,20 +291,27 @@ export default function ProductForm({
                     </label>
                   </div>
                   {imageFile && (
-                    <p className="text-sm text-green-400">
-                      Selected: {imageFile.name}
-                    </p>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                      <span className="text-green-600">✓</span>
+                      <p className="text-sm text-green-700 font-medium">
+                        Selected: {imageFile.name}
+                      </p>
+                    </div>
                   )}
                   {uploading && (
-                    <p className="text-sm text-purple-400">
-                      Uploading image...
-                    </p>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                      <span className="text-amber-600">⏳</span>
+                      <p className="text-sm text-amber-700 font-medium">
+                        Uploading image...
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">💰</span>
                   Qiimaha Iibsiga - Buying Price (KES) *
                 </label>
                 <input
@@ -303,13 +323,14 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, buying_price: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">💵</span>
                   Qiimaha Iibka - Selling Price (KES) *
                 </label>
                 <input
@@ -321,13 +342,14 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, selling_price: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">📊</span>
                   Quantity in Stock *
                 </label>
                 <input
@@ -341,13 +363,14 @@ export default function ProductForm({
                       quantity_in_stock: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="0"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                  <span className="text-amber-600">🔔</span>
                   Reorder Level *
                 </label>
                 <input
@@ -358,7 +381,7 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, reorder_level: e.target.value })
                   }
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-slate-400"
+                  className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                   placeholder="5"
                 />
               </div>
@@ -366,7 +389,8 @@ export default function ProductForm({
 
             {/* Full-width Product Description Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+                <span className="text-amber-600">📝</span>
                 Product Description
               </label>
               <textarea
@@ -374,36 +398,37 @@ export default function ProductForm({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                rows={3}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-white placeholder-slate-400"
+                rows={4}
+                className="w-full px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none text-slate-900 placeholder-slate-400 transition-all shadow-sm hover:border-amber-300"
                 placeholder="e.g., Sold in packets of 10, Bulk item, Premium quality, etc."
               />
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Add details like package size, special features, or
                 clarifications for customers
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-4 border-t border-white/20">
+            <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t-2 border-amber-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-6 py-2 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-colors"
+                className="w-full sm:w-auto px-8 py-3 border-2 border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-semibold hover:scale-105 active:scale-95 shadow-sm"
               >
-                Cancel
+                ✖️ Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50"
+                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95 hover:scale-105 font-bold border-2 border-amber-400"
+                style={{ WebkitTapHighlightColor: "rgba(245,158,11,0.4)" }}
               >
                 {submitting
-                  ? "Saving..."
+                  ? "⏳ Saving..."
                   : uploading
-                  ? "Uploading..."
+                  ? "📤 Uploading..."
                   : product
-                  ? "Update Product"
-                  : "Add Product"}
+                  ? "✓ Update Product"
+                  : "➕ Add Product"}
               </button>
             </div>
           </form>

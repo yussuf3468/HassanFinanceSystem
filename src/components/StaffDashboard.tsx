@@ -127,20 +127,20 @@ export default function StaffDashboard() {
   return (
     <div className="space-y-4 md:space-y-6 animate-fadeIn">
       {/* Hero Section - Staff Greeting */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 md:p-6 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-4 md:p-6 shadow-2xl shadow-amber-500/10">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10"></div>
         <div className="relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="p-2 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl shadow-lg">
+                <div className="p-2 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl shadow-lg shadow-amber-300/10">
                   <Award className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-cyan-200">
                     Welcome, {staffName}! 👋
                   </h1>
-                  <p className="text-xs md:text-sm text-slate-200 font-medium">
+                  <p className="text-xs md:text-sm text-slate-700 font-medium">
                     Store-Wide Sales Dashboard
                   </p>
                 </div>
@@ -165,7 +165,7 @@ export default function StaffDashboard() {
       <div>
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-cyan-600 rounded-full"></div>
-          <h2 className="text-lg md:text-xl font-bold text-white flex items-center space-x-2">
+          <h2 className="text-lg md:text-xl font-bold text-slate-900 flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-emerald-400" />
             <span>Store Performance Today</span>
           </h2>
@@ -233,9 +233,9 @@ export default function StaffDashboard() {
       {/* Period Performance Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* This Week Card */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500">
+        <div className="bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-6 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-500">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2.5 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl shadow-xl">
+            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl shadow-amber-400/30 shadow-xl shadow-amber-400/10">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-base md:text-lg font-bold text-white">
@@ -243,14 +243,14 @@ export default function StaffDashboard() {
             </h3>
           </div>
           <div className="space-y-3">
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-slate-400 mb-1">Total Sales</p>
+            <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-2xl p-4 border border-amber-100/50">
+              <p className="text-xs text-slate-700 mb-1">Total Sales</p>
               <p className="text-2xl font-black text-white">
                 {formatCurrency(metrics.thisWeekSales)}
               </p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-slate-400 mb-1">Total Profit</p>
+            <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-2xl p-4 border border-amber-100/50">
+              <p className="text-xs text-slate-700 mb-1">Total Profit</p>
               <p className="text-2xl font-black text-emerald-400">
                 {formatCurrency(metrics.thisWeekProfit)}
               </p>
@@ -259,9 +259,9 @@ export default function StaffDashboard() {
         </div>
 
         {/* This Month Card */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500">
+        <div className="bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-6 shadow-2xl hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-500">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2.5 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl shadow-xl">
+            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-rose-500 rounded-2xl shadow-xl shadow-amber-400/10">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-base md:text-lg font-bold text-white">
@@ -269,14 +269,14 @@ export default function StaffDashboard() {
             </h3>
           </div>
           <div className="space-y-3">
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-slate-400 mb-1">Total Sales</p>
+            <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-2xl p-4 border border-amber-100/50">
+              <p className="text-xs text-slate-700 mb-1">Total Sales</p>
               <p className="text-2xl font-black text-white">
                 {formatCurrency(metrics.thisMonthSales)}
               </p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-slate-400 mb-1">Total Profit</p>
+            <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-2xl p-4 border border-amber-100/50">
+              <p className="text-xs text-slate-700 mb-1">Total Profit</p>
               <p className="text-2xl font-black text-emerald-400">
                 {formatCurrency(metrics.thisMonthProfit)}
               </p>
@@ -286,9 +286,9 @@ export default function StaffDashboard() {
       </div>
 
       {/* Today's Sales List */}
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-2xl">
+      <div className="bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-6 shadow-2xl shadow-amber-500/10">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl shadow-xl">
+          <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl shadow-xl shadow-amber-400/10">
             <ShoppingBag className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-base md:text-lg font-bold text-white">
@@ -301,11 +301,11 @@ export default function StaffDashboard() {
 
         {todaysSales.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20">
-              <ShoppingBag className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+              <ShoppingBag className="w-8 h-8 text-slate-700 " />
             </div>
-            <p className="text-white font-bold mb-2">No sales yet today</p>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-900 font-bold mb-2">No sales yet today</p>
+            <p className="text-slate-700 text-sm">
               Start making sales to see them here!
             </p>
           </div>
@@ -316,7 +316,7 @@ export default function StaffDashboard() {
               return (
                 <div
                   key={sale.id}
-                  className="bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-emerald-500/30 rounded-xl p-4 transition-all duration-300 hover:scale-[1.01]"
+                  className="bg-gradient-to-br from-white to-stone-50/50 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 backdrop-blur-xl border border-amber-100/50 hover:border-emerald-500/30 rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01]"
                 >
                   <div className="flex items-center space-x-4">
                     {/* Product Image */}
@@ -324,12 +324,12 @@ export default function StaffDashboard() {
                       <OptimizedImage
                         src={product.image_url}
                         alt={product.name}
-                        className="w-16 h-16 object-cover rounded-lg border border-white/20 flex-shrink-0"
+                        className="w-16 h-16 object-cover rounded-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm flex-shrink-0"
                         preset="thumbnail"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 rounded-lg flex items-center justify-center border border-white/20 flex-shrink-0">
-                        <ShoppingBag className="w-8 h-8 text-slate-400" />
+                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center border border-amber-300/70 shadow-amber-100/50/60 shadow-sm flex-shrink-0">
+                        <ShoppingBag className="w-8 h-8 text-slate-700 " />
                       </div>
                     )}
 
@@ -337,16 +337,16 @@ export default function StaffDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-white text-sm md:text-base truncate">
+                          <p className="font-bold text-slate-900 text-sm md:text-base truncate">
                             {product?.name || "Unknown Product"}
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-700 ">
                             {new Date(sale.created_at).toLocaleTimeString()} •
                             Qty: {sale.quantity_sold}
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="font-black text-white text-sm md:text-base">
+                          <p className="font-black text-slate-900 text-sm md:text-base">
                             {formatCurrency(sale.total_sale)}
                           </p>
                           <p className="text-xs text-emerald-400 font-bold">
@@ -355,11 +355,11 @@ export default function StaffDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300">
                           {sale.payment_method}
                         </span>
                         {product?.category && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700 border border-rose-300">
                             {product.category}
                           </span>
                         )}
@@ -393,9 +393,9 @@ function MetricCard({
 }: MetricCardProps) {
   const colorClasses = {
     blue: {
-      gradient: "from-blue-600 to-cyan-600",
-      glow: "shadow-blue-500/50",
-      text: "text-blue-400",
+      gradient: "from-amber-500 to-amber-600",
+      glow: "shadow-amber-300",
+      text: "text-amber-700 ",
     },
     green: {
       gradient: "from-green-600 to-emerald-600",
@@ -403,9 +403,9 @@ function MetricCard({
       text: "text-emerald-400",
     },
     purple: {
-      gradient: "from-purple-600 to-pink-600",
-      glow: "shadow-purple-500/50",
-      text: "text-purple-400",
+      gradient: "from-amber-500 to-rose-500",
+      glow: "shadow-amber-300",
+      text: "text-amber-700 ",
     },
     orange: {
       gradient: "from-orange-600 to-amber-600",
@@ -417,7 +417,7 @@ function MetricCard({
   const colors = colorClasses[color];
 
   return (
-    <div className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
+    <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
       <div
         className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}
       ></div>
@@ -429,11 +429,11 @@ function MetricCard({
           >
             {title}
           </p>
-          <p className="text-base sm:text-lg md:text-xl font-black text-white leading-tight">
+          <p className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-tight">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-slate-400 mt-0.5 font-medium">
+            <p className="text-xs text-slate-700 mt-0.5 font-medium">
               {subtitle}
             </p>
           )}

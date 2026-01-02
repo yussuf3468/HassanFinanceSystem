@@ -17,10 +17,10 @@ export default function CartSidebar({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110]">
-      <div className="absolute right-0 top-0 h-full w-full sm:w-96 bg-white/10 backdrop-blur-2xl shadow-xl border-l border-white/20">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50">
+      <div className="absolute right-0 top-0 h-full w-full sm:w-96 bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl shadow-xl border-l border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
         {/* Header */}
-        <div className="p-4 border-b border-white/20 bg-gradient-to-r from-blue-600 to-blue-700">
+        <div className="p-4 border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm bg-gradient-to-r from-blue-600 to-blue-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <ShoppingBag className="w-6 h-6 text-white" />
@@ -30,7 +30,7 @@ export default function CartSidebar({
             </div>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-white/20 rounded transition-colors"
+              className="p-1 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white rounded transition-colors"
             >
               <X className="w-6 h-6 text-white" />
             </button>
@@ -46,11 +46,11 @@ export default function CartSidebar({
           <div className="flex-1 overflow-y-auto p-4">
             {cart.items.length === 0 ? (
               <div className="text-center py-12">
-                <ShoppingBag className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <ShoppingBag className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
                   Your cart is empty
                 </h3>
-                <p className="text-slate-300 text-sm">
+                <p className="text-slate-600 text-sm">
                   Gaarigaagu waa madhan - Add some products to get started
                 </p>
               </div>
@@ -59,11 +59,11 @@ export default function CartSidebar({
                 {cart.items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="bg-white/5 backdrop-blur-xl rounded-lg p-3 border border-white/20"
+                    className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-xl p-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
                   >
                     <div className="flex items-start space-x-3">
                       {/* Product Image */}
-                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 rounded-lg flex items-center justify-center flex-shrink-0 p-1 border border-white/20">
+                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center flex-shrink-0 p-1 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                         {item.product.image_url ? (
                           <img
                             src={item.product.image_url}
@@ -71,16 +71,16 @@ export default function CartSidebar({
                             className="w-full h-full object-contain rounded-lg"
                           />
                         ) : (
-                          <ShoppingBag className="w-6 h-6 text-slate-400" />
+                          <ShoppingBag className="w-6 h-6 text-slate-700 " />
                         )}
                       </div>
 
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-white text-sm line-clamp-2">
+                        <h4 className="font-medium text-slate-900 text-sm line-clamp-2">
                           {item.product.name}
                         </h4>
-                        <p className="text-xs text-slate-300 mb-2">
+                        <p className="text-xs text-slate-600 mb-2">
                           {item.product.category}
                         </p>
 
@@ -94,7 +94,7 @@ export default function CartSidebar({
                                   item.quantity - 1
                                 )
                               }
-                              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white border border-white/20"
+                              className="w-7 h-7 rounded-full bg-white/90 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white flex items-center justify-center transition-colors text-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
                               disabled={item.quantity <= 1}
                             >
                               <Minus className="w-3 h-3" />
@@ -111,7 +111,10 @@ export default function CartSidebar({
                                   item.quantity + 1
                                 )
                               }
-                              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white border border-white/20"
+                              className="w-7 h-7 rounded-full bg-white/90 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white flex items-center justify-center transition-colors text-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
+                              disabled={
+                                item.quantity >= item.product.quantity_in_stock
+                              }
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -128,7 +131,7 @@ export default function CartSidebar({
 
                         {/* Price */}
                         <div className="mt-2 flex items-center justify-between">
-                          <p className="text-xs text-slate-300">
+                          <p className="text-xs text-slate-700 ">
                             KES {item.product.selling_price.toLocaleString()}{" "}
                             each
                           </p>
@@ -149,11 +152,11 @@ export default function CartSidebar({
 
           {/* Footer - Total and Checkout */}
           {cart.items.length > 0 && (
-            <div className="border-t border-white/20 bg-white/5 backdrop-blur-xl p-4 space-y-4">
+            <div className="border-t border-amber-300/70 shadow-amber-100/50/60 shadow-sm bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl p-4 space-y-4">
               {/* Subtotal */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-300">
+                  <span className="text-slate-700 ">
                     Subtotal ({cart.totalItems} items)
                   </span>
                   <span className="font-medium text-white">
@@ -161,10 +164,10 @@ export default function CartSidebar({
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-300">Delivery</span>
+                  <span className="text-slate-700 ">Delivery</span>
                   <span className="font-medium text-green-400">FREE</span>
                 </div>
-                <div className="border-t border-white/20 pt-2">
+                <div className="border-t border-amber-300/70 shadow-amber-100/50/60 shadow-sm pt-2">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-lg text-white">
                       Total
@@ -180,14 +183,14 @@ export default function CartSidebar({
               <div className="space-y-2">
                 <button
                   onClick={onCheckout}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-amber-300/10"
                 >
                   Proceed to Checkout
                 </button>
 
                 <button
                   onClick={onClose}
-                  className="w-full bg-white/10 text-slate-300 py-2 px-4 rounded-lg hover:bg-white/20 transition-colors text-sm border border-white/20"
+                  className="w-full bg-white/90 text-slate-600 py-2 px-4 rounded-xl hover:bg-gradient-to-br hover:from-amber-50 hover:to-white transition-colors text-sm border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
                 >
                   Continue Shopping
                 </button>
@@ -207,3 +210,6 @@ export default function CartSidebar({
     </div>
   );
 }
+
+
+

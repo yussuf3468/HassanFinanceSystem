@@ -73,7 +73,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -82,7 +82,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
           </div>
           <button
             onClick={onCancel}
-            className="text-white hover:bg-white/20 rounded-full p-1 transition-colors"
+            className="text-slate-900 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white rounded-full p-1 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -91,9 +91,9 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Product Info */}
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2">
             <div className="flex items-start gap-2">
-              <Package className="w-5 h-5 text-red-600 mt-0.5" />
+              <Package className="w-5 h-5 text-rose-700 mt-0.5" />
               <div className="flex-1">
                 <p className="font-semibold text-gray-900">
                   {item.product.name}
@@ -107,13 +107,13 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
                   </p>
                   <p>
                     Available:{" "}
-                    <span className="font-medium text-red-600">
+                    <span className="font-medium text-rose-700">
                       {item.available} units
                     </span>
                   </p>
                   <p>
                     Shortage:{" "}
-                    <span className="font-medium text-red-600">
+                    <span className="font-medium text-rose-700">
                       {item.shortage} units
                     </span>
                   </p>
@@ -135,7 +135,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
                 setError("");
               }}
               min="1"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder={`Minimum: ${item.shortage}`}
               autoFocus
             />
@@ -156,7 +156,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
               type="text"
               value={source}
               onChange={(e) => setSource(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="e.g., Nearby Shop, Warehouse"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -166,7 +166,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
 
           {/* Error Message */}
           {error && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            <div className="bg-gradient-to-br from-white to-amber-50/30 border border-orange-200 rounded-xl p-3">
               <p className="text-sm text-orange-800">{error}</p>
             </div>
           )}
@@ -175,7 +175,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
           <div className="flex flex-col gap-2 pt-2">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-lg font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               ✅ Receive Stock & Continue Sale
             </button>
@@ -184,7 +184,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
               <button
                 type="button"
                 onClick={handleSkip}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all"
+                className="w-full bg-gradient-to-br from-white to-amber-50/300 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold transition-all"
               >
                 📦 Receive Partial & Skip Item
               </button>
@@ -193,7 +193,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
             <button
               type="button"
               onClick={onSkipItem}
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white py-2.5 px-4 rounded-lg font-medium transition-all"
+              className="w-full bg-gray-500 hover:bg-gray-600 text-slate-900 py-2.5 px-4 rounded-xl font-medium transition-all"
             >
               Skip Item (No Stock Receive)
             </button>
@@ -201,7 +201,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="w-full bg-white hover:bg-gray-50 text-gray-700 py-2.5 px-4 rounded-lg font-medium border-2 border-gray-300 transition-all"
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 py-2.5 px-4 rounded-xl font-medium border-2 border-gray-300 transition-all"
             >
               ❌ Cancel Entire Sale
             </button>
@@ -211,3 +211,6 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
     </div>
   );
 };
+
+
+

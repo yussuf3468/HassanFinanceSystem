@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { Search, TrendingUp, Clock, Zap } from "lucide-react";
+import { Search, TrendingUp, Clock } from "lucide-react";
 import type { Product } from "../types";
-import { searchProducts } from "../utils/searchUtils";
 
 interface SearchSuggestionsProps {
   searchTerm: string;
@@ -28,9 +27,6 @@ const SearchSuggestions = memo(
       "Pens",
       "Backpacks",
       "Electronics",
-      "Textbooks",
-      "Stationery",
-      "School Supplies",
     ]);
 
     useEffect(() => {
@@ -79,34 +75,29 @@ const SearchSuggestions = memo(
 
     if (!isVisible) return null;
 
-    // Use advanced fuzzy search for better results
-    const searchResults = searchProducts(products, searchTerm, {
-      fuzzyThreshold: 0.7,
-      includeDescription: true,
-      maxResults: 5,
-    });
-
-    const filteredProducts = searchResults.map((result) => ({
-      ...result.product,
-      matchType: result.matchType,
-      matchedFields: result.matchedFields,
-    }));
+    const filteredProducts = products
+      .filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .slice(0, 5);
 
     return (
-      <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-xl shadow-2xl border border-white/20 z-[105] max-h-96 overflow-y-auto">
+      <div className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm z-50 max-h-96 overflow-y-auto">
         {searchTerm.trim() === "" ? (
           // Show recent and trending when no search term
           <div className="p-4 space-y-4">
             {recentSearches.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-white flex items-center space-x-2">
+                  <h4 className="font-semibold text-slate-900 flex items-center space-x-2">
                     <Clock className="w-4 h-4" />
                     <span>Recent Searches</span>
                   </h4>
                   <button
                     onClick={clearRecentSearches}
-                    className="text-xs text-slate-400 hover:text-slate-300"
+                    className="text-xs text-slate-700 hover:text-slate-700 "
                   >
                     Clear
                   </button>
@@ -116,10 +107,10 @@ const SearchSuggestions = memo(
                     <button
                       key={index}
                       onClick={() => handleSelectSearch(term)}
-                      className="w-full text-left px-3 py-2 hover:bg-white/10 rounded-lg transition-colors flex items-center space-x-2"
+                      className="w-full text-left px-3 py-2 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 rounded-xl transition-colors flex items-center space-x-2"
                     >
-                      <Search className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300">{term}</span>
+                      <Search className="w-4 h-4 text-slate-700 " />
+                      <span className="text-slate-700 ">{term}</span>
                     </button>
                   ))}
                 </div>
@@ -127,7 +118,7 @@ const SearchSuggestions = memo(
             )}
 
             <div>
-              <h4 className="font-semibold text-white mb-3 flex items-center space-x-2">
+              <h4 className="font-semibold text-slate-900 mb-3 flex items-center space-x-2">
                 <TrendingUp className="w-4 h-4" />
                 <span>Trending Searches</span>
               </h4>
@@ -136,7 +127,7 @@ const SearchSuggestions = memo(
                   <button
                     key={index}
                     onClick={() => handleSelectSearch(term)}
-                    className="px-3 py-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-sm hover:bg-purple-500/30 transition-colors"
+                    className="px-3 py-1 bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300 rounded-full text-sm hover:bg-amber-200 transition-colors"
                   >
                     {term}
                   </button>
@@ -145,24 +136,20 @@ const SearchSuggestions = memo(
             </div>
           </div>
         ) : (
-          // Show search results with fuzzy matching
+          // Show search results
           <div className="p-2">
             {filteredProducts.length > 0 ? (
               <div className="space-y-1">
-                <div className="px-3 py-2 text-xs font-medium text-slate-400 uppercase tracking-wide flex items-center justify-between">
-                  <span>Products ({filteredProducts.length})</span>
-                  <span className="flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-yellow-400" />
-                    <span className="text-yellow-400">Smart Search</span>
-                  </span>
+                <div className="px-3 py-2 text-xs font-medium text-slate-700 uppercase tracking-wide">
+                  Products ({filteredProducts.length})
                 </div>
                 {filteredProducts.map((product) => (
                   <button
                     key={product.id}
                     onClick={() => handleSelectProduct(product)}
-                    className="w-full text-left px-3 py-3 hover:bg-white/10 rounded-lg transition-colors flex items-center space-x-3 group"
+                    className="w-full text-left px-3 py-3 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 rounded-xl transition-colors flex items-center space-x-3"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/20 rounded-lg flex items-center justify-center flex-shrink-0 p-1 group-hover:scale-105 transition-transform">
+                    <div className="w-10 h-10 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center flex-shrink-0 p-1">
                       {product.image_url ? (
                         <img
                           src={product.image_url}
@@ -170,90 +157,43 @@ const SearchSuggestions = memo(
                           className="w-full h-full object-contain rounded-lg"
                         />
                       ) : (
-                        <Search className="w-5 h-5 text-slate-400" />
+                        <Search className="w-4 h-4 text-slate-700 " />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-white truncate">
-                          {product.name}
-                        </p>
-                        {product.matchType === "fuzzy" && (
-                          <span className="text-xs bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 px-1.5 py-0.5 rounded-full">
-                            ~
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-slate-400">
-                          {product.category}
-                        </span>
-                        <span className="text-slate-500">•</span>
-                        <span className="text-purple-300 font-semibold">
-                          KES {product.selling_price.toLocaleString()}
-                        </span>
-                        {product.quantity > 0 ? (
-                          <span className="text-xs bg-green-500/20 text-green-300 border border-green-500/30 px-1.5 py-0.5 rounded-full">
-                            In Stock
-                          </span>
-                        ) : (
-                          <span className="text-xs bg-red-500/20 text-red-300 border border-red-500/30 px-1.5 py-0.5 rounded-full">
-                            Out of Stock
-                          </span>
-                        )}
-                      </div>
-                      {product.matchedFields &&
-                        product.matchedFields.length > 0 && (
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Matched: {product.matchedFields.join(", ")}
-                          </p>
-                        )}
+                      <p className="font-medium text-slate-900 truncate">
+                        {product.name}
+                      </p>
+                      <p className="text-sm text-slate-700 ">
+                        {product.category} • KES{" "}
+                        {product.selling_price.toLocaleString()}
+                      </p>
                     </div>
                   </button>
                 ))}
               </div>
             ) : (
               <div className="px-3 py-8 text-center">
-                <Search className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-300 font-medium">No products found</p>
-                <p className="text-sm text-slate-400 mb-4">
-                  Try different keywords or check spelling
+                <Search className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+                <p className="text-slate-600 font-medium">No products found</p>
+                <p className="text-sm text-slate-700 ">
+                  Try searching for something else
                 </p>
-                {trendingSearches.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs text-slate-500 uppercase font-medium">
-                      Try These Instead:
-                    </p>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {trendingSearches.slice(0, 3).map((term, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSelectSearch(term)}
-                          className="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-xs hover:bg-purple-500/30 transition-colors"
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
             {/* Quick search suggestion */}
-            {filteredProducts.length > 0 && (
-              <div className="border-t border-white/20 pt-2 mt-2">
-                <button
-                  onClick={() => handleSelectSearch(searchTerm)}
-                  className="w-full text-left px-3 py-2 hover:bg-white/10 rounded-lg transition-colors flex items-center space-x-2"
-                >
-                  <Search className="w-4 h-4 text-purple-400" />
-                  <span className="text-purple-300 font-medium">
-                    View all results for "{searchTerm}"
-                  </span>
-                </button>
-              </div>
-            )}
+            <div className="border-t border-amber-300/70 shadow-amber-100/50/60 shadow-sm pt-2 mt-2">
+              <button
+                onClick={() => handleSelectSearch(searchTerm)}
+                className="w-full text-left px-3 py-2 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 rounded-xl transition-colors flex items-center space-x-2"
+              >
+                <Search className="w-4 h-4 text-amber-700 " />
+                <span className="text-amber-800 font-semibold font-semibold font-medium">
+                  Search for "{searchTerm}"
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>

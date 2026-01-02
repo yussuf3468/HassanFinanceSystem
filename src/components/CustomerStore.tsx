@@ -28,7 +28,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
     "Pens",
     "Notebooks",
     "Pencils",
-    "Erasers",
+    "Shapeners",
     "Markers",
     "Other",
   ];
@@ -66,9 +66,9 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-xl font-semibold text-slate-700">
             Loading products...
           </p>
@@ -79,13 +79,13 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent">
                 HASSAN BOOKSHOP
               </h1>
               <p className="text-slate-600 mt-1">
@@ -96,7 +96,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
             {/* Cart Button */}
             <button
               onClick={() => setShowCart(true)}
-              className="relative bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              className="relative bg-amber-500 text-white px-4 py-2 rounded-xl hover:bg-amber-600 transition-colors flex items-center space-x-2"
             >
               <ShoppingCart className="w-5 h-5" />
               <span className="hidden sm:inline">Cart</span>
@@ -115,13 +115,13 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
         <div className="mb-8 space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700 w-5 h-5" />
             <input
               type="text"
               placeholder="Search products... / Raadi alaabta..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 
@@ -134,8 +134,8 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === category
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-slate-600 hover:bg-blue-50"
+                    ? "bg-amber-500 text-white"
+                    : "bg-white text-slate-600 hover:bg-amber-50"
                 }`}
               >
                 {category === "all" ? "All / Dhammaan" : category}
@@ -147,7 +147,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
-            <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <Package className="w-16 h-16 text-slate-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-slate-600 mb-2">
               No products found
             </h3>
@@ -160,7 +160,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden"
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden"
               >
                 {/* Product Image */}
                 <div className="relative">
@@ -174,13 +174,13 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                     />
                   ) : (
                     <div className="w-full h-48 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                      <Package className="w-12 h-12 text-slate-400" />
+                      <Package className="w-12 h-12 text-slate-700 " />
                     </div>
                   )}
 
                   {/* Featured Badge */}
                   {product.featured && (
-                    <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                    <div className="absolute top-2 left-2 bg-gradient-to-br from-white via-amber-50/20 to-white0 text-slate-900 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
                       <Star className="w-3 h-3" />
                       <span>Featured</span>
                     </div>
@@ -206,7 +206,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                   {/* Price */}
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-2xl font-bold text-amber-700 ">
                         KES {product.selling_price.toLocaleString()}
                       </p>
                       <p className="text-sm text-slate-500">
@@ -219,7 +219,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={product.quantity_in_stock === 0}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 px-4 rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     <span>

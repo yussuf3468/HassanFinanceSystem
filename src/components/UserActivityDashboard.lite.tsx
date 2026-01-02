@@ -130,9 +130,9 @@ export default function UserActivityDashboard() {
   function getRoleColor(role: string) {
     switch (role) {
       case "admin":
-        return "bg-gradient-to-r from-purple-500 to-blue-600";
+        return "bg-gradient-to-r from-amber-500 to-amber-600";
       case "owner":
-        return "bg-gradient-to-r from-purple-500 to-blue-600";
+        return "bg-gradient-to-r from-amber-500 to-amber-600";
       case "staff":
         return "bg-gradient-to-r from-green-500 to-teal-600";
       default:
@@ -142,13 +142,13 @@ export default function UserActivityDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+      <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-6">
         <div className="text-center">
           <UserX className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-slate-800 mb-2">
             Fasax La'aan - Access Denied
           </h3>
-          <p className="text-slate-600">
+          <p className="text-slate-700 ">
             Kaliya admin ayaa arki kara faallooyinka isticmaalayaasha - Only
             admin can view user activities
           </p>
@@ -160,12 +160,12 @@ export default function UserActivityDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+      <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl blur opacity-75"></div>
-              <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl blur opacity-75"></div>
+              <div className="relative bg-gradient-to-br from-amber-500 to-amber-600 p-3 rounded-xl">
                 <Activity className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function UserActivityDashboard() {
           <button
             onClick={fetchUserActivities}
             disabled={loading}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 disabled:opacity-50"
+            className="flex items-center space-x-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all duration-300 disabled:opacity-50"
           >
             <Activity className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -190,9 +190,9 @@ export default function UserActivityDashboard() {
       </div>
 
       {/* User Activities */}
-      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
+      <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-6">
         <div className="flex items-center space-x-2 mb-6">
-          <Users className="w-6 h-6 text-blue-600" />
+          <Users className="w-6 h-6 text-amber-700 " />
           <h3 className="text-xl font-bold text-slate-800">
             Staff Members - Shaqaalaha ({userActivities.length})
           </h3>
@@ -200,20 +200,20 @@ export default function UserActivityDashboard() {
 
         {loading ? (
           <div className="text-center py-8">
-            <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-white">Loading user activities...</p>
           </div>
         ) : userActivities.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-600">No user data available</p>
+            <Users className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-700 ">No user data available</p>
           </div>
         ) : (
           <div className="space-y-4">
             {userActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-center justify-between p-4 bg-white/40 rounded-xl border border-white/30 hover:bg-white/60 transition-all duration-300"
+                className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-white/30 hover:bg-gradient-to-br hover:from-amber-50/40 hover:to-white0 transition-all duration-300"
               >
                 <div className="flex items-center space-x-4">
                   {/* Avatar */}
@@ -241,7 +241,7 @@ export default function UserActivityDashboard() {
                       <span
                         className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           activity.role === "admin"
-                            ? "bg-purple-100 text-purple-800"
+                            ? "bg-gradient-to-br from-amber-50/40 to-white text-amber-700"
                             : "bg-green-100 text-green-800"
                         }`}
                       >
@@ -269,7 +269,7 @@ export default function UserActivityDashboard() {
                   <p className="text-sm font-semibold text-slate-800">
                     {formatLastSeen(activity.last_sign_in)}
                   </p>
-                  <div className="flex items-center space-x-2 text-xs text-slate-500 mt-1">
+                  <div className="flex items-center space-x-2 text-xs text-slate-700 mt-1">
                     <Calendar className="w-3 h-3" />
                     <span>
                       Joined:{" "}
@@ -285,13 +285,13 @@ export default function UserActivityDashboard() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 p-4">
+        <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-4">
           <div className="flex items-center space-x-3">
             <div className="bg-green-100 p-2 rounded-lg">
               <UserCheck className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600">Online Now</p>
+              <p className="text-sm font-medium text-slate-700 ">Online Now</p>
               <p className="text-2xl font-bold text-slate-800">
                 {userActivities.filter((u) => u.is_online).length}
               </p>
@@ -299,13 +299,13 @@ export default function UserActivityDashboard() {
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 p-4">
+        <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-4">
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="bg-gradient-to-br from-amber-50/40 to-white p-2 rounded-lg">
+              <Users className="w-6 h-6 text-amber-700 " />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600">Total Staff</p>
+              <p className="text-sm font-medium text-slate-700 ">Total Staff</p>
               <p className="text-2xl font-bold text-slate-800">
                 {userActivities.filter((u) => u.role === "staff").length}
               </p>
@@ -313,13 +313,15 @@ export default function UserActivityDashboard() {
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 p-4">
+        <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-lg rounded-2xl shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-4">
           <div className="flex items-center space-x-3">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Activity className="w-6 h-6 text-purple-600" />
+            <div className="bg-gradient-to-br from-amber-50/40 to-white p-2 rounded-lg">
+              <Activity className="w-6 h-6 text-amber-700 " />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600">Active Today</p>
+              <p className="text-sm font-medium text-slate-700 ">
+                Active Today
+              </p>
               <p className="text-2xl font-bold text-slate-800">
                 {
                   userActivities.filter(

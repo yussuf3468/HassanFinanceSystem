@@ -61,33 +61,6 @@ export interface Customer {
   updated_at: string;
 }
 
-// Customer Management Types (for internal customers with credit)
-export interface InternalCustomer {
-  id: string;
-  customer_name: string;
-  phone: string | null;
-  email: string | null;
-  address: string | null;
-  credit_balance: number;
-  total_purchases: number;
-  total_payments: number;
-  notes: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CustomerPayment {
-  id: string;
-  customer_id: string;
-  amount: number;
-  payment_method: string;
-  payment_date: string;
-  notes: string | null;
-  processed_by: string;
-  created_at: string;
-}
-
 export interface Order {
   id: string;
   customer_id?: string;

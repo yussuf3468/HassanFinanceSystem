@@ -13,7 +13,7 @@ const LoadingSkeleton = memo(
           {Array.from({ length: count }).map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse"
+              className="bg-white rounded-2xl shadow-md overflow-hidden animate-pulse"
             >
               {/* Image skeleton */}
               <div className="w-full h-48 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer"></div>
@@ -24,15 +24,15 @@ const LoadingSkeleton = memo(
                 <div className="h-5 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg"></div>
 
                 {/* Category */}
-                <div className="h-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg w-1/3"></div>
+                <div className="h-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-1/3"></div>
 
                 {/* Price */}
                 <div className="flex items-center justify-between">
-                  <div className="h-6 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg w-1/2"></div>
+                  <div className="h-6 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-1/2"></div>
                 </div>
 
                 {/* Button */}
-                <div className="h-12 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl mt-4"></div>
+                <div className="h-12 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-2xl mt-4"></div>
               </div>
             </div>
           ))}
@@ -60,13 +60,13 @@ const LoadingSkeleton = memo(
           {Array.from({ length: count }).map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-6 shadow-md animate-pulse"
+              className="bg-white rounded-2xl p-6 shadow-md animate-pulse"
             >
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-full"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg w-3/4"></div>
-                  <div className="h-3 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-lg w-1/2"></div>
+                  <div className="h-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-3/4"></div>
+                  <div className="h-3 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -82,3 +82,6 @@ const LoadingSkeleton = memo(
 LoadingSkeleton.displayName = "LoadingSkeleton";
 
 export default LoadingSkeleton;
+
+
+

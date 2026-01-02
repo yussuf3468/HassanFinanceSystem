@@ -156,10 +156,10 @@ const OptimizedImage = memo(
     if (!src || hasError) {
       return (
         <div
-          className={`bg-gradient-to-br from-slate-100 via-blue-50 to-purple-100 flex items-center justify-center group-hover:from-blue-100 group-hover:to-purple-200 transition-all duration-500 ${fallbackClassName}`}
+          className={`bg-gradient-to-br from-stone-100 via-amber-50 to-stone-100 flex items-center justify-center group-hover:from-amber-100 group-hover:to-stone-200 transition-all duration-500 ${fallbackClassName}`}
           onClick={onClick}
         >
-          <Package className="w-8 h-8 sm:w-12 sm:h-12 text-slate-400 group-hover:text-blue-500 transition-colors duration-300" />
+          <Package className="w-8 h-8 sm:w-12 sm:h-12 text-slate-700 group-hover:text-amber-500 transition-colors duration-300" />
         </div>
       );
     }
@@ -174,7 +174,7 @@ const OptimizedImage = memo(
             {/* Shimmer effect */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_2s_infinite]"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Package className="w-8 h-8 sm:w-12 sm:h-12 text-slate-300" />
+              <Package className="w-8 h-8 sm:w-12 sm:h-12 text-slate-700 " />
             </div>
           </div>
         )}

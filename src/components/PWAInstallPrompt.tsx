@@ -112,7 +112,7 @@ export default function PWAInstallPrompt() {
   if (showIOSPrompt) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[100] animate-slideUp">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-2xl border-t-4 border-white/20">
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 shadow-2xl border-t-4 border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
           <div className="max-w-screen-xl mx-auto flex items-start gap-4">
             {/* Icon */}
             <div className="flex-shrink-0 bg-white/20 p-3 rounded-xl">
@@ -121,16 +121,14 @@ export default function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg mb-1">
-                Install Hassan Bookshop App
-              </h3>
+              <h3 className="font-bold text-lg mb-1">Install Hassan Bookshop App</h3>
               <p className="text-sm text-blue-100 mb-3">
                 Install this app on your iPhone for quick access and better
                 experience.
               </p>
 
               {/* Instructions */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-3 border border-white/20">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 mb-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                 <div className="flex items-center gap-2 text-sm">
                   <span className="font-semibold">1.</span>
                   <span>Tap the</span>
@@ -156,7 +154,7 @@ export default function PWAInstallPrompt() {
             {/* Dismiss Button */}
             <button
               onClick={handleIOSDismiss}
-              className="flex-shrink-0 p-2 hover:bg-white/20 rounded-lg transition-colors"
+              className="flex-shrink-0 p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white rounded-xl transition-colors"
               aria-label="Dismiss install prompt"
             >
               <X className="w-5 h-5" />
@@ -171,7 +169,7 @@ export default function PWAInstallPrompt() {
   if (showAndroidPrompt && deferredPrompt) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[100] animate-slideUp">
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 shadow-2xl border-t-4 border-white/20">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-emerald-400/30 p-4 shadow-2xl border-t-4 border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
           <div className="max-w-screen-xl mx-auto flex items-start gap-4">
             {/* Icon */}
             <div className="flex-shrink-0 bg-white/20 p-3 rounded-xl">
@@ -180,9 +178,7 @@ export default function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg mb-1">
-                Install Hassan Bookshop App
-              </h3>
+              <h3 className="font-bold text-lg mb-1">Install Hassan Bookshop App</h3>
               <p className="text-sm text-green-100 mb-3">
                 Install our app for quick access, offline support, and a better
                 experience!
@@ -191,14 +187,14 @@ export default function PWAInstallPrompt() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleAndroidInstall}
-                  className="px-4 py-2 bg-white text-green-600 font-bold rounded-lg hover:bg-green-50 transition-colors shadow-lg"
+                  className="px-4 py-2 bg-white text-green-600 font-bold rounded-xl hover:bg-green-50 transition-colors shadow-lg shadow-amber-300/10"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
                   Install Now
                 </button>
                 <button
                   onClick={handleAndroidDismiss}
-                  className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-medium"
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors font-medium"
                 >
                   Maybe Later
                 </button>
@@ -208,7 +204,7 @@ export default function PWAInstallPrompt() {
             {/* Dismiss Button */}
             <button
               onClick={handleAndroidDismiss}
-              className="flex-shrink-0 p-2 hover:bg-white/20 rounded-lg transition-colors"
+              className="flex-shrink-0 p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white rounded-xl transition-colors"
               aria-label="Dismiss install prompt"
             >
               <X className="w-5 h-5" />

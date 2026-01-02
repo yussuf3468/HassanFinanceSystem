@@ -13,12 +13,10 @@ import {
   Barcode,
   DollarSign,
   TrendingUp,
-  Edit,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
-import ProductForm from "./ProductForm";
 
 export default function OrganizedInventory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -29,7 +27,6 @@ export default function OrganizedInventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const itemsPerPage = 30;
 
@@ -179,11 +176,7 @@ export default function OrganizedInventory() {
           nameLower.includes("encyclopedia") ||
           nameLower.includes("encyclopaedia") ||
           nameLower.includes("revision") ||
-          nameLower.includes("topical") ||
-          nameLower.includes("premier") ||
-          nameLower.includes("combined") ||
-          nameLower.includes("smartbost") ||
-          nameLower.includes("smartways")
+          nameLower.includes("topical")
         ) {
           // Subcategorize revision books
           if (nameLower.includes("targeter") || nameLower.includes("target")) {
@@ -202,11 +195,17 @@ export default function OrganizedInventory() {
             nameLower.includes("encyclopaedia")
           ) {
             subcategory = "Revision Books - Encyclopedia";
-          } else if (nameLower.includes("premier")) {
-            subcategory = "Revision Books - Premier";
           } else {
             subcategory = "Revision Books - Other";
           }
+        }
+        // Check for Playgroup
+        else if (
+          nameLower.includes("playgroup") ||
+          nameLower.includes("play group") ||
+          nameLower.includes("play-group")
+        ) {
+          subcategory = "Playgroup";
         }
         // Check for Pre-Primary (PP1, PP2, Nursery, Pre-Primary)
         else if (
@@ -259,8 +258,8 @@ export default function OrganizedInventory() {
               nameLower.includes("std") ||
               nameLower.includes("class")))
         ) {
-          // Try to get grade from workbook (check from highest to lowest to avoid 10 matching as 1)
-          for (let grade = 10; grade >= 1; grade--) {
+          // Try to get grade from workbook
+          for (let grade = 1; grade <= 9; grade++) {
             if (
               nameLower.includes(`grade ${grade}`) ||
               nameLower.includes(`grade${grade}`) ||
@@ -302,9 +301,9 @@ export default function OrganizedInventory() {
         ) {
           subcategory = "Form 4 - Secondary";
         }
-        // Check for grades 1-10 (Primary School) - check from highest to lowest to avoid 10 matching as 1
+        // Check for grades 1-9 (Primary School)
         else {
-          for (let grade = 10; grade >= 1; grade--) {
+          for (let grade = 1; grade <= 9; grade++) {
             if (
               nameLower.includes(`grade ${grade}`) ||
               nameLower.includes(`grade${grade}`) ||
@@ -313,10 +312,7 @@ export default function OrganizedInventory() {
               nameLower.includes(`std ${grade}`) ||
               nameLower.includes(`std${grade}`) ||
               nameLower.includes(`class ${grade}`) ||
-              nameLower.includes(`class${grade}`) ||
-              nameLower === `G${grade}` ||
-              nameLower.startsWith(`G${grade} `) ||
-              nameLower.includes(` G${grade} `)
+              nameLower.includes(`class${grade}`)
             ) {
               subcategory = `Grade ${grade} - Textbooks`;
               break;
@@ -487,8 +483,8 @@ export default function OrganizedInventory() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading inventory...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-slate-700 ">Loading inventory...</p>
         </div>
       </div>
     );
@@ -497,17 +493,17 @@ export default function OrganizedInventory() {
   // Category View
   if (!selectedCategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-black text-white flex items-center gap-3">
-                  <Layers className="w-8 h-8 text-purple-400" />
+                <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+                  <Layers className="w-8 h-8 text-amber-700 " />
                   Organized Inventory
                 </h1>
-                <p className="text-purple-200 mt-1">
+                <p className="text-slate-600 mt-1">
                   Browse products by category and grade
                 </p>
               </div>
@@ -515,75 +511,75 @@ export default function OrganizedInventory() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-xl">
-                <p className="text-sm text-blue-200">Categories</p>
+              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 ">Categories</p>
                 <p className="text-3xl font-bold">{stats.categories}</p>
               </div>
-              <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-xl">
-                <p className="text-sm text-purple-200">Subcategories</p>
+              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 ">Subcategories</p>
                 <p className="text-3xl font-bold">{stats.subcategories}</p>
               </div>
-              <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 border border-indigo-500/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-xl">
-                <p className="text-sm text-indigo-200">Total Products</p>
+              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 ">Total Products</p>
                 <p className="text-3xl font-bold">{stats.products}</p>
               </div>
-              <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-4 text-white shadow-lg backdrop-blur-xl">
-                <p className="text-sm text-green-200">In Stock</p>
+              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 ">In Stock</p>
                 <p className="text-3xl font-bold">{stats.inStock}</p>
               </div>
             </div>
 
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-700 " />
               <input
                 type="text"
                 placeholder="Quick search for any product..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-4 focus:ring-purple-500/25 focus:border-purple-500 transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-amber-500/25 focus:border-amber-500 transition-all"
               />
             </div>
 
             {/* Search Results */}
             {searchTerm && filteredProducts.length > 0 && (
-              <div className="mt-4 bg-white/5 border-2 border-purple-500/30 rounded-xl p-4 max-h-96 overflow-y-auto backdrop-blur-xl">
-                <h3 className="font-bold text-white mb-3">
+              <div className="mt-4 bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 max-h-96 overflow-y-auto">
+                <h3 className="font-bold text-slate-800 mb-3">
                   Search Results ({filteredProducts.length})
                 </h3>
                 <div className="space-y-2">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="flex items-center justify-between p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors border border-white/10"
+                      className="flex items-center justify-between p-3 bg-amber-50 rounded-xl hover:bg-gradient-to-br from-amber-50/40 to-white transition-colors border border-amber-100/50"
                     >
                       <div className="flex items-center gap-3">
                         {product.image_url ? (
                           <img
                             src={product.image_url}
                             alt={product.name}
-                            className="w-12 h-12 object-cover rounded border-2 border-white/20 shadow"
+                            className="w-12 h-12 object-cover rounded border-2 border-amber-100/50 shadow"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-white/10 rounded flex items-center justify-center border border-white/20">
-                            <Package className="w-6 h-6 text-slate-400" />
+                          <div className="w-12 h-12 bg-gradient-to-br from-white to-stone-50/30 rounded flex items-center justify-center border border-amber-100/50">
+                            <Package className="w-6 h-6 text-slate-700 " />
                           </div>
                         )}
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-slate-800">
                             {product.name}
                           </p>
-                          <p className="text-sm text-slate-300">
+                          <p className="text-sm text-slate-700 ">
                             {product.category} • Stock:{" "}
                             {product.quantity_in_stock}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-purple-400">
+                        <p className="font-bold text-amber-700 ">
                           KES {Number(product.selling_price).toLocaleString()}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-500">
                           {product.product_id}
                         </p>
                       </div>
@@ -594,8 +590,8 @@ export default function OrganizedInventory() {
             )}
 
             {searchTerm && filteredProducts.length === 0 && (
-              <div className="mt-4 bg-red-500/20 border-2 border-red-500/50 rounded-xl p-6 text-center backdrop-blur-xl">
-                <p className="text-red-200 font-medium">
+              <div className="mt-4 bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
+                <p className="text-rose-700 font-medium">
                   No products found for "{searchTerm}"
                 </p>
               </div>
@@ -605,14 +601,14 @@ export default function OrganizedInventory() {
           {/* Categories Grid */}
           {!searchTerm && (
             <>
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FolderOpen className="w-6 h-6 text-purple-400" />
+              <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <FolderOpen className="w-6 h-6 text-amber-700 " />
                 Browse by Category
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.from(organizedData.entries())
                   .sort(([a], [b]) => {
-                    // Put Books first
+                    // Put Books first, then sort all categories A-Z
                     if (a.toLowerCase() === "books") return -1;
                     if (b.toLowerCase() === "books") return 1;
                     return a.localeCompare(b);
@@ -629,33 +625,33 @@ export default function OrganizedInventory() {
                       <button
                         key={category}
                         onClick={() => setSelectedCategory(category)}
-                        className="group bg-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-purple-500 rounded-xl p-6 transition-all hover:shadow-2xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                          <div className="w-14 h-14 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl shadow-amber-400/30 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                             {category.toLowerCase() === "books" ? (
                               <BookOpen className="w-7 h-7 text-white" />
                             ) : (
                               <Package className="w-7 h-7 text-white" />
                             )}
                           </div>
-                          <ChevronRight className="w-6 h-6 text-slate-400 group-hover:text-purple-400 transition-colors" />
+                          <ChevronRight className="w-6 h-6 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">
                           {category}
                         </h3>
                         <div className="flex items-center gap-4 text-sm">
-                          <span className="text-slate-300">
+                          <span className="text-slate-700 ">
                             {subcategories.size}{" "}
                             {subcategories.size === 1 ? "folder" : "folders"}
                           </span>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-slate-300">
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-700 ">
                             {totalProducts} items
                           </span>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <span className="text-xs text-green-400 font-medium">
+                        <div className="mt-3 pt-3 border-t border-amber-100/50">
+                          <span className="text-xs text-green-600 font-medium">
                             ✓ {inStockCount} in stock
                           </span>
                         </div>
@@ -702,12 +698,12 @@ export default function OrganizedInventory() {
     });
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
             onClick={() => setSelectedCategory(null)}
-            className="mb-6 flex items-center gap-2 text-purple-300 hover:text-purple-100 font-medium transition-colors"
+            className="mb-6 flex items-center gap-2 text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Categories
@@ -715,15 +711,15 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-white flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
               {selectedCategory.toLowerCase() === "books" ? (
-                <BookOpen className="w-8 h-8 text-purple-400" />
+                <BookOpen className="w-8 h-8 text-amber-700 " />
               ) : (
-                <Package className="w-8 h-8 text-purple-400" />
+                <Package className="w-8 h-8 text-amber-700 " />
               )}
               {selectedCategory}
             </h1>
-            <p className="text-purple-200">
+            <p className="text-slate-700 ">
               Select a subfolder to view products
             </p>
           </div>
@@ -757,56 +753,22 @@ export default function OrganizedInventory() {
               // Add standalone folders
               standaloneSubcategories.forEach((products, subcategory) => {
                 const getOrder = (name: string) => {
+                  // Playgroup
+                  if (name === "Playgroup") return 85;
                   // Pre-Primary
                   if (name === "Pre-Primary - PP1") return 1;
                   if (name === "Pre-Primary - PP2") return 2;
                   if (name === "Pre-Primary - General") return 3;
-                  // Primary Grades (support g1/g2/g3...)
-                  if (
-                    /^(g1|grade 1)/i.test(name) ||
-                    name === "Grade 1 - Textbooks"
-                  )
-                    return 10;
-                  if (
-                    /^(g2|grade 2)/i.test(name) ||
-                    name === "Grade 2 - Textbooks"
-                  )
-                    return 11;
-                  if (
-                    /^(g3|grade 3)/i.test(name) ||
-                    name === "Grade 3 - Textbooks"
-                  )
-                    return 12;
-                  if (
-                    /^(g4|grade 4)/i.test(name) ||
-                    name === "Grade 4 - Textbooks"
-                  )
-                    return 13;
-                  if (
-                    /^(g5|grade 5)/i.test(name) ||
-                    name === "Grade 5 - Textbooks"
-                  )
-                    return 14;
-                  if (
-                    /^(g6|grade 6)/i.test(name) ||
-                    name === "Grade 6 - Textbooks"
-                  )
-                    return 15;
-                  if (
-                    /^(g7|grade 7)/i.test(name) ||
-                    name === "Grade 7 - Textbooks"
-                  )
-                    return 16;
-                  if (
-                    /^(g8|grade 8)/i.test(name) ||
-                    name === "Grade 8 - Textbooks"
-                  )
-                    return 17;
-                  if (
-                    /^(g9|grade 9)/i.test(name) ||
-                    name === "Grade 9 - Textbooks"
-                  )
-                    return 18;
+                  // Primary Grades
+                  if (name === "Grade 1 - Textbooks") return 10;
+                  if (name === "Grade 2 - Textbooks") return 11;
+                  if (name === "Grade 3 - Textbooks") return 12;
+                  if (name === "Grade 4 - Textbooks") return 13;
+                  if (name === "Grade 5 - Textbooks") return 14;
+                  if (name === "Grade 6 - Textbooks") return 15;
+                  if (name === "Grade 7 - Textbooks") return 16;
+                  if (name === "Grade 8 - Textbooks") return 17;
+                  if (name === "Grade 9 - Textbooks") return 18;
                   // Secondary Forms
                   if (name === "Form 1 - Secondary") return 20;
                   if (name === "Form 2 - Secondary") return 21;
@@ -854,28 +816,28 @@ export default function OrganizedInventory() {
                           setSelectedGroup(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-indigo-500 rounded-xl p-5 transition-all hover:shadow-2xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                          <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                             <FolderOpen className="w-6 h-6 text-white" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-2">
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">
                           {folder.name}
                         </h3>
                         <div className="flex items-center gap-3 text-sm">
-                          <span className="text-slate-300">
+                          <span className="text-slate-700 ">
                             {subItems.size}{" "}
                             {subItems.size === 1 ? "type" : "types"}
                           </span>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-slate-300">
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-700 ">
                             {totalProducts} items
                           </span>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-green-400 font-medium">
+                          <span className="text-slate-400">•</span>
+                          <span className="text-green-600 font-medium">
                             {inStockCount} in stock
                           </span>
                         </div>
@@ -894,23 +856,23 @@ export default function OrganizedInventory() {
                           setSelectedSubcategory(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-indigo-500 rounded-xl p-5 transition-all hover:shadow-2xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                          <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                             <FolderOpen className="w-6 h-6 text-white" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-2">
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">
                           {folder.name}
                         </h3>
                         <div className="flex items-center gap-3 text-sm">
-                          <span className="text-slate-300">
+                          <span className="text-slate-700 ">
                             {products.length} items
                           </span>
-                          <span className="text-slate-500">•</span>
-                          <span className="text-green-400 font-medium">
+                          <span className="text-slate-400">•</span>
+                          <span className="text-green-600 font-medium">
                             {inStockCount} in stock
                           </span>
                         </div>
@@ -937,12 +899,12 @@ export default function OrganizedInventory() {
     });
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
             onClick={() => setSelectedGroup(null)}
-            className="mb-6 flex items-center gap-2 text-purple-300 hover:text-purple-100 font-medium transition-colors"
+            className="mb-6 flex items-center gap-2 text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to {selectedCategory}
@@ -950,11 +912,11 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-white flex items-center gap-3 mb-2">
-              <FolderOpen className="w-8 h-8 text-purple-400" />
+            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
+              <FolderOpen className="w-8 h-8 text-amber-700 " />
               {selectedGroup}
             </h1>
-            <p className="text-purple-200">Select a type to view products</p>
+            <p className="text-slate-700 ">Select a type to view products</p>
           </div>
 
           {/* Group Items Grid */}
@@ -962,7 +924,11 @@ export default function OrganizedInventory() {
             {Array.from(groupSubcategories.entries())
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([subname, products]) => {
-                const inStockCount = products.filter(
+                // Sort products within each group A-Z
+                const sortedProducts = [...products].sort((a, b) =>
+                  a.name.localeCompare(b.name)
+                );
+                const inStockCount = sortedProducts.filter(
                   (p) => p.quantity_in_stock > 0
                 ).length;
 
@@ -973,23 +939,23 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(selectedGroup + " - " + subname);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-indigo-500 rounded-xl p-5 transition-all hover:shadow-2xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                         <Package className="w-6 h-6 text-white" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2">
                       {subname}
                     </h3>
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-slate-300">
-                        {products.length} items
+                      <span className="text-slate-700 ">
+                        {sortedProducts.length} items
                       </span>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-green-400 font-medium">
+                      <span className="text-slate-400">•</span>
+                      <span className="text-green-600 font-medium">
                         {inStockCount} in stock
                       </span>
                     </div>
@@ -1005,12 +971,12 @@ export default function OrganizedInventory() {
   // Products View (existing code continues...)
   if (!selectedSubcategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
             onClick={() => setSelectedCategory(null)}
-            className="mb-6 flex items-center gap-2 text-purple-300 hover:text-purple-100 font-medium transition-colors"
+            className="mb-6 flex items-center gap-2 text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Categories
@@ -1018,15 +984,15 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-white flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
               {selectedCategory.toLowerCase() === "books" ? (
-                <BookOpen className="w-8 h-8 text-purple-400" />
+                <BookOpen className="w-8 h-8 text-amber-700 " />
               ) : (
-                <Package className="w-8 h-8 text-purple-400" />
+                <Package className="w-8 h-8 text-amber-700 " />
               )}
               {selectedCategory}
             </h1>
-            <p className="text-purple-200">
+            <p className="text-slate-700 ">
               Select a subfolder to view products
             </p>
           </div>
@@ -1035,20 +1001,27 @@ export default function OrganizedInventory() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from(subcategories.entries())
               .sort(([a], [b]) => {
-                // Custom sorting order for better organization
+                // For Books category: Use custom sorting order for educational materials
+                // For other categories: Sort A-Z
+                if (selectedCategory.toLowerCase() !== "books") {
+                  return a.localeCompare(b);
+                }
+
+                // Books category: Custom sorting order for better organization
                 const getOrder = (name: string) => {
+                  if (name === "Playgroup") return 0;
                   if (name.startsWith("Pre-Primary - PP1")) return 1;
                   if (name.startsWith("Pre-Primary - PP2")) return 2;
                   if (name.startsWith("Pre-Primary - General")) return 3;
-                  if (/^(g1|grade 1)/i.test(name)) return 10;
-                  if (/^(g2|grade 2)/i.test(name)) return 11;
-                  if (/^(g3|grade 3)/i.test(name)) return 12;
-                  if (/^(g4|grade 4)/i.test(name)) return 13;
-                  if (/^(g5|grade 5)/i.test(name)) return 14;
-                  if (/^(g6|grade 6)/i.test(name)) return 15;
-                  if (/^(g7|grade 7)/i.test(name)) return 16;
-                  if (/^(g8|grade 8)/i.test(name)) return 17;
-                  if (/^(g9|grade 9)/i.test(name)) return 18;
+                  if (name.startsWith("Grade 1")) return 10;
+                  if (name.startsWith("Grade 2")) return 11;
+                  if (name.startsWith("Grade 3")) return 12;
+                  if (name.startsWith("Grade 4")) return 13;
+                  if (name.startsWith("Grade 5")) return 14;
+                  if (name.startsWith("Grade 6")) return 15;
+                  if (name.startsWith("Grade 7")) return 16;
+                  if (name.startsWith("Grade 8")) return 17;
+                  if (name.startsWith("Grade 9")) return 18;
                   if (name.startsWith("Form 1")) return 20;
                   if (name.startsWith("Form 2")) return 21;
                   if (name.startsWith("Form 3")) return 22;
@@ -1086,23 +1059,23 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(subcategory);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-indigo-500 rounded-xl p-5 transition-all hover:shadow-2xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                         <FolderOpen className="w-6 h-6 text-white" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2">
                       {subcategory}
                     </h3>
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-slate-300">
+                      <span className="text-slate-700 ">
                         {products.length} items
                       </span>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-green-400 font-medium">
+                      <span className="text-slate-400">•</span>
+                      <span className="text-green-600 font-medium">
                         {inStockCount} in stock
                       </span>
                     </div>
@@ -1118,14 +1091,19 @@ export default function OrganizedInventory() {
   // Products View
   const productsInSubcategory = subcategories.get(selectedSubcategory)!;
 
+  // Sort products alphabetically (A-Z) by name
+  const sortedProducts = [...productsInSubcategory].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
   // Pagination calculations
-  const totalPages = Math.ceil(productsInSubcategory.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedProducts = productsInSubcategory.slice(startIndex, endIndex);
+  const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center gap-2 text-sm">
@@ -1136,53 +1114,50 @@ export default function OrganizedInventory() {
               setSelectedGroup(null);
               setCurrentPage(1);
             }}
-            className="text-purple-300 hover:text-purple-100 font-medium transition-colors"
+            className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
           >
             Categories
           </button>
-          <ChevronRight className="w-4 h-4 text-slate-500" />
+          <ChevronRight className="w-4 h-4 text-slate-700 " />
           <button
             onClick={() => {
               setSelectedSubcategory(null);
               setSelectedGroup(null);
               setCurrentPage(1);
             }}
-            className="text-purple-300 hover:text-purple-100 font-medium transition-colors"
+            className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
           >
             {selectedCategory}
           </button>
           {selectedGroup && (
             <>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
+              <ChevronRight className="w-4 h-4 text-slate-700 " />
               <button
                 onClick={() => {
                   setSelectedSubcategory(null);
                   setCurrentPage(1);
                 }}
-                className="text-purple-300 hover:text-purple-100 font-medium transition-colors"
+                className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
               >
                 {selectedGroup}
               </button>
             </>
           )}
-          <ChevronRight className="w-4 h-4 text-slate-500" />
-          <span className="text-purple-400 font-bold">
+          <ChevronRight className="w-4 h-4 text-slate-700 " />
+          <span className="text-amber-800 font-semibold font-bold">
             {selectedSubcategory}
           </span>
         </div>
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">
+          <h1 className="text-3xl font-black text-slate-800 mb-2">
             {selectedSubcategory}
           </h1>
-          <p className="text-purple-200">
-            {productsInSubcategory.length} products •{" "}
-            {
-              productsInSubcategory.filter((p) => p.quantity_in_stock > 0)
-                .length
-            }{" "}
-            in stock
+          <p className="text-slate-700 ">
+            {sortedProducts.length} products •{" "}
+            {sortedProducts.filter((p) => p.quantity_in_stock > 0).length} in
+            stock
             {totalPages > 1 && (
               <span className="ml-2">
                 • Page {currentPage} of {totalPages}
@@ -1197,7 +1172,7 @@ export default function OrganizedInventory() {
             <button
               key={product.id}
               onClick={() => setSelectedProduct(product)}
-              className="bg-white/5 backdrop-blur-xl border-2 border-white/20 rounded-xl overflow-hidden hover:border-purple-500 hover:shadow-2xl transition-all group text-left cursor-pointer"
+              className="bg-white border-2 border-amber-100/50 rounded-2xl overflow-hidden hover:border-amber-500 hover:shadow-xl transition-all group text-left cursor-pointer"
             >
               {/* Product Image */}
               <div className="relative aspect-square bg-slate-100">
@@ -1209,12 +1184,12 @@ export default function OrganizedInventory() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-16 h-16 text-slate-300" />
+                    <Package className="w-16 h-16 text-slate-700 " />
                   </div>
                 )}
                 {product.quantity_in_stock === 0 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
+                    <span className="text-slate-900 font-bold text-lg">
                       OUT OF STOCK
                     </span>
                   </div>
@@ -1223,31 +1198,31 @@ export default function OrganizedInventory() {
 
               {/* Product Info */}
               <div className="p-4">
-                <h3 className="font-bold text-white mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
+                <h3 className="font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-amber-800 font-semibold font-semibold transition-colors">
                   {product.name}
                 </h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Stock:</span>
+                    <span className="text-slate-700 ">Stock:</span>
                     <span
                       className={`font-bold ${
                         product.quantity_in_stock > 0
-                          ? "text-green-400"
-                          : "text-red-400"
+                          ? "text-green-600"
+                          : "text-rose-700"
                       }`}
                     >
                       {product.quantity_in_stock}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Price:</span>
-                    <span className="font-bold text-purple-400">
+                    <span className="text-slate-700 ">Price:</span>
+                    <span className="font-bold text-amber-700 ">
                       KES {Number(product.selling_price).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">ID:</span>
-                    <span className="font-mono text-xs text-slate-300">
+                    <span className="text-slate-700 ">ID:</span>
+                    <span className="font-mono text-xs text-slate-700 ">
                       {product.product_id}
                     </span>
                   </div>
@@ -1259,8 +1234,8 @@ export default function OrganizedInventory() {
 
         {productsInSubcategory.length === 0 && (
           <div className="text-center py-12">
-            <Package className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-            <p className="text-slate-400 text-lg">No products in this folder</p>
+            <Package className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+            <p className="text-slate-600 text-lg">No products in this folder</p>
           </div>
         )}
 
@@ -1271,32 +1246,20 @@ export default function OrganizedInventory() {
             onClick={() => setSelectedProduct(null)}
           >
             <div
-              className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border-2 border-white/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              className="bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-amber-500/10"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b border-white/20 p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-white">
+              <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-6 flex justify-between items-center z-10">
+                <h2 className="text-2xl font-bold text-slate-800">
                   Product Details
                 </h2>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setEditingProduct(selectedProduct);
-                      setSelectedProduct(null);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors font-medium"
-                  >
-                    <Edit className="w-4 h-4" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setSelectedProduct(null)}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setSelectedProduct(null)}
+                  className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white/50 hover:border-amber-300/70 rounded-xl transition-colors"
+                >
+                  <X className="w-6 h-6 text-slate-800" />
+                </button>
               </div>
 
               {/* Modal Content */}
@@ -1304,7 +1267,7 @@ export default function OrganizedInventory() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Product Image */}
                   <div className="space-y-4">
-                    <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
+                    <div className="relative aspect-square bg-slate-100 rounded-2xl overflow-hidden">
                       {selectedProduct.image_url ? (
                         <img
                           src={selectedProduct.image_url}
@@ -1321,16 +1284,16 @@ export default function OrganizedInventory() {
                     {/* Status Badges */}
                     <div className="flex gap-2">
                       {selectedProduct.featured && (
-                        <span className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm font-medium border border-yellow-500/30">
+                        <span className="px-3 py-1 bg-gradient-to-br from-amber-50/30 to-white text-yellow-700 rounded-xl text-sm font-medium border border-yellow-300">
                           ⭐ Featured
                         </span>
                       )}
                       {selectedProduct.published ? (
-                        <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-lg text-sm font-medium border border-green-500/30">
+                        <span className="px-3 py-1 bg-gradient-to-br from-emerald-50/80 to-teal-50/60 text-emerald-800 border border-emerald-200/60 shadow-sm rounded-xl text-sm font-medium border border-green-300">
                           ✓ Published
                         </span>
                       ) : (
-                        <span className="px-3 py-1 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium border border-red-500/30">
+                        <span className="px-3 py-1 bg-red-100 text-rose-800 rounded-xl text-sm font-medium border border-red-300">
                           ✗ Unpublished
                         </span>
                       )}
@@ -1341,11 +1304,11 @@ export default function OrganizedInventory() {
                   <div className="space-y-6">
                     {/* Product Name */}
                     <div>
-                      <h3 className="text-3xl font-bold text-white mb-2">
+                      <h3 className="text-3xl font-bold text-slate-800 mb-2">
                         {selectedProduct.name}
                       </h3>
                       {selectedProduct.description && (
-                        <p className="text-purple-200 leading-relaxed">
+                        <p className="text-slate-600 leading-relaxed">
                           {selectedProduct.description}
                         </p>
                       )}
@@ -1354,14 +1317,14 @@ export default function OrganizedInventory() {
                     {/* Details Grid */}
                     <div className="grid grid-cols-1 gap-4">
                       {/* Category */}
-                      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4">
+                      <div className="bg-amber-50 border border-amber-300/70 shadow-amber-100/50 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-purple-500/20 rounded-lg">
-                            <Tag className="w-5 h-5 text-purple-300" />
+                          <div className="p-2 bg-gradient-to-br from-amber-50/40 to-white rounded-lg">
+                            <Tag className="w-5 h-5 text-amber-700" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-400">Category</p>
-                            <p className="text-lg font-semibold text-white">
+                            <p className="text-sm text-slate-700 ">Category</p>
+                            <p className="text-lg font-semibold text-slate-800">
                               {selectedProduct.category || "Uncategorized"}
                             </p>
                           </div>
@@ -1369,14 +1332,16 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Product ID */}
-                      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4">
+                      <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-500/20 rounded-lg">
-                            <Barcode className="w-5 h-5 text-blue-300" />
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <Barcode className="w-5 h-5 text-blue-700" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-400">Product ID</p>
-                            <p className="text-lg font-semibold text-white font-mono">
+                            <p className="text-sm text-slate-700 ">
+                              Product ID
+                            </p>
+                            <p className="text-lg font-semibold text-slate-800 font-mono">
                               {selectedProduct.product_id}
                             </p>
                           </div>
@@ -1384,22 +1349,22 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Stock */}
-                      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4">
+                      <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 border border-amber-100/50 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-indigo-500/20 rounded-lg">
-                            <Package className="w-5 h-5 text-indigo-300" />
+                          <div className="p-2 bg-gradient-to-br from-white to-stone-50/30 rounded-lg">
+                            <Package className="w-5 h-5 text-slate-700" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-400">
+                            <p className="text-sm text-slate-700 ">
                               Stock Available
                             </p>
                             <p
                               className={`text-lg font-semibold ${
                                 selectedProduct.quantity_in_stock > 10
-                                  ? "text-green-400"
+                                  ? "text-green-600"
                                   : selectedProduct.quantity_in_stock > 0
-                                  ? "text-yellow-400"
-                                  : "text-red-400"
+                                  ? "text-yellow-600"
+                                  : "text-rose-700"
                               }`}
                             >
                               {selectedProduct.quantity_in_stock} units
@@ -1409,17 +1374,17 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Pricing */}
-                      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg p-4">
+                      <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-500/20 rounded-lg">
-                              <DollarSign className="w-5 h-5 text-green-300" />
+                            <div className="p-2 bg-green-100 rounded-lg">
+                              <DollarSign className="w-5 h-5 text-green-700" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm text-slate-400">
+                              <p className="text-sm text-slate-700 ">
                                 Selling Price
                               </p>
-                              <p className="text-2xl font-bold text-green-400">
+                              <p className="text-2xl font-bold text-green-700">
                                 KES{" "}
                                 {selectedProduct.selling_price?.toLocaleString() ||
                                   "0"}
@@ -1427,10 +1392,10 @@ export default function OrganizedInventory() {
                             </div>
                           </div>
                           <div className="pl-11">
-                            <p className="text-sm text-slate-400">
+                            <p className="text-sm text-slate-700 ">
                               Buying Price
                             </p>
-                            <p className="text-lg font-semibold text-slate-300">
+                            <p className="text-lg font-semibold text-slate-700">
                               KES{" "}
                               {selectedProduct.buying_price?.toLocaleString() ||
                                 "0"}
@@ -1442,22 +1407,22 @@ export default function OrganizedInventory() {
                       {/* Profit Margin */}
                       {selectedProduct.buying_price &&
                         selectedProduct.selling_price && (
-                          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-lg p-4">
+                          <div className="bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-300 rounded-xl p-4">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-purple-500/30 rounded-lg">
-                                <TrendingUp className="w-5 h-5 text-purple-300" />
+                              <div className="p-2 bg-amber-200 rounded-lg">
+                                <TrendingUp className="w-5 h-5 text-amber-800" />
                               </div>
                               <div>
-                                <p className="text-sm text-purple-200">
+                                <p className="text-sm text-amber-800">
                                   Profit Margin
                                 </p>
-                                <p className="text-2xl font-bold text-purple-300">
+                                <p className="text-2xl font-bold text-amber-900">
                                   KES{" "}
                                   {(
                                     selectedProduct.selling_price -
                                     selectedProduct.buying_price
                                   ).toLocaleString()}
-                                  <span className="text-sm ml-2 text-purple-400">
+                                  <span className="text-sm ml-2 text-amber-700">
                                     (
                                     {(
                                       ((selectedProduct.selling_price -
@@ -1486,7 +1451,7 @@ export default function OrganizedInventory() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white font-medium hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Previous
             </button>
@@ -1511,7 +1476,7 @@ export default function OrganizedInventory() {
 
                   if (showEllipsisBefore || showEllipsisAfter) {
                     return (
-                      <span key={page} className="px-2 text-slate-400">
+                      <span key={page} className="px-2 text-slate-500">
                         ...
                       </span>
                     );
@@ -1521,10 +1486,10 @@ export default function OrganizedInventory() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`min-w-[40px] px-3 py-2 rounded-lg font-medium transition-all ${
+                      className={`min-w-[40px] px-3 py-2 rounded-xl font-medium transition-all ${
                         currentPage === page
-                          ? "bg-purple-600 text-white shadow-lg"
-                          : "bg-white/10 border border-white/20 text-white hover:bg-white/20"
+                          ? "bg-amber-600 text-slate-900 shadow-lg shadow-amber-200"
+                          : "bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-800 hover:bg-amber-50"
                       }`}
                     >
                       {page}
@@ -1539,7 +1504,7 @@ export default function OrganizedInventory() {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white font-medium hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>
@@ -1551,24 +1516,11 @@ export default function OrganizedInventory() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 p-4 bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-full shadow-2xl hover:shadow-purple-500/50 transition-all hover:scale-110 z-40 border-2 border-white/20"
+          className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-full shadow-2xl shadow-amber-200 transition-all hover:scale-110 z-40 border-2 border-amber-400"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-6 h-6" />
         </button>
-      )}
-
-      {/* Edit Product Modal */}
-      {editingProduct && (
-        <ProductForm
-          product={editingProduct}
-          onClose={() => setEditingProduct(null)}
-          onSuccess={() => {
-            setEditingProduct(null);
-            // Refetch products after edit
-            window.location.reload();
-          }}
-        />
       )}
     </div>
   );

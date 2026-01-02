@@ -193,17 +193,17 @@ const Orders = () => {
       case "pending":
         return "bg-amber-600/20 text-amber-400 border border-amber-500/30";
       case "confirmed":
-        return "bg-blue-600/20 text-blue-400 border border-blue-500/30";
+        return "bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300";
       case "processing":
-        return "bg-purple-600/20 text-purple-400 border border-purple-500/30";
+        return "bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300";
       case "shipped":
-        return "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30";
+        return "bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300";
       case "delivered":
         return "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30";
       case "cancelled":
         return "bg-rose-600/20 text-rose-400 border border-rose-500/30";
       default:
-        return "bg-slate-600/20 text-slate-400 border border-slate-500/30";
+        return "bg-slate-600/20 text-slate-700 border border-slate-500/30";
     }
   };
 
@@ -252,15 +252,15 @@ const Orders = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-white/10 rounded w-1/4 mb-6"></div>
+          <div className="h-8 bg-white/90 rounded w-1/4 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-white/10 rounded"></div>
+              <div key={i} className="h-24 bg-white/90 rounded"></div>
             ))}
           </div>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 bg-white/10 rounded"></div>
+              <div key={i} className="h-20 bg-white/90 rounded"></div>
             ))}
           </div>
         </div>
@@ -272,72 +272,72 @@ const Orders = () => {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-lg md:text-xl font-black text-white mb-1">
+        <h1 className="text-lg md:text-xl font-black text-slate-900 mb-1">
           Orders Management
         </h1>
-        <p className="text-slate-300 text-xs md:text-sm">
+        <p className="text-slate-600 text-xs md:text-sm">
           Manage and track customer orders
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
                 Total Orders
               </p>
-              <p className="text-lg md:text-xl font-black text-white mt-1.5">
+              <p className="text-lg md:text-xl font-black text-slate-900 mt-1.5">
                 {orderStats.total}
               </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-300">
               <Package className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
                 Pending
               </p>
               <p className="text-lg md:text-xl font-black text-amber-400 mt-1.5">
                 {orderStats.pending}
               </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30">
               <Clock className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
                 Delivered
               </p>
               <p className="text-lg md:text-xl font-black text-emerald-400 mt-1.5">
                 {orderStats.delivered}
               </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30">
               <CheckCircle className="w-5 h-5 text-white" />
             </div>
           </div>
         </div>
-        <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-300 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
                 Revenue
               </p>
-              <p className="text-base md:text-lg font-black text-white mt-1.5">
+              <p className="text-base md:text-lg font-black text-slate-900 mt-1.5">
                 KES {orderStats.totalRevenue.toLocaleString()}
               </p>
             </div>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30">
               <DollarSign className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -345,46 +345,67 @@ const Orders = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white/10 backdrop-blur-2xl p-4 rounded-2xl shadow-xl border border-white/20">
+      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Filter className="w-5 h-5 text-slate-400" />
+            <Filter className="w-5 h-5 text-slate-700 " />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+              className="bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
             >
-              <option value="all" className="bg-slate-800">
+              <option
+                value="all"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 All Status
               </option>
-              <option value="pending" className="bg-slate-800">
+              <option
+                value="pending"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Pending
               </option>
-              <option value="confirmed" className="bg-slate-800">
+              <option
+                value="confirmed"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Confirmed
               </option>
-              <option value="processing" className="bg-slate-800">
+              <option
+                value="processing"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Processing
               </option>
-              <option value="shipped" className="bg-slate-800">
+              <option
+                value="shipped"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Shipped
               </option>
-              <option value="delivered" className="bg-slate-800">
+              <option
+                value="delivered"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Delivered
               </option>
-              <option value="cancelled" className="bg-slate-800">
+              <option
+                value="cancelled"
+                className="bg-gradient-to-br from-white to-stone-50/40 border border-amber-200/50"
+              >
                 Cancelled
               </option>
             </select>
@@ -393,43 +414,43 @@ const Orders = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-white/5">
+            <thead className="bg-gradient-to-br from-white to-stone-50/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Order
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-transparent divide-y divide-white/5">
+            <tbody className="bg-white/50 divide-y divide-white/5">
               {filteredOrders.map((order) => (
                 <tr
                   key={order.id}
-                  className="hover:bg-white/5 transition-colors"
+                  className="hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-bold text-white">
                         {order.order_number}
                       </div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-700 ">
                         {order.order_items?.length || 0} items
                       </div>
                     </div>
@@ -439,7 +460,7 @@ const Orders = () => {
                       <div className="text-sm font-bold text-white">
                         {order.customer_name}
                       </div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-700 ">
                         {order.customer_phone}
                       </div>
                     </div>
@@ -457,7 +478,7 @@ const Orders = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
                     KES {order.total_amount.toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 ">
                     {formatDate(order.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -467,7 +488,7 @@ const Orders = () => {
                           setSelectedOrder(order);
                           setShowOrderDetails(true);
                         }}
-                        className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 hover:bg-blue-600/20 px-3 py-1.5 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-all"
+                        className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold flex items-center space-x-1 hover:bg-gradient-to-br from-amber-50/40 to-white px-3 py-1.5 rounded-xl border border-amber-300 hover:border-amber-400 transition-all"
                       >
                         <Eye className="w-4 h-4" />
                         <span>View</span>
@@ -476,7 +497,7 @@ const Orders = () => {
                         onClick={() =>
                           deleteOrder(order.id, order.order_number)
                         }
-                        className="text-red-400 hover:text-red-300 flex items-center space-x-1 hover:bg-red-600/20 px-3 py-1.5 rounded-lg border border-red-500/30 hover:border-red-500/50 transition-all"
+                        className="text-red-400 hover:text-red-300 flex items-center space-x-1 hover:bg-red-600/20 px-3 py-1.5 rounded-xl border border-red-500/30 hover:border-red-500/50 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                         <span>Delete</span>
@@ -492,14 +513,14 @@ const Orders = () => {
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-white/10 rounded-2xl">
-                <Package className="w-12 h-12 text-slate-400" />
+              <div className="p-4 bg-white/90 rounded-2xl">
+                <Package className="w-12 h-12 text-slate-700 " />
               </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
               No orders found
             </h3>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-700 text-sm">
               {searchTerm || statusFilter !== "all"
                 ? "Try adjusting your search or filters"
                 : "Orders will appear here when customers place them"}
@@ -510,10 +531,10 @@ const Orders = () => {
 
       {/* Order Details Modal */}
       {showOrderDetails && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-          <div className="bg-slate-900/95 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900/95 backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 text-white p-6">
+            <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-black">Order Details</h2>
@@ -523,7 +544,7 @@ const Orders = () => {
                 </div>
                 <button
                   onClick={() => setShowOrderDetails(false)}
-                  className="text-white hover:text-slate-300 text-2xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-all"
+                  className="text-slate-900 hover:text-slate-600 text-2xl w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gradient-to-br hover:from-amber-50 hover:to-white transition-all"
                 >
                   ✕
                 </button>
@@ -539,22 +560,22 @@ const Orders = () => {
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Phone className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm text-slate-300">
+                      <Phone className="w-4 h-4 text-slate-700 " />
+                      <span className="text-sm text-slate-700 ">
                         {selectedOrder.customer_phone}
                       </span>
                     </div>
                     {selectedOrder.customer_email && (
                       <div className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4 text-slate-400" />
-                        <span className="text-sm text-slate-300">
+                        <Mail className="w-4 h-4 text-slate-700 " />
+                        <span className="text-sm text-slate-700 ">
                           {selectedOrder.customer_email}
                         </span>
                       </div>
                     )}
                     <div className="flex items-start space-x-2">
-                      <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                      <span className="text-sm text-slate-300">
+                      <MapPin className="w-4 h-4 text-slate-700 mt-0.5" />
+                      <span className="text-sm text-slate-700 ">
                         {selectedOrder.delivery_address}
                       </span>
                     </div>
@@ -567,8 +588,8 @@ const Orders = () => {
                   </h3>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm text-slate-300">
+                      <Calendar className="w-4 h-4 text-slate-700 " />
+                      <span className="text-sm text-slate-700 ">
                         {new Date(selectedOrder.created_at).toLocaleString()}
                       </span>
                     </div>
@@ -584,9 +605,9 @@ const Orders = () => {
                         </span>
                       </span>
                     </div>
-                    <div className="text-sm text-slate-300">
+                    <div className="text-sm text-slate-700 ">
                       Payment:{" "}
-                      <span className="font-bold text-white capitalize">
+                      <span className="font-bold text-slate-900 capitalize">
                         {selectedOrder.payment_method}
                       </span>
                     </div>
@@ -596,37 +617,40 @@ const Orders = () => {
 
               {/* Order Items */}
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-white mb-4">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
                   Order Items
                 </h3>
-                <div className="bg-white/10 backdrop-blur-xl rounded-xl overflow-hidden border border-white/20">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl overflow-hidden border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                   <table className="min-w-full">
-                    <thead className="bg-white/5 border-b border-white/10">
+                    <thead className="bg-gradient-to-br from-white to-stone-50/50 border-b border-amber-100/50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                           Product
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                           Quantity
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                           Unit Price
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                           Total
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {selectedOrder.order_items?.map((item) => (
-                        <tr key={item.id} className="hover:bg-white/5">
+                        <tr
+                          key={item.id}
+                          className="hover:bg-gradient-to-br from-white to-stone-50/50"
+                        >
                           <td className="px-4 py-3 text-sm font-bold text-white">
                             {item.product_name}
                           </td>
-                          <td className="px-4 py-3 text-sm text-slate-300">
+                          <td className="px-4 py-3 text-sm text-slate-700 ">
                             {item.quantity}
                           </td>
-                          <td className="px-4 py-3 text-sm text-slate-300">
+                          <td className="px-4 py-3 text-sm text-slate-700 ">
                             KES {item.unit_price.toLocaleString()}
                           </td>
                           <td className="px-4 py-3 text-sm font-bold text-white">
@@ -640,23 +664,23 @@ const Orders = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 mb-6 border border-white/20">
+              <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">Subtotal:</span>
+                    <span className="text-slate-700 ">Subtotal:</span>
                     <span className="font-bold text-white">
                       KES {selectedOrder.subtotal.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">Delivery Fee:</span>
+                    <span className="text-slate-700 ">Delivery Fee:</span>
                     <span className="font-bold text-white">
                       {selectedOrder.delivery_fee === 0
                         ? "FREE"
                         : `KES ${selectedOrder.delivery_fee.toLocaleString()}`}
                     </span>
                   </div>
-                  <div className="flex justify-between text-lg font-black pt-2 border-t border-white/20">
+                  <div className="flex justify-between text-lg font-black pt-2 border-t border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                     <span className="text-white">Total:</span>
                     <span className="text-emerald-400">
                       KES {selectedOrder.total_amount.toLocaleString()}
@@ -667,7 +691,7 @@ const Orders = () => {
 
               {/* Status Update */}
               <div className="mb-6">
-                <h3 className="text-lg font-bold text-white mb-4">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">
                   Update Status
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -688,10 +712,10 @@ const Orders = () => {
                         )
                       }
                       disabled={selectedOrder.status === status}
-                      className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                      className={`px-4 py-2 rounded-2xl text-sm font-bold transition-all duration-300 border ${
                         selectedOrder.status === status
-                          ? "bg-white/5 text-slate-500 cursor-not-allowed border-white/10"
-                          : "bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border-blue-500/30 hover:border-blue-500/50"
+                          ? "bg-gradient-to-br from-white to-stone-50/50 text-slate-700 cursor-not-allowed border-amber-100/50"
+                          : "bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold hover:bg-amber-200 border-amber-300 hover:border-amber-400"
                       }`}
                     >
                       {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -703,10 +727,10 @@ const Orders = () => {
               {/* Notes */}
               {selectedOrder.notes && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-2">
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
                     Order Notes
                   </h3>
-                  <div className="bg-amber-600/20 border border-amber-500/30 rounded-xl p-4">
+                  <div className="bg-amber-600/20 border border-amber-500/30 rounded-2xl p-4">
                     <p className="text-sm text-amber-200">
                       {selectedOrder.notes}
                     </p>
@@ -715,12 +739,12 @@ const Orders = () => {
               )}
 
               {/* Delete Order Button */}
-              <div className="pt-4 border-t border-white/20">
+              <div className="pt-4 border-t border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                 <button
                   onClick={() =>
                     deleteOrder(selectedOrder.id, selectedOrder.order_number)
                   }
-                  className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center space-x-2"
+                  className="w-full bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-500/30 hover:border-red-500/50 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete Order</span>

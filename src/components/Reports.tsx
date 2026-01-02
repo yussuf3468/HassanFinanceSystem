@@ -64,7 +64,16 @@ export default function Reports() {
         monthAgo.setMonth(monthAgo.getMonth() - 1);
         return sales.filter((s) => new Date(s.created_at) >= monthAgo);
       case "year":
-        const yearStart = new Date(now.getFullYear(), 0, 1); // January 1st of current year
+        // Fiscal year: Feb 1 - Jan 31
+        const currentMonth = now.getMonth();
+        let yearStart: Date;
+        if (currentMonth >= 1) {
+          // Feb-Dec: fiscal year started this calendar year (Feb 1, 2026)
+          yearStart = new Date(now.getFullYear(), 1, 1); // February 1st
+        } else {
+          // January: fiscal year started last calendar year (Feb 1, 2025)
+          yearStart = new Date(now.getFullYear() - 1, 1, 1); // February 1st of previous year
+        }
         return sales.filter((s) => new Date(s.created_at) >= yearStart);
       case "custom":
         if (!customStartDate && !customEndDate) return sales;
@@ -104,7 +113,16 @@ export default function Reports() {
           (r: any) => new Date(r.return_date || r.created_at) >= monthAgo
         );
       case "year":
-        const yearStart = new Date(now.getFullYear(), 0, 1); // January 1st of current year
+        // Fiscal year: Feb 1 - Jan 31
+        const currentMonth = now.getMonth();
+        let yearStart: Date;
+        if (currentMonth >= 1) {
+          // Feb-Dec: fiscal year started this calendar year (Feb 1, 2026)
+          yearStart = new Date(now.getFullYear(), 1, 1); // February 1st
+        } else {
+          // January: fiscal year started last calendar year (Feb 1, 2025)
+          yearStart = new Date(now.getFullYear() - 1, 1, 1); // February 1st of previous year
+        }
         return returns.filter(
           (r: any) => new Date(r.return_date || r.created_at) >= yearStart
         );
@@ -171,56 +189,22 @@ export default function Reports() {
       (sum, p) => sum + p.selling_price * p.quantity_in_stock,
       0
     );
-    const potentialProfit = totalPotentialRevenue - totalInventoryValue;
     const inStock = products.filter((p) => p.quantity_in_stock > 0).length;
     const outOfStock = products.filter((p) => p.quantity_in_stock === 0).length;
-    const lowStock = products.filter(
-      (p) => p.quantity_in_stock > 0 && p.quantity_in_stock <= 10
-    ).length;
 
-    doc.setTextColor(0, 0, 0);
     doc.text(`Total Products: ${totalProducts}`, 14, 58);
     doc.text(`Products In Stock: ${inStock}`, 14, 64);
-
-    // Low stock in amber/orange color
-    if (lowStock > 0) {
-      doc.setTextColor(245, 158, 11); // Amber-500
-      doc.text(`⚠ Low Stock Items: ${lowStock}`, 14, 70);
-    }
-
-    // Out of stock in red color
-    if (outOfStock > 0) {
-      doc.setTextColor(239, 68, 68); // Red-500
-      doc.text(`Out of Stock: ${outOfStock}`, 14, 76);
-    } else {
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Out of Stock: ${outOfStock}`, 14, 76);
-    }
-
-    // Inventory value in blue color
-    doc.setTextColor(59, 130, 246); // Blue-500
-    doc.setFont("helvetica", "bold");
+    doc.text(`Out of Stock: ${outOfStock}`, 14, 70);
     doc.text(
       `Total Inventory Value: KES ${totalInventoryValue.toLocaleString()}`,
       105,
       58
     );
-
-    // Potential revenue in green color
-    doc.setTextColor(34, 197, 94); // Green-500
     doc.text(
       `Potential Revenue: KES ${totalPotentialRevenue.toLocaleString()}`,
       105,
       64
     );
-
-    // Potential profit in bold green
-    doc.text(
-      `Potential Profit: KES ${potentialProfit.toLocaleString()}`,
-      105,
-      70
-    );
-    doc.setFont("helvetica", "normal");
 
     // Product table
     const tableData = sortedProducts.map((p, index) => [
@@ -232,14 +216,10 @@ export default function Reports() {
       `KES ${p.buying_price.toLocaleString()}`,
       `KES ${p.selling_price.toLocaleString()}`,
       `KES ${(p.buying_price * p.quantity_in_stock).toLocaleString()}`,
-      `KES ${(
-        (p.selling_price - p.buying_price) *
-        p.quantity_in_stock
-      ).toLocaleString()}`,
     ]);
 
     autoTable(doc, {
-      startY: 84,
+      startY: 78,
       head: [
         [
           "#",
@@ -247,10 +227,9 @@ export default function Reports() {
           "Product Name",
           "Category",
           "Stock",
-          "Buy Price",
-          "Sell Price",
+          "Buying Price",
+          "Selling Price",
           "Total Value",
-          "Pot. Profit",
         ],
       ],
       body: tableData,
@@ -268,37 +247,13 @@ export default function Reports() {
       },
       columnStyles: {
         0: { cellWidth: 8, halign: "center" },
-        1: { cellWidth: 18 },
-        2: { cellWidth: 35 },
-        3: { cellWidth: 20 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 38 },
+        3: { cellWidth: 22 },
         4: { cellWidth: 12, halign: "center" },
-        5: { cellWidth: 20, halign: "right" },
-        6: { cellWidth: 20, halign: "right" },
-        7: {
-          cellWidth: 24,
-          halign: "right",
-          fontStyle: "bold",
-          textColor: [59, 130, 246],
-        }, // Blue for value
-        8: {
-          cellWidth: 24,
-          halign: "right",
-          fontStyle: "bold",
-          textColor: [34, 197, 94],
-        }, // Green for profit
-      },
-      didParseCell: (data) => {
-        // Color code stock levels
-        if (data.column.index === 4 && data.section === "body") {
-          const stock = sortedProducts[data.row.index].quantity_in_stock;
-          if (stock === 0) {
-            data.cell.styles.textColor = [239, 68, 68]; // Red for out of stock
-            data.cell.styles.fontStyle = "bold";
-          } else if (stock <= 10) {
-            data.cell.styles.textColor = [245, 158, 11]; // Amber for low stock
-            data.cell.styles.fontStyle = "bold";
-          }
-        }
+        5: { cellWidth: 24, halign: "right" },
+        6: { cellWidth: 24, halign: "right" },
+        7: { cellWidth: 32, halign: "right", fontStyle: "bold" },
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
@@ -445,38 +400,19 @@ export default function Reports() {
     doc.setFont("helvetica", "normal");
 
     // Left column
-    doc.setTextColor(0, 0, 0);
     doc.text(`Total Transactions: ${totalTransactions}`, 14, 58);
     doc.text(`Total Items Sold: ${totalItems}`, 14, 64);
     doc.text(`Average Sale: KES ${Number(avgSale).toLocaleString()}`, 14, 70);
-
-    // Average profit in green
-    doc.setTextColor(34, 197, 94); // Green-500
-    doc.setFont("helvetica", "bold");
     doc.text(
       `Average Profit: KES ${Number(avgProfit).toLocaleString()}`,
       14,
       76
     );
 
-    // Right column - Revenue in blue
-    doc.setTextColor(59, 130, 246); // Blue-500
+    // Right column
     doc.text(`Total Revenue: KES ${totalRevenue.toLocaleString()}`, 105, 58);
-
-    // Total Profit in bold green
-    doc.setTextColor(34, 197, 94); // Green-500
     doc.text(`Total Profit: KES ${totalProfit.toLocaleString()}`, 105, 64);
-
-    // Profit margin in green
     doc.text(`Profit Margin: ${profitMargin}%`, 105, 70);
-
-    // Discounts in amber if any
-    if (totalDiscounts > 0) {
-      doc.setTextColor(245, 158, 11); // Amber-500
-    } else {
-      doc.setTextColor(0, 0, 0);
-    }
-    doc.setFont("helvetica", "normal");
     doc.text(
       `Total Discounts: KES ${totalDiscounts.toLocaleString()}`,
       105,
@@ -565,28 +501,8 @@ export default function Reports() {
         4: { cellWidth: 10, halign: "center" },
         5: { cellWidth: 20, halign: "right" },
         6: { cellWidth: 18, halign: "right" },
-        7: {
-          cellWidth: 22,
-          halign: "right",
-          fontStyle: "bold",
-          textColor: [59, 130, 246],
-        }, // Blue for revenue
-        8: {
-          cellWidth: 22,
-          halign: "right",
-          fontStyle: "bold",
-          textColor: [34, 197, 94],
-        }, // Green for profit
-      },
-      didParseCell: (data) => {
-        // Color code discounts in amber if present
-        if (data.column.index === 6 && data.section === "body") {
-          const discountText = data.cell.text[0];
-          if (discountText && discountText !== "-") {
-            data.cell.styles.textColor = [245, 158, 11]; // Amber for discounts
-            data.cell.styles.fontStyle = "bold";
-          }
-        }
+        7: { cellWidth: 22, halign: "right", fontStyle: "bold" },
+        8: { cellWidth: 22, halign: "right", textColor: [34, 197, 94] },
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
@@ -705,7 +621,7 @@ export default function Reports() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-base font-medium">
+        <div className="text-slate-900 text-base font-medium">
           Loading reports...
         </div>
       </div>
@@ -715,22 +631,22 @@ export default function Reports() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl md:text-3xl font-black text-white">
+        <h2 className="text-2xl md:text-3xl font-black text-slate-900">
           Reports & Export
         </h2>
-        <p className="text-slate-300 mt-1 text-sm md:text-base">
+        <p className="text-slate-600 mt-1 text-sm md:text-base">
           Generate and export detailed reports
         </p>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-6">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-6">
         {/* Date Range Filters - Mobile First */}
         <div className="flex flex-col gap-3 mb-4 md:mb-6">
           <div className="flex items-center space-x-2 px-1">
-            <div className="p-2 bg-purple-600/20 rounded-lg border border-purple-500/30">
-              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+            <div className="p-2 bg-amber-50 rounded-xl border-2 border-amber-400">
+              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
             </div>
-            <span className="font-bold text-white text-sm md:text-base">
+            <span className="font-bold text-slate-900 text-sm md:text-base">
               📅 Date Range
             </span>
           </div>
@@ -743,10 +659,10 @@ export default function Reports() {
                 <button
                   key={range}
                   onClick={() => setDateRange(range)}
-                  className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 touch-manipulation active:scale-95 ${
+                  className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-300 touch-manipulation active:scale-95 ${
                     dateRange === range
-                      ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg"
-                      : "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white border border-white/20 active:bg-white/30"
+                      ? "bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white shadow-lg"
+                      : "bg-white text-slate-700 hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-300 shadow-md"
                   }`}
                 >
                   {range === "today"
@@ -767,7 +683,7 @@ export default function Reports() {
             <button
               onClick={handleRefresh}
               disabled={isRefreshing || loading}
-              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm touch-manipulation"
+              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm touch-manipulation"
               title="Refresh reports data"
             >
               <RefreshCw
@@ -780,32 +696,32 @@ export default function Reports() {
 
         {/* Custom Date Range Inputs - Mobile Optimized */}
         {dateRange === "custom" && (
-          <div className="mb-4 md:mb-6 p-4 md:p-5 bg-white/5 rounded-xl border border-white/10">
+          <div className="mb-4 md:mb-6 p-4 md:p-5 bg-amber-50 rounded-2xl border-2 border-amber-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
                   📅 Start Date
                 </label>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 bg-white/10 border border-white/20 rounded-lg text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert touch-manipulation"
+                  className="w-full px-4 py-3 md:py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">
+                <label className="block text-sm font-semibold text-slate-900 mb-2">
                   📅 End Date
                 </label>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 bg-white/10 border border-white/20 rounded-lg text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert touch-manipulation"
+                  className="w-full px-4 py-3 md:py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
                 />
               </div>
             </div>
-            <p className="text-xs text-slate-400 mt-3">
+            <p className="text-xs text-slate-600 mt-3">
               💡 Select start and end dates to filter reports. Leave blank for
               open-ended ranges.
             </p>
@@ -813,27 +729,27 @@ export default function Reports() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-          <div className="bg-gradient-to-br from-blue-600/20 to-blue-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-blue-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation">
-            <p className="text-xs md:text-sm text-blue-300 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-blue-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
               Total Revenue
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
               KES {totalRevenue.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-blue-400 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-slate-500 mt-2 font-medium">
               {filteredSales.length} transaction
               {filteredSales.length !== 1 ? "s" : ""}
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-emerald-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation">
-            <p className="text-xs md:text-sm text-emerald-300 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-emerald-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
               Total Profit
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
               KES {totalProfit.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-emerald-400 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-emerald-600 mt-2 font-medium">
               {totalRevenue > 0
                 ? ((totalProfit / totalRevenue) * 100).toFixed(1)
                 : 0}
@@ -841,14 +757,14 @@ export default function Reports() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-rose-600/20 to-red-500/10 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-rose-500/30 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1">
-            <p className="text-xs md:text-sm text-rose-300 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-red-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1 shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
               Total Refunded
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-white break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
               KES {totalRefunded.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-rose-400 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-red-600 mt-2 font-medium">
               {filteredReturns.length} return
               {filteredReturns.length !== 1 ? "s" : ""}
             </p>
@@ -857,15 +773,15 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-white">
+            <h3 className="text-base md:text-lg font-bold text-slate-900">
               Inventory Report
             </h3>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={exportInventoryToPDF}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as PDF"
               >
                 <FileDown className="w-4 h-4" />
@@ -873,7 +789,7 @@ export default function Reports() {
               </button>
               <button
                 onClick={() => exportToCSV("inventory")}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 border-2 border-emerald-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as CSV"
               >
                 <Download className="w-4 h-4" />
@@ -920,20 +836,20 @@ export default function Reports() {
               value={products
                 .filter((p) => p.quantity_in_stock === 0)
                 .length.toString()}
-              valueColor="text-red-600"
+              valueColor="text-rose-700"
             />
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-white">
+            <h3 className="text-base md:text-lg font-bold text-slate-900">
               Sales Report
             </h3>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={exportSalesPDF}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as PDF"
               >
                 <FileDown className="w-4 h-4" />
@@ -941,7 +857,7 @@ export default function Reports() {
               </button>
               <button
                 onClick={() => exportToCSV("sales")}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 border-2 border-emerald-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as CSV"
               >
                 <Download className="w-4 h-4" />
@@ -989,14 +905,14 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-white/20 p-4 md:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-white">
+            <h3 className="text-base md:text-lg font-bold text-slate-900">
               Returns Report
             </h3>
             <button
               onClick={() => exportToCSV("returns")}
-              className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-rose-500 to-red-600 text-white px-4 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/40 text-sm font-bold touch-manipulation"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 border-2 border-red-400 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-sm font-bold touch-manipulation"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
@@ -1055,9 +971,9 @@ export default function Reports() {
       </div>
 
       {lowStockProducts.length > 0 && (
-        <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-xl border border-orange-500/30 p-6">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
-            <span className="bg-orange-600/20 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full text-sm font-bold">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-red-400 p-6">
+          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
+            <span className="bg-red-50 text-red-600 border-2 border-red-400 px-3 py-1 rounded-full text-sm font-bold">
               {lowStockProducts.length}
             </span>
             <span>Low Stock Products - Reorder Needed</span>
@@ -1066,28 +982,28 @@ export default function Reports() {
             {lowStockProducts.map((product) => (
               <div
                 key={product.id}
-                className="flex items-center space-x-3 p-4 bg-orange-600/10 rounded-xl border border-orange-500/30 hover:bg-orange-600/20 transition-all"
+                className="flex items-center space-x-3 p-4 bg-red-50 rounded-2xl border-2 border-red-200 hover:border-red-400 transition-all"
               >
                 {product.image_url && (
                   <OptimizedImage
                     src={product.image_url}
                     alt={product.name}
-                    className="w-12 h-12 object-cover rounded-lg border border-white/20"
+                    className="w-12 h-12 object-cover rounded-xl border-2 border-slate-200"
                     fallbackClassName="w-12 h-12"
                     preset="thumbnail"
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white truncate text-sm">
+                  <p className="font-bold text-slate-900 truncate text-sm">
                     {product.name}
                   </p>
                   {product.description && (
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">
                       {product.description}
                     </p>
                   )}
                   <p className="text-xs text-slate-500">{product.product_id}</p>
-                  <p className="text-sm font-bold text-orange-400">
+                  <p className="text-sm font-bold text-red-600">
                     Stock: {product.quantity_in_stock}
                   </p>
                 </div>
@@ -1109,11 +1025,11 @@ interface ReportRowProps {
 function ReportRow({
   label,
   value,
-  valueColor = "text-white",
+  valueColor = "text-slate-900",
 }: ReportRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-white/10 last:border-0">
-      <span className="text-slate-300 text-sm">{label}</span>
+    <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <span className="text-slate-600 text-sm">{label}</span>
       <span className={`font-bold text-sm ${valueColor}`}>{value}</span>
     </div>
   );

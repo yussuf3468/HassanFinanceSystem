@@ -5,7 +5,6 @@ import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Inventory from "./components/Inventory";
-import OrganizedInventory from "./components/OrganizedInventory";
 import Sales from "./components/Sales";
 import SalesHistory from "./components/SalesHistory";
 import Returns from "./components/Returns";
@@ -13,6 +12,7 @@ import Search from "./components/Search";
 import Reports from "./components/Reports";
 import UserActivityDashboard from "./components/UserActivityDashboard";
 import Orders from "./components/Orders";
+import CustomerBalances from "./components/CustomerBalances";
 import CustomerStoreNew from "./components/CustomerStoreNew";
 import { Store, Settings } from "lucide-react";
 import FinancialDashboard from "./components/FinancialDashboard";
@@ -24,8 +24,7 @@ import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import CashReconciliation from "./components/CashReconciliation";
-import CustomerManagement from "./components/CustomerManagement";
+import OrganizedInventory from "./components/OrganizedInventory";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -55,7 +54,7 @@ function AppContent() {
           return prev;
 
         // Assign default dashboard based on user email
-        if (user.email === "admin@bookshop.ke") return "dashboard";
+        if (user.email === "galiyowabi@gmail.com") return "dashboard";
         if (user.email) return "staff-dashboard";
         return "dashboard";
       });
@@ -121,11 +120,11 @@ function AppContent() {
         {activeTab === "organized-inventory" && <OrganizedInventory />}
         {activeTab === "sales" && <Sales />}
         {activeTab === "sales-history" && <SalesHistory />}
-        {activeTab === "customers" && <CustomerManagement />}
         {activeTab === "returns" && <Returns />}
         {activeTab === "orders" && <Orders />}
         {activeTab === "search" && <Search />}
         {activeTab === "reports" && <Reports />}
+        {activeTab === "customer-balances" && <CustomerBalances />}
         {activeTab === "user-activity" && <UserActivityDashboard />}
         {activeTab === "financial-dashboard" && <FinancialDashboard />}
         {activeTab === "expenses" && <ExpenseManagement />}
@@ -133,7 +132,6 @@ function AppContent() {
         {activeTab === "debts" && <DebtManagement />}
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
-        {activeTab === "cash-reconciliation" && <CashReconciliation />}
       </Layout>
 
       {/* PWA Install Prompt for iOS and Android */}

@@ -78,9 +78,9 @@ export default function Dashboard() {
     }
   ) {
     try {
-      // Use yearly totals from database (resets every January 1st)
-      const totalSales = salesTotals.year_sales; // Changed to yearly totals
-      const totalProfit = salesTotals.year_profit; // Changed to yearly totals
+      // Use yearly totals from database (fiscal year: resets every February 1st)
+      const totalSales = salesTotals.year_sales; // Fiscal year totals (Feb 1 - Jan 31)
+      const totalProfit = salesTotals.year_profit; // Fiscal year totals (Feb 1 - Jan 31)
       const dailySales = salesTotals.today_sales;
       const dailyProfit = salesTotals.today_profit;
 
@@ -142,23 +142,25 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-white">Loading dashboard...</div>
+      <div className="text-center py-12 text-slate-900">
+        Loading dashboard...
+      </div>
     );
   }
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fadeIn">
       {/* Hero Section - Premium */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 md:p-6 shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
+      <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-4 md:p-6 shadow-2xl shadow-amber-500/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-100/20 to-stone-100/20"></div>
         <div className="relative">
           <div className="text-center space-y-2">
             <div className="inline-block">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-amber-600">
                 HASSAN BOOKSHOP
               </h1>
             </div>
-            <p className="text-xs md:text-sm text-slate-200 font-medium max-w-3xl mx-auto">
+            <p className="text-xs md:text-sm text-slate-700 font-medium max-w-3xl mx-auto">
               ✨ Ku soo dhowow Dashboard-ka HASSAN BOOKSHOP — Halka aad ku
               maamusho alaabta, iibka, iyo shaqaalaha. La soco xogta
               waqtiga-dhabta ah si aad ganacsigaaga hore ugu waddo!
@@ -175,8 +177,8 @@ export default function Dashboard() {
       {/* Stats Grid - Premium with High Contrast */}
       <div>
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-1 h-6 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
-          <h2 className="text-lg md:text-xl font-bold text-white">
+          <div className="w-1 h-6 bg-gradient-to-b from-amber-500 to-amber-600 rounded-full"></div>
+          <h2 className="text-lg md:text-xl font-bold text-slate-900">
             Business Overview
           </h2>
         </div>
@@ -230,28 +232,31 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Content Grid - Premium Cards */}
+      {/* Content Grid - Ultra Premium Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-        {/* Top Products Card */}
-        <div className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:-translate-y-1">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl shadow-xl">
+        {/* Top Products Card - Golden Premium */}
+        <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-xl border-2 border-amber-200/60 shadow-sm rounded-3xl p-6 md:p-8 shadow-2xl shadow-amber-500/10 hover:shadow-2xl hover:shadow-amber-400/20 hover:border-amber-300/70 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+          {/* Premium shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+          <div className="relative flex items-center space-x-3 mb-6">
+            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl shadow-amber-400/30 shadow-xl shadow-amber-400/30">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-base md:text-lg font-bold text-white">
+            <h3 className="text-base md:text-lg font-bold text-slate-900">
               🏆 Top Products
             </h3>
           </div>
-          <div className="space-y-3">
+          <div className="relative space-y-3">
             {topProducts.length === 0 ? (
               <div className="text-center py-8">
-                <div className="w-12 h-12 mx-auto mb-3 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20">
-                  <Package className="w-6 h-6 text-slate-400" />
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full flex items-center justify-center border-2 border-amber-300/70 shadow-amber-100/50 shadow-lg">
+                  <Package className="w-6 h-6 text-amber-700 " />
                 </div>
-                <p className="text-sm font-bold text-white">
+                <p className="text-sm font-bold text-slate-900">
                   No sales data yet
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-600 mt-1">
                   Start making sales to see analytics here
                 </p>
               </div>
@@ -259,18 +264,18 @@ export default function Dashboard() {
               topProducts.map((item, index) => (
                 <div
                   key={item.product.id}
-                  className="group/item bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all duration-300 hover:scale-[1.01]"
+                  className="group/item bg-gradient-to-br from-amber-50/40 to-white hover:from-amber-100/50 hover:to-amber-50/30 backdrop-blur-sm border border-amber-200/60 shadow-sm hover:border-amber-300/70 hover:shadow-md hover:shadow-amber-200/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex items-center space-x-3">
                     <div
-                      className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg ${
+                      className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-lg transition-transform group-hover/item:scale-110 ${
                         index === 0
-                          ? "bg-gradient-to-br from-yellow-500 to-orange-600"
+                          ? "bg-gradient-to-br from-yellow-400 to-orange-600 shadow-yellow-400/50"
                           : index === 1
-                          ? "bg-gradient-to-br from-slate-500 to-slate-700"
+                          ? "bg-gradient-to-br from-slate-400 to-slate-600 shadow-slate-400/50"
                           : index === 2
-                          ? "bg-gradient-to-br from-amber-600 to-orange-700"
-                          : "bg-gradient-to-br from-blue-500 to-cyan-600"
+                          ? "bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-400/50"
+                          : "bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-400/50"
                       }`}
                     >
                       {index === 0
@@ -285,20 +290,20 @@ export default function Dashboard() {
                       <OptimizedImage
                         src={item.product.image_url}
                         alt={item.product.name}
-                        className="w-10 h-10 object-cover rounded-lg border border-white/20"
+                        className="w-10 h-10 object-cover rounded-xl border-2 border-amber-200/60 shadow-sm shadow-md group-hover/item:border-amber-300/70"
                         preset="thumbnail"
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-white truncate text-sm">
+                      <p className="font-bold text-slate-900 truncate text-sm group-hover/item:text-amber-900 transition-colors">
                         {item.product.name}
                       </p>
-                      <p className="text-xs text-slate-400 font-medium">
+                      <p className="text-xs text-slate-700 font-semibold font-medium">
                         {item.product.category}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-black text-white text-sm md:text-base">
+                      <p className="font-black text-slate-900 text-sm md:text-base">
                         {formatCurrency(item.total)}
                       </p>
                     </div>
@@ -309,20 +314,26 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Sales Card */}
-        <div className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 hover:-translate-y-1">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl shadow-xl">
+        {/* Recent Sales Card - Emerald Premium */}
+        <div className="group relative bg-gradient-to-br from-white via-emerald-50/20 to-white backdrop-blur-xl border-2 border-emerald-200/60 shadow-sm rounded-3xl p-6 md:p-8 shadow-2xl shadow-emerald-500/10 hover:shadow-2xl hover:shadow-emerald-400/20 hover:border-emerald-300/70 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+          {/* Premium shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+          <div className="relative flex items-center space-x-3 mb-6">
+            <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl shadow-xl shadow-emerald-400/30">
               <Receipt className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-base md:text-lg font-bold text-white">
+            <h3 className="text-base md:text-lg font-bold text-slate-900">
               📊 Recent Sales
             </h3>
           </div>
-          <div className="space-y-3">
+          <div className="relative space-y-3">
             {recentSales.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-sm font-bold text-white">
+                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full flex items-center justify-center border-2 border-emerald-300/70 shadow-emerald-100/50 shadow-lg">
+                  <Receipt className="w-6 h-6 text-emerald-600" />
+                </div>
+                <p className="text-sm font-bold text-slate-900">
                   No sales recorded yet
                 </p>
               </div>
@@ -330,22 +341,22 @@ export default function Dashboard() {
               recentSales.map((sale) => (
                 <div
                   key={sale.id}
-                  className="bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 hover:border-white/20 rounded-xl p-3 transition-all duration-300 hover:scale-[1.01]"
+                  className="group/sale bg-gradient-to-br from-emerald-50/50 to-teal-50/30 hover:from-emerald-100/60 hover:to-teal-50/50 backdrop-blur-sm border border-emerald-200/60 shadow-sm hover:border-emerald-300/70 hover:shadow-md hover:shadow-emerald-200/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-white text-xs md:text-sm">
+                      <p className="font-bold text-slate-900 text-xs md:text-sm group-hover/sale:text-emerald-900 transition-colors">
                         {formatDate(sale.created_at)}
                       </p>
-                      <p className="text-xs text-slate-400 font-medium truncate">
+                      <p className="text-xs text-slate-700 font-semibold font-medium truncate">
                         {sale.sold_by}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-black text-white text-sm md:text-base">
+                      <p className="font-black text-slate-900 text-sm md:text-base">
                         {formatCurrency(sale.total_sale)}
                       </p>
-                      <p className="text-xs text-emerald-400 font-bold">
+                      <p className="text-xs text-emerald-800 font-semibold font-bold">
                         +{formatCurrency(sale.profit)}
                       </p>
                     </div>
@@ -377,8 +388,8 @@ function StatCard({
 }: StatCardProps) {
   const colorClasses = {
     blue: {
-      gradient: "from-blue-600 to-cyan-600",
-      glow: "shadow-blue-500/50",
+      gradient: "from-amber-500 to-amber-600",
+      glow: "shadow-amber-300",
       text: "text-blue-400",
     },
     green: {
@@ -387,9 +398,9 @@ function StatCard({
       text: "text-emerald-400",
     },
     purple: {
-      gradient: "from-purple-600 to-pink-600",
-      glow: "shadow-purple-500/50",
-      text: "text-purple-400",
+      gradient: "from-amber-500 to-rose-500",
+      glow: "shadow-amber-300",
+      text: "text-amber-700 ",
     },
     orange: {
       gradient: "from-orange-600 to-amber-600",
@@ -406,11 +417,13 @@ function StatCard({
   const colors = colorClasses[color];
 
   return (
-    <div className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
-      {/* Animated gradient background on hover */}
+    <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-xl border-2 border-amber-200/60 shadow-sm rounded-2xl p-4 md:p-5 shadow-2xl shadow-amber-500/10 hover:shadow-2xl hover:shadow-amber-400/20 hover:border-amber-300/70 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
+      {/* Premium gradient background on hover */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}
+        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-15 transition-opacity duration-500 rounded-2xl`}
       ></div>
+      {/* Subtle shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
       <div className="relative flex items-center justify-between">
         <div className="flex-1 min-w-0 pr-2">
@@ -419,11 +432,11 @@ function StatCard({
           >
             {title}
           </p>
-          <p className="text-base sm:text-lg font-black text-white leading-tight whitespace-nowrap">
+          <p className="text-base sm:text-lg font-black text-slate-900 leading-tight whitespace-nowrap">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-slate-400 mt-0.5 font-medium whitespace-nowrap">
+            <p className="text-xs text-slate-600 mt-0.5 font-medium whitespace-nowrap">
               {subtitle}
             </p>
           )}

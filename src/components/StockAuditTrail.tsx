@@ -108,48 +108,43 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
     const lowerReason = reason.toLowerCase();
     if (lowerReason.includes("receipt")) {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-200 text-xs font-bold backdrop-blur-xl">
-          <TrendingUp className="w-3 h-3" />
-          Soo Qaad - Receipt
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-bold">
+          <TrendingUp className="w-3 h-3" />✅ Soo Qaad - Receipt
         </span>
       );
     }
     if (lowerReason.includes("sale")) {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-500/25 border border-rose-400/50 text-rose-200 text-xs font-bold backdrop-blur-xl">
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold">
           <TrendingDown className="w-3 h-3" />
-          Iib - Sale
+          💰 Iib - Sale
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-500/25 border border-blue-400/50 text-blue-200 text-xs font-bold backdrop-blur-xl">
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-700 text-xs font-bold">
         <FileText className="w-3 h-3" />
-        Hagaaji - Adjustment
+        ⚙️ Hagaaji - Adjustment
       </span>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 overflow-y-auto">
       <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 flex justify-center items-start sm:items-center">
-        <div className="bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-3xl rounded-3xl shadow-2xl max-w-7xl w-full border border-white/30 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Stunning Header */}
-          <div className="relative bg-gradient-to-r from-purple-600/30 via-indigo-600/30 to-blue-600/30 border-b border-white/20 px-4 sm:px-6 py-4 sm:py-6 overflow-hidden">
-            {/* Animated Background Pattern */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(124,58,237,0.1),transparent)] pointer-events-none" />
-            <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none" />
-
+        <div className="bg-white rounded-3xl shadow-2xl max-w-7xl w-full border-2 border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Header */}
+          <div className="relative bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100 px-4 sm:px-6 py-5 sm:py-6 overflow-hidden shadow-sm">
             <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="p-2 sm:p-3 rounded-2xl bg-gradient-to-br from-purple-500/40 to-indigo-500/40 border-2 border-purple-400/50 shadow-lg shadow-purple-500/20 backdrop-blur-xl">
-                  <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-purple-100 drop-shadow-lg" />
+                <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg">
+                  <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg">
-                    Taariikhda Alaabta - Stock Audit Trail
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                    📋 Taariikhda Alaabta - Stock Audit Trail
                   </h3>
-                  <p className="text-purple-100 text-xs sm:text-sm mt-0.5 sm:mt-1">
+                  <p className="text-slate-600 text-xs sm:text-sm mt-1">
                     Audit trail waa diiwaan muujinaya cidda wax beddeshay,
                     goorta ay beddeshay, iyo waxa la beddelay gudaha nidaamka -
                     Raadi dhammaan isbeddelada alaabta
@@ -158,9 +153,9 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
               </div>
               <button
                 onClick={onClose}
-                className="p-2 sm:p-2.5 hover:bg-white/20 rounded-xl transition-all hover:scale-110 backdrop-blur-xl border border-white/10 hover:border-white/30"
+                className="p-2.5 hover:bg-amber-100 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 border border-transparent hover:border-amber-200"
               >
-                <X className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
               </button>
             </div>
           </div>
@@ -171,13 +166,13 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
               {/* Search */}
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-300 pointer-events-none" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500 pointer-events-none" />
                   <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Raadi magaca alaabta..."
-                    className="w-full bg-white/15 border-2 border-white/30 rounded-xl sm:rounded-2xl pl-12 pr-4 py-3 sm:py-4 text-white text-sm sm:text-base placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:border-purple-400/60 transition-all shadow-lg backdrop-blur-xl"
+                    placeholder="🔍 Raadi magaca alaabta..."
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl sm:rounded-xl pl-12 pr-4 py-3 sm:py-3.5 text-slate-900 text-sm sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm hover:border-amber-300"
                   />
                 </div>
               </div>
@@ -190,10 +185,10 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                       key={f}
                       type="button"
                       onClick={() => setFilter(f)}
-                      className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all backdrop-blur-xl shadow-lg border-2 ${
+                      className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-sm border-2 ${
                         filter === f
-                          ? "bg-gradient-to-r from-purple-600/40 to-indigo-600/40 border-purple-400/50 text-white scale-105"
-                          : "bg-white/10 border-white/20 text-slate-200 hover:border-white/40 hover:scale-105"
+                          ? "bg-gradient-to-r from-amber-500 to-amber-600 border-amber-400 text-white scale-105"
+                          : "bg-white border-slate-200 text-slate-700 hover:border-amber-300 hover:scale-105"
                       }`}
                     >
                       <Filter className="w-4 h-4 inline mr-1.5" />
@@ -209,7 +204,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                   type="button"
                   onClick={fetchMovements}
                   disabled={refreshing}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all backdrop-blur-xl shadow-lg border-2 bg-gradient-to-r from-emerald-600/40 to-green-600/40 border-emerald-400/50 text-white hover:scale-105 active:scale-95 disabled:opacity-50"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-sm border-2 bg-gradient-to-r from-emerald-500 to-emerald-600 border-emerald-400 text-white hover:scale-105 active:scale-95 disabled:opacity-50"
                 >
                   <RefreshCw
                     className={`w-4 h-4 inline mr-1.5 ${
@@ -224,24 +219,21 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
             {/* Loading State */}
             {loading && (
               <div className="text-center py-16 sm:py-24">
-                <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-purple-400 mx-auto mb-4 animate-spin" />
-                <p className="text-white font-bold text-base sm:text-lg">
-                  Soo raraya...
+                <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-4 animate-spin" />
+                <p className="text-slate-700 font-bold text-base sm:text-lg">
+                  ⏳ Soo raraya...
                 </p>
               </div>
             )}
 
             {/* Empty State */}
             {!loading && filteredMovements.length === 0 && (
-              <div className="text-center py-16 sm:py-24 bg-gradient-to-br from-white/5 to-white/10 border-2 border-dashed border-white/30 rounded-2xl sm:rounded-3xl backdrop-blur-xl">
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-purple-500/20 blur-2xl rounded-full" />
-                  <FileText className="relative w-16 h-16 sm:w-20 sm:h-20 text-slate-400 mx-auto mb-4 opacity-60 drop-shadow-lg" />
-                </div>
-                <p className="text-slate-200 font-bold text-base sm:text-lg mb-2 drop-shadow">
-                  Ma jiro wax taariikh ah
+              <div className="text-center py-16 sm:py-24 bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-2xl">
+                <FileText className="w-16 h-16 sm:w-20 sm:h-20 text-amber-400 mx-auto mb-4" />
+                <p className="text-slate-900 font-bold text-base sm:text-lg mb-2">
+                  📭 Ma jiro wax taariikh ah
                 </p>
-                <p className="text-slate-400 text-sm sm:text-base">
+                <p className="text-slate-600 text-sm sm:text-base">
                   Isbeddello lama sameeynin alaabta
                 </p>
               </div>
@@ -253,12 +245,12 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                 {filteredMovements.map((movement) => (
                   <div
                     key={movement.id}
-                    className="bg-gradient-to-br from-white/15 to-white/5 border-2 border-white/30 rounded-2xl sm:rounded-3xl p-4 sm:p-5 hover:border-white/50 transition-all shadow-xl hover:shadow-2xl backdrop-blur-xl hover:scale-[1.01]"
+                    className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 hover:border-amber-300 transition-all shadow-sm hover:shadow-md hover:scale-[1.01]"
                   >
                     <div className="flex flex-col sm:flex-row items-start gap-4">
                       {/* Product Image & Info */}
                       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-600/40 to-slate-700/40 flex items-center justify-center border-2 border-white/30 overflow-hidden flex-shrink-0 shadow-xl backdrop-blur-xl">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 flex items-center justify-center border-2 border-slate-200 overflow-hidden flex-shrink-0 shadow-sm">
                           {movement.product?.image_url ? (
                             <OptimizedImage
                               src={movement.product.image_url}
@@ -272,10 +264,10 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h5 className="text-white font-bold text-sm sm:text-base lg:text-lg truncate drop-shadow">
+                          <h5 className="text-slate-900 font-bold text-sm sm:text-base lg:text-lg truncate">
                             {movement.product?.name || "Unknown Product"}
                           </h5>
-                          <p className="text-slate-300 text-xs sm:text-sm truncate">
+                          <p className="text-slate-600 text-xs sm:text-sm truncate">
                             ID: {movement.product?.product_id || "N/A"}
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -287,7 +279,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                       {/* Quantity Change */}
                       <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-end">
                         <div className="text-center">
-                          <p className="text-slate-300 text-xs font-semibold mb-1">
+                          <p className="text-slate-600 text-xs font-semibold mb-1">
                             Isbeddel - Change
                           </p>
                           <div
@@ -304,19 +296,19 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
 
                         {/* Date, Time & Staff */}
                         <div className="text-right">
-                          <div className="flex items-center gap-1.5 text-slate-300 text-xs sm:text-sm mb-1">
+                          <div className="flex items-center gap-1.5 text-slate-600 text-xs sm:text-sm mb-1">
                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                             <span className="font-semibold">
                               {formatDate(movement.created_at)}
                             </span>
                           </div>
                           {movement.received_by && (
-                            <p className="text-blue-300 text-xs sm:text-sm font-bold mb-1">
+                            <p className="text-amber-600 text-xs sm:text-sm font-bold mb-1">
                               👤 {movement.received_by}
                             </p>
                           )}
                           {movement.ref_type && (
-                            <p className="text-slate-400 text-xs">
+                            <p className="text-slate-600 text-xs">
                               Ref: {movement.ref_type}
                             </p>
                           )}
@@ -330,15 +322,15 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
 
             {/* Summary Footer */}
             {!loading && filteredMovements.length > 0 && (
-              <div className="mt-6 pt-4 border-t-2 border-white/30 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="text-slate-300 text-sm sm:text-base">
-                  <span className="font-bold text-white">
-                    {filteredMovements.length}
+              <div className="mt-6 pt-4 border-t-2 border-amber-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-slate-700 text-sm sm:text-base">
+                  <span className="font-bold text-slate-900">
+                    📊 {filteredMovements.length}
                   </span>{" "}
                   {filteredMovements.length === 1 ? "isbeddel" : "isbeddelo"}
                 </div>
                 <div className="flex gap-2 text-xs sm:text-sm">
-                  <div className="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 font-bold backdrop-blur-xl">
+                  <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold">
                     <TrendingUp className="w-4 h-4 inline mr-1" />
                     Soo Qaadid:{" "}
                     {
@@ -347,7 +339,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                       ).length
                     }
                   </div>
-                  <div className="px-4 py-2 rounded-xl bg-rose-500/20 border border-rose-400/30 text-rose-200 font-bold backdrop-blur-xl">
+                  <div className="px-4 py-2 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 font-bold">
                     <TrendingDown className="w-4 h-4 inline mr-1" />
                     Iib:{" "}
                     {

@@ -44,9 +44,9 @@ const DeliveryCalculator = memo(
     );
 
     return (
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+      <div className="bg-gradient-to-r from-stone-50 to-amber-50 rounded-2xl p-6 border border-amber-100/50">
         <div className="flex items-center space-x-2 mb-4">
-          <Calculator className="w-5 h-5 text-blue-600" />
+          <Calculator className="w-5 h-5 text-amber-700 " />
           <h3 className="text-lg font-bold text-slate-900">
             Delivery Calculator
           </h3>
@@ -61,7 +61,7 @@ const DeliveryCalculator = memo(
             <select
               value={selectedLocation}
               onChange={(e) => calculateDelivery(e.target.value)}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Choose location...</option>
               {locations.map((location) => (
@@ -74,7 +74,7 @@ const DeliveryCalculator = memo(
 
           {/* Delivery Info */}
           {selectedLocation && (
-            <div className="bg-white rounded-lg p-4 space-y-3">
+            <div className="bg-white rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-blue-600" />
@@ -89,26 +89,26 @@ const DeliveryCalculator = memo(
 
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-slate-600">
+                <span className="text-sm text-slate-700 ">
                   Estimated delivery: {estimatedTime}
                 </span>
               </div>
 
               <div className="flex items-center space-x-2">
                 <Truck className="w-4 h-4 text-orange-600" />
-                <span className="text-sm text-slate-600">
+                <span className="text-sm text-slate-700 ">
                   Express delivery available
                 </span>
               </div>
 
               {cartTotal >= 2000 && deliveryFee === 0 && (
-                <div className="bg-green-100 text-green-800 p-2 rounded-lg text-sm font-medium">
+                <div className="bg-green-100 text-green-800 p-2 rounded-xl text-sm font-medium">
                   🎉 Congratulations! You qualify for FREE delivery!
                 </div>
               )}
 
               {cartTotal < 2000 && (
-                <div className="bg-yellow-100 text-yellow-800 p-2 rounded-lg text-sm">
+                <div className="bg-gradient-to-br from-amber-50/30 to-white text-yellow-800 p-2 rounded-xl text-sm">
                   💡 Add KES {(2000 - cartTotal).toLocaleString()} more for FREE
                   delivery!
                 </div>
