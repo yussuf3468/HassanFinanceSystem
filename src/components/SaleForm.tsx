@@ -1097,7 +1097,7 @@ export default function SaleForm({
             </div>
             <button
               onClick={onClose}
-              className="p-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30"
+              className="p-2 bg-white/20 dark:bg-slate-700/40 hover:bg-white/30 dark:hover:bg-slate-600/50 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30 dark:border-slate-600"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -1250,7 +1250,7 @@ export default function SaleForm({
               </button>
               <button
                 onClick={resetForm}
-                className="w-full sm:w-auto px-6 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 font-medium shadow-lg"
+                className="w-full sm:w-auto px-6 py-3 bg-amber-500 dark:bg-amber-600 text-white rounded-xl hover:bg-amber-600 dark:hover:bg-amber-700 font-medium shadow-lg"
               >
                 New Sale
               </button>
@@ -1496,7 +1496,12 @@ export default function SaleForm({
                           showDropdown: false,
                         }));
 
-                        setLineItems((items) => [...items, ...newLineItems]);
+                        // Remove empty line items before adding new ones
+                        const nonEmptyItems = lineItems.filter(
+                          (item) => item.product_id !== "" && item.searchTerm !== ""
+                        );
+
+                        setLineItems([...nonEmptyItems, ...newLineItems]);
 
                         // Show success message
                         const skipped = gradeBooks.length - newBooks.length;
@@ -1743,7 +1748,7 @@ export default function SaleForm({
                                               className="w-8 h-8 object-cover rounded border border-amber-100/50"
                                             />
                                           ) : (
-                                            <div className="w-8 h-8 bg-white/90 rounded flex items-center justify-center border border-amber-100/50">
+                                            <div className="w-8 h-8 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
                                               <Package className="w-4 h-4 text-slate-700 " />
                                             </div>
                                           )}
@@ -1839,7 +1844,7 @@ export default function SaleForm({
                                             className="w-10 h-10 object-cover rounded border border-amber-100/50"
                                           />
                                         ) : (
-                                          <div className="w-10 h-10 bg-white/90 rounded flex items-center justify-center border border-amber-100/50">
+                                          <div className="w-10 h-10 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
                                             <Package className="w-5 h-5 text-slate-700 " />
                                           </div>
                                         )}
@@ -1856,7 +1861,7 @@ export default function SaleForm({
                                       </button>
                                     ))}
                                     {filtered.length > 15 && (
-                                      <div className="px-3 py-2 text-xs text-center text-slate-600 bg-slate-50">
+                                      <div className="px-3 py-2 text-xs text-center text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-700">
                                         + {filtered.length - 15} more results
                                       </div>
                                     )}
@@ -1940,7 +1945,7 @@ export default function SaleForm({
                                     quantity: String(current * 2),
                                   });
                                 }}
-                                className="px-2 py-1 bg-amber-500 hover:bg-amber-600 border border-amber-600 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-md"
+                                className="px-2 py-1 bg-amber-500 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-700 border border-amber-600 dark:border-amber-700 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-md"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2154,7 +2159,7 @@ export default function SaleForm({
                     min="0"
                     max={overallDiscountType === "percentage" ? 100 : undefined}
                     step={overallDiscountType === "percentage" ? "0.01" : "1"}
-                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     placeholder={
                       overallDiscountType === "percentage"
                         ? "e.g., 10 for 10%"
@@ -2166,7 +2171,7 @@ export default function SaleForm({
             </div>
 
             {/* Overall Totals */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 border-2 border-slate-200 space-y-3 shadow-md">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border-2 border-slate-200 dark:border-slate-700 space-y-3 shadow-md">
               <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
                 <span>💵</span>
                 <span>Sale Summary</span>
@@ -2237,7 +2242,7 @@ export default function SaleForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-medium touch-manipulation active:scale-95"
+                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all font-medium touch-manipulation active:scale-95"
                 style={{ WebkitTapHighlightColor: "rgba(255,255,255,0.2)" }}
               >
                 Cancel
@@ -2289,7 +2294,7 @@ export default function SaleForm({
       {/* Drafts Panel Modal */}
       {showDrafts && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             {/* Header */}
             <div className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2340,7 +2345,7 @@ export default function SaleForm({
                   {savedDrafts.map((draft) => (
                     <div
                       key={draft.id}
-                      className="bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-amber-300 transition-all shadow-sm"
+                      className="bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-4 hover:border-amber-300 dark:hover:border-amber-600 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
@@ -2415,7 +2420,7 @@ export default function SaleForm({
                             </span>
                           </div>
                           {/* Line Items Preview */}
-                          <div className="bg-slate-50 rounded-xl p-3 space-y-1 border border-slate-200">
+                          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3 space-y-1 border border-slate-200 dark:border-slate-600">
                             {draft.lineItems.slice(0, 3).map((item, idx) => (
                               <div
                                 key={idx}
