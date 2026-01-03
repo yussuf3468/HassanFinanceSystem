@@ -1320,7 +1320,7 @@ export default function SaleForm({
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Sold By (Staff) *
                     </label>
                     <select
@@ -1347,7 +1347,7 @@ export default function SaleForm({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Payment Method *
                     </label>
                     <select
@@ -1369,7 +1369,7 @@ export default function SaleForm({
 
                   {/* Customer Name */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Customer Name (Optional)
                     </label>
                     <input
@@ -1383,7 +1383,7 @@ export default function SaleForm({
 
                   {/* Payment Status */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Payment Status <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -1404,7 +1404,7 @@ export default function SaleForm({
                   {/* Amount Paid - Only show for partial payment */}
                   {paymentStatus === "partial" && (
                     <div>
-                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                         Amount Paid <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1446,7 +1446,7 @@ export default function SaleForm({
                   <span>📚</span>
                   <span>Quick Add by Grade</span>
                 </h4>
-                <span className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="text-xs text-slate-700 dark:text-slate-300">
                   Click to load all books
                 </span>
               </div>
@@ -1657,7 +1657,7 @@ export default function SaleForm({
                     <div
                       key={li.id}
                       ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 dark:hover:border-amber-600 transition-all shadow-sm"
+                      className="relative bg-white dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 dark:hover:border-amber-600 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-2">
@@ -1685,11 +1685,11 @@ export default function SaleForm({
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {/* Product Search */}
                         <div className="sm:col-span-2">
-                          <label className="flex items-center text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                          <label className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             <span className="mr-2">🔍</span>
                             Product *{" "}
                             {autocompleteSuggestion && (
-                              <span className="text-amber-800 font-semibold text-xs ml-2 animate-pulse">
+                              <span className="text-amber-700 dark:text-amber-400 font-semibold text-xs ml-2 animate-pulse">
                                 Press Tab ↹ to complete
                               </span>
                             )}
@@ -1870,7 +1870,7 @@ export default function SaleForm({
                                       </button>
                                     ))}
                                     {filtered.length > 15 && (
-                                      <div className="px-3 py-2 text-xs text-center text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-700">
+                                      <div className="px-3 py-2 text-xs text-center text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700">
                                         + {filtered.length - 15} more results
                                       </div>
                                     )}
@@ -1896,7 +1896,7 @@ export default function SaleForm({
 
                         {/* Quantity */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Quantity *
                           </label>
                           <div className="space-y-2">
@@ -2003,7 +2003,7 @@ export default function SaleForm({
 
                         {/* Discount Type */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Discount Type
                           </label>
                           <select
@@ -2039,7 +2039,7 @@ export default function SaleForm({
 
                         {/* Discount Value */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Discount Value
                           </label>
                           <input
@@ -2072,7 +2072,7 @@ export default function SaleForm({
                       {product && comp.quantity > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
                           <div className="bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
                               Original
                             </span>
                             <span className="font-bold text-amber-700 dark:text-amber-400">
@@ -2080,7 +2080,7 @@ export default function SaleForm({
                             </span>
                           </div>
                           <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-2 border border-red-200 dark:border-red-800">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
                               Discount
                             </span>
                             <span className="font-bold text-red-600 dark:text-red-400">
@@ -2090,7 +2090,7 @@ export default function SaleForm({
                             </span>
                           </div>
                           <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
                               Line Total
                             </span>
                             <span className="font-bold text-amber-700 dark:text-amber-400">
@@ -2098,7 +2098,7 @@ export default function SaleForm({
                             </span>
                           </div>
                           <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
                               Profit Est.
                             </span>
                             <span className="font-bold text-emerald-700 dark:text-emerald-400">
@@ -2131,7 +2131,7 @@ export default function SaleForm({
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Discount Type
                   </label>
                   <select
@@ -2163,7 +2163,7 @@ export default function SaleForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Discount Value
                   </label>
                   <input
@@ -2193,7 +2193,7 @@ export default function SaleForm({
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-700 dark:text-slate-300">
                     Subtotal:
                   </span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
@@ -2202,7 +2202,7 @@ export default function SaleForm({
                 </div>
                 {total_line_discount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-slate-700 dark:text-slate-300">
                       Line Discounts:
                     </span>
                     <span className="font-semibold text-red-600 dark:text-red-400">
@@ -2212,7 +2212,7 @@ export default function SaleForm({
                 )}
                 {overallDiscountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">
+                    <span className="text-slate-700 dark:text-slate-300">
                       Overall Discount
                       {overallDiscountType === "percentage" &&
                         ` (${overallDiscountValue}%)`}
@@ -2232,7 +2232,7 @@ export default function SaleForm({
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-700 dark:text-slate-300">
                     Estimated Profit:
                   </span>
                   <span className="font-bold text-emerald-700 dark:text-emerald-400">
@@ -2326,7 +2326,7 @@ export default function SaleForm({
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                     Saved Drafts
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
                     {savedDrafts.length} draft
                     {savedDrafts.length !== 1 ? "s" : ""} saved
                   </p>
@@ -2447,7 +2447,7 @@ export default function SaleForm({
                             {draft.lineItems.slice(0, 3).map((item, idx) => (
                               <div
                                 key={idx}
-                                className="text-xs text-slate-600 dark:text-slate-400 flex justify-between"
+                                className="text-xs text-slate-700 dark:text-slate-300 flex justify-between"
                               >
                                 <span className="truncate flex-1">
                                   {products.find(
@@ -2561,4 +2561,5 @@ export default function SaleForm({
     </div>
   );
 }
+
 
