@@ -816,7 +816,7 @@ export default function OrganizedInventory() {
                           setSelectedGroup(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
@@ -856,7 +856,7 @@ export default function OrganizedInventory() {
                           setSelectedSubcategory(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
@@ -939,7 +939,7 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(selectedGroup + " - " + subname);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
@@ -1059,7 +1059,7 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(subcategory);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
@@ -1489,7 +1489,7 @@ export default function OrganizedInventory() {
                       className={`min-w-[40px] px-3 py-2 rounded-xl font-medium transition-all ${
                         currentPage === page
                           ? "bg-amber-600 text-slate-900 shadow-lg shadow-amber-200"
-                          : "bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-800 hover:bg-amber-50"
+                          : "bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700"
                       }`}
                     >
                       {page}
@@ -1525,3 +1525,4 @@ export default function OrganizedInventory() {
     </div>
   );
 }
+

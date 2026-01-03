@@ -247,7 +247,7 @@ export default function ReceiveStockModal({
                 </div>
 
                 {items.length === 0 ? (
-                  <div className="text-center py-16 sm:py-24 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl sm:rounded-3xl">
+                  <div className="text-center py-16 sm:py-24 bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl sm:rounded-3xl">
                     <div className="relative inline-block">
                       <div className="absolute inset-0 bg-amber-200 blur-2xl rounded-full opacity-20" />
                       <Package className="relative w-16 h-16 sm:w-20 sm:h-20 text-slate-400 mx-auto mb-4" />
@@ -373,7 +373,7 @@ export default function ReceiveStockModal({
                         value={receivedBy}
                         onChange={(e) => setReceivedBy(e.target.value)}
                         required
-                        className="w-full bg-white border-2 border-slate-200 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm"
+                        className="w-full bg-white border-2 border-slate-200 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 dark:text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm"
                       >
                         <option value="" className="bg-white text-slate-900">
                           -- Dooro Shaqaalaha / Select Staff --
@@ -404,7 +404,7 @@ export default function ReceiveStockModal({
                         <button
                           type="button"
                           onClick={onClose}
-                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95"
+                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95"
                         >
                           Ka Noqo - Cancel
                         </button>
@@ -441,3 +441,4 @@ export default function ReceiveStockModal({
     </div>
   );
 }
+

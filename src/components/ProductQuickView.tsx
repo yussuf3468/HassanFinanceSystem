@@ -65,7 +65,7 @@ const ProductQuickView = memo(
 
     return (
       <div className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
-        <div className="bg-white border border-slate-200 shadow-xl rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white border border-slate-200 shadow-xl rounded-2xl dark:bg-slate-800 dark:border-slate-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-br from-amber-50 to-white">
             <h2 className="text-2xl font-bold text-slate-900">Quick View</h2>
@@ -98,7 +98,7 @@ const ProductQuickView = memo(
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full h-64 sm:h-72 md:h-80 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-200">
+                  <div className="w-full h-64 sm:h-72 md:h-80 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center border border-slate-200">
                     <Package className="w-16 h-16 text-slate-400" />
                   </div>
                 )}
@@ -205,7 +205,7 @@ const ProductQuickView = memo(
                   <div className="flex items-center border border-slate-200 bg-white rounded-lg">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 hover:bg-amber-50 transition-colors text-slate-700"
+                      className="p-2 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors text-slate-700"
                     >
                       -
                     </button>
@@ -218,7 +218,7 @@ const ProductQuickView = memo(
                           Math.min(product.quantity_in_stock, quantity + 1)
                         )
                       }
-                      className="p-2 hover:bg-amber-50 transition-colors text-slate-700"
+                      className="p-2 hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors text-slate-700"
                     >
                       +
                     </button>
@@ -260,7 +260,7 @@ const ProductQuickView = memo(
 
                   <button
                     onClick={handleShare}
-                    className="flex-1 bg-white text-slate-700 py-3 px-4 rounded-2xl hover:bg-amber-50 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-slate-200 hover:border-amber-300"
+                    className="flex-1 bg-white text-slate-700 py-3 px-4 rounded-2xl hover:bg-amber-50 dark:hover:bg-slate-700 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-slate-200 hover:border-amber-300"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
@@ -301,3 +301,4 @@ const ProductQuickView = memo(
 ProductQuickView.displayName = "ProductQuickView";
 
 export default ProductQuickView;
+

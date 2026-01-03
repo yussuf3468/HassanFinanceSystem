@@ -1106,7 +1106,7 @@ export default function SaleForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-slate-800 overflow-y-auto flex-1">
+          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-amber-900/20 dark:bg-slate-800 overflow-y-auto flex-1">
             <div className="bg-white dark:bg-slate-700 text-black dark:text-white rounded-xl border border-gray-300 dark:border-slate-600 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
@@ -1121,7 +1121,7 @@ export default function SaleForm({
                 <p className="text-sm font-bold mt-2">Sales Receipt</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 p-3 rounded">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 dark:bg-slate-700 p-3 rounded">
                 <p>
                   <span className="font-semibold">Transaction:</span>{" "}
                   <span className="text-gray-700">{receipt.transactionId}</span>
@@ -1161,7 +1161,7 @@ export default function SaleForm({
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {receipt.items.map((it, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
+                      <tr key={idx} className="hover:bg-gray-50 dark:bg-slate-700">
                         <td className="px-3 py-2">{it.product_name}</td>
                         <td className="px-3 py-2 text-right">{it.quantity}</td>
                         <td className="px-3 py-2 text-right">
@@ -1179,7 +1179,7 @@ export default function SaleForm({
                     ))}
                   </tbody>
                   <tfoot className="border-t-2 border-gray-400">
-                    <tr className="bg-gray-50">
+                    <tr className="bg-gray-50 dark:bg-slate-700">
                       <td
                         className="px-3 py-2 text-right font-semibold"
                         colSpan={4}
@@ -1191,7 +1191,7 @@ export default function SaleForm({
                       </td>
                     </tr>
                     {receipt.total_line_discount > 0 && (
-                      <tr className="bg-gray-50">
+                      <tr className="bg-gray-50 dark:bg-slate-700">
                         <td
                           className="px-3 py-2 text-right font-semibold"
                           colSpan={4}
@@ -1204,7 +1204,7 @@ export default function SaleForm({
                       </tr>
                     )}
                     {receipt.overall_discount_amount > 0 && (
-                      <tr className="bg-gray-50">
+                      <tr className="bg-gray-50 dark:bg-slate-700">
                         <td
                           className="px-3 py-2 text-right font-semibold"
                           colSpan={4}
@@ -1268,11 +1268,11 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-amber-50"
+            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-amber-900/20"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Quick Sale Mode Toggle */}
-            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-3 flex items-center justify-between">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 rounded-xl p-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">⚡</span>
                 <div>
@@ -1647,11 +1647,11 @@ export default function SaleForm({
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-2">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-semibold text-xs">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 font-semibold text-xs">
                             {idx + 1}
                           </span>
                           {product && (
-                            <span className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full font-semibold border border-emerald-300">
+                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold border border-emerald-300 dark:border-emerald-700">
                               Stock: {product.quantity_in_stock}
                             </span>
                           )}
@@ -1734,7 +1734,7 @@ export default function SaleForm({
                                               showDropdown: false,
                                             })
                                           }
-                                          className="w-full text-left px-3 py-2 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors"
+                                          className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors"
                                         >
                                           {p.image_url ? (
                                             <img
@@ -1778,7 +1778,7 @@ export default function SaleForm({
                                             showDropdown: true,
                                           })
                                         }
-                                        className="w-full text-left px-3 py-2 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors group"
+                                        className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 text-sm flex items-center space-x-2 transition-colors group"
                                       >
                                         <Clock className="w-4 h-4 text-slate-700 group-hover:text-amber-700 " />
                                         <span className="text-white">
@@ -1830,7 +1830,7 @@ export default function SaleForm({
                                             showDropdown: false,
                                           })
                                         }
-                                        className="w-full text-left px-3 py-2.5 hover:bg-amber-50 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 last:border-0"
+                                        className="w-full text-left px-3 py-2.5 hover:bg-amber-50 dark:bg-amber-900/20 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0"
                                       >
                                         {p.image_url ? (
                                           <img
@@ -2056,8 +2056,8 @@ export default function SaleForm({
 
                       {/* Line Summary */}
                       {product && comp.quantity > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100">
-                          <div className="bg-amber-50 rounded-md p-2 border border-amber-200">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
+                          <div className="bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
                             <span className="text-slate-600 block mb-0.5">
                               Original
                             </span>
@@ -2075,7 +2075,7 @@ export default function SaleForm({
                                 : "-"}
                             </span>
                           </div>
-                          <div className="bg-amber-50 rounded-md p-2 border border-amber-200">
+                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200">
                             <span className="text-slate-600 block mb-0.5">
                               Line Total
                             </span>
@@ -2083,7 +2083,7 @@ export default function SaleForm({
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-emerald-50 rounded-md p-2 border border-emerald-200">
+                          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200">
                             <span className="text-slate-600 block mb-0.5">
                               Profit Est.
                             </span>
@@ -2291,7 +2291,7 @@ export default function SaleForm({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="bg-amber-50 border-b-2 border-amber-200 px-6 py-4 flex items-center justify-between">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📋</span>
                 <div>
@@ -2533,3 +2533,4 @@ export default function SaleForm({
     </div>
   );
 }
+

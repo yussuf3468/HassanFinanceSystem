@@ -658,7 +658,7 @@ export default function SalesHistory() {
             placeholder="dd/mm/yyyy"
             title="To date"
           />
-          <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
+          <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
             <div className="text-xs text-slate-600">Revenue</div>
             <div className="text-sm font-bold text-slate-900">
               KES {totals.revenue.toLocaleString()}
@@ -796,7 +796,7 @@ export default function SalesHistory() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 md:px-3 py-1 bg-amber-50 text-amber-700 font-semibold rounded-xl text-xs border border-amber-200">
+                        <span className="px-2 md:px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold rounded-xl text-xs border border-amber-200">
                           {transaction.item_count}{" "}
                           {transaction.item_count === 1 ? "Item" : "Items"}
                         </span>
@@ -888,7 +888,7 @@ export default function SalesHistory() {
               <Collapsible isOpen={isOpen}>
                 <div
                   id={`tx-${transaction.transaction_id}`}
-                  className="border-t-2 border-slate-100 bg-slate-50 p-3 md:p-4"
+                  className="border-t-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 p-3 md:p-4"
                 >
                   {/* Mobile stacked view */}
                   <div className="lg:hidden space-y-2">
@@ -1331,3 +1331,4 @@ export default function SalesHistory() {
     </div>
   );
 }
+

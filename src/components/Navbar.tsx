@@ -298,7 +298,7 @@ const Navbar = memo(
                   onCartClick();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-3 bg-amber-50 border-2 border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
               >
                 <div className="flex items-center space-x-3">
                   <ShoppingCart className="w-5 h-5 text-amber-600" />
@@ -327,7 +327,7 @@ const Navbar = memo(
                         onAdminClick();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="w-full flex items-center space-x-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                      className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
                     >
                       <Settings className="w-5 h-5 text-amber-600" />
                       <span className="font-medium text-slate-900">
@@ -369,3 +369,4 @@ const Navbar = memo(
 Navbar.displayName = "Navbar";
 
 export default Navbar;
+

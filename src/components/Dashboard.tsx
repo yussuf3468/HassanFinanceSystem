@@ -264,7 +264,7 @@ export default function Dashboard() {
               topProducts.map((item, index) => (
                 <div
                   key={item.product.id}
-                  className="group/item bg-gradient-to-br from-amber-50/40 to-white hover:from-amber-100/50 hover:to-amber-50/30 backdrop-blur-sm border border-amber-200/60 shadow-sm hover:border-amber-300/70 hover:shadow-md hover:shadow-amber-200/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
+                  className="group/item bg-gradient-to-br from-amber-50/40 to-white dark:from-slate-700/40 dark:to-slate-800/60 hover:from-amber-100/50 hover:to-amber-50/30 dark:hover:from-slate-600/50 dark:hover:to-slate-700/70 backdrop-blur-sm border border-amber-200/60 dark:border-slate-600 shadow-sm hover:border-amber-300/70 dark:hover:border-slate-500 hover:shadow-md hover:shadow-amber-200/30 dark:hover:shadow-slate-900/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex items-center space-x-3">
                     <div
@@ -341,22 +341,22 @@ export default function Dashboard() {
               recentSales.map((sale) => (
                 <div
                   key={sale.id}
-                  className="group/sale bg-gradient-to-br from-emerald-50/50 to-teal-50/30 hover:from-emerald-100/60 hover:to-teal-50/50 backdrop-blur-sm border border-emerald-200/60 shadow-sm hover:border-emerald-300/70 hover:shadow-md hover:shadow-emerald-200/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
+                  className="group/sale bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-slate-700/50 dark:to-slate-800/60 hover:from-emerald-100/60 hover:to-teal-50/50 dark:hover:from-slate-600/60 dark:hover:to-slate-700/70 backdrop-blur-sm border border-emerald-200/60 dark:border-slate-600 shadow-sm hover:border-emerald-300/70 dark:hover:border-slate-500 hover:shadow-md hover:shadow-emerald-200/30 dark:hover:shadow-slate-900/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-slate-900 text-xs md:text-sm group-hover/sale:text-emerald-900 transition-colors">
+                      <p className="font-bold text-slate-900 dark:text-white text-xs md:text-sm group-hover/sale:text-emerald-900 dark:group-hover/sale:text-emerald-400 transition-colors">
                         {formatDate(sale.created_at)}
                       </p>
-                      <p className="text-xs text-slate-700 font-semibold font-medium truncate">
+                      <p className="text-xs text-slate-700 dark:text-slate-400 font-semibold font-medium truncate">
                         {sale.sold_by}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-black text-slate-900 text-sm md:text-base">
+                      <p className="font-black text-slate-900 dark:text-white text-sm md:text-base">
                         {formatCurrency(sale.total_sale)}
                       </p>
-                      <p className="text-xs text-emerald-800 font-semibold font-bold">
+                      <p className="text-xs text-emerald-800 dark:text-emerald-400 font-semibold font-bold">
                         +{formatCurrency(sale.profit)}
                       </p>
                     </div>

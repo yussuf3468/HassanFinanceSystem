@@ -626,7 +626,7 @@ const Orders = () => {
                 <h3 className="text-lg font-bold text-slate-900 mb-4">
                   Order Items
                 </h3>
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl overflow-hidden border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+                <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl overflow-hidden border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                   <table className="min-w-full">
                     <thead className="bg-gradient-to-br from-white to-stone-50/50 border-b border-amber-100/50">
                       <tr>
@@ -670,7 +670,7 @@ const Orders = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+              <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-700 ">Subtotal:</span>
@@ -765,3 +765,4 @@ const Orders = () => {
 };
 
 export default Orders;
+

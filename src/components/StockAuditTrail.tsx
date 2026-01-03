@@ -108,7 +108,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
     const lowerReason = reason.toLowerCase();
     if (lowerReason.includes("receipt")) {
       return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-bold">
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
           <TrendingUp className="w-3 h-3" />✅ Soo Qaad - Receipt
         </span>
       );
@@ -122,7 +122,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-700 text-xs font-bold">
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-xs font-bold">
         <FileText className="w-3 h-3" />
         ⚙️ Hagaaji - Adjustment
       </span>
@@ -228,7 +228,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
 
             {/* Empty State */}
             {!loading && filteredMovements.length === 0 && (
-              <div className="text-center py-16 sm:py-24 bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-2xl">
+              <div className="text-center py-16 sm:py-24 bg-amber-50/50 dark:bg-slate-800/50 border-2 border-dashed border-amber-200 dark:border-slate-700 rounded-2xl">
                 <FileText className="w-16 h-16 sm:w-20 sm:h-20 text-amber-400 mx-auto mb-4" />
                 <p className="text-slate-900 font-bold text-base sm:text-lg mb-2">
                   📭 Ma jiro wax taariikh ah
@@ -250,7 +250,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                     <div className="flex flex-col sm:flex-row items-start gap-4">
                       {/* Product Image & Info */}
                       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 flex items-center justify-center border-2 border-slate-200 overflow-hidden flex-shrink-0 shadow-sm">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-slate-50 dark:bg-slate-700 flex items-center justify-center border-2 border-slate-200 overflow-hidden flex-shrink-0 shadow-sm">
                           {movement.product?.image_url ? (
                             <OptimizedImage
                               src={movement.product.image_url}
@@ -330,7 +330,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                   {filteredMovements.length === 1 ? "isbeddel" : "isbeddelo"}
                 </div>
                 <div className="flex gap-2 text-xs sm:text-sm">
-                  <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold">
+                  <div className="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 font-bold">
                     <TrendingUp className="w-4 h-4 inline mr-1" />
                     Soo Qaadid:{" "}
                     {
@@ -357,3 +357,4 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+

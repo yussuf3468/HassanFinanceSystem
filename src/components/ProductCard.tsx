@@ -10,7 +10,7 @@ export default function ProductCard({
   onQuickView: (p: Product) => void;
 }) {
   return (
-    <div className="p-3 border rounded-2xl bg-white">
+    <div className="p-3 border rounded-2xl bg-white dark:bg-slate-800 dark:border-slate-700">
       <div className="font-semibold truncate">{product.name}</div>
       <div className="text-amber-800 font-semibold font-semibold font-semibold text-sm">
         KES {product.selling_price.toLocaleString()}
@@ -32,3 +32,4 @@ export default function ProductCard({
     </div>
   );
 }
+

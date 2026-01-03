@@ -368,7 +368,7 @@ export default function ReturnForm({
                             className="w-8 h-8 object-cover rounded"
                           />
                         ) : (
-                          <div className="w-8 h-8 bg-amber-50 rounded flex items-center justify-center">
+                          <div className="w-8 h-8 bg-amber-50 dark:bg-amber-900/30 rounded flex items-center justify-center">
                             <Package className="w-4 h-4 text-amber-600" />
                           </div>
                         )}
@@ -560,3 +560,4 @@ export default function ReturnForm({
     </div>
   );
 }
+
