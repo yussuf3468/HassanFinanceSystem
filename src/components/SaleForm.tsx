@@ -260,7 +260,9 @@ export default function SaleForm({
           sold_by: soldBy,
           payment_method: paymentMethod,
           overall_discount_type: overallDiscountType,
-          overall_discount_value: overallDiscountValue ? parseFloat(overallDiscountValue) : null,
+          overall_discount_value: overallDiscountValue
+            ? parseFloat(overallDiscountValue)
+            : null,
           customer_name: customerName || null,
           payment_status: paymentStatus,
           amount_paid: amountPaid ? parseFloat(amountPaid) : null,
@@ -1161,7 +1163,10 @@ export default function SaleForm({
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {receipt.items.map((it, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50 dark:bg-slate-700">
+                      <tr
+                        key={idx}
+                        className="hover:bg-gray-50 dark:bg-slate-700"
+                      >
                         <td className="px-3 py-2">{it.product_name}</td>
                         <td className="px-3 py-2 text-right">{it.quantity}</td>
                         <td className="px-3 py-2 text-right">
@@ -1272,7 +1277,7 @@ export default function SaleForm({
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Quick Sale Mode Toggle */}
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 rounded-xl p-3 flex items-center justify-between">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">⚡</span>
                 <div>
@@ -1324,7 +1329,10 @@ export default function SaleForm({
                       onChange={(e) => setSoldBy(e.target.value)}
                       className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                     >
-                      <option value="" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
+                      <option
+                        value=""
+                        className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                      >
                         -- Select Staff Member --
                       </option>
                       {staffMembers.map((s) => (
@@ -1498,7 +1506,8 @@ export default function SaleForm({
 
                         // Remove empty line items before adding new ones
                         const nonEmptyItems = lineItems.filter(
-                          (item) => item.product_id !== "" && item.searchTerm !== ""
+                          (item) =>
+                            item.product_id !== "" && item.searchTerm !== ""
                         );
 
                         setLineItems([...nonEmptyItems, ...newLineItems]);
@@ -1534,7 +1543,7 @@ export default function SaleForm({
                 })}
               </div>
 
-              <div className="mt-3 pt-3 border-t border-amber-100/50">
+              <div className="mt-3 pt-3 border-t border-amber-100/50 dark:border-slate-700">
                 <p className="text-xs text-slate-700 dark:text-slate-300 text-center">
                   💡 Tip: Each book will be added with quantity 1. You can
                   adjust quantities after adding.
@@ -1723,7 +1732,7 @@ export default function SaleForm({
                                 {/* Quick Access - When search is empty */}
                                 {!li.searchTerm &&
                                   quickAccessProducts.length > 0 && (
-                                    <div className="border-b border-amber-100/50">
+                                    <div className="border-b border-amber-100/50 dark:border-slate-700">
                                       <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
                                         <TrendingUp className="w-3 h-3" />
                                         <span>Quick Access</span>
@@ -1745,7 +1754,7 @@ export default function SaleForm({
                                             <img
                                               src={p.image_url}
                                               alt={p.name}
-                                              className="w-8 h-8 object-cover rounded border border-amber-100/50"
+                                              className="w-8 h-8 object-cover rounded border border-amber-100/50 dark:border-slate-700"
                                             />
                                           ) : (
                                             <div className="w-8 h-8 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
@@ -1768,7 +1777,7 @@ export default function SaleForm({
 
                                 {/* Search Suggestions - Like Google */}
                                 {suggestions.length > 0 && li.searchTerm && (
-                                  <div className="border-b border-amber-100/50">
+                                  <div className="border-b border-amber-100/50 dark:border-slate-700">
                                     <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
                                       <Search className="w-3 h-3" />
                                       <span>Suggestions</span>
@@ -1841,7 +1850,7 @@ export default function SaleForm({
                                           <img
                                             src={p.image_url}
                                             alt={p.name}
-                                            className="w-10 h-10 object-cover rounded border border-amber-100/50"
+                                            className="w-10 h-10 object-cover rounded border border-amber-100/50 dark:border-slate-700"
                                           />
                                         ) : (
                                           <div className="w-10 h-10 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
@@ -2070,17 +2079,17 @@ export default function SaleForm({
                               KES {comp.original_total.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-red-50 rounded-md p-2 border border-red-200">
+                          <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-2 border border-red-200 dark:border-red-800">
                             <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Discount
                             </span>
-                            <span className="font-bold text-red-600">
+                            <span className="font-bold text-red-600 dark:text-red-400">
                               {comp.discount_amount > 0
                                 ? "-" + comp.discount_amount.toLocaleString()
                                 : "-"}
                             </span>
                           </div>
-                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200">
+                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
                             <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Line Total
                             </span>
@@ -2088,7 +2097,7 @@ export default function SaleForm({
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
-                          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200">
+                          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
                             <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Profit Est.
                             </span>
@@ -2133,7 +2142,10 @@ export default function SaleForm({
                     }}
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all"
                   >
-                    <option value="none" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
+                    <option
+                      value="none"
+                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                    >
                       No Overall Discount
                     </option>
                     <option
@@ -2142,7 +2154,10 @@ export default function SaleForm({
                     >
                       Percentage (%)
                     </option>
-                    <option value="amount" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
+                    <option
+                      value="amount"
+                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                    >
                       Fixed Amount (KES)
                     </option>
                   </select>
@@ -2178,15 +2193,19 @@ export default function SaleForm({
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Subtotal:
+                  </span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 {total_line_discount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Line Discounts:</span>
-                    <span className="font-semibold text-red-600">
+                    <span className="text-slate-600 dark:text-slate-400">
+                      Line Discounts:
+                    </span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">
                       -KES {total_line_discount.toLocaleString()}
                     </span>
                   </div>
@@ -2199,19 +2218,23 @@ export default function SaleForm({
                         ` (${overallDiscountValue}%)`}
                       :
                     </span>
-                    <span className="font-semibold text-red-600">
+                    <span className="font-semibold text-red-600 dark:text-red-400">
                       -KES {overallDiscountAmount.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg border-t-2 border-amber-200 pt-3 font-bold">
-                  <span className="text-amber-700 dark:text-amber-400">Final Total:</span>
+                <div className="flex justify-between text-lg border-t-2 border-amber-200 dark:border-amber-700 pt-3 font-bold">
+                  <span className="text-amber-700 dark:text-amber-400">
+                    Final Total:
+                  </span>
                   <span className="text-amber-700 dark:text-amber-400">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-                  <span className="text-slate-600 dark:text-slate-400">Estimated Profit:</span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Estimated Profit:
+                  </span>
                   <span className="font-bold text-emerald-700 dark:text-emerald-400">
                     KES {total_profit.toLocaleString()}
                   </span>
@@ -2296,7 +2319,7 @@ export default function SaleForm({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-200 px-6 py-4 flex items-center justify-between">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-200 dark:border-amber-700 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📋</span>
                 <div>
@@ -2311,7 +2334,7 @@ export default function SaleForm({
               </div>
               <button
                 onClick={() => setShowDrafts(false)}
-                className="p-2 hover:bg-amber-100 rounded-xl transition-colors text-slate-700 hover:text-slate-900 dark:text-white border border-transparent hover:border-amber-300"
+                className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xl transition-colors text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-amber-300 dark:hover:border-amber-600"
                 style={{
                   touchAction: "manipulation",
                   WebkitTapHighlightColor: "rgba(139, 92, 246, 0.3)",
@@ -2538,6 +2561,4 @@ export default function SaleForm({
     </div>
   );
 }
-
-
 

@@ -1,10 +1,13 @@
 # Fix Draft Save Functionality
 
 ## Problem
+
 The draft save feature was failing with "Failed to save draft" error because the database table was missing required columns.
 
 ## Root Cause
+
 The `sale_drafts` table was missing these columns that the code was trying to save:
+
 - `customer_name` - Customer name for the sale
 - `payment_status` - Payment status (full/partial/pending)
 - `amount_paid` - Amount paid for partial payments
@@ -17,7 +20,7 @@ Copy and run the following SQL in your **Supabase SQL Editor**:
 
 ```sql
 -- Add missing columns to sale_drafts table
-ALTER TABLE sale_drafts 
+ALTER TABLE sale_drafts
   ADD COLUMN IF NOT EXISTS customer_name VARCHAR(255),
   ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50),
   ADD COLUMN IF NOT EXISTS amount_paid DECIMAL(10, 2);
@@ -46,16 +49,17 @@ After running the migration:
 Run this query to confirm all columns exist:
 
 ```sql
-SELECT 
-  column_name, 
-  data_type, 
+SELECT
+  column_name,
+  data_type,
   is_nullable
-FROM information_schema.columns 
+FROM information_schema.columns
 WHERE table_name = 'sale_drafts'
 ORDER BY ordinal_position;
 ```
 
 Expected columns:
+
 - id (uuid)
 - draft_name (varchar)
 - sold_by (varchar)
@@ -73,10 +77,12 @@ Expected columns:
 - updated_at (timestamp)
 
 ## Files Updated
+
 - ✅ `create_sale_drafts_table.sql` - Updated with correct schema
 - ✅ `add_missing_draft_columns.sql` - Created migration to fix existing tables
 
 ## Testing Checklist
+
 - [ ] Draft saves successfully with customer name
 - [ ] Draft saves with payment status (full/partial/pending)
 - [ ] Draft saves with amount paid value

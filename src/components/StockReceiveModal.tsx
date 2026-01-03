@@ -211,6 +211,3 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
     </div>
   );
 };
-
-
-

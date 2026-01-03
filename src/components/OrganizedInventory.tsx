@@ -512,19 +512,27 @@ export default function OrganizedInventory() {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 dark:text-slate-300">Categories</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  Categories
+                </p>
                 <p className="text-3xl font-bold">{stats.categories}</p>
               </div>
               <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 dark:text-slate-300">Subcategories</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  Subcategories
+                </p>
                 <p className="text-3xl font-bold">{stats.subcategories}</p>
               </div>
               <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 dark:text-slate-300">Total Products</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  Total Products
+                </p>
                 <p className="text-3xl font-bold">{stats.products}</p>
               </div>
               <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 dark:text-slate-300">In Stock</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  In Stock
+                </p>
                 <p className="text-3xl font-bold">{stats.inStock}</p>
               </div>
             </div>
@@ -1525,4 +1533,3 @@ export default function OrganizedInventory() {
     </div>
   );
 }
-

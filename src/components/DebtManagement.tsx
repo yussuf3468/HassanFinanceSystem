@@ -72,7 +72,10 @@ export default function DebtManagement() {
   const debts = debtsData as unknown as Debt[];
 
   // Removed unused payments state to satisfy type checker and reduce memory
-  const [, /* payments */ /* setPayments */] = useState<Payment[]>([]);
+  const [
+    ,/* payments */
+    /* setPayments */
+  ] = useState<Payment[]>([]);
   const [showDebtForm, setShowDebtForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
@@ -153,14 +156,16 @@ export default function DebtManagement() {
 
     try {
       // Insert payment (DB columns: debt_id, amount, paid_on, notes)
-      const { error: paymentError } = await supabase.from("debt_payments").insert([
-        {
-          debt_id: paymentForm.debt_id,
-          amount: paymentForm.payment_amount,
-          paid_on: paymentForm.payment_date,
-          notes: paymentForm.notes || null,
-        },
-      ]);
+      const { error: paymentError } = await supabase
+        .from("debt_payments")
+        .insert([
+          {
+            debt_id: paymentForm.debt_id,
+            amount: paymentForm.payment_amount,
+            paid_on: paymentForm.payment_date,
+            notes: paymentForm.notes || null,
+          },
+        ]);
 
       if (paymentError) throw paymentError;
 
@@ -536,7 +541,8 @@ export default function DebtManagement() {
               <div className="p-3 sm:p-6 space-y-3">
                 {debts.map((debt) => {
                   const isOverdue =
-                    new Date(debt.due_on) < new Date() && debt.status !== "closed";
+                    new Date(debt.due_on) < new Date() &&
+                    debt.status !== "closed";
                   return (
                     <div
                       key={debt.id}
@@ -569,7 +575,8 @@ export default function DebtManagement() {
                           </p>
                           <div className="flex flex-col gap-1 text-xs text-slate-700 ">
                             <span>
-                              Principal: KES {(debt.principal ?? 0).toLocaleString()}
+                              Principal: KES{" "}
+                              {(debt.principal ?? 0).toLocaleString()}
                             </span>
                             <span>Due: {formatDate(debt.due_on)}</span>
                             {debt.interest_rate > 0 && (
@@ -897,6 +904,3 @@ export default function DebtManagement() {
     </div>
   );
 }
-
-
-

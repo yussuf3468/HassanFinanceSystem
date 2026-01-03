@@ -369,4 +369,3 @@ const Navbar = memo(
 Navbar.displayName = "Navbar";
 
 export default Navbar;
-

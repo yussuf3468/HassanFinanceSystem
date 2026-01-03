@@ -612,11 +612,18 @@ export default function SalesHistory() {
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
-            <option value="all" className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+            <option
+              value="all"
+              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
               All Payments
             </option>
             {availablePayments.map((p) => (
-              <option key={p} value={p} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                key={p}
+                value={p}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 {p}
               </option>
             ))}
@@ -629,11 +636,18 @@ export default function SalesHistory() {
             title="Filter by seller"
             aria-label="Seller filter"
           >
-            <option value="all" className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+            <option
+              value="all"
+              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+            >
               All Sellers
             </option>
             {availableSellers.map((s) => (
-              <option key={s} value={s} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                key={s}
+                value={s}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 {s}
               </option>
             ))}
@@ -649,7 +663,9 @@ export default function SalesHistory() {
             placeholder="dd/mm/yyyy"
             title="From date"
           />
-          <span className="text-slate-600 dark:text-slate-400 hidden sm:inline">—</span>
+          <span className="text-slate-600 dark:text-slate-400 hidden sm:inline">
+            —
+          </span>
           <input
             type="date"
             value={dateTo}
@@ -1030,16 +1046,28 @@ export default function SalesHistory() {
               }}
               className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             >
-              <option value={10} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={10}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 10 per page
               </option>
-              <option value={20} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={20}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 20 per page
               </option>
-              <option value={50} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={50}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 50 per page
               </option>
-              <option value={100} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={100}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 100 per page
               </option>
             </select>
@@ -1331,4 +1359,3 @@ export default function SalesHistory() {
     </div>
   );
 }
-
