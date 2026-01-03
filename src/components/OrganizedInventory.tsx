@@ -484,7 +484,7 @@ export default function OrganizedInventory() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-slate-700 ">Loading inventory...</p>
+          <p className="mt-4 text-slate-700 dark:text-slate-400">Loading inventory...</p>
         </div>
       </div>
     );
@@ -493,17 +493,17 @@ export default function OrganizedInventory() {
   // Category View
   if (!selectedCategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-                  <Layers className="w-8 h-8 text-amber-700 " />
+                <h1 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3">
+                  <Layers className="w-8 h-8 text-amber-700 dark:text-amber-500" />
                   Organized Inventory
                 </h1>
-                <p className="text-slate-600 mt-1">
+                <p className="text-slate-600 dark:text-slate-400 mt-1">
                   Browse products by category and grade
                 </p>
               </div>
@@ -569,25 +569,25 @@ export default function OrganizedInventory() {
                             className="w-12 h-12 object-cover rounded border-2 border-amber-100/50 shadow"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gradient-to-br from-white to-stone-50/30 rounded flex items-center justify-center border border-amber-100/50">
-                            <Package className="w-6 h-6 text-slate-700 " />
+                          <div className="w-12 h-12 bg-gradient-to-br from-white to-stone-50/30 dark:from-slate-700 dark:to-slate-600 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
+                            <Package className="w-6 h-6 text-slate-700 dark:text-slate-400" />
                           </div>
                         )}
                         <div>
-                          <p className="font-semibold text-slate-800">
+                          <p className="font-semibold text-slate-800 dark:text-white">
                             {product.name}
                           </p>
-                          <p className="text-sm text-slate-700 ">
+                          <p className="text-sm text-slate-700 dark:text-slate-400">
                             {product.category} • Stock:{" "}
                             {product.quantity_in_stock}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-amber-700 ">
+                        <p className="font-bold text-amber-700 dark:text-amber-500">
                           KES {Number(product.selling_price).toLocaleString()}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-500">
                           {product.product_id}
                         </p>
                       </div>
@@ -598,8 +598,8 @@ export default function OrganizedInventory() {
             )}
 
             {searchTerm && filteredProducts.length === 0 && (
-              <div className="mt-4 bg-red-50 border-2 border-red-200 rounded-2xl p-6 text-center">
-                <p className="text-rose-700 font-medium">
+              <div className="mt-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-2xl p-6 text-center">
+                <p className="text-rose-700 dark:text-rose-300 font-medium">
                   No products found for "{searchTerm}"
                 </p>
               </div>
@@ -609,8 +609,8 @@ export default function OrganizedInventory() {
           {/* Categories Grid */}
           {!searchTerm && (
             <>
-              <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <FolderOpen className="w-6 h-6 text-amber-700 " />
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <FolderOpen className="w-6 h-6 text-amber-700 dark:text-amber-500" />
                 Browse by Category
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -643,18 +643,18 @@ export default function OrganizedInventory() {
                               <Package className="w-7 h-7 text-white" />
                             )}
                           </div>
-                          <ChevronRight className="w-6 h-6 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
+                          <ChevronRight className="w-6 h-6 text-slate-700 dark:text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
                           {category}
                         </h3>
                         <div className="flex items-center gap-4 text-sm">
-                          <span className="text-slate-700 ">
+                          <span className="text-slate-700 dark:text-slate-400">
                             {subcategories.size}{" "}
                             {subcategories.size === 1 ? "folder" : "folders"}
                           </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-700 ">
+                          <span className="text-slate-400 dark:text-slate-600">•</span>
+                          <span className="text-slate-700 dark:text-slate-400">
                             {totalProducts} items
                           </span>
                         </div>
@@ -706,7 +706,7 @@ export default function OrganizedInventory() {
     });
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
@@ -719,15 +719,15 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3 mb-2">
               {selectedCategory.toLowerCase() === "books" ? (
-                <BookOpen className="w-8 h-8 text-amber-700 " />
+                <BookOpen className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               ) : (
-                <Package className="w-8 h-8 text-amber-700 " />
+                <Package className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               )}
               {selectedCategory}
             </h1>
-            <p className="text-slate-700 ">
+            <p className="text-slate-700 dark:text-slate-400">
               Select a subfolder to view products
             </p>
           </div>
@@ -824,24 +824,24 @@ export default function OrganizedInventory() {
                           setSelectedGroup(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-600 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                             <FolderOpen className="w-6 h-6 text-white" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
                           {folder.name}
                         </h3>
                         <div className="flex items-center gap-3 text-sm">
-                          <span className="text-slate-700 ">
+                          <span className="text-slate-700 dark:text-slate-400">
                             {subItems.size}{" "}
                             {subItems.size === 1 ? "type" : "types"}
                           </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-slate-700 ">
+                          <span className="text-slate-400 dark:text-slate-600">•</span>
+                          <span className="text-slate-700 dark:text-slate-400">
                             {totalProducts} items
                           </span>
                           <span className="text-slate-400">•</span>
@@ -864,19 +864,19 @@ export default function OrganizedInventory() {
                           setSelectedSubcategory(folder.name);
                           setCurrentPage(1);
                         }}
-                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                        className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-600 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                             <FolderOpen className="w-6 h-6 text-white" />
                           </div>
-                          <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
+                          <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
                           {folder.name}
                         </h3>
                         <div className="flex items-center gap-3 text-sm">
-                          <span className="text-slate-700 ">
+                          <span className="text-slate-700 dark:text-slate-400">
                             {products.length} items
                           </span>
                           <span className="text-slate-400">•</span>
@@ -907,7 +907,7 @@ export default function OrganizedInventory() {
     });
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
@@ -920,11 +920,11 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
-              <FolderOpen className="w-8 h-8 text-amber-700 " />
+            <h1 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3 mb-2">
+              <FolderOpen className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               {selectedGroup}
             </h1>
-            <p className="text-slate-700 ">Select a type to view products</p>
+            <p className="text-slate-700 dark:text-slate-400">Select a type to view products</p>
           </div>
 
           {/* Group Items Grid */}
@@ -947,19 +947,19 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(selectedGroup + " - " + subname);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-600 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                         <Package className="w-6 h-6 text-white" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-800 mb-2">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
                       {subname}
                     </h3>
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-slate-700 ">
+                      <span className="text-slate-700 dark:text-slate-400">
                         {sortedProducts.length} items
                       </span>
                       <span className="text-slate-400">•</span>
@@ -979,7 +979,7 @@ export default function OrganizedInventory() {
   // Products View (existing code continues...)
   if (!selectedSubcategory) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <button
@@ -992,15 +992,15 @@ export default function OrganizedInventory() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3 mb-2">
               {selectedCategory.toLowerCase() === "books" ? (
-                <BookOpen className="w-8 h-8 text-amber-700 " />
+                <BookOpen className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               ) : (
-                <Package className="w-8 h-8 text-amber-700 " />
+                <Package className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               )}
               {selectedCategory}
             </h1>
-            <p className="text-slate-700 ">
+            <p className="text-slate-700 dark:text-slate-400">
               Select a subfolder to view products
             </p>
           </div>
@@ -1067,19 +1067,19 @@ export default function OrganizedInventory() {
                       setSelectedSubcategory(subcategory);
                       setCurrentPage(1);
                     }}
-                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
+                    className="group bg-white border-2 border-amber-100/50 dark:bg-slate-800 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-600 rounded-2xl p-5 transition-all hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">
                         <FolderOpen className="w-6 h-6 text-white" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-amber-800 font-semibold font-semibold transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-400 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-800 mb-2">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
                       {subcategory}
                     </h3>
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-slate-700 ">
+                      <span className="text-slate-700 dark:text-slate-400">
                         {products.length} items
                       </span>
                       <span className="text-slate-400">•</span>
@@ -1111,7 +1111,7 @@ export default function OrganizedInventory() {
   const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center gap-2 text-sm">
@@ -1126,7 +1126,7 @@ export default function OrganizedInventory() {
           >
             Categories
           </button>
-          <ChevronRight className="w-4 h-4 text-slate-700 " />
+          <ChevronRight className="w-4 h-4 text-slate-700 dark:text-slate-400" />
           <button
             onClick={() => {
               setSelectedSubcategory(null);
@@ -1139,7 +1139,7 @@ export default function OrganizedInventory() {
           </button>
           {selectedGroup && (
             <>
-              <ChevronRight className="w-4 h-4 text-slate-700 " />
+              <ChevronRight className="w-4 h-4 text-slate-700 dark:text-slate-400" />
               <button
                 onClick={() => {
                   setSelectedSubcategory(null);
@@ -1151,7 +1151,7 @@ export default function OrganizedInventory() {
               </button>
             </>
           )}
-          <ChevronRight className="w-4 h-4 text-slate-700 " />
+          <ChevronRight className="w-4 h-4 text-slate-700 dark:text-slate-400" />
           <span className="text-amber-800 font-semibold font-bold">
             {selectedSubcategory}
           </span>
@@ -1159,10 +1159,10 @@ export default function OrganizedInventory() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-slate-800 mb-2">
+          <h1 className="text-3xl font-black text-slate-800 dark:text-white mb-2">
             {selectedSubcategory}
           </h1>
-          <p className="text-slate-700 ">
+          <p className="text-slate-700 dark:text-slate-400">
             {sortedProducts.length} products •{" "}
             {sortedProducts.filter((p) => p.quantity_in_stock > 0).length} in
             stock
@@ -1180,10 +1180,10 @@ export default function OrganizedInventory() {
             <button
               key={product.id}
               onClick={() => setSelectedProduct(product)}
-              className="bg-white border-2 border-amber-100/50 rounded-2xl overflow-hidden hover:border-amber-500 hover:shadow-xl transition-all group text-left cursor-pointer"
+              className="bg-white dark:bg-slate-800 border-2 border-amber-100/50 dark:border-slate-700 rounded-2xl overflow-hidden hover:border-amber-500 dark:hover:border-amber-600 hover:shadow-xl transition-all group text-left cursor-pointer"
             >
               {/* Product Image */}
-              <div className="relative aspect-square bg-slate-100">
+              <div className="relative aspect-square bg-slate-100 dark:bg-slate-700">
                 {product.image_url ? (
                   <img
                     src={product.image_url}
@@ -1192,7 +1192,7 @@ export default function OrganizedInventory() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-16 h-16 text-slate-700 " />
+                    <Package className="w-16 h-16 text-slate-700 dark:text-slate-400" />
                   </div>
                 )}
                 {product.quantity_in_stock === 0 && (
@@ -1206,12 +1206,12 @@ export default function OrganizedInventory() {
 
               {/* Product Info */}
               <div className="p-4">
-                <h3 className="font-bold text-slate-800 mb-2 line-clamp-2 group-hover:text-amber-800 font-semibold font-semibold transition-colors">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-2 line-clamp-2 group-hover:text-amber-800 dark:group-hover:text-amber-500 font-semibold font-semibold transition-colors">
                   {product.name}
                 </h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 ">Stock:</span>
+                    <span className="text-slate-700 dark:text-slate-400">Stock:</span>
                     <span
                       className={`font-bold ${
                         product.quantity_in_stock > 0
@@ -1223,14 +1223,14 @@ export default function OrganizedInventory() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 ">Price:</span>
-                    <span className="font-bold text-amber-700 ">
+                    <span className="text-slate-700 dark:text-slate-400">Price:</span>
+                    <span className="font-bold text-amber-700 dark:text-amber-500">
                       KES {Number(product.selling_price).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 ">ID:</span>
-                    <span className="font-mono text-xs text-slate-700 ">
+                    <span className="text-slate-700 dark:text-slate-400">ID:</span>
+                    <span className="font-mono text-xs text-slate-700 dark:text-slate-400">
                       {product.product_id}
                     </span>
                   </div>
@@ -1242,8 +1242,8 @@ export default function OrganizedInventory() {
 
         {productsInSubcategory.length === 0 && (
           <div className="text-center py-12">
-            <Package className="w-16 h-16 text-slate-700 mx-auto mb-4" />
-            <p className="text-slate-600 text-lg">No products in this folder</p>
+            <Package className="w-16 h-16 text-slate-700 dark:text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-600 dark:text-slate-400 text-lg">No products in this folder</p>
           </div>
         )}
 
@@ -1254,19 +1254,19 @@ export default function OrganizedInventory() {
             onClick={() => setSelectedProduct(null)}
           >
             <div
-              className="bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-amber-500/10"
+              className="bg-white dark:bg-slate-800 border-2 border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-amber-500/10"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="sticky top-0 bg-white/95 backdrop-blur-xl border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-slate-800">
+              <div className="sticky top-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border-b border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm p-6 flex justify-between items-center z-10">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                   Product Details
                 </h2>
                 <button
                   onClick={() => setSelectedProduct(null)}
-                  className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white/50 hover:border-amber-300/70 rounded-xl transition-colors"
+                  className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white/50 dark:hover:from-slate-700 dark:hover:to-slate-600 hover:border-amber-300/70 dark:hover:border-slate-600 rounded-xl transition-colors"
                 >
-                  <X className="w-6 h-6 text-slate-800" />
+                  <X className="w-6 h-6 text-slate-800 dark:text-white" />
                 </button>
               </div>
 
@@ -1275,7 +1275,7 @@ export default function OrganizedInventory() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Product Image */}
                   <div className="space-y-4">
-                    <div className="relative aspect-square bg-slate-100 rounded-2xl overflow-hidden">
+                    <div className="relative aspect-square bg-slate-100 dark:bg-slate-700 rounded-2xl overflow-hidden">
                       {selectedProduct.image_url ? (
                         <img
                           src={selectedProduct.image_url}
@@ -1284,7 +1284,7 @@ export default function OrganizedInventory() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-24 h-24 text-gray-400" />
+                          <Package className="w-24 h-24 text-gray-400 dark:text-slate-400" />
                         </div>
                       )}
                     </div>
@@ -1312,11 +1312,11 @@ export default function OrganizedInventory() {
                   <div className="space-y-6">
                     {/* Product Name */}
                     <div>
-                      <h3 className="text-3xl font-bold text-slate-800 mb-2">
+                      <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">
                         {selectedProduct.name}
                       </h3>
                       {selectedProduct.description && (
-                        <p className="text-slate-600 leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                           {selectedProduct.description}
                         </p>
                       )}
@@ -1325,14 +1325,14 @@ export default function OrganizedInventory() {
                     {/* Details Grid */}
                     <div className="grid grid-cols-1 gap-4">
                       {/* Category */}
-                      <div className="bg-amber-50 border border-amber-300/70 shadow-amber-100/50 rounded-xl p-4">
+                      <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-300/70 dark:border-amber-700 shadow-amber-100/50 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-gradient-to-br from-amber-50/40 to-white rounded-lg">
-                            <Tag className="w-5 h-5 text-amber-700" />
+                          <div className="p-2 bg-gradient-to-br from-amber-50/40 to-white dark:from-amber-900/20 dark:to-slate-700 rounded-lg">
+                            <Tag className="w-5 h-5 text-amber-700 dark:text-amber-500" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-700 ">Category</p>
-                            <p className="text-lg font-semibold text-slate-800">
+                            <p className="text-sm text-slate-700 dark:text-slate-400">Category</p>
+                            <p className="text-lg font-semibold text-slate-800 dark:text-white">
                               {selectedProduct.category || "Uncategorized"}
                             </p>
                           </div>
@@ -1340,16 +1340,16 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Product ID */}
-                      <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+                      <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-100 rounded-lg">
-                            <Barcode className="w-5 h-5 text-blue-700" />
+                          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                            <Barcode className="w-5 h-5 text-blue-700 dark:text-blue-500" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-700 ">
+                            <p className="text-sm text-slate-700 dark:text-slate-400">
                               Product ID
                             </p>
-                            <p className="text-lg font-semibold text-slate-800 font-mono">
+                            <p className="text-lg font-semibold text-slate-800 dark:text-white font-mono">
                               {selectedProduct.product_id}
                             </p>
                           </div>
@@ -1357,13 +1357,13 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Stock */}
-                      <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 border border-amber-100/50 rounded-xl p-4">
+                      <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 border border-amber-100/50 dark:border-slate-600 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-gradient-to-br from-white to-stone-50/30 rounded-lg">
-                            <Package className="w-5 h-5 text-slate-700" />
+                          <div className="p-2 bg-gradient-to-br from-white to-stone-50/30 dark:from-slate-600 dark:to-slate-700 rounded-lg">
+                            <Package className="w-5 h-5 text-slate-700 dark:text-slate-400" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-700 ">
+                            <p className="text-sm text-slate-700 dark:text-slate-400">
                               Stock Available
                             </p>
                             <p
@@ -1382,17 +1382,17 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Pricing */}
-                      <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                      <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl p-4">
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                              <DollarSign className="w-5 h-5 text-green-700" />
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                              <DollarSign className="w-5 h-5 text-green-700 dark:text-green-500" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm text-slate-700 ">
+                              <p className="text-sm text-slate-700 dark:text-slate-400">
                                 Selling Price
                               </p>
-                              <p className="text-2xl font-bold text-green-700">
+                              <p className="text-2xl font-bold text-green-700 dark:text-green-500">
                                 KES{" "}
                                 {selectedProduct.selling_price?.toLocaleString() ||
                                   "0"}
@@ -1400,10 +1400,10 @@ export default function OrganizedInventory() {
                             </div>
                           </div>
                           <div className="pl-11">
-                            <p className="text-sm text-slate-700 ">
+                            <p className="text-sm text-slate-700 dark:text-slate-400">
                               Buying Price
                             </p>
-                            <p className="text-lg font-semibold text-slate-700">
+                            <p className="text-lg font-semibold text-slate-700 dark:text-slate-300">
                               KES{" "}
                               {selectedProduct.buying_price?.toLocaleString() ||
                                 "0"}
@@ -1415,22 +1415,22 @@ export default function OrganizedInventory() {
                       {/* Profit Margin */}
                       {selectedProduct.buying_price &&
                         selectedProduct.selling_price && (
-                          <div className="bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-300 rounded-xl p-4">
+                          <div className="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-amber-200 rounded-lg">
-                                <TrendingUp className="w-5 h-5 text-amber-800" />
+                              <div className="p-2 bg-amber-200 dark:bg-amber-900/30 rounded-lg">
+                                <TrendingUp className="w-5 h-5 text-amber-800 dark:text-amber-500" />
                               </div>
                               <div>
-                                <p className="text-sm text-amber-800">
+                                <p className="text-sm text-amber-800 dark:text-amber-400">
                                   Profit Margin
                                 </p>
-                                <p className="text-2xl font-bold text-amber-900">
+                                <p className="text-2xl font-bold text-amber-900 dark:text-amber-300">
                                   KES{" "}
                                   {(
                                     selectedProduct.selling_price -
                                     selectedProduct.buying_price
                                   ).toLocaleString()}
-                                  <span className="text-sm ml-2 text-amber-700">
+                                  <span className="text-sm ml-2 text-amber-700 dark:text-amber-400">
                                     (
                                     {(
                                       ((selectedProduct.selling_price -
@@ -1459,7 +1459,7 @@ export default function OrganizedInventory() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Previous
             </button>
@@ -1484,7 +1484,7 @@ export default function OrganizedInventory() {
 
                   if (showEllipsisBefore || showEllipsisAfter) {
                     return (
-                      <span key={page} className="px-2 text-slate-500">
+                      <span key={page} className="px-2 text-slate-500 dark:text-slate-400">
                         ...
                       </span>
                     );
@@ -1497,7 +1497,7 @@ export default function OrganizedInventory() {
                       className={`min-w-[40px] px-3 py-2 rounded-xl font-medium transition-all ${
                         currentPage === page
                           ? "bg-amber-600 text-slate-900 shadow-lg shadow-amber-200"
-                          : "bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700"
+                          : "bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm text-slate-800 dark:text-white hover:bg-amber-50 dark:hover:bg-slate-700"
                       }`}
                     >
                       {page}
@@ -1512,7 +1512,7 @@ export default function OrganizedInventory() {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>

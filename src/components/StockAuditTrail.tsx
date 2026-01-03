@@ -357,4 +357,3 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
-
