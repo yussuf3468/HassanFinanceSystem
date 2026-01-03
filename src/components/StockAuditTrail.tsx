@@ -134,17 +134,17 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
       <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 flex justify-center items-start sm:items-center">
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-7xl w-full border-2 border-slate-100 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100 px-4 sm:px-6 py-5 sm:py-6 overflow-hidden shadow-sm">
+          <div className="relative bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-amber-900/20 dark:via-slate-800 dark:to-amber-900/20 border-b-2 border-amber-100 dark:border-amber-700 px-4 sm:px-6 py-5 sm:py-6 overflow-hidden shadow-sm">
             <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg">
                   <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
                     📋 Taariikhda Alaabta - Stock Audit Trail
                   </h3>
-                  <p className="text-slate-600 text-xs sm:text-sm mt-1">
+                  <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
                     Audit trail waa diiwaan muujinaya cidda wax beddeshay,
                     goorta ay beddeshay, iyo waxa la beddelay gudaha nidaamka -
                     Raadi dhammaan isbeddelada alaabta
@@ -153,9 +153,9 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
               </div>
               <button
                 onClick={onClose}
-                className="p-2.5 hover:bg-amber-100 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 border border-transparent hover:border-amber-200"
+                className="p-2.5 hover:bg-amber-100 dark:hover:bg-slate-700 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 dark:text-slate-300 border border-transparent hover:border-amber-200 dark:hover:border-slate-600"
               >
-                <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300" />
               </button>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
             {loading && (
               <div className="text-center py-16 sm:py-24">
                 <RefreshCw className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-4 animate-spin" />
-                <p className="text-slate-700 font-bold text-base sm:text-lg">
+                <p className="text-slate-700 dark:text-slate-300 font-bold text-base sm:text-lg">
                   ⏳ Soo raraya...
                 </p>
               </div>
@@ -230,10 +230,10 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
             {!loading && filteredMovements.length === 0 && (
               <div className="text-center py-16 sm:py-24 bg-amber-50/50 dark:bg-slate-800/50 border-2 border-dashed border-amber-200 dark:border-slate-700 rounded-2xl">
                 <FileText className="w-16 h-16 sm:w-20 sm:h-20 text-amber-400 mx-auto mb-4" />
-                <p className="text-slate-900 font-bold text-base sm:text-lg mb-2">
+                <p className="text-slate-900 dark:text-white font-bold text-base sm:text-lg mb-2">
                   📭 Ma jiro wax taariikh ah
                 </p>
-                <p className="text-slate-600 text-sm sm:text-base">
+                <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
                   Isbeddello lama sameeynin alaabta
                 </p>
               </div>
@@ -264,10 +264,10 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <h5 className="text-slate-900 font-bold text-sm sm:text-base lg:text-lg truncate">
+                          <h5 className="text-slate-900 dark:text-white font-bold text-sm sm:text-base lg:text-lg truncate">
                             {movement.product?.name || "Unknown Product"}
                           </h5>
-                          <p className="text-slate-600 text-xs sm:text-sm truncate">
+                          <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm truncate">
                             ID: {movement.product?.product_id || "N/A"}
                           </p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -322,9 +322,9 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
 
             {/* Summary Footer */}
             {!loading && filteredMovements.length > 0 && (
-              <div className="mt-6 pt-4 border-t-2 border-amber-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="text-slate-700 text-sm sm:text-base">
-                  <span className="font-bold text-slate-900">
+              <div className="mt-6 pt-4 border-t-2 border-amber-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+                  <span className="font-bold text-slate-900 dark:text-white">
                     📊 {filteredMovements.length}
                   </span>{" "}
                   {filteredMovements.length === 1 ? "isbeddel" : "isbeddelo"}

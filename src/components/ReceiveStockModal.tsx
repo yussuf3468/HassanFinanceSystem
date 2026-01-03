@@ -125,7 +125,7 @@ export default function ReceiveStockModal({
       <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 flex justify-center items-start sm:items-center">
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl max-w-7xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Stunning Header */}
-          <div className="relative bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 border-b border-slate-200 px-4 sm:px-6 py-4 sm:py-6 overflow-hidden">
+          <div className="relative bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-900/30 dark:via-green-900/20 dark:to-teal-900/30 border-b border-slate-200 dark:border-slate-600 px-4 sm:px-6 py-4 sm:py-6 overflow-hidden">
             {/* Animated Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(16,185,129,0.05),transparent)] pointer-events-none" />
             <div className="absolute inset-0 bg-grid-white/[0.02] pointer-events-none" />
@@ -405,7 +405,7 @@ export default function ReceiveStockModal({
                           type="button"
                           onClick={onClose}
                           className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95"
-                          >
+                        >
                           Ka Noqo - Cancel
                         </button>
                         <button
@@ -441,4 +441,3 @@ export default function ReceiveStockModal({
     </div>
   );
 }
-
