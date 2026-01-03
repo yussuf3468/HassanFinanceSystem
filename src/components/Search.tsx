@@ -60,27 +60,27 @@ export default function Search() {
     <div className="space-y-6 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Mobile-Optimized Header Section */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-stone-100/20"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-amber-900/10 dark:to-slate-800 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-amber-300/70 dark:border-amber-700/70 shadow-amber-100/50/60 shadow-sm transition-colors duration-200">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-stone-100/20 dark:from-amber-900/10 dark:to-stone-900/10"></div>
           <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-gradient-to-bl from-amber-300/30 to-transparent rounded-full blur-2xl sm:blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-48 sm:h-48 bg-gradient-to-tr from-amber-300/30 to-transparent rounded-full blur-xl sm:blur-2xl"></div>
 
           <div className="relative z-10 p-4 sm:p-8 lg:p-12">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-              <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-3 sm:p-4 rounded-2xl sm:rounded-2xl shadow-lg flex-shrink-0">
+              <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 p-3 sm:p-4 rounded-2xl sm:rounded-2xl shadow-lg flex-shrink-0">
                 <SearchIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 leading-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight">
                   Smart Product Search
                 </h1>
-                <p className="text-slate-600 text-sm sm:text-lg mt-1 sm:mt-2 flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-lg mt-1 sm:mt-2 flex flex-col sm:flex-row sm:items-center sm:space-x-2">
                   <span className="flex items-center space-x-2">
                     <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 flex-shrink-0" />
                     <span>Discover insights and analytics</span>
                   </span>
-                  <span className="hidden sm:inline text-slate-700 "></span>
-                  <span className="text-xs sm:text-sm text-slate-700 mt-1 sm:mt-0">
+                  <span className="hidden sm:inline text-slate-700 dark:text-slate-400"></span>
+                  <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-400 mt-1 sm:mt-0">
                     for your inventory
                   </span>
                 </p>
@@ -90,33 +90,33 @@ export default function Search() {
         </div>
 
         {/* Mobile-First Enhanced Search Section */}
-        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-amber-200/30 to-stone-200/30 p-0.5">
-            <div className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl rounded-[15px] sm:rounded-[22px] p-4 sm:p-8">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-amber-900/10 dark:to-slate-800 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl border border-amber-300/70 dark:border-amber-700/70 shadow-amber-100/50/60 shadow-sm overflow-hidden transition-colors duration-200">
+          <div className="bg-gradient-to-r from-amber-200/30 to-stone-200/30 dark:from-amber-800/20 dark:to-stone-800/20 p-0.5">
+            <div className="bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-800 dark:to-slate-800/50 backdrop-blur-xl rounded-[15px] sm:rounded-[22px] p-4 sm:p-8">
               <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-                <div className="bg-gradient-to-r from-amber-100 to-stone-100 border border-amber-300 p-2 sm:p-3 rounded-xl sm:rounded-2xl flex-shrink-0">
-                  <Filter className="w-5 h-5 sm:w-6 sm:h-6 text-amber-700" />
+                <div className="bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 border border-amber-300 dark:border-amber-700 p-2 sm:p-3 rounded-xl sm:rounded-2xl flex-shrink-0">
+                  <Filter className="w-5 h-5 sm:w-6 sm:h-6 text-amber-700 dark:text-amber-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                     Search & Filter
                   </h2>
-                  <p className="text-slate-900/70 text-sm sm:text-base">
+                  <p className="text-slate-900/70 dark:text-slate-300 text-sm sm:text-base">
                     Find products instantly with smart search
                   </p>
                 </div>
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-200/30 to-stone-200/30 rounded-2xl sm:rounded-2xl blur-lg sm:blur-xl group-focus-within:blur-md sm:group-focus-within:blur-lg transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-200/30 to-stone-200/30 dark:from-amber-800/20 dark:to-stone-800/20 rounded-2xl sm:rounded-2xl blur-lg sm:blur-xl group-focus-within:blur-md sm:group-focus-within:blur-lg transition-all duration-300"></div>
                 <div className="relative">
-                  <SearchIcon className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-slate-600 group-focus-within:text-amber-700 transition-colors duration-300" />
+                  <SearchIcon className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400 group-focus-within:text-amber-700 dark:group-focus-within:text-amber-400 transition-colors duration-300" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search products, ID, category, description..."
-                    className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 bg-white/15 backdrop-blur-xl border-2 border-white/30 text-slate-900 placeholder:text-slate-900/50 rounded-2xl sm:rounded-2xl focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/30 focus:border-amber-400 text-base sm:text-lg shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl hover:border-white/40 transition-all duration-300 font-medium"
+                    className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-5 bg-white/15 dark:bg-slate-700/50 backdrop-blur-xl border-2 border-white/30 dark:border-slate-600 text-slate-900 dark:text-white placeholder:text-slate-900/50 dark:placeholder:text-slate-400 rounded-2xl sm:rounded-2xl focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/30 focus:border-amber-400 dark:focus:border-amber-500 text-base sm:text-lg shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl hover:border-white/40 dark:hover:border-slate-500 transition-all duration-300 font-medium"
                   />
                 </div>
               </div>
@@ -124,7 +124,7 @@ export default function Search() {
               {/* Mobile-Optimized Search Results */}
               {filteredProducts.length > 0 && (
                 <div className="mt-6 sm:mt-8">
-                  <div className="bg-gradient-to-r from-white/5 to-amber-100/20 rounded-2xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+                  <div className="bg-gradient-to-r from-white/5 to-amber-100/20 dark:from-slate-700/50 dark:to-amber-900/20 rounded-2xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border border-amber-300/70 dark:border-amber-700/70 shadow-amber-100/50/60 shadow-sm transition-colors duration-200">
                     {searchTerm ? (
                       <div className="flex items-start sm:items-center space-x-3">
                         <div className="bg-amber-500 p-2 rounded-xl flex-shrink-0">
@@ -163,13 +163,13 @@ export default function Search() {
                       <button
                         key={product.id}
                         onClick={() => handleSelectProduct(product)}
-                        className="group bg-white/90 backdrop-blur-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl sm:rounded-2xl p-3 sm:p-4 hover:shadow-lg sm:hover:shadow-xl hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 text-left hover:border-amber-500/30 relative overflow-hidden"
+                        className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-amber-300/70 dark:border-amber-700/70 shadow-amber-100/50/60 shadow-sm rounded-2xl sm:rounded-2xl p-3 sm:p-4 hover:shadow-lg sm:hover:shadow-xl hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 text-left hover:border-amber-500/30 dark:hover:border-amber-600/50 relative overflow-hidden"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl sm:rounded-2xl"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-amber-600/10 dark:from-amber-500/5 dark:to-amber-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl sm:rounded-2xl"></div>
 
                         <div className="relative z-10 flex items-center space-x-3 sm:space-x-4">
                           {product.image_url ? (
-                            <div className="relative flex-shrink-0 bg-gradient-to-br from-white to-stone-50/50 rounded-xl sm:rounded-xl">
+                            <div className="relative flex-shrink-0 bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-700 dark:to-slate-700/50 rounded-xl sm:rounded-xl">
                               <OptimizedImage
                                 src={product.image_url}
                                 alt={product.name}
@@ -182,34 +182,34 @@ export default function Search() {
                               <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent rounded-xl sm:rounded-2xl group-hover:from-black/10 transition-all duration-300"></div>
                             </div>
                           ) : (
-                            <div className="w-14 h-14 sm:w-18 sm:h-18 bg-gradient-to-br from-white/10 to-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:from-amber-500/20 group-hover:to-amber-600/20 transition-all duration-300 flex-shrink-0">
-                              <Package className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700 group-hover:text-amber-700" />
+                            <div className="w-14 h-14 sm:w-18 sm:h-18 bg-gradient-to-br from-white/10 to-white/20 dark:from-slate-700/50 dark:to-slate-700/20 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:from-amber-500/20 group-hover:to-amber-600/20 transition-all duration-300 flex-shrink-0">
+                              <Package className="w-6 h-6 sm:w-8 sm:h-8 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-slate-900 group-hover:text-amber-900 transition-colors duration-300 truncate text-sm sm:text-base">
+                            <p className="font-semibold text-slate-900 dark:text-white group-hover:text-amber-900 dark:group-hover:text-amber-300 transition-colors duration-300 truncate text-sm sm:text-base">
                               {product.name}
                             </p>
-                            <p className="text-xs sm:text-sm text-slate-900/60 group-hover:text-slate-900/70 transition-colors duration-300 truncate">
+                            <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400 group-hover:text-slate-900/70 dark:group-hover:text-slate-300 transition-colors duration-300 truncate">
                               ID: {product.product_id}
                             </p>
                             {product.description && (
-                              <p className="text-xs text-slate-900/50 line-clamp-1 mt-1">
+                              <p className="text-xs text-slate-900/50 dark:text-slate-500 line-clamp-1 mt-1">
                                 {product.description}
                               </p>
                             )}
                             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mt-1 sm:mt-2 space-y-1 sm:space-y-0">
-                              <span className="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-gradient-to-br from-amber-50/40 to-white text-amber-800 border border-amber-300 group-hover:bg-amber-200 transition-colors duration-300 w-fit">
+                              <span className="inline-flex items-center px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium bg-gradient-to-br from-amber-50/40 to-white dark:from-amber-900/30 dark:to-slate-800 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 group-hover:bg-amber-200 dark:group-hover:bg-amber-900/50 transition-colors duration-300 w-fit">
                                 {product.category}
                               </span>
-                              <span className="text-xs sm:text-sm font-bold text-emerald-600">
+                              <span className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
                                 KES {product.selling_price.toLocaleString()}
                               </span>
                             </div>
                           </div>
                           <div
                             onClick={(e) => handleViewProduct(product, e)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-shrink-0 p-2 hover:bg-gradient-to-br from-amber-50/40 to-white rounded-xl cursor-pointer"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-shrink-0 p-2 hover:bg-gradient-to-br from-amber-50/40 to-white dark:hover:bg-amber-900/30 rounded-xl cursor-pointer"
                             title="View Product Details"
                           >
                             <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700 hover:text-amber-800" />
@@ -227,16 +227,16 @@ export default function Search() {
         {/* Product View Modal */}
         {viewingProduct && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl border border-amber-200/60 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white rounded-t-2xl border-b border-amber-200/60 p-4 sm:p-6 flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-amber-200/60 dark:border-amber-700/60 max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors duration-200">
+              <div className="sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl border-b border-amber-200/60 dark:border-amber-700/60 p-4 sm:p-6 flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                   Product Details
                 </h2>
                 <button
                   onClick={() => setViewingProduct(null)}
-                  className="p-2 hover:bg-amber-50/40 rounded-2xl transition-colors duration-200"
+                  className="p-2 hover:bg-amber-50/40 dark:hover:bg-slate-700 rounded-2xl transition-colors duration-200"
                 >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 hover:text-slate-900" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white" />
                 </button>
               </div>
 
@@ -244,7 +244,7 @@ export default function Search() {
                 {/* Product Image */}
                 <div className="flex justify-center">
                   {viewingProduct.image_url ? (
-                    <div className="relative bg-gradient-to-br from-white to-stone-50/50 rounded-2xl p-4">
+                    <div className="relative bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-700 dark:to-slate-700/50 rounded-2xl p-4">
                       <OptimizedImage
                         src={viewingProduct.image_url}
                         alt={viewingProduct.name}
@@ -255,8 +255,8 @@ export default function Search() {
                       />
                     </div>
                   ) : (
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-white/10 to-white/20 rounded-2xl flex items-center justify-center">
-                      <Package className="w-16 h-16 sm:w-20 sm:h-20 text-slate-700" />
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-white/10 to-white/20 dark:from-slate-700/50 dark:to-slate-700/20 rounded-2xl flex items-center justify-center">
+                      <Package className="w-16 h-16 sm:w-20 sm:h-20 text-slate-700 dark:text-slate-300" />
                     </div>
                   )}
                 </div>
@@ -264,15 +264,15 @@ export default function Search() {
                 {/* Product Information */}
                 <div className="space-y-4">
                   <div className="text-center">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                       {viewingProduct.name}
                     </h3>
                     <div className="flex flex-wrap justify-center gap-2">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-br from-amber-50/40 to-white text-amber-800 border border-amber-300">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-br from-amber-50/40 to-white dark:from-amber-900/30 dark:to-slate-800 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
                         <Tag className="w-4 h-4 mr-1" />
                         {viewingProduct.category}
                       </span>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700">
                         <DollarSign className="w-4 h-4 mr-1" />
                         KES {viewingProduct.selling_price.toLocaleString()}
                       </span>
@@ -281,14 +281,14 @@ export default function Search() {
 
                   {/* Description */}
                   {viewingProduct.description && (
-                    <div className="bg-amber-50/40 rounded-2xl p-4 border border-amber-200/60">
+                    <div className="bg-amber-50/40 dark:bg-amber-900/20 rounded-2xl p-4 border border-amber-200/60 dark:border-amber-700/60 transition-colors duration-200">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Info className="w-5 h-5 text-amber-700" />
-                        <h4 className="font-semibold text-slate-900">
+                        <Info className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+                        <h4 className="font-semibold text-slate-900 dark:text-white">
                           Description
                         </h4>
                       </div>
-                      <p className="text-slate-900/70 leading-relaxed">
+                      <p className="text-slate-900/70 dark:text-slate-300 leading-relaxed">
                         {viewingProduct.description}
                       </p>
                     </div>
@@ -296,50 +296,50 @@ export default function Search() {
 
                   {/* Product Details Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-r from-amber-100 to-stone-100 rounded-2xl p-4 border border-amber-300">
+                    <div className="bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 rounded-2xl p-4 border border-amber-300 dark:border-amber-700 transition-colors duration-200">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Package className="w-5 h-5 text-amber-700" />
-                        <span className="font-semibold text-slate-900">
+                        <Package className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           Product ID
                         </span>
                       </div>
-                      <p className="text-amber-800 font-mono text-lg">
+                      <p className="text-amber-800 dark:text-amber-300 font-mono text-lg">
                         {viewingProduct.product_id}
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-4 border border-cyan-200">
+                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-2xl p-4 border border-cyan-200 dark:border-cyan-700 transition-colors duration-200">
                       <div className="flex items-center space-x-2 mb-2">
-                        <ShoppingCart className="w-5 h-5 text-cyan-600" />
-                        <span className="font-semibold text-slate-900">
+                        <ShoppingCart className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           Stock Quantity
                         </span>
                       </div>
-                      <p className="text-cyan-700 font-semibold text-lg">
+                      <p className="text-cyan-700 dark:text-cyan-300 font-semibold text-lg">
                         {viewingProduct.quantity_in_stock} units
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-2xl p-4 border border-emerald-200">
+                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/30 rounded-2xl p-4 border border-emerald-200 dark:border-emerald-700 transition-colors duration-200">
                       <div className="flex items-center space-x-2 mb-2">
-                        <DollarSign className="w-5 h-5 text-emerald-600" />
-                        <span className="font-semibold text-slate-900">
+                        <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           Price
                         </span>
                       </div>
-                      <p className="text-emerald-700 font-semibold text-lg">
+                      <p className="text-emerald-700 dark:text-emerald-300 font-semibold text-lg">
                         KES {viewingProduct.selling_price.toLocaleString()}
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-4 border border-orange-200">
+                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/30 dark:to-yellow-900/30 rounded-2xl p-4 border border-orange-200 dark:border-orange-700 transition-colors duration-200">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Tag className="w-5 h-5 text-orange-600" />
-                        <span className="font-semibold text-slate-900">
+                        <Tag className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           Category
                         </span>
                       </div>
-                      <p className="text-orange-700 font-semibold text-lg">
+                      <p className="text-orange-700 dark:text-orange-300 font-semibold text-lg">
                         {viewingProduct.category}
                       </p>
                     </div>

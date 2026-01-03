@@ -592,7 +592,7 @@ export default function FinancialDashboard() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-900">Loading financial data...</p>
+          <p className="text-slate-900 dark:text-white">Loading financial data...</p>
         </div>
       </div>
     );
@@ -601,16 +601,16 @@ export default function FinancialDashboard() {
   return (
     <div className="space-y-6 md:space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="relative overflow-hidden bg-white border border-amber-200/60 rounded-3xl p-6 md:p-8 shadow-2xl shadow-amber-500/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-500/10"></div>
+      <div className="relative overflow-hidden bg-white dark:bg-slate-800 border border-amber-200/60 dark:border-amber-700/60 rounded-3xl p-6 md:p-8 shadow-2xl shadow-amber-500/10 transition-colors duration-200">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-500/10 dark:from-emerald-500/5 dark:to-green-500/5"></div>
         <div className="relative">
           <div className="text-center space-y-3">
             <div className="inline-block">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white">
                 💰 Financial Dashboard
               </h1>
             </div>
-            <p className="text-sm md:text-base text-slate-900/70 font-medium max-w-3xl mx-auto">
+            <p className="text-sm md:text-base text-slate-900/70 dark:text-slate-300 font-medium max-w-3xl mx-auto">
               ✨ Comprehensive financial overview and business metrics for your
               organization
             </p>
@@ -618,7 +618,7 @@ export default function FinancialDashboard() {
             <div className="flex flex-wrap gap-3 justify-center">
               <button
                 onClick={generateFinancialReport}
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-2xl shadow-lg transform transition-all duration-200 hover:scale-105"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 dark:from-green-700 dark:to-emerald-700 text-white font-semibold py-2 px-4 rounded-2xl shadow-lg transform transition-all duration-200 hover:scale-105"
               >
                 <Download className="w-4 h-4" />
                 <span className="text-sm">Export Report</span>
@@ -626,7 +626,7 @@ export default function FinancialDashboard() {
               <button
                 onClick={handleRefresh}
                 disabled={isRefreshing || loading}
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-2 px-4 rounded-2xl shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-700 dark:to-blue-800 text-white font-semibold py-2 px-4 rounded-2xl shadow-lg transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Refresh financial data"
               >
                 <RefreshCw
@@ -640,9 +640,9 @@ export default function FinancialDashboard() {
       </div>
 
       {/* Total Profit Section */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-amber-200/60">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-4 flex items-center space-x-2">
-          <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-amber-200/60 dark:border-amber-700/60 transition-colors duration-200">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+          <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 dark:text-yellow-400" />
           <span>Total Profit</span>
         </h2>
 

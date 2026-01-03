@@ -127,26 +127,26 @@ export default function StaffDashboard() {
   return (
     <div className="space-y-4 md:space-y-6 animate-fadeIn">
       {/* Hero Section - Staff Greeting */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-4 md:p-6 shadow-2xl shadow-amber-500/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10"></div>
+      <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-white dark:from-slate-800 dark:via-amber-900/10 dark:to-slate-800 backdrop-blur-2xl border border-amber-300/70 dark:border-amber-700/70 shadow-amber-100/50/60 shadow-sm rounded-3xl p-4 md:p-6 shadow-2xl shadow-amber-500/10 transition-colors duration-200">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 dark:from-emerald-500/5 dark:to-cyan-500/5"></div>
         <div className="relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="p-2 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl shadow-lg shadow-amber-300/10">
+                <div className="p-2 bg-gradient-to-br from-emerald-500 to-cyan-500 dark:from-emerald-600 dark:to-cyan-600 rounded-2xl shadow-lg shadow-amber-300/10">
                   <Award className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-cyan-200">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-cyan-200 dark:from-slate-100 dark:via-emerald-300 dark:to-cyan-300">
                     Welcome, {staffName}! 👋
                   </h1>
-                  <p className="text-xs md:text-sm text-slate-700 font-medium">
+                  <p className="text-xs md:text-sm text-slate-700 dark:text-slate-300 font-medium">
                     Store-Wide Sales Dashboard
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2 text-emerald-400">
+            <div className="flex items-center space-x-2 text-emerald-400 dark:text-emerald-300">
               <Clock className="w-4 h-4" />
               <span className="text-xs font-semibold">
                 {new Date().toLocaleDateString("en-US", {
@@ -165,8 +165,8 @@ export default function StaffDashboard() {
       <div>
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-cyan-600 rounded-full"></div>
-          <h2 className="text-lg md:text-xl font-bold text-slate-900 flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+            <Sparkles className="w-5 h-5 text-emerald-400 dark:text-emerald-300" />
             <span>Store Performance Today</span>
           </h2>
         </div>
@@ -302,10 +302,10 @@ export default function StaffDashboard() {
         {todaysSales.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
-              <ShoppingBag className="w-8 h-8 text-slate-700 " />
+              <ShoppingBag className="w-8 h-8 text-slate-700 dark:text-slate-400" />
             </div>
-            <p className="text-slate-900 font-bold mb-2">No sales yet today</p>
-            <p className="text-slate-700 text-sm">
+            <p className="text-slate-900 dark:text-white font-bold mb-2">No sales yet today</p>
+            <p className="text-slate-700 dark:text-slate-400 text-sm">
               Start making sales to see them here!
             </p>
           </div>

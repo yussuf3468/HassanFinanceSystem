@@ -132,10 +132,10 @@ export default function Sales() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-slate-900">
+          <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
             Sales Records
           </h2>
-          <p className="text-slate-600 mt-0.5 text-xs sm:text-sm">
+          <p className="text-slate-600 dark:text-slate-400 mt-0.5 text-xs sm:text-sm">
             Track all your bookstore sales ({sales.length} total)
           </p>
         </div>
@@ -143,7 +143,7 @@ export default function Sales() {
           <button
             onClick={() => refetchSales()}
             disabled={isRefetching}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-400"
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-400 dark:border-amber-500"
             title="Refresh sales data"
           >
             <RefreshCw
@@ -153,7 +153,7 @@ export default function Sales() {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex-1 sm:flex-initial font-semibold text-sm border-2 border-emerald-400"
+            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 text-white px-4 py-2.5 rounded-xl hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex-1 sm:flex-initial font-semibold text-sm border-2 border-emerald-400 dark:border-emerald-500"
           >
             <Plus className="w-4 h-4" />
             <span>Record Sale</span>
@@ -161,43 +161,43 @@ export default function Sales() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-200">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100">
+            <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 border-b-2 border-amber-100 dark:border-slate-600">
               <tr>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Quantity
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Total Sale
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Profit
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Payment
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Sold By
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {sales.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-6 py-12 text-center text-slate-600"
+                    className="px-6 py-12 text-center text-slate-600 dark:text-slate-400"
                   >
                     No sales yet. Click "Record Sale" to get started.
                   </td>
@@ -208,12 +208,12 @@ export default function Sales() {
                   return (
                     <tr
                       key={sale.id}
-                      className="hover:bg-amber-50/50 transition-colors"
+                      className="hover:bg-amber-50/50 dark:hover:bg-slate-700/50 transition-colors"
                     >
-                      <td className="px-6 py-4 text-slate-800">
+                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200">
                         {formatDate(sale.created_at)}
                         <br />
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           {new Date(sale.created_at).toLocaleTimeString()}
                         </span>
                       </td>
@@ -223,47 +223,47 @@ export default function Sales() {
                             <img
                               src={product.image_url}
                               alt={product.name}
-                              className="w-10 h-10 object-cover rounded-xl border-2 border-slate-200 shadow-sm"
+                              className="w-10 h-10 object-cover rounded-xl border-2 border-slate-200 dark:border-slate-600 shadow-sm"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-slate-200">
-                              <span className="text-slate-400 text-xs">
+                            <div className="w-10 h-10 bg-slate-50 dark:bg-slate-700 rounded-xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-600">
+                              <span className="text-slate-400 dark:text-slate-500 text-xs">
                                 No Image
                               </span>
                             </div>
                           )}
                           <div>
-                            <p className="font-bold text-slate-900 text-sm">
+                            <p className="font-bold text-slate-900 dark:text-white text-sm">
                               {product?.name || "Unknown"}
                             </p>
                             {product?.description && (
-                              <p className="text-xs text-slate-600 truncate max-w-[200px]">
+                              <p className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[200px]">
                                 {product.description}
                               </p>
                             )}
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-500 dark:text-slate-500">
                               {product?.product_id || "-"}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-800 font-semibold">
+                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-semibold">
                         {sale.quantity_sold}
                       </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">
+                      <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
                         KES {sale.total_sale.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-300">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700">
                           +KES {sale.profit.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700">
                           {sale.payment_method}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-800 font-medium">
+                      <td className="px-6 py-4 text-slate-800 dark:text-slate-200 font-medium">
                         {sale.sold_by}
                       </td>
                       <td className="px-6 py-4">
@@ -274,7 +274,7 @@ export default function Sales() {
                               product?.name || "Unknown Product"
                             )
                           }
-                          className="inline-flex items-center justify-center w-8 h-8 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 border border-red-300 hover:border-red-400"
+                          className="inline-flex items-center justify-center w-8 h-8 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-xl transition-all duration-200 border border-red-300 dark:border-red-700 hover:border-red-400 dark:hover:border-red-600"
                           title="Tirtir Iibkan - Delete Sale"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -291,8 +291,8 @@ export default function Sales() {
 
       {/* Pagination Controls */}
       {sortedSales.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border-2 border-slate-100 shadow-sm rounded-xl">
-          <div className="text-sm text-slate-700">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-sm rounded-xl transition-colors duration-200">
+          <div className="text-sm text-slate-700 dark:text-slate-300">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, sortedSales.length)} of{" "}
             {sortedSales.length} sales
@@ -305,18 +305,18 @@ export default function Sales() {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors duration-200"
             >
-              <option value={25} className="bg-white text-slate-900">
+              <option value={25} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 25 per page
               </option>
-              <option value={50} className="bg-white text-slate-900">
+              <option value={50} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 50 per page
               </option>
-              <option value={100} className="bg-white text-slate-900">
+              <option value={100} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 100 per page
               </option>
-              <option value={200} className="bg-white text-slate-900">
+              <option value={200} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 200 per page
               </option>
             </select>
@@ -325,12 +325,12 @@ export default function Sales() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
 
-              <span className="px-3 py-2 text-sm text-slate-700 font-semibold">
+              <span className="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
 
@@ -339,7 +339,7 @@ export default function Sales() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
