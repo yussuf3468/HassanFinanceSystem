@@ -700,7 +700,7 @@ export default function FinancialDashboard() {
       <div>
         <div className="flex items-center space-x-3 mb-6">
           <div className="w-1 h-6 bg-gradient-to-b from-emerald-600 to-green-600 rounded-full"></div>
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
             Key Financial Metrics
           </h2>
         </div>
@@ -841,7 +841,7 @@ export default function FinancialDashboard() {
 
           <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-slate-900/70">
+              <span className="text-sm sm:text-base text-slate-900/70 dark:text-slate-300">
                 Total Expenses:
               </span>
               <span className="text-lg sm:text-xl font-bold text-rose-700">
@@ -849,7 +849,7 @@ export default function FinancialDashboard() {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm sm:text-base text-slate-900/70">
+              <span className="text-sm sm:text-base text-slate-900/70 dark:text-slate-300">
                 Monthly Expenses:
               </span>
               <span className="text-base sm:text-lg font-semibold text-orange-600">
@@ -860,25 +860,25 @@ export default function FinancialDashboard() {
 
           {expenseBreakdown.length > 0 ? (
             <div className="space-y-3">
-              <h4 className="text-sm sm:text-base font-semibold text-slate-900 mb-3">
+              <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white mb-3">
                 Top Expense Categories
               </h4>
               {expenseBreakdown.slice(0, 5).map((category) => (
                 <div key={category.category} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm font-medium text-slate-900">
+                    <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
                       {category.category}
                     </span>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs sm:text-sm text-slate-900/60">
+                      <span className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
                         {category.percentage.toFixed(1)}%
                       </span>
-                      <span className="text-xs sm:text-sm font-semibold text-slate-900">
+                      <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
                         KES {category.amount.toLocaleString()}
                       </span>
                     </div>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                  <div className="w-full bg-white/20 dark:bg-slate-600 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full"
                       style={{ width: `${category.percentage}%` }}
@@ -888,7 +888,7 @@ export default function FinancialDashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-slate-900/60 text-center py-8">
+            <p className="text-slate-900/60 dark:text-slate-400 text-center py-8">
               No expense data available
             </p>
           )}
@@ -905,33 +905,33 @@ export default function FinancialDashboard() {
             <div className="bg-white dark:bg-slate-700 border border-amber-200/60 dark:border-amber-700/60 rounded-2xl sm:rounded-2xl p-3 sm:p-4">
               <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                <span className="text-sm sm:text-base font-semibold text-slate-900">
+                <span className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   Assets
                 </span>
               </div>
               <div className="space-y-2 ml-6 sm:ml-8">
                 <div className="flex justify-between">
-                  <span className="text-xs sm:text-sm text-slate-900/70">
+                  <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                     Cash from Sales:
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-900">
+                  <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
                     KES {stats.totalSales.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-xs sm:text-sm text-slate-900/70">
+                  <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                     Initial Investment:
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-900">
+                  <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
                     KES {stats.totalInvestment.toLocaleString()}
                   </span>
                 </div>
                 <hr className="border-amber-200/60" />
                 <div className="flex justify-between font-semibold">
-                  <span className="text-sm sm:text-base text-slate-900">
+                  <span className="text-sm sm:text-base text-slate-900 dark:text-white">
                     Total Assets:
                   </span>
-                  <span className="text-sm sm:text-base text-slate-900">
+                  <span className="text-sm sm:text-base text-slate-900 dark:text-white">
                     KES{" "}
                     {(
                       stats.totalSales + stats.totalInvestment
@@ -941,36 +941,36 @@ export default function FinancialDashboard() {
               </div>
             </div>
 
-            <div className="bg-white border border-amber-200/60 rounded-2xl sm:rounded-2xl p-3 sm:p-4">
+            <div className="bg-white dark:bg-slate-700 border border-amber-200/60 dark:border-amber-700/60 rounded-2xl sm:rounded-2xl p-3 sm:p-4">
               <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
                 <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                <span className="text-sm sm:text-base font-semibold text-slate-900">
+                <span className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   Liabilities
                 </span>
               </div>
               <div className="space-y-2 ml-6 sm:ml-8">
                 <div className="flex justify-between">
-                  <span className="text-xs sm:text-sm text-slate-900/70">
+                  <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                     Total Expenses:
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-900">
+                  <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
                     KES {stats.totalExpenses.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-xs sm:text-sm text-slate-900/70">
+                  <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                     Outstanding Debt:
                   </span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-900">
+                  <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
                     KES {stats.totalDebt.toLocaleString()}
                   </span>
                 </div>
                 <hr className="border-amber-200/60" />
                 <div className="flex justify-between font-semibold">
-                  <span className="text-sm sm:text-base text-slate-900">
+                  <span className="text-sm sm:text-base text-slate-900 dark:text-white">
                     Total Liabilities:
                   </span>
-                  <span className="text-sm sm:text-base text-slate-900">
+                  <span className="text-sm sm:text-base text-slate-900 dark:text-white">
                     KES{" "}
                     {(stats.totalExpenses + stats.totalDebt).toLocaleString()}
                   </span>
@@ -985,10 +985,10 @@ export default function FinancialDashboard() {
                   Net Worth
                 </span>
               </div>
-              <p className="text-lg sm:text-2xl font-black text-slate-900 ml-6 sm:ml-8">
+              <p className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white ml-6 sm:ml-8">
                 KES {stats.netWorth.toLocaleString()}
               </p>
-              <p className="text-xs sm:text-sm text-slate-600 ml-6 sm:ml-8">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 ml-6 sm:ml-8">
                 {stats.netWorth >= 0 ? "Positive" : "Negative"} financial
                 position
               </p>
@@ -999,15 +999,15 @@ export default function FinancialDashboard() {
 
       {/* Financial Insights */}
       <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
-        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-4 flex items-center space-x-2">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
           <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
           <span>Financial Insights</span>
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Financial Health Score */}
-          <div className="bg-white rounded-2xl p-4 border border-amber-200/60">
-            <h4 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">
+          <div className="bg-white dark:bg-slate-700 rounded-2xl p-4 border border-amber-200/60 dark:border-amber-700/60">
+            <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white mb-2">
               Health Score
             </h4>
             <div className="flex items-center space-x-3">
@@ -1017,10 +1017,10 @@ export default function FinancialDashboard() {
                 </span>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-slate-900/70">
+                <p className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                   Financial Health
                 </p>
-                <p className="text-sm sm:text-base font-semibold text-slate-900">
+                <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   {calculateFinancialHealthScore() >= 80
                     ? "Excellent"
                     : calculateFinancialHealthScore() >= 60
@@ -1034,8 +1034,8 @@ export default function FinancialDashboard() {
           </div>
 
           {/* Key Insights */}
-          <div className="bg-white rounded-2xl p-4 border border-amber-200/60">
-            <h4 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">
+          <div className="bg-white dark:bg-slate-700 rounded-2xl p-4 border border-amber-200/60 dark:border-amber-700/60">
+            <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white mb-2">
               Key Insights
             </h4>
             <div className="space-y-2">
@@ -1044,7 +1044,7 @@ export default function FinancialDashboard() {
                 .map((insight, index) => (
                   <p
                     key={index}
-                    className="text-xs sm:text-sm text-slate-900/70 leading-relaxed"
+                    className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300 leading-relaxed"
                   >
                     {insight}
                   </p>
@@ -1078,10 +1078,10 @@ export default function FinancialDashboard() {
                 {/* Investor Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1">
+                    <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">
                       {investor.investor_name}
                     </h4>
-                    <p className="text-xs text-slate-900/60">
+                    <p className="text-xs text-slate-900/60 dark:text-slate-400">
                       {investor.category}
                     </p>
                   </div>
@@ -1109,7 +1109,7 @@ export default function FinancialDashboard() {
                     <p className="text-xs text-slate-900 dark:text-slate-300 mb-1">
                       Investment Date
                     </p>
-                    <p className="text-sm sm:text-base font-semibold text-slate-900">
+                    <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                       {formatDate(investor.date)}
                     </p>
                   </div>
@@ -1118,16 +1118,16 @@ export default function FinancialDashboard() {
                 {/* Dividend Information */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-t border-amber-200/60">
-                    <span className="text-xs sm:text-sm text-slate-900/70">
+                    <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                       Months Since Investment:
                     </span>
-                    <span className="text-sm font-semibold text-slate-900">
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
                       {investor.months_since_investment} months
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-t border-amber-200/60">
-                    <span className="text-xs sm:text-sm text-slate-900/70">
+                    <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                       Payout Cycles Completed:
                     </span>
                     <span className="text-sm font-bold text-emerald-600">
@@ -1136,10 +1136,10 @@ export default function FinancialDashboard() {
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-t border-amber-200/60">
-                    <span className="text-xs sm:text-sm text-slate-900/70">
+                    <span className="text-xs sm:text-sm text-slate-900/70 dark:text-slate-300">
                       Dividend Per Cycle:
                     </span>
-                    <span className="text-sm font-semibold text-slate-900">
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
                       KES{" "}
                       {investor.dividend_per_cycle.toLocaleString(undefined, {
                         maximumFractionDigits: 2,
@@ -1204,8 +1204,10 @@ export default function FinancialDashboard() {
         ) : (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-            <p className="text-slate-900/60">No investor data available</p>
-            <p className="text-xs text-slate-900/60 mt-1">
+            <p className="text-slate-900/60 dark:text-slate-400">
+              No investor data available
+            </p>
+            <p className="text-xs text-slate-900/60 dark:text-slate-400 mt-1">
               Add investors in the Initial Investment section
             </p>
           </div>
@@ -1217,7 +1219,7 @@ export default function FinancialDashboard() {
             <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-2xl p-4 border border-emerald-500/30">
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-semibold text-slate-900">
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   Total Dividends Paid
                 </span>
               </div>
@@ -1232,7 +1234,7 @@ export default function FinancialDashboard() {
             <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl p-4 border border-blue-500/30">
               <div className="flex items-center space-x-2 mb-2">
                 <Calendar className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-semibold text-slate-900">
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   Active Investors
                 </span>
               </div>
@@ -1244,7 +1246,7 @@ export default function FinancialDashboard() {
             <div className="bg-gradient-to-r from-amber-500/20 to-rose-500/20 rounded-2xl p-4 border border-amber-500/30">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingUp className="w-5 h-5 text-amber-600" />
-                <span className="text-sm font-semibold text-slate-900">
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   Avg. Ownership
                 </span>
               </div>
@@ -1271,7 +1273,7 @@ export default function FinancialDashboard() {
           <span>Financial Management</span>
         </h3>
 
-        <p className="text-xs sm:text-sm text-slate-900/60 mb-4">
+        <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400 mb-4">
           Manage your business financial records and track performance
         </p>
 
@@ -1282,15 +1284,15 @@ export default function FinancialDashboard() {
                 <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-sm sm:text-base font-semibold text-slate-900">
+                <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   Investments
                 </p>
-                <p className="text-xs sm:text-sm text-slate-900/60">
+                <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
                   {stats.investmentCategories} categories
                 </p>
               </div>
             </div>
-            <p className="text-xs text-slate-900/60">
+            <p className="text-xs text-slate-900/60 dark:text-slate-400">
               Track startup investments
             </p>
           </div>
@@ -1301,34 +1303,36 @@ export default function FinancialDashboard() {
                 <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-sm sm:text-base font-semibold text-slate-900">
+                <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   Expenses
                 </p>
-                <p className="text-xs sm:text-sm text-slate-900/60">
+                <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
                   Monthly tracking
                 </p>
               </div>
             </div>
-            <p className="text-xs text-slate-900/60">
+            <p className="text-xs text-slate-900/60 dark:text-slate-400">
               Monitor operational costs
             </p>
           </div>
 
-          <div className="bg-white hover:bg-amber-50/30 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 hover:border-red-400 sm:col-span-2 lg:col-span-1">
+          <div className="bg-white dark:bg-slate-700 hover:bg-amber-50/30 dark:hover:bg-slate-600 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 dark:border-amber-700/60 hover:border-red-400 dark:hover:border-red-600 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
               <div className="bg-red-500/20 p-1.5 sm:p-2 rounded-xl border border-red-500/30">
                 <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
               </div>
               <div>
-                <p className="text-sm sm:text-base font-semibold text-slate-900">
+                <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
                   Debts
                 </p>
-                <p className="text-xs sm:text-sm text-slate-900/60">
+                <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
                   {stats.activeDebts} active loans
                 </p>
               </div>
             </div>
-            <p className="text-xs text-slate-900/60">Track loan repayments</p>
+            <p className="text-xs text-slate-900/60 dark:text-slate-400">
+              Track loan repayments
+            </p>
           </div>
         </div>
       </div>
@@ -1393,7 +1397,7 @@ function FinancialStatCard({
 
   return (
     <div
-      className={`group relative bg-white hover:bg-amber-50/30 rounded-2xl sm:rounded-2xl shadow-lg border ${colors.border} p-3 sm:p-6 hover:shadow-xl hover:${colors.glow} transition-all duration-300 hover:scale-105 cursor-pointer`}
+      className={`group relative bg-white dark:bg-slate-700 hover:bg-amber-50/30 dark:hover:bg-slate-600 rounded-2xl sm:rounded-2xl shadow-lg border ${colors.border} dark:border-amber-700/60 p-3 sm:p-6 hover:shadow-xl hover:${colors.glow} transition-all duration-300 hover:scale-105 cursor-pointer`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -1404,11 +1408,11 @@ function FinancialStatCard({
           >
             {title}
           </p>
-          <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 mt-1.5 sm:mt-2 group-hover:scale-110 transition-transform duration-300">
+          <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 dark:text-white mt-1.5 sm:mt-2 group-hover:scale-110 transition-transform duration-300">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-slate-900/60 mt-1 font-medium">
+            <p className="text-xs text-slate-900/60 dark:text-slate-400 mt-1 font-medium">
               {subtitle}
             </p>
           )}

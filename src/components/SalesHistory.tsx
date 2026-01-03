@@ -675,7 +675,9 @@ export default function SalesHistory() {
             title="To date"
           />
           <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-            <div className="text-xs text-slate-600 dark:text-slate-400">Revenue</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400">
+              Revenue
+            </div>
             <div className="text-sm font-bold text-slate-900 dark:text-white">
               KES {totals.revenue.toLocaleString()}
             </div>
@@ -947,7 +949,9 @@ export default function SalesHistory() {
                     ))}
 
                     <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-right">
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Total</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-400">
+                        Total
+                      </div>
                       <div className="text-xl font-extrabold text-slate-900 dark:text-white">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
@@ -1171,7 +1175,9 @@ export default function SalesHistory() {
               <div className="p-4 md:p-6 overflow-auto flex-1">
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">HASSAN BOOKSHOP</h3>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                      HASSAN BOOKSHOP
+                    </h3>
                     <div className="text-sm text-slate-700 dark:text-slate-400">
                       Quality Educational Materials & Supplies
                     </div>
@@ -1182,13 +1188,17 @@ export default function SalesHistory() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Transaction</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Transaction
+                      </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.transaction_id}
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Date</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Date
+                      </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {new Date(
                           selectedTransaction.created_at
@@ -1196,20 +1206,26 @@ export default function SalesHistory() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Customer</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Customer
+                      </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.customer_name ||
                           "Walk-in Customer"}
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Payment</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Payment
+                      </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.payment_method}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Sold By</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Sold By
+                      </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.sold_by}
                       </div>
@@ -1249,7 +1265,10 @@ export default function SalesHistory() {
                       </thead>
                       <tbody>
                         {selectedTransaction.items.map((item) => (
-                          <tr key={item.id} className="text-sm text-slate-900 dark:text-white">
+                          <tr
+                            key={item.id}
+                            className="text-sm text-slate-900 dark:text-white"
+                          >
                             <td className="py-3">
                               {getProductName(item.product_id)}
                             </td>
@@ -1289,7 +1308,9 @@ export default function SalesHistory() {
 
                   <div className="mt-6 flex gap-6 items-center">
                     <div className="flex-1">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Notes</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Notes
+                      </div>
                       <div className="text-sm text-slate-700 dark:text-slate-400">
                         Thank you for your purchase. Keep this receipt for
                         returns.
@@ -1297,7 +1318,9 @@ export default function SalesHistory() {
                     </div>
 
                     <div className="w-48">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">Signatures</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
+                        Signatures
+                      </div>
                       <div className="flex gap-2 mt-3">
                         <div className="flex-1 border-t dark:border-slate-700 pt-2 text-center text-xs text-slate-700 dark:text-slate-400">
                           Customer

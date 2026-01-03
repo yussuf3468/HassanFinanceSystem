@@ -399,13 +399,13 @@ export default function CustomerBalances() {
               onChange={(e) => setSortBy(e.target.value as any)}
               className="px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all font-semibold"
             >
-              <option value="balance" className="bg-white">
+              <option value="balance" className="bg-white dark:bg-slate-700">
                 Sort by Balance
               </option>
-              <option value="name" className="bg-white">
+              <option value="name" className="bg-white dark:bg-slate-700">
                 Sort by Name
               </option>
-              <option value="date" className="bg-white">
+              <option value="date" className="bg-white dark:bg-slate-700">
                 Sort by Date
               </option>
             </select>
@@ -431,19 +431,19 @@ export default function CustomerBalances() {
 
       {/* Customer List */}
       {filteredCustomers.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-12 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-12 text-center">
           <Users className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-slate-900 mb-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
             {searchTerm ? "No customers found" : "No outstanding balances"}
           </h3>
-          <p className="text-slate-600">
+          <p className="text-slate-600 dark:text-slate-400">
             {searchTerm
               ? "Try adjusting your search term"
               : "All customers have paid in full! 🎉"}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
@@ -472,12 +472,12 @@ export default function CustomerBalances() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {filteredCustomers.map((customer) => (
                   <>
                     <tr
                       key={customer.customer_name}
-                      className="hover:bg-amber-50 transition-colors"
+                      className="hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -489,7 +489,7 @@ export default function CustomerBalances() {
                                   : customer.customer_name
                               )
                             }
-                            className="p-1 hover:bg-amber-100 rounded-lg transition-colors"
+                            className="p-1 hover:bg-amber-100 dark:hover:bg-slate-600 rounded-lg transition-colors"
                           >
                             {expandedCustomer === customer.customer_name ? (
                               <ChevronUp className="w-5 h-5 text-amber-600" />
@@ -501,10 +501,10 @@ export default function CustomerBalances() {
                             {customer.customer_name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900">
+                            <div className="font-bold text-slate-900 dark:text-white">
                               {customer.customer_name}
                             </div>
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
                               {customer.payment_status === "not_paid"
                                 ? "Not Paid"
                                 : customer.payment_status === "partial"
@@ -514,7 +514,7 @@ export default function CustomerBalances() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right text-slate-900 font-semibold">
+                      <td className="px-6 py-4 text-right text-slate-900 dark:text-white font-semibold">
                         KES{" "}
                         {customer.total_sales.toLocaleString("en-US", {
                           minimumFractionDigits: 2,
@@ -541,11 +541,11 @@ export default function CustomerBalances() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="px-3 py-1 bg-amber-50 border-2 border-amber-400 rounded-full text-amber-700 font-bold text-sm">
+                        <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-400 dark:border-amber-600 rounded-full text-amber-700 dark:text-amber-400 font-bold text-sm">
                           {customer.transaction_count}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right text-slate-600 text-sm">
+                      <td className="px-6 py-4 text-right text-slate-600 dark:text-slate-400 text-sm">
                         {new Date(
                           customer.last_transaction_date
                         ).toLocaleDateString()}
@@ -555,7 +555,7 @@ export default function CustomerBalances() {
                           onClick={() =>
                             handleDeleteCustomer(customer.customer_name)
                           }
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors group inline-flex items-center justify-center"
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group inline-flex items-center justify-center"
                           title="Delete all transactions"
                         >
                           <Trash2 className="w-5 h-5 text-slate-400 group-hover:text-red-600" />
@@ -564,9 +564,9 @@ export default function CustomerBalances() {
                     </tr>
                     {expandedCustomer === customer.customer_name && (
                       <tr>
-                        <td colSpan={7} className="px-6 py-4 bg-amber-50">
+                        <td colSpan={7} className="px-6 py-4 bg-amber-50 dark:bg-slate-700">
                           <div className="space-y-3">
-                            <h4 className="font-bold text-slate-900 mb-3">
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-3">
                               Transaction History
                             </h4>
                             {getCustomerTransactions(
@@ -574,29 +574,29 @@ export default function CustomerBalances() {
                             ).map((sale, index) => (
                               <div
                                 key={sale.id || index}
-                                className="bg-white rounded-xl p-4 border-2 border-slate-200"
+                                className="bg-white dark:bg-slate-600 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-500"
                               >
                                 <div className="grid grid-cols-4 gap-4 text-sm">
                                   <div>
-                                    <span className="text-slate-500">
+                                    <span className="text-slate-500 dark:text-slate-400">
                                       Date:
                                     </span>
-                                    <p className="font-semibold text-slate-900">
+                                    <p className="font-semibold text-slate-900 dark:text-white">
                                       {new Date(
                                         sale.created_at
                                       ).toLocaleDateString()}
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-slate-500">
+                                    <span className="text-slate-500 dark:text-slate-400">
                                       Total Sale:
                                     </span>
-                                    <p className="font-semibold text-slate-900">
+                                    <p className="font-semibold text-slate-900 dark:text-white">
                                       KES {sale.total_sale?.toLocaleString()}
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-slate-500">
+                                    <span className="text-slate-500 dark:text-slate-400">
                                       Amount Paid:
                                     </span>
                                     <p className="font-semibold text-emerald-600">
@@ -605,7 +605,7 @@ export default function CustomerBalances() {
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-slate-500">
+                                    <span className="text-slate-500 dark:text-slate-400">
                                       Outstanding:
                                     </span>
                                     <p className="font-semibold text-red-600">
@@ -630,7 +630,7 @@ export default function CustomerBalances() {
           </div>
 
           {/* Mobile Cards */}
-          <div className="lg:hidden divide-y divide-slate-100">
+          <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-700">
             {filteredCustomers.map((customer) => (
               <div key={customer.customer_name} className="p-6 space-y-4">
                 <div className="flex items-center gap-3">
@@ -642,7 +642,7 @@ export default function CustomerBalances() {
                           : customer.customer_name
                       )
                     }
-                    className="p-1 hover:bg-amber-100 rounded-lg transition-colors flex-shrink-0"
+                    className="p-1 hover:bg-amber-100 dark:hover:bg-slate-600 rounded-lg transition-colors flex-shrink-0"
                   >
                     {expandedCustomer === customer.customer_name ? (
                       <ChevronUp className="w-5 h-5 text-amber-600" />
@@ -654,15 +654,15 @@ export default function CustomerBalances() {
                     {customer.customer_name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <div className="font-bold text-slate-900 text-lg">
+                    <div className="font-bold text-slate-900 dark:text-white text-lg">
                       {customer.customer_name}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
                       {customer.transaction_count} transaction(s)
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-slate-500 mb-1">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                       Outstanding
                     </div>
                     <div className="font-bold text-red-600">
@@ -675,12 +675,12 @@ export default function CustomerBalances() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                   <div>
-                    <div className="text-xs text-slate-500 mb-1">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                       Total Sales
                     </div>
-                    <div className="font-semibold text-slate-900">
+                    <div className="font-semibold text-slate-900 dark:text-white">
                       KES{" "}
                       {customer.total_sales.toLocaleString("en-US", {
                         minimumFractionDigits: 2,
@@ -689,7 +689,7 @@ export default function CustomerBalances() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500 mb-1">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                       Amount Paid
                     </div>
                     <div className="font-semibold text-emerald-600">
@@ -701,10 +701,10 @@ export default function CustomerBalances() {
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <div className="text-xs text-slate-500 mb-1">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">
                       Last Transaction
                     </div>
-                    <div className="text-sm text-slate-600">
+                    <div className="text-sm text-slate-600 dark:text-slate-400">
                       {new Date(
                         customer.last_transaction_date
                       ).toLocaleDateString()}
@@ -714,7 +714,7 @@ export default function CustomerBalances() {
                 <div className="flex justify-end pt-2">
                   <button
                     onClick={() => handleDeleteCustomer(customer.customer_name)}
-                    className="px-4 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors group flex items-center gap-2"
+                    className="px-4 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors group flex items-center gap-2"
                     title="Delete all transactions"
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
@@ -725,34 +725,34 @@ export default function CustomerBalances() {
                 </div>
 
                 {expandedCustomer === customer.customer_name && (
-                  <div className="pt-4 border-t border-slate-300 space-y-3">
-                    <h4 className="font-bold text-slate-900 mb-2">
+                  <div className="pt-4 border-t border-slate-300 dark:border-slate-600 space-y-3">
+                    <h4 className="font-bold text-slate-900 dark:text-white mb-2">
                       Transaction History
                     </h4>
                     {getCustomerTransactions(customer.customer_name).map(
                       (sale, index) => (
                         <div
                           key={sale.id || index}
-                          className="bg-white rounded-xl p-4 border-2 border-slate-200 space-y-2"
+                          className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 space-y-2"
                         >
                           <div className="flex justify-between">
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               Date:
                             </span>
-                            <span className="text-sm font-semibold text-slate-900">
+                            <span className="text-sm font-semibold text-slate-900 dark:text-white">
                               {new Date(sale.created_at).toLocaleDateString()}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               Total Sale:
                             </span>
-                            <span className="text-sm font-semibold text-slate-900">
+                            <span className="text-sm font-semibold text-slate-900 dark:text-white">
                               KES {sale.total_sale?.toLocaleString()}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               Amount Paid:
                             </span>
                             <span className="text-sm font-semibold text-emerald-600">
@@ -760,7 +760,7 @@ export default function CustomerBalances() {
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               Outstanding:
                             </span>
                             <span className="text-sm font-semibold text-red-600">
