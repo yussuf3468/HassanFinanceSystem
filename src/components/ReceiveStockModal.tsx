@@ -404,8 +404,8 @@ export default function ReceiveStockModal({
                         <button
                           type="button"
                           onClick={onClose}
-                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95">
-                        >
+                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95"
+                          >
                           Ka Noqo - Cancel
                         </button>
                         <button
