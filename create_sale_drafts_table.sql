@@ -14,7 +14,10 @@ CREATE TABLE IF NOT EXISTS sale_drafts (
   overall_discount_type VARCHAR(20),
   overall_discount_value DECIMAL(10, 2),
   selected_customer_id UUID,
+  customer_name VARCHAR(255),
   customer_search VARCHAR(255),
+  payment_status VARCHAR(50),
+  amount_paid DECIMAL(10, 2),
   quick_sale_mode BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL

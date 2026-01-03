@@ -260,10 +260,10 @@ export default function SaleForm({
           sold_by: soldBy,
           payment_method: paymentMethod,
           overall_discount_type: overallDiscountType,
-          overall_discount_value: overallDiscountValue,
-          customer_name: customerName,
+          overall_discount_value: overallDiscountValue ? parseFloat(overallDiscountValue) : null,
+          customer_name: customerName || null,
           payment_status: paymentStatus,
-          amount_paid: amountPaid,
+          amount_paid: amountPaid ? parseFloat(amountPaid) : null,
         })
         .select()
         .single();
