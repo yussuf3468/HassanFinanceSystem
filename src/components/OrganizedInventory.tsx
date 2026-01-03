@@ -484,7 +484,9 @@ export default function OrganizedInventory() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-slate-700 dark:text-slate-400">Loading inventory...</p>
+          <p className="mt-4 text-slate-700 dark:text-slate-400">
+            Loading inventory...
+          </p>
         </div>
       </div>
     );
@@ -653,7 +655,9 @@ export default function OrganizedInventory() {
                             {subcategories.size}{" "}
                             {subcategories.size === 1 ? "folder" : "folders"}
                           </span>
-                          <span className="text-slate-400 dark:text-slate-600">•</span>
+                          <span className="text-slate-400 dark:text-slate-600">
+                            •
+                          </span>
                           <span className="text-slate-700 dark:text-slate-400">
                             {totalProducts} items
                           </span>
@@ -840,7 +844,9 @@ export default function OrganizedInventory() {
                             {subItems.size}{" "}
                             {subItems.size === 1 ? "type" : "types"}
                           </span>
-                          <span className="text-slate-400 dark:text-slate-600">•</span>
+                          <span className="text-slate-400 dark:text-slate-600">
+                            •
+                          </span>
                           <span className="text-slate-700 dark:text-slate-400">
                             {totalProducts} items
                           </span>
@@ -924,7 +930,9 @@ export default function OrganizedInventory() {
               <FolderOpen className="w-8 h-8 text-amber-700 dark:text-amber-500" />
               {selectedGroup}
             </h1>
-            <p className="text-slate-700 dark:text-slate-400">Select a type to view products</p>
+            <p className="text-slate-700 dark:text-slate-400">
+              Select a type to view products
+            </p>
           </div>
 
           {/* Group Items Grid */}
@@ -1211,7 +1219,9 @@ export default function OrganizedInventory() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 dark:text-slate-400">Stock:</span>
+                    <span className="text-slate-700 dark:text-slate-400">
+                      Stock:
+                    </span>
                     <span
                       className={`font-bold ${
                         product.quantity_in_stock > 0
@@ -1223,13 +1233,17 @@ export default function OrganizedInventory() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 dark:text-slate-400">Price:</span>
+                    <span className="text-slate-700 dark:text-slate-400">
+                      Price:
+                    </span>
                     <span className="font-bold text-amber-700 dark:text-amber-500">
                       KES {Number(product.selling_price).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-700 dark:text-slate-400">ID:</span>
+                    <span className="text-slate-700 dark:text-slate-400">
+                      ID:
+                    </span>
                     <span className="font-mono text-xs text-slate-700 dark:text-slate-400">
                       {product.product_id}
                     </span>
@@ -1243,7 +1257,9 @@ export default function OrganizedInventory() {
         {productsInSubcategory.length === 0 && (
           <div className="text-center py-12">
             <Package className="w-16 h-16 text-slate-700 dark:text-slate-400 mx-auto mb-4" />
-            <p className="text-slate-600 dark:text-slate-400 text-lg">No products in this folder</p>
+            <p className="text-slate-600 dark:text-slate-400 text-lg">
+              No products in this folder
+            </p>
           </div>
         )}
 
@@ -1331,7 +1347,9 @@ export default function OrganizedInventory() {
                             <Tag className="w-5 h-5 text-amber-700 dark:text-amber-500" />
                           </div>
                           <div>
-                            <p className="text-sm text-slate-700 dark:text-slate-400">Category</p>
+                            <p className="text-sm text-slate-700 dark:text-slate-400">
+                              Category
+                            </p>
                             <p className="text-lg font-semibold text-slate-800 dark:text-white">
                               {selectedProduct.category || "Uncategorized"}
                             </p>
@@ -1484,7 +1502,10 @@ export default function OrganizedInventory() {
 
                   if (showEllipsisBefore || showEllipsisAfter) {
                     return (
-                      <span key={page} className="px-2 text-slate-500 dark:text-slate-400">
+                      <span
+                        key={page}
+                        className="px-2 text-slate-500 dark:text-slate-400"
+                      >
                         ...
                       </span>
                     );

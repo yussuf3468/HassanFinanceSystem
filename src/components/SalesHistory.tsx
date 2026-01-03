@@ -555,10 +555,10 @@ export default function SalesHistory() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
             Sales Transaction Log
           </h2>
-          <p className="mt-1 text-sm text-slate-600 max-w-xl">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-xl">
             Look up transactions, preview sold items, and reprint receipts with
             a smooth and responsive interface.
           </p>
@@ -598,7 +598,7 @@ export default function SalesHistory() {
               <button
                 onClick={() => setQuery("")}
                 title="Clear"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-600 hover:text-slate-900"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               >
                 <XCircle className="w-4 h-4" />
               </button>
@@ -675,8 +675,8 @@ export default function SalesHistory() {
             title="To date"
           />
           <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-            <div className="text-xs text-slate-600">Revenue</div>
-            <div className="text-sm font-bold text-slate-900">
+            <div className="text-xs text-slate-600 dark:text-slate-400">Revenue</div>
+            <div className="text-sm font-bold text-slate-900 dark:text-white">
               KES {totals.revenue.toLocaleString()}
             </div>
           </div>
@@ -796,14 +796,14 @@ export default function SalesHistory() {
                   <div
                     className={`p-1.5 md:p-2 rounded-xl border-2 ${
                       isOpen
-                        ? "bg-amber-50 border-amber-300"
-                        : "bg-white border-slate-200"
+                        ? "bg-amber-50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700"
+                        : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
                     }`}
                   >
                     {isOpen ? (
-                      <ChevronDown className="w-5 h-5 text-amber-700" />
+                      <ChevronDown className="w-5 h-5 text-amber-700 dark:text-amber-500" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-600" />
+                      <ChevronRight className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                     )}
                   </div>
                 </div>
@@ -817,7 +817,7 @@ export default function SalesHistory() {
                           {transaction.item_count === 1 ? "Item" : "Items"}
                         </span>
 
-                        <div className="text-xs font-mono truncate text-slate-600">
+                        <div className="text-xs font-mono truncate text-slate-600 dark:text-slate-400">
                           ID: {transaction.transaction_id.slice(0, 8)}...
                         </div>
 
@@ -827,9 +827,9 @@ export default function SalesHistory() {
                             copyToClipboard(transaction.transaction_id);
                           }}
                           title="Copy transaction id"
-                          className="ml-2 p-1 rounded hover:bg-slate-100"
+                          className="ml-2 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <Copy className="w-4 h-4 text-slate-600" />
+                          <Copy className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                         </button>
                         {copiedTx === transaction.transaction_id && (
                           <span className="ml-2 text-xs text-emerald-600">
@@ -838,7 +838,7 @@ export default function SalesHistory() {
                         )}
                       </div>
 
-                      <div className="text-xs text-slate-600 mt-2 flex items-center gap-3 flex-wrap">
+                      <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-3 flex-wrap">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(transaction.created_at)}
@@ -854,13 +854,13 @@ export default function SalesHistory() {
                       </div>
 
                       {/* preview */}
-                      <div className="text-xs text-slate-500 mt-2 truncate">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 truncate">
                         {preview}
                       </div>
                     </div>
 
                     <div className="text-left sm:text-right ml-0 sm:ml-4 mt-2 sm:mt-0">
-                      <div className="text-base md:text-lg font-extrabold text-slate-900">
+                      <div className="text-base md:text-lg font-extrabold text-slate-900 dark:text-white">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
                       {transaction.total_discount > 0 && (
@@ -911,29 +911,29 @@ export default function SalesHistory() {
                     {transaction.items.map((item) => (
                       <div
                         key={item.id}
-                        className="p-2.5 md:p-3 bg-white rounded-lg border border-slate-200"
+                        className="p-2.5 md:p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <div className="font-medium truncate text-slate-900">
+                            <div className="font-medium truncate text-slate-900 dark:text-white">
                               {getProductName(item.product_id)}
                             </div>
-                            <div className="text-xs text-slate-600 mt-1">
+                            <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                               {(item.original_price &&
                                 `Was KES ${item.original_price.toLocaleString()}`) ||
                                 ""}
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm font-semibold text-slate-900">
+                            <div className="text-sm font-semibold text-slate-900 dark:text-white">
                               KES {item.total_sale.toLocaleString()}
                             </div>
-                            <div className="text-xs text-slate-600">
+                            <div className="text-xs text-slate-600 dark:text-slate-400">
                               Qty: {item.quantity_sold}
                             </div>
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+                        <div className="mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
                           <div>
                             Unit: KES {item.selling_price.toLocaleString()}
                           </div>
@@ -946,9 +946,9 @@ export default function SalesHistory() {
                       </div>
                     ))}
 
-                    <div className="pt-2 border-t border-slate-200 text-right">
-                      <div className="text-sm text-slate-600">Total</div>
-                      <div className="text-xl font-extrabold text-slate-900">
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-right">
+                      <div className="text-sm text-slate-600 dark:text-slate-400">Total</div>
+                      <div className="text-xl font-extrabold text-slate-900 dark:text-white">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
                     </div>
@@ -958,7 +958,7 @@ export default function SalesHistory() {
                   <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="text-slate-600">
+                        <tr className="text-slate-600 dark:text-slate-400">
                           <th className="text-left py-2 px-3">Product</th>
                           <th className="text-right py-2 px-3">Qty</th>
                           <th className="text-right py-2 px-3">Price</th>
@@ -968,11 +968,11 @@ export default function SalesHistory() {
                           <th className="text-right py-2 px-3">Total</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                         {transaction.items.map((item) => (
                           <tr
                             key={item.id}
-                            className="text-slate-900 hover:bg-white transition-colors"
+                            className="text-slate-900 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors"
                           >
                             <td className="py-3 px-3">
                               <div className="flex items-center gap-2">
@@ -981,7 +981,7 @@ export default function SalesHistory() {
                                   <div className="font-medium truncate">
                                     {getProductName(item.product_id)}
                                   </div>
-                                  <div className="text-xs text-slate-600 truncate">
+                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
                                     {(item.original_price &&
                                       `Was KES ${item.original_price.toLocaleString()}`) ||
                                       ""}
@@ -1006,15 +1006,15 @@ export default function SalesHistory() {
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="border-t-2 border-slate-200">
+                      <tfoot className="border-t-2 border-slate-200 dark:border-slate-700">
                         <tr>
                           <td
                             colSpan={4}
-                            className="py-3 px-3 text-right text-slate-600 font-semibold"
+                            className="py-3 px-3 text-right text-slate-600 dark:text-slate-400 font-semibold"
                           >
                             Total
                           </td>
-                          <td className="py-3 px-3 text-right font-extrabold text-lg text-slate-900">
+                          <td className="py-3 px-3 text-right font-extrabold text-lg text-slate-900 dark:text-white">
                             KES {transaction.total_amount.toLocaleString()}
                           </td>
                         </tr>
@@ -1160,7 +1160,7 @@ export default function SalesHistory() {
 
                   <button
                     onClick={closeReceiptModal}
-                    className="p-2 rounded-full text-slate-700 hover:bg-slate-100"
+                    className="p-2 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1171,54 +1171,54 @@ export default function SalesHistory() {
               <div className="p-4 md:p-6 overflow-auto flex-1">
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
-                    <h3 className="text-xl font-bold">HASSAN BOOKSHOP</h3>
-                    <div className="text-sm text-slate-700 ">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">HASSAN BOOKSHOP</h3>
+                    <div className="text-sm text-slate-700 dark:text-slate-400">
                       Quality Educational Materials & Supplies
                     </div>
-                    <div className="text-sm text-slate-700 ">
+                    <div className="text-sm text-slate-700 dark:text-slate-400">
                       Tel: +254 722 979 547 • yussufh080@gmail.com
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <div>
-                      <div className="text-xs text-slate-700 ">Transaction</div>
-                      <div className="font-medium">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Transaction</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.transaction_id}
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 ">Date</div>
-                      <div className="font-medium">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Date</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {new Date(
                           selectedTransaction.created_at
                         ).toLocaleString()}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-700 ">Customer</div>
-                      <div className="font-medium">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Customer</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.customer_name ||
                           "Walk-in Customer"}
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 ">Payment</div>
-                      <div className="font-medium">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Payment</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.payment_method}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-slate-700 ">Sold By</div>
-                      <div className="font-medium">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Sold By</div>
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {selectedTransaction.sold_by}
                       </div>
                     </div>
                     <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 ">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
                         Payment Status
                       </div>
-                      <div className="font-medium">
+                      <div className="font-medium text-slate-900 dark:text-white">
                         {(selectedTransaction.payment_status || "paid")
                           .replace("_", " ")
                           .toUpperCase()}
@@ -1226,10 +1226,10 @@ export default function SalesHistory() {
                     </div>
                     {selectedTransaction.amount_paid && (
                       <div className="sm:col-span-2">
-                        <div className="text-xs text-slate-700 ">
+                        <div className="text-xs text-slate-700 dark:text-slate-400">
                           Amount Paid
                         </div>
-                        <div className="font-medium">
+                        <div className="font-medium text-slate-900 dark:text-white">
                           KES {selectedTransaction.amount_paid.toLocaleString()}
                         </div>
                       </div>
@@ -1239,7 +1239,7 @@ export default function SalesHistory() {
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                       <thead>
-                        <tr className="text-sm text-slate-700 border-b">
+                        <tr className="text-sm text-slate-700 dark:text-slate-400 border-b dark:border-slate-700">
                           <th className="text-left py-2">Product</th>
                           <th className="text-right py-2">Qty</th>
                           <th className="text-right py-2">Unit</th>
@@ -1249,7 +1249,7 @@ export default function SalesHistory() {
                       </thead>
                       <tbody>
                         {selectedTransaction.items.map((item) => (
-                          <tr key={item.id} className="text-sm text-slate-900">
+                          <tr key={item.id} className="text-sm text-slate-900 dark:text-white">
                             <td className="py-3">
                               {getProductName(item.product_id)}
                             </td>
@@ -1271,14 +1271,14 @@ export default function SalesHistory() {
                         ))}
                       </tbody>
                       <tfoot>
-                        <tr className="border-t">
+                        <tr className="border-t dark:border-slate-700">
                           <td
                             colSpan={4}
-                            className="py-3 text-right text-slate-700 font-medium"
+                            className="py-3 text-right text-slate-700 dark:text-slate-400 font-medium"
                           >
                             Total
                           </td>
-                          <td className="py-3 text-right font-extrabold">
+                          <td className="py-3 text-right font-extrabold text-slate-900 dark:text-white">
                             KES{" "}
                             {selectedTransaction.total_amount.toLocaleString()}
                           </td>
@@ -1289,17 +1289,17 @@ export default function SalesHistory() {
 
                   <div className="mt-6 flex gap-6 items-center">
                     <div className="flex-1">
-                      <div className="text-xs text-slate-700 ">Notes</div>
-                      <div className="text-sm text-slate-700">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Notes</div>
+                      <div className="text-sm text-slate-700 dark:text-slate-400">
                         Thank you for your purchase. Keep this receipt for
                         returns.
                       </div>
                     </div>
 
                     <div className="w-48">
-                      <div className="text-xs text-slate-700 ">Signatures</div>
+                      <div className="text-xs text-slate-700 dark:text-slate-400">Signatures</div>
                       <div className="flex gap-2 mt-3">
-                        <div className="flex-1 border-t pt-2 text-center text-xs">
+                        <div className="flex-1 border-t dark:border-slate-700 pt-2 text-center text-xs text-slate-700 dark:text-slate-400">
                           Customer
                         </div>
                         <div className="flex-1 border-t pt-2 text-center text-xs">
@@ -1347,7 +1347,7 @@ export default function SalesHistory() {
 
                 <button
                   onClick={closeReceiptModal}
-                  className="p-2 rounded-full text-slate-700 border-2 border-slate-200 hover:bg-slate-50"
+                  className="p-2 rounded-full text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
                 >
                   <X className="w-5 h-5" />
                 </button>
