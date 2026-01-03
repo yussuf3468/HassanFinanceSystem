@@ -1256,7 +1256,7 @@ export default function SaleForm({
               </button>
               <button
                 onClick={onSuccess}
-                className="w-full sm:w-auto px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-100 font-medium"
+                className="w-full sm:w-auto px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 font-medium"
               >
                 Close
               </button>
@@ -1276,10 +1276,10 @@ export default function SaleForm({
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">⚡</span>
                 <div>
-                  <p className="text-sm font-bold text-slate-900">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
                     Quick Sale Mode
                   </p>
-                  <p className="text-xs text-emerald-700">
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400">
                     Skip payment selection for faster checkout
                   </p>
                 </div>
@@ -1309,13 +1309,13 @@ export default function SaleForm({
             {/* Staff & Payment - Moved to top for better UX */}
             {!quickSaleMode && (
               <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
-                <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center space-x-2">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
                   <span>📋</span>
                   <span>Sale Information</span>
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                       Sold By (Staff) *
                     </label>
                     <select
@@ -1339,7 +1339,7 @@ export default function SaleForm({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                       Payment Method *
                     </label>
                     <select
@@ -1361,7 +1361,7 @@ export default function SaleForm({
 
                   {/* Customer Name */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                       Customer Name (Optional)
                     </label>
                     <input
@@ -1375,7 +1375,7 @@ export default function SaleForm({
 
                   {/* Payment Status */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-2">
+                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                       Payment Status <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -1396,7 +1396,7 @@ export default function SaleForm({
                   {/* Amount Paid - Only show for partial payment */}
                   {paymentStatus === "partial" && (
                     <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                         Amount Paid <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1438,7 +1438,7 @@ export default function SaleForm({
                   <span>📚</span>
                   <span>Quick Add by Grade</span>
                 </h4>
-                <span className="text-xs text-slate-600">
+                <span className="text-xs text-slate-600 dark:text-slate-400">
                   Click to load all books
                 </span>
               </div>
@@ -1535,7 +1535,7 @@ export default function SaleForm({
               </div>
 
               <div className="mt-3 pt-3 border-t border-amber-100/50">
-                <p className="text-xs text-slate-700 text-center">
+                <p className="text-xs text-slate-700 dark:text-slate-300 text-center">
                   💡 Tip: Each book will be added with quantity 1. You can
                   adjust quantities after adding.
                 </p>
@@ -1545,7 +1545,7 @@ export default function SaleForm({
             {/* Line Items */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-base sm:text-lg font-bold text-slate-900 flex items-center space-x-2">
+                <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                   <Package className="w-5 h-5" />
                   <span>Products ({lineItems.length})</span>
                 </h4>
@@ -1676,7 +1676,7 @@ export default function SaleForm({
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {/* Product Search */}
                         <div className="sm:col-span-2">
-                          <label className="flex items-center text-xs font-medium text-slate-600 mb-1.5">
+                          <label className="flex items-center text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             <span className="mr-2">🔍</span>
                             Product *{" "}
                             {autocompleteSuggestion && (
@@ -1690,7 +1690,7 @@ export default function SaleForm({
 
                             {/* Autocomplete preview (ghost text) */}
                             {autocompleteSuggestion && li.showDropdown && (
-                              <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none z-[5] text-sm text-slate-700 font-medium">
+                              <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none z-[5] text-sm text-slate-700 dark:text-slate-300 font-medium">
                                 {autocompleteSuggestion}
                               </div>
                             )}
@@ -1724,7 +1724,7 @@ export default function SaleForm({
                                 {!li.searchTerm &&
                                   quickAccessProducts.length > 0 && (
                                     <div className="border-b border-amber-100/50">
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
                                         <TrendingUp className="w-3 h-3" />
                                         <span>Quick Access</span>
                                       </div>
@@ -1749,14 +1749,14 @@ export default function SaleForm({
                                             />
                                           ) : (
                                             <div className="w-8 h-8 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
-                                              <Package className="w-4 h-4 text-slate-700 " />
+                                              <Package className="w-4 h-4 text-slate-700 dark:text-slate-300 " />
                                             </div>
                                           )}
                                           <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-slate-900 text-xs truncate">
+                                            <p className="font-medium text-slate-900 dark:text-white text-xs truncate">
                                               {p.name}
                                             </p>
-                                            <p className="text-xs text-slate-700 ">
+                                            <p className="text-xs text-slate-700 dark:text-slate-300 ">
                                               KES{" "}
                                               {p.selling_price.toLocaleString()}
                                             </p>
@@ -1769,7 +1769,7 @@ export default function SaleForm({
                                 {/* Search Suggestions - Like Google */}
                                 {suggestions.length > 0 && li.searchTerm && (
                                   <div className="border-b border-amber-100/50">
-                                    <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
+                                    <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
                                       <Search className="w-3 h-3" />
                                       <span>Suggestions</span>
                                     </div>
@@ -1785,7 +1785,7 @@ export default function SaleForm({
                                         }
                                         className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 text-sm flex items-center space-x-2 transition-colors group"
                                       >
-                                        <Clock className="w-4 h-4 text-slate-700 group-hover:text-amber-700 " />
+                                        <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:text-amber-400 " />
                                         <span className="text-white">
                                           {suggestion
                                             .split(
@@ -1799,7 +1799,7 @@ export default function SaleForm({
                                               li.searchTerm.toLowerCase() ? (
                                                 <span
                                                   key={i}
-                                                  className="font-bold text-amber-700 "
+                                                  className="font-bold text-amber-700 dark:text-amber-400 "
                                                 >
                                                   {part}
                                                 </span>
@@ -1817,7 +1817,7 @@ export default function SaleForm({
                                 {li.searchTerm && filtered.length > 0 && (
                                   <div>
                                     {suggestions.length > 0 && (
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
+                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
                                         <Package className="w-3 h-3" />
                                         <span>
                                           Products ({filtered.length})
@@ -1845,14 +1845,14 @@ export default function SaleForm({
                                           />
                                         ) : (
                                           <div className="w-10 h-10 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
-                                            <Package className="w-5 h-5 text-slate-700 " />
+                                            <Package className="w-5 h-5 text-slate-700 dark:text-slate-300 " />
                                           </div>
                                         )}
                                         <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-slate-900 truncate">
+                                          <p className="font-medium text-slate-900 dark:text-white truncate">
                                             {p.name}
                                           </p>
-                                          <p className="text-xs text-slate-700 truncate">
+                                          <p className="text-xs text-slate-700 dark:text-slate-300 truncate">
                                             {p.product_id} • Stock{" "}
                                             {p.quantity_in_stock} • KES{" "}
                                             {p.selling_price.toLocaleString()}
@@ -1870,7 +1870,7 @@ export default function SaleForm({
 
                                 {/* No Results */}
                                 {li.searchTerm && filtered.length === 0 && (
-                                  <div className="p-4 text-center text-slate-700 text-sm">
+                                  <div className="p-4 text-center text-slate-700 dark:text-slate-300 text-sm">
                                     <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
                                     <p className="font-medium">
                                       No products found
@@ -1887,7 +1887,7 @@ export default function SaleForm({
 
                         {/* Quantity */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             Quantity *
                           </label>
                           <div className="space-y-2">
@@ -1911,7 +1911,7 @@ export default function SaleForm({
                                     quantity: String(Math.max(1, current - 1)),
                                   });
                                 }}
-                                className="px-2 py-1 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 rounded text-xs text-slate-900 font-medium transition-all active:scale-95"
+                                className="px-2 py-1 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 border border-slate-300 dark:border-slate-500 rounded text-xs text-slate-900 dark:text-white font-medium transition-all active:scale-95"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -1928,7 +1928,7 @@ export default function SaleForm({
                                     quantity: String(current + 1),
                                   });
                                 }}
-                                className="px-2 py-1 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600/50 rounded text-xs text-slate-900 font-medium transition-all active:scale-95"
+                                className="px-2 py-1 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 border border-slate-300 dark:border-slate-500 rounded text-xs text-slate-900 dark:text-white font-medium transition-all active:scale-95"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -1994,7 +1994,7 @@ export default function SaleForm({
 
                         {/* Discount Type */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             Discount Type
                           </label>
                           <select
@@ -2030,7 +2030,7 @@ export default function SaleForm({
 
                         {/* Discount Value */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                          <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             Discount Value
                           </label>
                           <input
@@ -2063,15 +2063,15 @@ export default function SaleForm({
                       {product && comp.quantity > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
                           <div className="bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
-                            <span className="text-slate-600 block mb-0.5">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Original
                             </span>
-                            <span className="font-bold text-amber-700">
+                            <span className="font-bold text-amber-700 dark:text-amber-400">
                               KES {comp.original_total.toLocaleString()}
                             </span>
                           </div>
                           <div className="bg-red-50 rounded-md p-2 border border-red-200">
-                            <span className="text-slate-600 block mb-0.5">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Discount
                             </span>
                             <span className="font-bold text-red-600">
@@ -2081,18 +2081,18 @@ export default function SaleForm({
                             </span>
                           </div>
                           <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200">
-                            <span className="text-slate-600 block mb-0.5">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Line Total
                             </span>
-                            <span className="font-bold text-amber-700">
+                            <span className="font-bold text-amber-700 dark:text-amber-400">
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
                           <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200">
-                            <span className="text-slate-600 block mb-0.5">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Profit Est.
                             </span>
-                            <span className="font-bold text-emerald-700">
+                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
                               KES {comp.profit.toLocaleString()}
                             </span>
                           </div>
@@ -2116,13 +2116,13 @@ export default function SaleForm({
 
             {/* Overall Discount Section */}
             <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
-              <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center space-x-2">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
                 <span>🎁</span>
                 <span>Overall Discount (Applied to Total)</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-2">
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
                     Discount Type
                   </label>
                   <select
@@ -2148,7 +2148,7 @@ export default function SaleForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-2">
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
                     Discount Value
                   </label>
                   <input
@@ -2172,20 +2172,20 @@ export default function SaleForm({
 
             {/* Overall Totals */}
             <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border-2 border-slate-200 dark:border-slate-700 space-y-3 shadow-md">
-              <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
+              <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
                 <span>💵</span>
                 <span>Sale Summary</span>
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Subtotal:</span>
-                  <span className="font-semibold text-slate-800">
+                  <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 {total_line_discount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Line Discounts:</span>
+                    <span className="text-slate-600 dark:text-slate-400">Line Discounts:</span>
                     <span className="font-semibold text-red-600">
                       -KES {total_line_discount.toLocaleString()}
                     </span>
@@ -2193,7 +2193,7 @@ export default function SaleForm({
                 )}
                 {overallDiscountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">
+                    <span className="text-slate-600 dark:text-slate-400">
                       Overall Discount
                       {overallDiscountType === "percentage" &&
                         ` (${overallDiscountValue}%)`}
@@ -2205,14 +2205,14 @@ export default function SaleForm({
                   </div>
                 )}
                 <div className="flex justify-between text-lg border-t-2 border-amber-200 pt-3 font-bold">
-                  <span className="text-amber-700">Final Total:</span>
-                  <span className="text-amber-700">
+                  <span className="text-amber-700 dark:text-amber-400">Final Total:</span>
+                  <span className="text-amber-700 dark:text-amber-400">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-                  <span className="text-slate-600">Estimated Profit:</span>
-                  <span className="font-bold text-emerald-700">
+                  <span className="text-slate-600 dark:text-slate-400">Estimated Profit:</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400">
                     KES {total_profit.toLocaleString()}
                   </span>
                 </div>
@@ -2300,10 +2300,10 @@ export default function SaleForm({
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📋</span>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                     Saved Drafts
                   </h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     {savedDrafts.length} draft
                     {savedDrafts.length !== 1 ? "s" : ""} saved
                   </p>
@@ -2311,7 +2311,7 @@ export default function SaleForm({
               </div>
               <button
                 onClick={() => setShowDrafts(false)}
-                className="p-2 hover:bg-amber-100 rounded-xl transition-colors text-slate-700 hover:text-slate-900 border border-transparent hover:border-amber-300"
+                className="p-2 hover:bg-amber-100 rounded-xl transition-colors text-slate-700 hover:text-slate-900 dark:text-white border border-transparent hover:border-amber-300"
                 style={{
                   touchAction: "manipulation",
                   WebkitTapHighlightColor: "rgba(139, 92, 246, 0.3)",
@@ -2349,10 +2349,10 @@ export default function SaleForm({
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-lg font-semibold text-slate-900 truncate mb-1">
+                          <h4 className="text-lg font-semibold text-slate-900 dark:text-white truncate mb-1">
                             {draft.name}
                           </h4>
-                          <div className="flex flex-wrap gap-3 text-xs text-slate-700 mb-3">
+                          <div className="flex flex-wrap gap-3 text-xs text-slate-700 dark:text-slate-300 mb-3">
                             <span className="flex items-center gap-1">
                               <svg
                                 className="w-4 h-4"
@@ -2424,20 +2424,20 @@ export default function SaleForm({
                             {draft.lineItems.slice(0, 3).map((item, idx) => (
                               <div
                                 key={idx}
-                                className="text-xs text-slate-600 flex justify-between"
+                                className="text-xs text-slate-600 dark:text-slate-400 flex justify-between"
                               >
                                 <span className="truncate flex-1">
                                   {products.find(
                                     (p) => p.id === item.product_id
                                   )?.name || "Unknown"}
                                 </span>
-                                <span className="text-slate-700 ml-2">
+                                <span className="text-slate-700 dark:text-slate-300 ml-2">
                                   ×{item.quantity}
                                 </span>
                               </div>
                             ))}
                             {draft.lineItems.length > 3 && (
-                              <div className="text-xs text-slate-700 italic">
+                              <div className="text-xs text-slate-700 dark:text-slate-300 italic">
                                 +{draft.lineItems.length - 3} more item
                                 {draft.lineItems.length - 3 !== 1 ? "s" : ""}
                               </div>
@@ -2538,4 +2538,6 @@ export default function SaleForm({
     </div>
   );
 }
+
+
 
