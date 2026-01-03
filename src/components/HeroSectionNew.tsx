@@ -146,7 +146,7 @@ const HeroSection = memo(
                 {/* Right Column - Product Showcase (Mobile First) */}
                 <div className="relative order-1 lg:order-2">
                   {/* Clean Product Showcase Card */}
-                  <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200">
+                  <div className="relative rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 text-center">
                       <h3 className="text-lg font-bold">Featured Categories</h3>
@@ -158,12 +158,12 @@ const HeroSection = memo(
                     {/* Product Grid - Mobile Optimized */}
                     <div className="p-4 sm:p-6 grid grid-cols-2 gap-3 sm:gap-4">
                       {/* Textbooks */}
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-blue-200 hover:scale-105">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-blue-200 dark:border-blue-700 hover:scale-105">
                         <div className="text-2xl sm:text-3xl mb-2">📚</div>
                         <div className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                           Textbooks
                         </div>
-                        <div className="text-xs text-blue-700 font-somali">
+                        <div className="text-xs text-blue-700 dark:text-blue-300 font-somali">
                           Buugaag Waxbarasho
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
@@ -172,12 +172,12 @@ const HeroSection = memo(
                       </div>
 
                       {/* Stationery */}
-                      <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-amber-200 hover:scale-105">
+                      <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/20 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-amber-200 dark:border-amber-700 hover:scale-105">
                         <div className="text-2xl sm:text-3xl mb-2">✏️</div>
                         <div className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                           Stationery
                         </div>
-                        <div className="text-xs text-amber-700 font-somali">
+                        <div className="text-xs text-amber-700 dark:text-amber-300 font-somali">
                           Alaabta Qoraalka
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
@@ -186,12 +186,12 @@ const HeroSection = memo(
                       </div>
 
                       {/* Electronics */}
-                      <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-orange-200 hover:scale-105">
+                      <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/20 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-orange-200 dark:border-orange-700 hover:scale-105">
                         <div className="text-2xl sm:text-3xl mb-2">💻</div>
                         <div className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                           Electronics
                         </div>
-                        <div className="text-xs text-orange-700 font-somali">
+                        <div className="text-xs text-orange-700 dark:text-orange-300 font-somali">
                           Qalabka Elektarooniga
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
@@ -200,12 +200,12 @@ const HeroSection = memo(
                       </div>
 
                       {/* Accessories */}
-                      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-emerald-200 hover:scale-105">
+                      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/20 rounded-2xl p-3 sm:p-4 text-center group hover:shadow-lg transition-all duration-300 border border-emerald-200 dark:border-emerald-700 hover:scale-105">
                         <div className="text-2xl sm:text-3xl mb-2">🎒</div>
                         <div className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
                           Accessories
                         </div>
-                        <div className="text-xs text-emerald-700 font-somali">
+                        <div className="text-xs text-emerald-700 dark:text-emerald-300 font-somali">
                           Alaabta Dheeriga
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
@@ -215,12 +215,12 @@ const HeroSection = memo(
                     </div>
 
                     {/* Bottom CTA */}
-                    <div className="bg-gradient-to-r from-amber-50 to-white p-4 border-t border-slate-200">
+                    <div className="bg-gradient-to-r from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-800 p-4 border-t border-slate-200 dark:border-slate-600">
                       <div className="text-center">
                         <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">
                           Special Offer
                         </div>
-                        <div className="text-xs text-amber-700 font-somali">
+                        <div className="text-xs text-amber-700 dark:text-amber-300 font-somali">
                           Bixinta Gaarka ah
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400 font-arabic">

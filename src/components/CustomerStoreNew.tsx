@@ -414,15 +414,15 @@ export default function CustomerStore({
       >
         {/* Section Header */},
         <div className="text-center mb-12">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white border border-amber-300 text-amber-700 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
             <Package className="w-4 h-4" />
             <span>Premium Collection</span>
           </div>
           <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-amber-700 mb-2 font-somali">Alaabteenna</p>
-          <p className="text-slate-600 max-w-2xl mx-auto">
+          <p className="text-xl text-amber-700 dark:text-amber-300 mb-2 font-somali">Alaabteenna</p>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Discover our carefully curated collection of books, stationery, and
             electronics. Quality guaranteed, prices unmatched.
           </p>

@@ -275,7 +275,7 @@ export default function Layout({
                     </>
                   ) : (
                     <>
-                      <Moon className="w-4 h-4 text-slate-700" />
+                      <Moon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                       <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                         Dark Mode
                       </span>
