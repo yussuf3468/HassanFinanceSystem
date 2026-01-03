@@ -84,7 +84,7 @@ const FeaturedProducts = memo(
         return (
           <div
             key={product.id}
-            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg hover:shadow-amber-400/15 transition-all duration-400 overflow-hidden border border-slate-200 hover:border-amber-300"
+            className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:shadow-amber-400/15 transition-all duration-400 overflow-hidden border border-slate-200 dark:border-slate-600 hover:border-amber-300"
           >
             {/* Minimal Badge */}
             <div className="absolute top-4 left-4 z-10">
@@ -96,7 +96,7 @@ const FeaturedProducts = memo(
             {/* Subtle Stock Badge */}
             {product.quantity_in_stock < 10 && (
               <div className="absolute top-4 right-16 z-10">
-                <div className="bg-gradient-to-br from-rose-50 to-white text-rose-700 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300">
+                <div className="bg-gradient-to-br from-rose-50 to-white dark:from-rose-900/30 dark:to-rose-900/20 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300 dark:border-rose-700">
                   Only {product.quantity_in_stock} left
                 </div>
               </div>
@@ -108,7 +108,7 @@ const FeaturedProducts = memo(
               className={`absolute top-4 right-4 z-20 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center ${
                 isLiked
                   ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25"
-                  : "bg-white text-slate-600 hover:bg-amber-50 hover:text-rose-400 hover:shadow-md border border-slate-200 hover:border-amber-300 shadow-sm"
+                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-amber-50 hover:text-rose-400 hover:shadow-md border border-slate-200 dark:border-slate-600 hover:border-amber-300 shadow-sm"
               }`}
               aria-label="Add to wishlist"
             >
@@ -117,7 +117,7 @@ const FeaturedProducts = memo(
 
             {/* Elegant Product Image */}
             <div
-              className="relative overflow-hidden cursor-pointer bg-slate-50/30"
+              className="relative overflow-hidden cursor-pointer bg-slate-50/30 dark:bg-slate-700/30"
               onClick={handleQuickViewClick}
             >
               <OptimizedImage
@@ -137,7 +137,7 @@ const FeaturedProducts = memo(
                     e.stopPropagation();
                     handleQuickViewClick();
                   }}
-                  className="bg-white text-slate-900 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 border border-amber-300"
+                  className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 dark:hover:bg-slate-600 border border-amber-300 dark:border-slate-500"
                 >
                   Quick View
                 </button>
@@ -148,19 +148,19 @@ const FeaturedProducts = memo(
             <div className="p-5 space-y-4">
               {/* Category Tag */}
               <div>
-                <span className="text-xs font-medium text-slate-700 uppercase tracking-wide">
+                <span className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                   {product.category}
                 </span>
               </div>
 
               {/* Product Name */}
-              <h4 className="text-sm sm:text-base font-semibold text-slate-900 line-clamp-2 leading-tight group-hover:text-slate-700 transition-colors duration-300">
+              <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors duration-300">
                 {product.name}
               </h4>
 
               {/* Product Description */}
               {product.description && (
-                <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                   {product.description}
                 </p>
               )}
@@ -175,16 +175,16 @@ const FeaturedProducts = memo(
                     />
                   ))}
                 </div>
-                <span className="text-xs text-slate-700 ">(4.9)</span>
+                <span className="text-xs text-slate-700 dark:text-slate-300 ">(4.9)</span>
               </div>
 
               {/* Price & Stock Info */}
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <div className="text-lg sm:text-xl font-semibold text-slate-900">
+                  <div className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">
                     KES {product.selling_price?.toLocaleString()}
                   </div>
-                  <div className="text-xs text-slate-700 flex items-center mt-1">
+                  <div className="text-xs text-slate-700 dark:text-slate-300 flex items-center mt-1">
                     <Package className="w-3 h-3 mr-1.5" />
                     {product.quantity_in_stock} in stock
                   </div>
@@ -197,8 +197,8 @@ const FeaturedProducts = memo(
                 disabled={isAddingToCart}
                 className={`w-full font-medium py-3 px-4 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2 ${
                   isAddingToCart
-                    ? "bg-emerald-500 text-slate-900 shadow-lg shadow-emerald-500/25"
-                    : "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 hover:from-amber-600 hover:to-amber-700 hover:shadow-lg hover:shadow-amber-400/20 active:from-amber-700 active:to-amber-800"
+                    ? "bg-emerald-500 text-slate-900 dark:text-white shadow-lg shadow-emerald-500/25"
+                    : "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-900 dark:text-white hover:from-amber-600 hover:to-amber-700 hover:shadow-lg hover:shadow-amber-400/20 active:from-amber-700 active:to-amber-800"
                 }`}
               >
                 <ShoppingCart
@@ -215,18 +215,18 @@ const FeaturedProducts = memo(
     if (isLoading) {
       return (
         <div className="py-8 sm:py-12 lg:py-16">
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-600 p-4 sm:p-6">
             <div className="animate-pulse">
-              <div className="h-8 bg-slate-200 rounded mb-4" />
+              <div className="h-8 bg-slate-200 dark:bg-slate-600 rounded mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {[...Array(8)].map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded shadow-sm border border-slate-200 p-4"
+                    className="bg-white dark:bg-slate-800 rounded shadow-sm border border-slate-200 dark:border-slate-600 p-4"
                   >
-                    <div className="h-32 bg-slate-200 rounded mb-3" />
-                    <div className="h-4 bg-slate-200 rounded mb-2" />
-                    <div className="h-6 bg-slate-200 rounded" />
+                    <div className="h-32 bg-slate-200 dark:bg-slate-600 rounded mb-3" />
+                    <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded mb-2" />
+                    <div className="h-6 bg-slate-200 dark:bg-slate-600 rounded" />
                   </div>
                 ))}
               </div>
@@ -238,42 +238,42 @@ const FeaturedProducts = memo(
 
     return (
       <div className="py-8 sm:py-12 lg:py-16">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 lg:p-8">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-600 p-4 sm:p-6 lg:p-8">
           <div className="mb-6 lg:mb-8">
             <div className="block lg:hidden text-center">
               <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="bg-amber-50 p-2 rounded-full border border-amber-300 shadow-sm">
-                  <Flame className="w-5 h-5 text-amber-600" />
+                <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                  <Flame className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white text-amber-700 px-3 py-2 rounded-full text-sm font-semibold border border-amber-300">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 text-amber-700 dark:text-amber-300 px-3 py-2 rounded-full text-sm font-semibold border border-amber-300 dark:border-amber-700">
                   <TrendingUp className="w-4 h-4" />
                   <span>Hot Deals</span>
                 </div>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-1">
                 Featured Products
               </h3>
-              <p className="text-sm text-slate-700 ">
+              <p className="text-sm text-slate-700 dark:text-slate-300 ">
                 Popular items • Limited stock • Best sellers
               </p>
             </div>
 
             <div className="hidden lg:flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-amber-50 p-3 rounded-full border border-amber-300 shadow-sm">
-                  <Flame className="w-7 h-7 text-amber-600" />
+                <div className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                  <Flame className="w-7 h-7 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-1">
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
                     Featured Products
                   </h3>
-                  <p className="text-sm text-slate-700 ">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 ">
                     Popular items • Limited stock • Best sellers
                   </p>
                 </div>
               </div>
               <div>
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white text-amber-700 px-4 py-2 rounded-full text-sm font-semibold border border-amber-300">
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-full text-sm font-semibold border border-amber-300 dark:border-amber-700">
                   <TrendingUp className="w-4 h-4" />
                   <span>Hot Deals</span>
                 </div>

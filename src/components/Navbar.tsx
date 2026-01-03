@@ -276,13 +276,13 @@ const Navbar = memo(
           {/* Mobile Search */}
           <div className="md:hidden pb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 bg-white border-2 border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
               />
             </div>
           </div>
@@ -292,17 +292,43 @@ const Navbar = memo(
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
             <div className="px-4 py-4 space-y-4">
+              {/* Theme Toggle */}
+              <button
+                onClick={() => {
+                  toggleTheme();
+                }}
+                className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  {theme === "dark" ? (
+                    <>
+                      <Sun className="w-5 h-5 text-amber-500" />
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        Light Mode
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-5 h-5 text-slate-600" />
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        Dark Mode
+                      </span>
+                    </>
+                  )}
+                </div>
+              </button>
+
               {/* Cart */}
               <button
                 onClick={() => {
                   onCartClick();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
               >
                 <div className="flex items-center space-x-3">
                   <ShoppingCart className="w-5 h-5 text-amber-600" />
-                  <span className="font-medium text-slate-900">
+                  <span className="font-medium text-slate-900 dark:text-white">
                     Shopping Cart
                   </span>
                 </div>
@@ -316,8 +342,8 @@ const Navbar = memo(
               {/* Auth/User Actions */}
               {user ? (
                 <div className="space-y-2">
-                  <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                    <p className="text-sm font-medium text-amber-900">
+                  <div className="p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700 rounded-lg">
+                    <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
                       Signed in as {user.email?.split("@")[0]}
                     </p>
                   </div>
@@ -327,10 +353,10 @@ const Navbar = memo(
                         onAdminClick();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
+                      className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
                       <Settings className="w-5 h-5 text-amber-600" />
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-slate-900 dark:text-white">
                         Admin Panel
                       </span>
                     </button>
@@ -340,10 +366,10 @@ const Navbar = memo(
                       handleSignOut();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center space-x-3 p-3 bg-red-50 border-2 border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                    className="w-full flex items-center space-x-3 p-3 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                   >
                     <LogOut className="w-5 h-5 text-red-600" />
-                    <span className="font-medium text-slate-900">Sign Out</span>
+                    <span className="font-medium text-slate-900 dark:text-white">Sign Out</span>
                   </button>
                 </div>
               ) : (

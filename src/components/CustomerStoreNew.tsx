@@ -68,7 +68,7 @@ const ProductCard = memo(
       >
         {/* Product Image */}
         <div
-          className="relative overflow-hidden cursor-pointer bg-slate-50/30"
+          className="relative overflow-hidden cursor-pointer bg-slate-50/30 dark:bg-slate-700/30"
           onClick={handleQuickView}
         >
           <OptimizedImage
@@ -101,7 +101,7 @@ const ProductCard = memo(
             className={`absolute top-4 right-4 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center ${
               isLiked
                 ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25"
-                : "bg-white text-slate-600 hover:bg-amber-50 hover:text-rose-400 hover:shadow-md border border-slate-200 hover:border-amber-300 shadow-sm"
+                : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-600 hover:text-rose-400 hover:shadow-md border border-slate-200 hover:border-amber-300 shadow-sm"
             }`}
           >
             <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
@@ -133,7 +133,7 @@ const ProductCard = memo(
           </div>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-slate-900 text-lg mb-3 line-clamp-2 leading-tight group-hover:text-amber-600 transition-colors duration-300">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-lg mb-3 line-clamp-2 leading-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
             {product.name}
           </h3>
 
@@ -147,7 +147,7 @@ const ProductCard = memo(
           {/* Price & Stock Info */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col">
-              <p className="text-2xl font-light text-slate-900 mb-1">
+              <p className="text-2xl font-light text-slate-900 dark:text-white mb-1">
                 KES {product.selling_price.toLocaleString()}
               </p>
               <p className="text-xs text-slate-600 flex items-center">
@@ -434,7 +434,7 @@ export default function CustomerStore({
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
               <div className="flex items-center mb-4">
                 <Filter className="w-5 h-5 text-amber-600 mr-2" />
-                <span className="text-lg font-bold text-slate-900">
+                <span className="text-lg font-bold text-slate-900 dark:text-white">
                   Filter by Category
                 </span>
               </div>
@@ -446,7 +446,7 @@ export default function CustomerStore({
                     className={`px-3 py-2 rounded-2xl text-sm font-bold transition-all duration-300 ${
                       selectedCategory === category
                         ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transform scale-105"
-                        : "bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:scale-105 border border-slate-200 hover:border-amber-300"
+                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-600 hover:text-amber-700 dark:hover:text-amber-400 hover:scale-105 border border-slate-200 hover:border-amber-300"
                     }`}
                   >
                     {category === "all" ? "All" : category}
@@ -470,7 +470,7 @@ export default function CustomerStore({
                         className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
                           selectedCategory === category
                             ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transform scale-105"
-                            : "text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:scale-105"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-600 hover:text-amber-700 dark:hover:text-amber-400 hover:scale-105"
                         }`}
                       >
                         {category === "all" ? "All" : category}
@@ -487,10 +487,10 @@ export default function CustomerStore({
           <div className="text-center py-16">
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 max-w-md mx-auto border border-slate-200 dark:border-slate-700 shadow-sm">
               <Package className="w-20 h-20 text-slate-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
                 No products found
               </h3>
-              <p className="text-slate-600 mb-6">
+              <p className="text-slate-600 dark:text-slate-400 mb-6">
                 Try adjusting your search or filters to find what you're looking
                 for
               </p>
@@ -524,13 +524,13 @@ export default function CustomerStore({
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-slate-900 hover:bg-amber-50 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl text-slate-900 dark:text-white hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
             >
               Previous
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-slate-900 font-medium px-3 py-2 bg-white rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-slate-900 dark:text-white font-medium px-3 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm">
                 Page {currentPage} of {totalPages}
               </span>
             </div>
@@ -540,7 +540,7 @@ export default function CustomerStore({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-slate-900 hover:bg-amber-50 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl text-slate-900 dark:text-white hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-sm"
             >
               Next
             </button>
@@ -549,7 +549,7 @@ export default function CustomerStore({
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-900 py-12">
+      <footer className="bg-slate-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
@@ -678,3 +678,4 @@ export default function CustomerStore({
     </div>
   );
 }
+
