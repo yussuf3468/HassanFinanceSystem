@@ -2124,14 +2124,14 @@ export default function SaleForm({
             </div>
 
             {/* Overall Discount Section */}
-            <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border-2 border-orange-200 dark:border-orange-700">
               <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
                 <span>🎁</span>
                 <span>Overall Discount (Applied to Total)</span>
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
                     Discount Type
                   </label>
                   <select
@@ -2163,7 +2163,7 @@ export default function SaleForm({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
                     Discount Value
                   </label>
                   <input
@@ -2174,7 +2174,7 @@ export default function SaleForm({
                     min="0"
                     max={overallDiscountType === "percentage" ? 100 : undefined}
                     step={overallDiscountType === "percentage" ? "0.01" : "1"}
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                     placeholder={
                       overallDiscountType === "percentage"
                         ? "e.g., 10 for 10%"
