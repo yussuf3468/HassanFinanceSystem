@@ -136,19 +136,19 @@ export default function ReceiveStockModal({
                   <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
                     Soo Qaad Alaabta - Receive Stock
                   </h3>
-                  <p className="text-emerald-700 text-xs sm:text-sm mt-0.5 sm:mt-1">
+                  <p className="text-emerald-700 dark:text-emerald-400 text-xs sm:text-sm mt-0.5 sm:mt-1">
                     Raadi oo ku dar alaabta cusub si degdeg ah
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-2xl transition-all hover:scale-110 border border-slate-200"
+                className="p-2 sm:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-all hover:scale-110 border border-slate-200 dark:border-slate-600"
               >
-                <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300" />
               </button>
             </div>
           </div>
@@ -157,8 +157,8 @@ export default function ReceiveStockModal({
             <div className="flex flex-col lg:grid lg:grid-cols-5 gap-4 sm:gap-6">
               {/* Left: Search Panel - Mobile First */}
               <div className="lg:col-span-2 order-1">
-                <div className="bg-gradient-to-br from-amber-50 to-stone-50 border-2 border-amber-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm lg:sticky lg:top-6">
-                  <label className="text-slate-900 font-bold text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-amber-50 to-stone-50 dark:from-amber-900/20 dark:to-slate-800 border-2 border-amber-200 dark:border-amber-700 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm lg:sticky lg:top-6">
+                  <label className="text-slate-900 dark:text-white font-bold text-sm sm:text-base mb-3 sm:mb-4 flex items-center gap-2">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                     Raadi Alaabta - Search Products
                   </label>
@@ -203,22 +203,22 @@ export default function ReceiveStockModal({
                               preset="thumbnail"
                             />
                           ) : (
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-2xl bg-slate-100 flex items-center justify-center border-2 border-slate-200 group-hover:border-amber-400 transition-all flex-shrink-0 shadow-sm">
-                              <Package className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400" />
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center border-2 border-slate-200 dark:border-slate-600 group-hover:border-amber-400 transition-all flex-shrink-0 shadow-sm">
+                              <Package className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400 dark:text-slate-500" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-slate-900 font-bold text-sm sm:text-base truncate group-hover:text-amber-700 transition-colors">
+                            <p className="text-slate-900 dark:text-white font-bold text-sm sm:text-base truncate group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
                               {p.name}
                             </p>
-                            <p className="text-slate-600 text-xs sm:text-sm truncate">
+                            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm truncate">
                               {p.product_id}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-emerald-600 text-xs sm:text-sm font-bold">
+                              <span className="text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-bold">
                                 Stock: {p.quantity_in_stock}
                               </span>
-                              <span className="text-amber-700 font-semibold text-xs px-2 py-0.5 rounded-full bg-gradient-to-br from-amber-50 to-white border border-amber-300">
+                              <span className="text-amber-700 dark:text-amber-300 font-semibold text-xs px-2 py-0.5 rounded-full bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700">
                                 Riix
                               </span>
                             </div>
@@ -240,7 +240,7 @@ export default function ReceiveStockModal({
               {/* Right: Selected Items - Mobile Optimized */}
               <div className="lg:col-span-3 order-2">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-slate-900 font-bold text-base sm:text-lg lg:text-xl flex items-center gap-2">
+                  <h4 className="text-slate-900 dark:text-white font-bold text-base sm:text-lg lg:text-xl flex items-center gap-2">
                     <Package className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
                     Alaabta La Doortay ({items.length})
                   </h4>
@@ -269,7 +269,7 @@ export default function ReceiveStockModal({
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                           {/* Product Image & Info */}
                           <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-2xl bg-slate-100 flex items-center justify-center border-2 border-slate-200 overflow-hidden flex-shrink-0 shadow-sm">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-2xl bg-slate-100 dark:bg-slate-600 flex items-center justify-center border-2 border-slate-200 dark:border-slate-500 overflow-hidden flex-shrink-0 shadow-sm">
                               {it.product?.image_url ? (
                                 <OptimizedImage
                                   src={it.product.image_url}
@@ -278,18 +278,18 @@ export default function ReceiveStockModal({
                                   preset="thumbnail"
                                 />
                               ) : (
-                                <Package className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" />
+                                <Package className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 dark:text-slate-500" />
                               )}
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <h5 className="text-slate-900 font-bold text-sm sm:text-base lg:text-lg truncate">
+                              <h5 className="text-slate-900 dark:text-white font-bold text-sm sm:text-base lg:text-lg truncate">
                                 {it.product?.name || "Unknown"}
                               </h5>
-                              <p className="text-slate-600 text-xs sm:text-sm">
+                              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
                                 ID: {it.product?.product_id || "N/A"}
                               </p>
-                              <p className="text-emerald-600 text-xs sm:text-sm font-bold mt-1">
+                              <p className="text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-bold mt-1">
                                 Stock hadda:{" "}
                                 {it.product?.quantity_in_stock || 0}
                               </p>
@@ -392,11 +392,11 @@ export default function ReceiveStockModal({
 
                     {/* Summary and Buttons */}
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                      <div className="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-300 rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-4 sm:py-5 shadow-sm">
-                        <p className="text-emerald-700 text-xs sm:text-sm font-bold uppercase tracking-wide mb-1">
+                      <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-4 sm:py-5 shadow-sm">
+                        <p className="text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-bold uppercase tracking-wide mb-1">
                           Wadarta - Total Units
                         </p>
-                        <p className="text-slate-900 font-black text-3xl sm:text-4xl">
+                        <p className="text-slate-900 dark:text-white font-black text-3xl sm:text-4xl">
                           {totalUnits}
                         </p>
                       </div>
@@ -404,7 +404,7 @@ export default function ReceiveStockModal({
                         <button
                           type="button"
                           onClick={onClose}
-                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95"
+                          className="px-6 py-3 sm:py-4 rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 transition-all font-bold text-sm sm:text-base shadow-sm hover:scale-105 active:scale-95">
                         >
                           Ka Noqo - Cancel
                         </button>

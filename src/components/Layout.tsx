@@ -563,11 +563,11 @@ export default function Layout({
 
       {/* Main Content Area */}
       <main
-        className={`relative pt-16 lg:pt-0 transition-all duration-300 ${
+        className={`relative pt-16 lg:pt-0 transition-all duration-300 bg-transparent ${
           isDesktopSidebarCollapsed ? "lg:ml-20" : "lg:ml-72 xl:ml-80"
         }`}
       >
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-transparent">
           <div className="flex-1 px-3 sm:px-4 lg:px-6 py-3 md:py-4 lg:py-6 max-w-[1600px] mx-auto w-full">
             {children}
           </div>

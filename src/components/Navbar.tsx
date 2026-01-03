@@ -369,7 +369,9 @@ const Navbar = memo(
                     className="w-full flex items-center space-x-3 p-3 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                   >
                     <LogOut className="w-5 h-5 text-red-600" />
-                    <span className="font-medium text-slate-900 dark:text-white">Sign Out</span>
+                    <span className="font-medium text-slate-900 dark:text-white">
+                      Sign Out
+                    </span>
                   </button>
                 </div>
               ) : (

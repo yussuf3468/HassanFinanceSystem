@@ -366,4 +366,3 @@ const HeroSection = memo(
 HeroSection.displayName = "HeroSection";
 
 export default HeroSection;
-

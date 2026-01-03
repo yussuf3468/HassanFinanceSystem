@@ -68,7 +68,9 @@ const ProductQuickView = memo(
         <div className="bg-white border border-slate-200 shadow-xl rounded-2xl dark:bg-slate-800 dark:border-slate-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-600 bg-gradient-to-br from-amber-50 to-white dark:from-slate-700 dark:to-slate-800">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Quick View</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Quick View
+            </h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-amber-100 dark:hover:bg-slate-600 rounded-full transition-colors text-slate-700 dark:text-slate-300"
@@ -270,23 +272,33 @@ const ProductQuickView = memo(
 
               {/* Product Details */}
               <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-600">
-                <h3 className="font-bold text-slate-900 dark:text-white">Product Details</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white">
+                  Product Details
+                </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Category:</span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      Category:
+                    </span>
                     <span className="font-medium text-slate-900 dark:text-white">
                       {product.category}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Product ID:</span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      Product ID:
+                    </span>
                     <span className="font-medium text-slate-900 dark:text-white">
                       {product.product_id}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Availability:</span>
-                    <span className="font-medium text-green-600 dark:text-green-400">In Stock</span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      Availability:
+                    </span>
+                    <span className="font-medium text-green-600 dark:text-green-400">
+                      In Stock
+                    </span>
                   </div>
                 </div>
               </div>
@@ -301,4 +313,3 @@ const ProductQuickView = memo(
 ProductQuickView.displayName = "ProductQuickView";
 
 export default ProductQuickView;
-

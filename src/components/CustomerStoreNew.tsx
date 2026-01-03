@@ -421,7 +421,9 @@ export default function CustomerStore({
           <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-amber-700 dark:text-amber-300 mb-2 font-somali">Alaabteenna</p>
+          <p className="text-xl text-amber-700 dark:text-amber-300 mb-2 font-somali">
+            Alaabteenna
+          </p>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Discover our carefully curated collection of books, stationery, and
             electronics. Quality guaranteed, prices unmatched.
@@ -678,4 +680,3 @@ export default function CustomerStore({
     </div>
   );
 }
-

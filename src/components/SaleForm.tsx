@@ -2561,5 +2561,3 @@ export default function SaleForm({
     </div>
   );
 }
-
-

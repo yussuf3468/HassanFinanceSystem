@@ -175,7 +175,9 @@ const FeaturedProducts = memo(
                     />
                   ))}
                 </div>
-                <span className="text-xs text-slate-700 dark:text-slate-300 ">(4.9)</span>
+                <span className="text-xs text-slate-700 dark:text-slate-300 ">
+                  (4.9)
+                </span>
               </div>
 
               {/* Price & Stock Info */}
