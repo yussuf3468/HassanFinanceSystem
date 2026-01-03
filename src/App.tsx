@@ -49,11 +49,11 @@ function AppContent() {
       setViewMode("admin");
 
       setActiveTab((prev) => {
-        // Don’t reset if user already has a tab open
-        if (prev && prev !== "dashboard" && prev !== "staff-dashboard")
-          return prev;
+        // Don't reset tab on refresh - keep whatever tab was saved
+        const savedTab = localStorage.getItem("activeTab");
+        if (savedTab) return savedTab;
 
-        // Assign default dashboard based on user email
+        // Only assign default dashboard on first login (no saved tab)
         if (user.email === "galiyowabi@gmail.com") return "dashboard";
         if (user.email) return "staff-dashboard";
         return "dashboard";

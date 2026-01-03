@@ -78,9 +78,9 @@ export default function Dashboard() {
     }
   ) {
     try {
-      // Use yearly totals from database (fiscal year: resets every February 1st)
-      const totalSales = salesTotals.year_sales; // Fiscal year totals (Feb 1 - Jan 31)
-      const totalProfit = salesTotals.year_profit; // Fiscal year totals (Feb 1 - Jan 31)
+      // Use all-time totals from database (not fiscal year)
+      const totalSales = salesTotals.total_sales; // All-time total sales
+      const totalProfit = salesTotals.total_profit; // All-time total profit
       const dailySales = salesTotals.today_sales;
       const dailyProfit = salesTotals.today_profit;
 
