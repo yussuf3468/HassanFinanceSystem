@@ -358,7 +358,7 @@ export default function CustomerStore({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         {/* Navbar Skeleton */}
         <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -388,7 +388,7 @@ export default function CustomerStore({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-x-hidden">
       {/* Navbar */}
       <Navbar
         searchTerm={searchTerm}
