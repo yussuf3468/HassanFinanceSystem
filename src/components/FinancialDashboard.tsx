@@ -592,7 +592,9 @@ export default function FinancialDashboard() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-900 dark:text-white">Loading financial data...</p>
+          <p className="text-slate-900 dark:text-white">
+            Loading financial data...
+          </p>
         </div>
       </div>
     );
@@ -736,69 +738,69 @@ export default function FinancialDashboard() {
       </div>
 
       {/* Revenue & Profit Overview */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center space-x-2">
-          <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60 dark:border-amber-700/60">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 flex items-center space-x-2">
+          <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
           <span>Revenue & Profitability</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Cyber Profit Card */}
-          <div className="bg-white border border-cyan-200 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
+          <div className="bg-white dark:bg-slate-700 border border-cyan-200 dark:border-cyan-700 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="bg-cyan-50 border border-cyan-200 p-2 rounded-xl">
-                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
+              <div className="bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-700 p-2 rounded-xl">
+                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600 dark:text-cyan-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-cyan-600">
+                <p className="text-xs sm:text-sm font-medium text-cyan-600 dark:text-cyan-400">
                   Total Cyber Profits
                 </p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                   KES {cyberProfit.toLocaleString()}
                 </p>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-900/60">
+            <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
               Pure profit from cyber café services
             </p>
           </div>
 
           {/* Total Sales Card */}
-          <div className="bg-white border border-green-200 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
+          <div className="bg-white dark:bg-slate-700 border border-green-200 dark:border-green-700 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="bg-green-50 border border-green-200 p-2 rounded-xl">
-                <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 p-2 rounded-xl">
+                <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-green-600">
+                <p className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
                   Total Sales
                 </p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                   KES {stats.totalSales.toLocaleString()}
                 </p>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-900/60">
+            <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
               Cumulative revenue to date
             </p>
           </div>
 
           {/* Total Profit Card */}
-          <div className="bg-white border border-blue-200 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
+          <div className="bg-white dark:bg-slate-700 border border-blue-200 dark:border-blue-700 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="bg-blue-50 border border-blue-200 p-2 rounded-xl">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 p-2 rounded-xl">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-blue-600">
+                <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">
                   Total Profit
                 </p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                   KES {stats.totalProfit.toLocaleString()}
                 </p>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-900/60">
+            <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
               {stats.totalSales > 0
                 ? ((stats.totalProfit / stats.totalSales) * 100).toFixed(1)
                 : 0}
@@ -807,21 +809,21 @@ export default function FinancialDashboard() {
           </div>
 
           {/* Monthly Revenue Card */}
-          <div className="bg-white border border-amber-200 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
+          <div className="bg-white dark:bg-slate-700 border border-amber-200 dark:border-amber-700 rounded-2xl sm:rounded-2xl p-4 sm:p-6">
             <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="bg-amber-50 border border-amber-200 p-2 rounded-xl">
-                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 p-2 rounded-xl">
+                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-amber-600">
+                <p className="text-xs sm:text-sm font-medium text-amber-600 dark:text-amber-400">
                   Monthly Revenue
                 </p>
-                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900">
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                   KES {stats.monthlyRevenue.toLocaleString()}
                 </p>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-900/60">
+            <p className="text-xs sm:text-sm text-slate-900/60 dark:text-slate-400">
               Current month sales
             </p>
           </div>
@@ -831,9 +833,9 @@ export default function FinancialDashboard() {
       {/* Financial Health Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
         {/* Expense Analysis */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center space-x-2">
-            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-rose-700" />
+        <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60 dark:border-amber-700/60">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 flex items-center space-x-2">
+            <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-rose-700 dark:text-rose-400" />
             <span>Expense Analysis</span>
           </h3>
 
@@ -893,14 +895,14 @@ export default function FinancialDashboard() {
         </div>
 
         {/* Financial Summary */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center space-x-2">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border border-amber-200/60 dark:border-amber-700/60">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 flex items-center space-x-2">
             <Calculator className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
             <span>Financial Summary</span>
           </h3>
 
           <div className="space-y-4 sm:space-y-6">
-            <div className="bg-white border border-amber-200/60 rounded-2xl sm:rounded-2xl p-3 sm:p-4">
+            <div className="bg-white dark:bg-slate-700 border border-amber-200/60 dark:border-amber-700/60 rounded-2xl sm:rounded-2xl p-3 sm:p-4">
               <div className="flex items-center space-x-2 sm:space-x-3 mb-3">
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                 <span className="text-sm sm:text-base font-semibold text-slate-900">
@@ -1053,9 +1055,9 @@ export default function FinancialDashboard() {
       </div>
 
       {/* Investor Dividends Section */}
-      <div className="bg-white rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-200/60">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-200/60 dark:border-amber-700/60">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 flex items-center space-x-2">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
             <Users className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
             <span>Investor Dividends</span>
           </h3>
@@ -1071,7 +1073,7 @@ export default function FinancialDashboard() {
             {investorDividends.map((investor) => (
               <div
                 key={investor.id}
-                className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/60 hover:border-emerald-500/50 transition-all duration-300 hover:shadow-lg"
+                className="bg-white dark:bg-slate-700 rounded-2xl p-4 sm:p-5 border border-amber-200/60 dark:border-amber-700/60 hover:border-emerald-500/50 dark:hover:border-emerald-600/50 transition-all duration-300 hover:shadow-lg"
               >
                 {/* Investor Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -1095,16 +1097,16 @@ export default function FinancialDashboard() {
 
                 {/* Investment Details */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-white rounded-xl p-3 border border-amber-200/60">
-                    <p className="text-xs text-slate-900/70 mb-1">
+                  <div className="bg-white dark:bg-slate-600 rounded-xl p-3 border border-amber-200/60 dark:border-amber-700/60">
+                    <p className="text-xs text-slate-900 dark:text-slate-300 mb-1">
                       Initial Investment
                     </p>
-                    <p className="text-sm sm:text-base font-bold text-slate-900">
+                    <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                       KES {investor.amount.toLocaleString()}
                     </p>
                   </div>
-                  <div className="bg-white rounded-xl p-3 border border-amber-200/60">
-                    <p className="text-xs text-slate-900/70 mb-1">
+                  <div className="bg-white dark:bg-slate-600 rounded-xl p-3 border border-amber-200/60 dark:border-amber-700/60">
+                    <p className="text-xs text-slate-900 dark:text-slate-300 mb-1">
                       Investment Date
                     </p>
                     <p className="text-sm sm:text-base font-semibold text-slate-900">
@@ -1263,8 +1265,8 @@ export default function FinancialDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-200/60">
-        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 flex items-center space-x-2">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-200/60 dark:border-amber-700/60">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center space-x-2">
           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
           <span>Financial Management</span>
         </h3>
@@ -1274,7 +1276,7 @@ export default function FinancialDashboard() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          <div className="bg-white hover:bg-amber-50/30 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 hover:border-green-400">
+          <div className="bg-white dark:bg-slate-700 hover:bg-amber-50/30 dark:hover:bg-slate-600 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 dark:border-amber-700/60 hover:border-green-400 dark:hover:border-green-600">
             <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
               <div className="bg-green-500/20 p-1.5 sm:p-2 rounded-xl border border-green-500/30">
                 <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
@@ -1293,7 +1295,7 @@ export default function FinancialDashboard() {
             </p>
           </div>
 
-          <div className="bg-white hover:bg-amber-50/30 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 hover:border-blue-400">
+          <div className="bg-white dark:bg-slate-700 hover:bg-amber-50/30 dark:hover:bg-slate-600 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-200/60 dark:border-amber-700/60 hover:border-blue-400 dark:hover:border-blue-600">
             <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
               <div className="bg-blue-500/20 p-1.5 sm:p-2 rounded-xl border border-blue-500/30">
                 <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />

@@ -477,7 +477,7 @@ export default function CustomerCredit() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <input
           type="text"
-          className="bg-white border border-amber-200/60 rounded-2xl px-4 py-2 text-slate-900 placeholder:text-slate-900/50 w-full sm:w-96"
+          className="bg-white dark:bg-slate-700 border border-amber-200/60 dark:border-slate-600 rounded-2xl px-4 py-2 text-slate-900 dark:text-white placeholder:text-slate-900/50 dark:placeholder:text-slate-400 w-full sm:w-96"
           placeholder="Search customer by name or phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -499,8 +499,8 @@ export default function CustomerCredit() {
           </div>
         )}
       </div>
-      <div className="bg-white border border-amber-200/60 rounded-2xl p-6 shadow-xl shadow-amber-400/10">
-        <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center space-x-2">
+      <div className="bg-white dark:bg-slate-800 border border-amber-200/60 dark:border-slate-700 rounded-2xl p-6 shadow-xl shadow-amber-400/10">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
           <Users className="w-6 h-6" />
           <span>Store Credits ({credits.length})</span>
         </h2>
@@ -654,7 +654,7 @@ export default function CustomerCredit() {
       {/* Add/Edit Credit Form Modal */}
       {showCreditForm && (
         <ModalPortal onClose={handleCloseCreditForm}>
-          <div className="bg-white border border-amber-200/60 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-800 border border-amber-200/60 dark:border-slate-700 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">
               {editingCredit
                 ? "Edit Store Credit / Wax Ka Beddel"
@@ -794,7 +794,7 @@ export default function CustomerCredit() {
       {/* Payment Form Modal */}
       {showPaymentForm && (
         <ModalPortal onClose={handleClosePaymentForm}>
-          <div className="bg-white border border-amber-200/60 rounded-2xl p-6 max-w-lg w-full">
+          <div className="bg-white dark:bg-slate-800 border border-amber-200/60 dark:border-slate-700 rounded-2xl p-6 max-w-lg w-full">
             <h2 className="text-2xl font-bold text-slate-900 mb-6">
               Pay Back Customer / Macmiilka U Bixiso
             </h2>

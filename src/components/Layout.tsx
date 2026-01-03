@@ -263,18 +263,22 @@ export default function Layout({
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="w-full mb-3 flex items-center justify-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-3 transition-all duration-200"
+                  className="w-full mb-3 flex items-center justify-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-2 transition-all duration-200"
                   aria-label="Toggle dark mode"
                 >
                   {theme === "dark" ? (
                     <>
                       <Sun className="w-4 h-4 text-amber-500" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Light Mode</span>
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        Light Mode
+                      </span>
                     </>
                   ) : (
                     <>
                       <Moon className="w-4 h-4 text-slate-700" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Dark Mode</span>
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        Dark Mode
+                      </span>
                     </>
                   )}
                 </button>
@@ -306,13 +310,13 @@ export default function Layout({
                 {/* Dark Mode Toggle - Collapsed */}
                 <button
                   onClick={toggleTheme}
-                  className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-2 transition-all duration-200"
+                  className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1.5 transition-all duration-200"
                   aria-label="Toggle dark mode"
                 >
                   {theme === "dark" ? (
-                    <Sun className="w-5 h-5 text-amber-500" />
+                    <Sun className="w-4 h-4 text-amber-500" />
                   ) : (
-                    <Moon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                    <Moon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                   )}
                 </button>
               </div>
@@ -352,7 +356,9 @@ export default function Layout({
                   >
                     <Icon
                       className={`w-5 h-5 ${
-                        isActive ? "text-white" : "text-slate-600 dark:text-slate-400"
+                        isActive
+                          ? "text-white"
+                          : "text-slate-600 dark:text-slate-400"
                       }`}
                     />
                     {/* Notification Badge */}

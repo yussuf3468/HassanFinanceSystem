@@ -621,7 +621,7 @@ export default function Reports() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-slate-900 text-base font-medium">
+        <div className="text-slate-900 dark:text-slate-200 text-base font-medium">
           Loading reports...
         </div>
       </div>
@@ -631,22 +631,22 @@ export default function Reports() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900">
+        <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">
           Reports & Export
         </h2>
-        <p className="text-slate-600 mt-1 text-sm md:text-base">
+        <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm md:text-base">
           Generate and export detailed reports
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-6">
         {/* Date Range Filters - Mobile First */}
         <div className="flex flex-col gap-3 mb-4 md:mb-6">
           <div className="flex items-center space-x-2 px-1">
-            <div className="p-2 bg-amber-50 rounded-xl border-2 border-amber-400">
-              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+            <div className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-xl border-2 border-amber-400 dark:border-amber-600">
+              <Calendar className="w-4 h-4 md:w-5 md:h-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="font-bold text-slate-900 text-sm md:text-base">
+            <span className="font-bold text-slate-900 dark:text-white text-sm md:text-base">
               📅 Date Range
             </span>
           </div>
@@ -661,8 +661,8 @@ export default function Reports() {
                   onClick={() => setDateRange(range)}
                   className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-300 touch-manipulation active:scale-95 ${
                     dateRange === range
-                      ? "bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white shadow-lg"
-                      : "bg-white text-slate-700 hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-300 shadow-md"
+                      ? "bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 border-2 border-amber-400 dark:border-amber-500 text-white shadow-lg"
+                      : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 hover:border-amber-300 dark:hover:border-amber-600 shadow-md"
                   }`}
                 >
                   {range === "today"
@@ -683,7 +683,7 @@ export default function Reports() {
             <button
               onClick={handleRefresh}
               disabled={isRefreshing || loading}
-              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm touch-manipulation"
+              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 border-2 border-amber-400 dark:border-amber-500 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm touch-manipulation"
               title="Refresh reports data"
             >
               <RefreshCw
@@ -696,32 +696,32 @@ export default function Reports() {
 
         {/* Custom Date Range Inputs - Mobile Optimized */}
         {dateRange === "custom" && (
-          <div className="mb-4 md:mb-6 p-4 md:p-5 bg-amber-50 rounded-2xl border-2 border-amber-200">
+          <div className="mb-4 md:mb-6 p-4 md:p-5 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border-2 border-amber-200 dark:border-amber-700">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
                   📅 Start Date
                 </label>
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                  className="w-full px-4 py-3 md:py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-900 mb-2">
+                <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
                   📅 End Date
                 </label>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="w-full px-4 py-3 md:py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                  className="w-full px-4 py-3 md:py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
                 />
               </div>
             </div>
-            <p className="text-xs text-slate-600 mt-3">
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
               💡 Select start and end dates to filter reports. Leave blank for
               open-ended ranges.
             </p>
@@ -729,27 +729,27 @@ export default function Reports() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-blue-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
-            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-5 border-2 border-blue-400 dark:border-blue-600 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 font-semibold mb-2 uppercase tracking-wide">
               Total Revenue
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white break-words">
               KES {totalRevenue.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-slate-500 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium">
               {filteredSales.length} transaction
               {filteredSales.length !== 1 ? "s" : ""}
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-emerald-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
-            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-5 border-2 border-emerald-400 dark:border-emerald-600 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 font-semibold mb-2 uppercase tracking-wide">
               Total Profit
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white break-words">
               KES {totalProfit.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-emerald-600 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
               {totalRevenue > 0
                 ? ((totalProfit / totalRevenue) * 100).toFixed(1)
                 : 0}
@@ -757,14 +757,14 @@ export default function Reports() {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 md:p-5 border-2 border-red-400 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1 shadow-lg">
-            <p className="text-xs md:text-sm text-slate-600 font-semibold mb-2 uppercase tracking-wide">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-5 border-2 border-red-400 dark:border-red-600 hover:md:-translate-y-1 active:scale-95 transition-all duration-300 touch-manipulation sm:col-span-2 lg:col-span-1 shadow-lg">
+            <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 font-semibold mb-2 uppercase tracking-wide">
               Total Refunded
             </p>
-            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 break-words">
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white break-words">
               KES {totalRefunded.toLocaleString()}
             </p>
-            <p className="text-xs md:text-sm text-red-600 mt-2 font-medium">
+            <p className="text-xs md:text-sm text-red-600 dark:text-red-400 mt-2 font-medium">
               {filteredReturns.length} return
               {filteredReturns.length !== 1 ? "s" : ""}
             </p>
@@ -773,15 +773,15 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-slate-900">
+            <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               Inventory Report
             </h3>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={exportInventoryToPDF}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 border-2 border-amber-400 dark:border-amber-500 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as PDF"
               >
                 <FileDown className="w-4 h-4" />
@@ -789,7 +789,7 @@ export default function Reports() {
               </button>
               <button
                 onClick={() => exportToCSV("inventory")}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 border-2 border-emerald-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 border-2 border-emerald-400 dark:border-emerald-500 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as CSV"
               >
                 <Download className="w-4 h-4" />
@@ -841,15 +841,15 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-slate-900">
+            <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               Sales Report
             </h3>
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={exportSalesPDF}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 border-2 border-amber-400 dark:border-amber-500 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as PDF"
               >
                 <FileDown className="w-4 h-4" />
@@ -857,7 +857,7 @@ export default function Reports() {
               </button>
               <button
                 onClick={() => exportToCSV("sales")}
-                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 border-2 border-emerald-400 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 border-2 border-emerald-400 dark:border-emerald-500 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
                 title="Export as CSV"
               >
                 <Download className="w-4 h-4" />
@@ -905,14 +905,14 @@ export default function Reports() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-4 md:p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-4 md:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 md:mb-6">
-            <h3 className="text-base md:text-lg font-bold text-slate-900">
+            <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
               Returns Report
             </h3>
             <button
               onClick={() => exportToCSV("returns")}
-              className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 border-2 border-red-400 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-sm font-bold touch-manipulation"
+              className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 border-2 border-red-400 dark:border-red-500 text-white px-4 py-2.5 sm:py-2 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-sm font-bold touch-manipulation"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV</span>
@@ -971,9 +971,9 @@ export default function Reports() {
       </div>
 
       {lowStockProducts.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-red-400 p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
-            <span className="bg-red-50 text-red-600 border-2 border-red-400 px-3 py-1 rounded-full text-sm font-bold">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-red-400 dark:border-red-600 p-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+            <span className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-2 border-red-400 dark:border-red-600 px-3 py-1 rounded-full text-sm font-bold">
               {lowStockProducts.length}
             </span>
             <span>Low Stock Products - Reorder Needed</span>
@@ -982,28 +982,30 @@ export default function Reports() {
             {lowStockProducts.map((product) => (
               <div
                 key={product.id}
-                className="flex items-center space-x-3 p-4 bg-red-50 rounded-2xl border-2 border-red-200 hover:border-red-400 transition-all"
+                className="flex items-center space-x-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl border-2 border-red-200 dark:border-red-700 hover:border-red-400 dark:hover:border-red-500 transition-all"
               >
                 {product.image_url && (
                   <OptimizedImage
                     src={product.image_url}
                     alt={product.name}
-                    className="w-12 h-12 object-cover rounded-xl border-2 border-slate-200"
+                    className="w-12 h-12 object-cover rounded-xl border-2 border-slate-200 dark:border-slate-600"
                     fallbackClassName="w-12 h-12"
                     preset="thumbnail"
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-slate-900 truncate text-sm">
+                  <p className="font-bold text-slate-900 dark:text-slate-200 truncate text-sm">
                     {product.name}
                   </p>
                   {product.description && (
-                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
                       {product.description}
                     </p>
                   )}
-                  <p className="text-xs text-slate-500">{product.product_id}</p>
-                  <p className="text-sm font-bold text-red-600">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {product.product_id}
+                  </p>
+                  <p className="text-sm font-bold text-red-600 dark:text-red-400">
                     Stock: {product.quantity_in_stock}
                   </p>
                 </div>
@@ -1025,11 +1027,13 @@ interface ReportRowProps {
 function ReportRow({
   label,
   value,
-  valueColor = "text-slate-900",
+  valueColor = "text-slate-900 dark:text-white",
 }: ReportRowProps) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-      <span className="text-slate-600 text-sm">{label}</span>
+    <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
+      <span className="text-slate-600 dark:text-slate-400 text-sm">
+        {label}
+      </span>
       <span className={`font-bold text-sm ${valueColor}`}>{value}</span>
     </div>
   );

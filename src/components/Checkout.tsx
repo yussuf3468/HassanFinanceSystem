@@ -150,16 +150,16 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-amber-100/50">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 max-w-md w-full text-center border border-amber-100/50 dark:border-slate-700">
           <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Check className="w-8 h-8 text-white" />
           </div>
 
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
             Order Placed Successfully!
           </h1>
-          <p className="text-slate-600 mb-4">
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
             Dalabka waa la diray - Your order has been received
           </p>
 
@@ -168,8 +168,10 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
             <p className="text-xl font-bold text-blue-600">{orderNumber}</p>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-4 mb-6">
-            <h3 className="font-semibold text-slate-800 mb-2">Order Details</h3>
+          <div className="bg-slate-50 dark:bg-slate-700 rounded-xl p-4 mb-6">
+            <h3 className="font-semibold text-slate-800 dark:text-white mb-2">
+              Order Details
+            </h3>
             <div className="space-y-1 text-sm">
               <p>
                 <span className="font-medium">Customer:</span>{" "}
@@ -258,13 +260,13 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center mb-8">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors"
+            className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Cart</span>
@@ -273,8 +275,8 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Checkout Form */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center space-x-2">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6 flex items-center space-x-2">
               <CreditCard className="w-6 h-6" />
               <span>Checkout Details</span>
             </h2>
@@ -282,7 +284,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Customer Name */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <User className="w-4 h-4 inline mr-1" />
                   Full Name / Magaca Buuxa
                 </label>
@@ -306,7 +308,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
               {/* Phone Number */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <Phone className="w-4 h-4 inline mr-1" />
                   Phone Number / Lambarka Taleefanka
                 </label>
@@ -330,7 +332,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
 
               {/* Delivery Address */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   <MapPin className="w-4 h-4 inline mr-1" />
                   Delivery Address / Ciwaanka Gaarsiinta
                 </label>
@@ -412,7 +414,7 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
             <h3 className="text-xl font-bold text-slate-800 mb-6">
               Order Summary
             </h3>

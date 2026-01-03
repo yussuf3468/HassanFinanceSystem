@@ -182,9 +182,9 @@ const CheckoutModal = memo(
 
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-amber-900/20 to-slate-900/40 backdrop-blur-md backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm">
           {/* Header */}
-          <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-6">
+          <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-900/50 dark:to-slate-800 text-white p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <CreditCard className="w-6 h-6" />
@@ -192,19 +192,21 @@ const CheckoutModal = memo(
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white rounded-full transition-colors"
+                className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-700 dark:hover:to-slate-600 rounded-full transition-colors"
                 disabled={isSubmitting}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-amber-50 mt-2">Complete your order</p>
+            <p className="text-amber-50 dark:text-slate-300 mt-2">
+              Complete your order
+            </p>
           </div>
 
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             {/* Order Summary */}
-            <div className="p-6 border-b border-amber-100/50 bg-stone-50">
-              <h3 className="font-semibold text-slate-800 mb-4">
+            <div className="p-6 border-b border-amber-100/50 dark:border-slate-700 bg-stone-50 dark:bg-slate-800/50">
+              <h3 className="font-semibold text-slate-800 dark:text-white mb-4">
                 Order Summary
               </h3>
               <div className="space-y-2">
@@ -213,10 +215,10 @@ const CheckoutModal = memo(
                     key={item.product.id}
                     className="flex justify-between items-center text-sm"
                   >
-                    <span className="text-slate-700 ">
+                    <span className="text-slate-700 dark:text-slate-300">
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span className="font-medium text-slate-800">
+                    <span className="font-medium text-slate-800 dark:text-white">
                       KES{" "}
                       {(
                         item.product.selling_price * item.quantity
@@ -224,23 +226,27 @@ const CheckoutModal = memo(
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between items-center text-sm pt-2 border-t border-amber-100/50">
-                  <span className="text-slate-700 ">Subtotal:</span>
-                  <span className="font-medium text-slate-800">
+                <div className="flex justify-between items-center text-sm pt-2 border-t border-amber-100/50 dark:border-slate-700">
+                  <span className="text-slate-700 dark:text-slate-300">
+                    Subtotal:
+                  </span>
+                  <span className="font-medium text-slate-800 dark:text-white">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-700 ">Delivery Fee:</span>
-                  <span className="font-medium text-slate-800">
+                  <span className="text-slate-700 dark:text-slate-300">
+                    Delivery Fee:
+                  </span>
+                  <span className="font-medium text-slate-800 dark:text-white">
                     {deliveryFee === 0
                       ? "FREE"
                       : `KES ${deliveryFee.toLocaleString()}`}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-amber-100/50">
-                  <span className="text-slate-800">Total:</span>
-                  <span className="text-amber-700 ">
+                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-amber-100/50 dark:border-slate-700">
+                  <span className="text-slate-800 dark:text-white">Total:</span>
+                  <span className="text-amber-700 dark:text-amber-400">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
@@ -248,16 +254,19 @@ const CheckoutModal = memo(
             </div>
 
             {/* Checkout Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-white">
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-6 bg-white dark:bg-slate-800"
+            >
               {/* Customer Information */}
               <div>
-                <h3 className="font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
                   <User className="w-5 h-5" />
                   <span>Customer Information</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Full Name *
                     </label>
                     <input
@@ -266,25 +275,25 @@ const CheckoutModal = memo(
                       onChange={(e) =>
                         handleInputChange("customer_name", e.target.value)
                       }
-                      className="w-full px-4 py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
                       placeholder="Enter your full name"
                       required
                       disabled={isSubmitting}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Phone Number *
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 " />
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 dark:text-slate-400" />
                       <input
                         type="tel"
                         value={formData.phone_number}
                         onChange={(e) =>
                           handleInputChange("phone_number", e.target.value)
                         }
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
                         placeholder="+254 700 000 000"
                         required
                         disabled={isSubmitting}
@@ -293,18 +302,18 @@ const CheckoutModal = memo(
                   </div>
                 </div>
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Email Address (Optional)
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 " />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 dark:text-slate-400" />
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
                       placeholder="your@email.com"
                       disabled={isSubmitting}
                     />
@@ -314,15 +323,15 @@ const CheckoutModal = memo(
 
               {/* Delivery Information */}
               <div>
-                <h3 className="font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
                   <Truck className="w-5 h-5" />
                   <span>Delivery Information</span>
                 </h3>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Delivery Address *
                   </label>
-                  <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl p-1">
+                  <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-700/30 dark:via-slate-800 dark:to-slate-700/40 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl p-1">
                     <DeliveryAddressSelector
                       value={formData.delivery_address}
                       onChange={(address) =>
@@ -338,7 +347,7 @@ const CheckoutModal = memo(
 
               {/* Payment Method */}
               <div>
-                <h3 className="font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
                   <CreditCard className="w-5 h-5" />
                   <span>Payment Method</span>
                 </h3>
@@ -361,8 +370,8 @@ const CheckoutModal = memo(
                       }
                       className={`p-3 border-2 rounded-xl text-center transition-all ${
                         paymentMethod === method.id
-                          ? "border-amber-500 bg-amber-50 text-slate-800"
-                          : "border-amber-300/70 shadow-amber-100/50/60 shadow-sm bg-white text-slate-700 hover:bg-stone-50"
+                          ? "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-slate-800 dark:text-white"
+                          : "border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-stone-50 dark:hover:bg-slate-600"
                       }`}
                       disabled={isSubmitting}
                     >
@@ -375,15 +384,15 @@ const CheckoutModal = memo(
 
               {/* Order Notes */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Order Notes (Optional)
                 </label>
                 <div className="relative">
-                  <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-slate-700 " />
+                  <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-slate-700 dark:text-slate-400" />
                   <textarea
                     value={formData.notes}
                     onChange={(e) => handleInputChange("notes", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 resize-none"
+                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 resize-none"
                     placeholder="Any special instructions or notes for your order..."
                     rows={3}
                     disabled={isSubmitting}

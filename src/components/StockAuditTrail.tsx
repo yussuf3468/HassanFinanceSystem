@@ -132,7 +132,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 overflow-y-auto">
       <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 flex justify-center items-start sm:items-center">
-        <div className="bg-white rounded-3xl shadow-2xl max-w-7xl w-full border-2 border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-7xl w-full border-2 border-slate-100 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Header */}
           <div className="relative bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100 px-4 sm:px-6 py-5 sm:py-6 overflow-hidden shadow-sm">
             <div className="relative flex items-center justify-between">
@@ -172,7 +172,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="🔍 Raadi magaca alaabta..."
-                    className="w-full bg-white border-2 border-slate-200 rounded-xl sm:rounded-xl pl-12 pr-4 py-3 sm:py-3.5 text-slate-900 text-sm sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm hover:border-amber-300"
+                    className="w-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl sm:rounded-xl pl-12 pr-4 py-3 sm:py-3.5 text-slate-900 dark:text-white text-sm sm:text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all shadow-sm hover:border-amber-300 dark:hover:border-slate-500"
                   />
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                       className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all shadow-sm border-2 ${
                         filter === f
                           ? "bg-gradient-to-r from-amber-500 to-amber-600 border-amber-400 text-white scale-105"
-                          : "bg-white border-slate-200 text-slate-700 hover:border-amber-300 hover:scale-105"
+                          : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-amber-300 dark:hover:border-slate-500 hover:scale-105"
                       }`}
                     >
                       <Filter className="w-4 h-4 inline mr-1.5" />
@@ -245,7 +245,7 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
                 {filteredMovements.map((movement) => (
                   <div
                     key={movement.id}
-                    className="bg-white border-2 border-slate-200 rounded-2xl p-4 sm:p-5 hover:border-amber-300 transition-all shadow-sm hover:shadow-md hover:scale-[1.01]"
+                    className="bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-2xl p-4 sm:p-5 hover:border-amber-300 dark:hover:border-slate-500 transition-all shadow-sm hover:shadow-md hover:scale-[1.01]"
                   >
                     <div className="flex flex-col sm:flex-row items-start gap-4">
                       {/* Product Image & Info */}

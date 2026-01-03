@@ -511,20 +511,20 @@ export default function OrganizedInventory() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 ">Categories</p>
+              <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 dark:text-slate-300">Categories</p>
                 <p className="text-3xl font-bold">{stats.categories}</p>
               </div>
-              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 ">Subcategories</p>
+              <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 dark:text-slate-300">Subcategories</p>
                 <p className="text-3xl font-bold">{stats.subcategories}</p>
               </div>
-              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 ">Total Products</p>
+              <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 dark:text-slate-300">Total Products</p>
                 <p className="text-3xl font-bold">{stats.products}</p>
               </div>
-              <div className="bg-white border border-amber-100/50 rounded-2xl p-4 text-slate-800 shadow-lg shadow-amber-300/10">
-                <p className="text-sm text-slate-700 ">In Stock</p>
+              <div className="bg-white dark:bg-slate-800 border border-amber-100/50 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-white shadow-lg shadow-amber-300/10">
+                <p className="text-sm text-slate-700 dark:text-slate-300">In Stock</p>
                 <p className="text-3xl font-bold">{stats.inStock}</p>
               </div>
             </div>
@@ -537,14 +537,14 @@ export default function OrganizedInventory() {
                 placeholder="Quick search for any product..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-800 placeholder-slate-400 focus:ring-4 focus:ring-amber-500/25 focus:border-amber-500 transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-700 border-2 border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-4 focus:ring-amber-500/25 dark:focus:ring-amber-600/25 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
               />
             </div>
 
             {/* Search Results */}
             {searchTerm && filteredProducts.length > 0 && (
-              <div className="mt-4 bg-white border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 max-h-96 overflow-y-auto">
-                <h3 className="font-bold text-slate-800 mb-3">
+              <div className="mt-4 bg-white dark:bg-slate-800 border-2 border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 max-h-96 overflow-y-auto">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-3">
                   Search Results ({filteredProducts.length})
                 </h3>
                 <div className="space-y-2">
@@ -625,7 +625,7 @@ export default function OrganizedInventory() {
                       <button
                         key={category}
                         onClick={() => setSelectedCategory(category)}
-                        className="group bg-white border-2 border-amber-100/50 hover:border-amber-500 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-105 text-left"
+                        className="group bg-white dark:bg-slate-800 border-2 border-amber-100/50 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-600 rounded-2xl p-6 transition-all hover:shadow-xl hover:scale-105 text-left"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-14 h-14 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl shadow-amber-400/30 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-300/10">

@@ -153,7 +153,7 @@ export default function Inventory() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-slate-700">
+      <div className="text-center py-12 text-slate-700 dark:text-slate-300">
         ⏳ Loading inventory...
       </div>
     );
@@ -163,10 +163,10 @@ export default function Inventory() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             Inventory Management
           </h2>
-          <p className="text-slate-600 mt-0.5 text-xs sm:text-sm">
+          <p className="text-slate-600 dark:text-slate-400 mt-0.5 text-xs sm:text-sm">
             Manage your bookstore products
           </p>
         </div>
@@ -175,7 +175,7 @@ export default function Inventory() {
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={() => setShowReceive(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-3 rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-emerald-400"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 text-white px-5 py-3 rounded-xl hover:from-emerald-600 hover:to-emerald-700 dark:hover:from-emerald-700 dark:hover:to-emerald-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-emerald-400 dark:border-emerald-500"
             title="Record a new stock receipt"
           >
             <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -183,7 +183,7 @@ export default function Inventory() {
           </button>
           <button
             onClick={() => setShowAudit(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 dark:hover:from-amber-700 dark:hover:to-amber-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400 dark:border-amber-500"
             title="View stock movement history"
           >
             <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -191,7 +191,7 @@ export default function Inventory() {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 dark:hover:from-amber-700 dark:hover:to-amber-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400 dark:border-amber-500"
           >
             <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Add Product</span>
@@ -200,37 +200,37 @@ export default function Inventory() {
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white rounded-2xl shadow-lg border-2 border-slate-100 overflow-hidden">
+      <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-200">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100">
+            <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 border-b-2 border-amber-100 dark:border-amber-900/30">
               <tr>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibsiga - Buying Price
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Qiimaha Iibka - Selling Price
                 </th>
-                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {paginatedProducts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-6 py-12 text-center text-slate-600"
+                    className="px-6 py-12 text-center text-slate-600 dark:text-slate-400"
                   >
                     No products yet. Click "Add Product" to get started.
                   </td>
@@ -242,7 +242,7 @@ export default function Inventory() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-amber-50/50 transition-colors"
+                      className="hover:bg-amber-50/50 dark:hover:bg-slate-700/50 transition-colors"
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-center space-x-3">
@@ -254,40 +254,40 @@ export default function Inventory() {
                               <OptimizedImage
                                 src={product.image_url}
                                 alt={product.name}
-                                className="w-12 h-12 object-cover rounded-xl shadow-sm border-2 border-slate-200"
+                                className="w-12 h-12 object-cover rounded-xl shadow-sm border-2 border-slate-200 dark:border-slate-600"
                                 preset="thumbnail"
                               />
                             </button>
                           ) : (
                             <button
                               onClick={() => handleView(product)}
-                              className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center hover:bg-amber-100 transition-colors border-2 border-slate-200"
+                              className="w-12 h-12 bg-slate-50 dark:bg-slate-700 rounded-xl flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors border-2 border-slate-200 dark:border-slate-600"
                             >
-                              <Package className="w-5 h-5 text-slate-400" />
+                              <Package className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                             </button>
                           )}
                           <div>
                             <button
                               onClick={() => handleView(product)}
-                              className="font-semibold text-slate-900 hover:text-amber-600 transition-colors text-left"
+                              className="font-semibold text-slate-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 transition-colors text-left"
                             >
                               {product.name}
                             </button>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
                               {product.product_id}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-300">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
                           {product.category}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-700 font-semibold">
+                      <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-semibold">
                         KES {product.buying_price.toLocaleString()}
                       </td>
-                      <td className="px-6 py-4 text-slate-900 font-bold">
+                      <td className="px-6 py-4 text-slate-900 dark:text-white font-bold">
                         KES {product.selling_price.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">

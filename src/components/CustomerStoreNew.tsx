@@ -64,7 +64,7 @@ const ProductCard = memo(
     return (
       <div
         data-product-id={product.id}
-        className="bg-white rounded-2xl shadow-sm hover:shadow-lg hover:shadow-amber-400/15 transition-all duration-400 overflow-hidden group border border-slate-200 hover:border-amber-300 ring-highlight-target"
+        className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:shadow-amber-400/15 transition-all duration-400 overflow-hidden group border border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-600 ring-highlight-target"
       >
         {/* Product Image */}
         <div
@@ -89,7 +89,7 @@ const ProductCard = memo(
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white text-slate-900 px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 border border-amber-300"
+              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 dark:hover:bg-slate-600 border border-amber-300 dark:border-amber-600"
             >
               Quick View
             </button>
@@ -360,7 +360,7 @@ export default function CustomerStore({
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-stone-50">
         {/* Navbar Skeleton */}
-        <div className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="h-8 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] animate-shimmer rounded-xl w-48"></div>
@@ -431,7 +431,7 @@ export default function CustomerStore({
         <div className="mb-12">
           {/* Mobile Filter Design */}
           <div className="block lg:hidden">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
               <div className="flex items-center mb-4">
                 <Filter className="w-5 h-5 text-amber-600 mr-2" />
                 <span className="text-lg font-bold text-slate-900">
@@ -460,7 +460,7 @@ export default function CustomerStore({
           <div className="hidden lg:block">
             <div className="overflow-x-auto scrollbar-hide pb-4">
               <div className="flex items-center justify-center space-x-3 min-w-max mx-auto">
-                <div className="flex items-center space-x-2 bg-white rounded-full p-1 shadow-sm border border-slate-200">
+                <div className="flex items-center space-x-2 bg-white dark:bg-slate-800 rounded-full p-1 shadow-sm border border-slate-200 dark:border-slate-700">
                   <Filter className="w-5 h-5 text-amber-600 ml-3 flex-shrink-0" />
                   <div className="flex space-x-1 pr-3">
                     {categories.map((category) => (
@@ -485,7 +485,7 @@ export default function CustomerStore({
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16">
-            <div className="bg-white rounded-3xl p-12 max-w-md mx-auto border border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-12 max-w-md mx-auto border border-slate-200 dark:border-slate-700 shadow-sm">
               <Package className="w-20 h-20 text-slate-400 mx-auto mb-6" />
               <h3 className="text-2xl font-bold text-slate-900 mb-3">
                 No products found

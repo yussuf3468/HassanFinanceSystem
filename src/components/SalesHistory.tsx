@@ -583,15 +583,15 @@ export default function SalesHistory() {
       </div>
 
       {/* Filters + Stats Panel */}
-      <div className="bg-white border-2 border-slate-200 shadow-sm rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+      <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by product, transaction id or seller..."
-              className="pl-10 pr-3 py-2 bg-white border-2 border-slate-200 w-full rounded-xl placeholder:text-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="pl-10 pr-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 w-full rounded-xl placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
               aria-label="Search transactions"
             />
             {query && (
@@ -608,15 +608,15 @@ export default function SalesHistory() {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="w-full sm:w-auto py-2 px-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
-            <option value="all" className="bg-white text-slate-900">
+            <option value="all" className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               All Payments
             </option>
             {availablePayments.map((p) => (
-              <option key={p} value={p} className="bg-white text-slate-900">
+              <option key={p} value={p} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 {p}
               </option>
             ))}
@@ -625,15 +625,15 @@ export default function SalesHistory() {
           <select
             value={sellerFilter}
             onChange={(e) => setSellerFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="w-full sm:w-auto py-2 px-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             title="Filter by seller"
             aria-label="Seller filter"
           >
-            <option value="all" className="bg-white text-slate-900">
+            <option value="all" className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               All Sellers
             </option>
             {availableSellers.map((s) => (
-              <option key={s} value={s} className="bg-white text-slate-900">
+              <option key={s} value={s} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 {s}
               </option>
             ))}
@@ -645,16 +645,16 @@ export default function SalesHistory() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="py-2 px-3 rounded-xl bg-white border-2 border-slate-200 text-sm text-slate-900 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="py-2 px-3 rounded-xl bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             placeholder="dd/mm/yyyy"
             title="From date"
           />
-          <span className="text-slate-600 hidden sm:inline">—</span>
+          <span className="text-slate-600 dark:text-slate-400 hidden sm:inline">—</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="py-2 px-3 rounded-xl bg-white border-2 border-slate-200 text-sm text-slate-900 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="py-2 px-3 rounded-xl bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             placeholder="dd/mm/yyyy"
             title="To date"
           />
@@ -735,12 +735,12 @@ export default function SalesHistory() {
               <SkeletonCard />
             </div>
           ) : (
-            <div className="bg-white border-2 border-slate-200 rounded-xl p-6 md:p-10 text-center shadow-sm">
-              <Receipt className="w-10 h-10 md:w-14 md:h-14 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-base md:text-lg font-bold mb-2 text-slate-900">
+            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6 md:p-10 text-center shadow-sm">
+              <Receipt className="w-10 h-10 md:w-14 md:h-14 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-bold mb-2 text-slate-900 dark:text-white">
                 No Sales Found
               </h3>
-              <p className="text-sm md:text-base text-slate-600">
+              <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
                 Try adjusting filters, or refresh to load the latest
                 transactions.
               </p>
@@ -762,10 +762,10 @@ export default function SalesHistory() {
           return (
             <div
               key={transaction.transaction_id}
-              className="bg-white border-2 border-slate-200 shadow-sm rounded-xl overflow-hidden"
+              className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden"
             >
               <div
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 p-3 md:p-4 cursor-pointer hover:bg-amber-50 transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 p-3 md:p-4 cursor-pointer hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors"
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleExpand(transaction.transaction_id)}
@@ -866,7 +866,7 @@ export default function SalesHistory() {
                       e.stopPropagation();
                       openReceiptModal(transaction);
                     }}
-                    className="p-2 bg-white border-2 border-slate-200 text-slate-700 rounded-xl hover:bg-amber-50 hover:border-amber-300 transition"
+                    className="p-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 transition"
                     title="View receipt"
                   >
                     <Eye className="w-4 h-4" />
@@ -1014,8 +1014,8 @@ export default function SalesHistory() {
 
       {/* Pagination Controls */}
       {filteredTransactions.length > 0 && (
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border-2 border-slate-200 shadow-sm rounded-xl">
-          <div className="text-sm text-slate-600">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl">
+          <div className="text-sm text-slate-600 dark:text-slate-400">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, filteredTransactions.length)}{" "}
             of {filteredTransactions.length} transactions
@@ -1028,18 +1028,18 @@ export default function SalesHistory() {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
             >
-              <option value={10} className="bg-white text-slate-900">
+              <option value={10} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 10 per page
               </option>
-              <option value={20} className="bg-white text-slate-900">
+              <option value={20} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 20 per page
               </option>
-              <option value={50} className="bg-white text-slate-900">
+              <option value={50} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 50 per page
               </option>
-              <option value={100} className="bg-white text-slate-900">
+              <option value={100} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 100 per page
               </option>
             </select>
@@ -1048,12 +1048,12 @@ export default function SalesHistory() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
 
-              <span className="px-3 py-2 text-sm text-slate-700 font-semibold">
+              <span className="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
 
@@ -1062,7 +1062,7 @@ export default function SalesHistory() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -1080,15 +1080,15 @@ export default function SalesHistory() {
           />
 
           <div className="relative w-full h-full md:h-auto max-w-3xl mx-0 md:mx-4">
-            <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full md:max-h-[calc(100vh-200px)]">
-              <div className="flex items-center justify-between p-4 border-b gap-3 sticky top-0 bg-white z-10">
+            <div className="bg-white dark:bg-slate-800 rounded-t-2xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full md:max-h-[calc(100vh-200px)]">
+              <div className="flex items-center justify-between p-4 border-b dark:border-slate-700 gap-3 sticky top-0 bg-white dark:bg-slate-800 z-10">
                 <div className="flex items-center gap-3 min-w-0">
-                  <Receipt className="w-6 h-6 text-slate-800 flex-shrink-0" />
+                  <Receipt className="w-6 h-6 text-slate-800 dark:text-white flex-shrink-0" />
                   <div className="min-w-0">
-                    <div className="font-bold text-slate-900 truncate">
+                    <div className="font-bold text-slate-900 dark:text-white truncate">
                       Sales Receipt
                     </div>
-                    <div className="text-xs text-slate-600 truncate">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
                       Transaction{" "}
                       {selectedTransaction.transaction_id.slice(0, 10)} •{" "}
                       {formatDate(selectedTransaction.created_at)}
@@ -1123,7 +1123,7 @@ export default function SalesHistory() {
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
                     }}
-                    className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-800 px-3 py-2 rounded-lg hover:bg-amber-50 hover:border-amber-300"
+                    className="flex items-center gap-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600"
                     title="Download receipt (open the file and use browser's Print to PDF)"
                   >
                     <Eye className="w-4 h-4" />
@@ -1285,7 +1285,7 @@ export default function SalesHistory() {
               {/* end receipt content */}
 
               {/* Mobile footer actions - sticky at bottom for small screens */}
-              <div className="md:hidden sticky bottom-0 left-0 right-0 p-3 bg-white border-t flex gap-2 justify-end">
+              <div className="md:hidden sticky bottom-0 left-0 right-0 p-3 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex gap-2 justify-end">
                 <button
                   onClick={() => printReceipt(selectedTransaction)}
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-2 rounded-lg shadow border-2 border-emerald-400"
@@ -1310,7 +1310,7 @@ export default function SalesHistory() {
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                   }}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border-2 border-slate-200 text-slate-800 px-3 py-2 rounded-lg hover:bg-amber-50 hover:border-amber-300"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600"
                   title="Download receipt (open the file and use browser's Print to PDF)"
                 >
                   <Eye className="w-4 h-4" />

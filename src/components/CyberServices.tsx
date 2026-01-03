@@ -206,7 +206,9 @@ export default function CyberServices() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-700 dark:text-slate-300">Loading cyber services...</p>
+          <p className="text-slate-700 dark:text-slate-300">
+            Loading cyber services...
+          </p>
         </div>
       </div>
     );
@@ -250,7 +252,9 @@ export default function CyberServices() {
               All Time
             </span>
           </div>
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">Total Income</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">
+            Total Income
+          </p>
           <p className="text-2xl md:text-3xl font-black text-emerald-700 dark:text-emerald-300">
             KES {totalIncome.toLocaleString()}
           </p>
@@ -266,7 +270,9 @@ export default function CyberServices() {
               Today
             </span>
           </div>
-          <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Today's Income</p>
+          <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">
+            Today's Income
+          </p>
           <p className="text-2xl md:text-3xl font-black text-blue-700 dark:text-blue-300">
             KES {todayIncome.toLocaleString()}
           </p>
@@ -282,7 +288,9 @@ export default function CyberServices() {
               This Month
             </span>
           </div>
-          <p className="text-sm text-purple-600 dark:text-purple-400 mb-1">Monthly Income</p>
+          <p className="text-sm text-purple-600 dark:text-purple-400 mb-1">
+            Monthly Income
+          </p>
           <p className="text-2xl md:text-3xl font-black text-purple-700 dark:text-purple-300">
             KES {thisMonthIncome.toLocaleString()}
           </p>

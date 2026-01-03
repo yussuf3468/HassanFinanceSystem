@@ -73,7 +73,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-slate-200 dark:border-slate-700">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -201,7 +201,7 @@ export const StockReceiveModal: React.FC<StockReceiveModalProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="w-full bg-white hover:bg-gray-50 text-gray-700 py-2.5 px-4 rounded-xl font-medium border-2 border-gray-300 transition-all"
+              className="w-full bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300 py-2.5 px-4 rounded-xl font-medium border-2 border-gray-300 dark:border-slate-600 transition-all"
             >
               ❌ Cancel Entire Sale
             </button>

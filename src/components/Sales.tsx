@@ -307,16 +307,28 @@ export default function Sales() {
               }}
               className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors duration-200"
             >
-              <option value={25} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={25}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 25 per page
               </option>
-              <option value={50} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={50}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 50 per page
               </option>
-              <option value={100} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={100}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 100 per page
               </option>
-              <option value={200} className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+              <option
+                value={200}
+                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+              >
                 200 per page
               </option>
             </select>

@@ -317,7 +317,7 @@ export default function ExpenseManagement() {
         <div className="mb-4 sm:mb-8 relative">
           {/* Background Glow Effects */}
           <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-rose-100/30 to-amber-100/30 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-white backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg border border-amber-100/50 overflow-hidden">
+          <div className="relative bg-white dark:bg-slate-800 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg border border-amber-100/50 dark:border-slate-700 overflow-hidden">
             {/* Animated Background Patterns */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
               <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-amber-500 to-rose-500 rounded-full animate-pulse transform rotate-45"></div>
@@ -348,7 +348,7 @@ export default function ExpenseManagement() {
                   type="month"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="px-3 sm:px-4 py-2 sm:py-3 bg-white border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm sm:text-base text-slate-800"
+                  className="px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-sm sm:text-base text-slate-800 dark:text-white"
                 />
 
                 {categories.length === 0 && (
@@ -581,7 +581,7 @@ export default function ExpenseManagement() {
                   {expenses.map((expense) => (
                     <div
                       key={expense.id}
-                      className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
+                      className="bg-white/90 dark:bg-slate-700/90 backdrop-blur-xl rounded-2xl p-4 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
@@ -702,7 +702,7 @@ export default function ExpenseManagement() {
                       return (
                         <div
                           key={category}
-                          className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
+                          className="group relative bg-white/90 dark:bg-slate-700/90 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
                           style={{ animationDelay: `${index * 0.1}s` }}
                         >
                           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -714,7 +714,7 @@ export default function ExpenseManagement() {
                               KES {amount.toLocaleString()}
                             </p>
                             <div className="relative">
-                              <div className="w-full bg-white/90 rounded-full h-3 overflow-hidden">
+                              <div className="w-full bg-white/90 dark:bg-slate-600 rounded-full h-3 overflow-hidden">
                                 <div
                                   className={`bg-gradient-to-r ${colorSet.from} ${colorSet.to} h-3 rounded-full transition-all duration-1000 ease-out shadow-lg shadow-amber-300/10`}
                                   style={{
@@ -783,7 +783,7 @@ export default function ExpenseManagement() {
                             category: e.target.value,
                           }))
                         }
-                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/90 dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm text-slate-900 dark:text-white rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-600 focus:border-transparent text-sm sm:text-base"
                         required
                       >
                         <option

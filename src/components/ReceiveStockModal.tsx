@@ -123,7 +123,7 @@ export default function ReceiveStockModal({
   return (
     <div className="fixed inset-0 bg-slate-900/70 z-50 overflow-y-auto">
       <div className="min-h-screen py-4 sm:py-8 px-3 sm:px-4 flex justify-center items-start sm:items-center">
-        <div className="bg-white rounded-3xl shadow-xl max-w-7xl w-full border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl max-w-7xl w-full border border-slate-200 dark:border-slate-700 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Stunning Header */}
           <div className="relative bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 border-b border-slate-200 px-4 sm:px-6 py-4 sm:py-6 overflow-hidden">
             {/* Animated Background Pattern */}
@@ -165,13 +165,13 @@ export default function ReceiveStockModal({
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full bg-white border-2 border-slate-200 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 text-sm sm:text-base placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm"
+                    className="w-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 dark:text-white text-sm sm:text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all shadow-sm"
                     placeholder="Qor magaca alaabta..."
                   />
 
                   {/* Search Results */}
                   {search && filteredProducts.length > 0 && (
-                    <div className="mt-3 sm:mt-4 max-h-[300px] sm:max-h-[450px] overflow-auto space-y-2 rounded-2xl sm:rounded-2xl bg-white p-2 border border-slate-200">
+                    <div className="mt-3 sm:mt-4 max-h-[300px] sm:max-h-[450px] overflow-auto space-y-2 rounded-2xl sm:rounded-2xl bg-white dark:bg-slate-800 p-2 border border-slate-200 dark:border-slate-700">
                       {filteredProducts.slice(0, 15).map((p) => (
                         <button
                           key={p.id}
@@ -229,7 +229,7 @@ export default function ReceiveStockModal({
                   )}
 
                   {search && filteredProducts.length === 0 && (
-                    <div className="mt-4 text-center py-8 sm:py-12 text-slate-600 text-sm sm:text-base bg-white rounded-2xl border border-slate-200">
+                    <div className="mt-4 text-center py-8 sm:py-12 text-slate-600 dark:text-slate-400 text-sm sm:text-base bg-white dark:bg-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600">
                       <Package className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50 text-slate-400" />
                       Ma jiro alaab la heli karo
                     </div>
@@ -264,7 +264,7 @@ export default function ReceiveStockModal({
                     {items.map((it, idx) => (
                       <div
                         key={idx}
-                        className="bg-white border-2 border-slate-200 rounded-2xl sm:rounded-3xl p-3 sm:p-5 hover:border-amber-300 transition-all shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
+                        className="bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-2xl sm:rounded-3xl p-3 sm:p-5 hover:border-amber-300 dark:hover:border-slate-500 transition-all shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99]"
                       >
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                           {/* Product Image & Info */}
@@ -329,7 +329,7 @@ export default function ReceiveStockModal({
                                       ),
                                     })
                                   }
-                                  className="w-20 sm:w-24 bg-white border-2 border-emerald-300 rounded-2xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-slate-900 text-center font-bold text-lg sm:text-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all shadow-sm"
+                                  className="w-20 sm:w-24 bg-white dark:bg-slate-700 border-2 border-emerald-300 dark:border-emerald-700 rounded-2xl sm:rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-slate-900 dark:text-white text-center font-bold text-lg sm:text-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all shadow-sm"
                                 />
                                 <button
                                   type="button"

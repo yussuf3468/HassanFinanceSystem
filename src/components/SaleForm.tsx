@@ -1080,9 +1080,9 @@ export default function SaleForm({
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border-2 border-slate-100 animate-scaleIn flex flex-col touch-auto">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border-2 border-slate-100 dark:border-slate-700 animate-scaleIn flex flex-col touch-auto">
         {/* Header - Fixed */}
-        <div className="relative bg-gradient-to-r from-amber-500 to-amber-600 p-4 sm:p-6 rounded-t-2xl flex-shrink-0 border-b-2 border-amber-400">
+        <div className="relative bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-900/50 dark:to-slate-800 p-4 sm:p-6 rounded-t-2xl flex-shrink-0 border-b-2 border-amber-400 dark:border-slate-700">
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -1106,8 +1106,8 @@ export default function SaleForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 overflow-y-auto flex-1">
-            <div className="bg-white text-black rounded-xl border border-gray-300 p-4 sm:p-6 shadow-lg">
+          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-slate-800 overflow-y-auto flex-1">
+            <div className="bg-white dark:bg-slate-700 text-black dark:text-white rounded-xl border border-gray-300 dark:border-slate-600 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
                   HASSAN BOOKSHOP
@@ -1308,7 +1308,7 @@ export default function SaleForm({
 
             {/* Staff & Payment - Moved to top for better UX */}
             {!quickSaleMode && (
-              <div className="bg-white rounded-xl p-4 border-2 border-slate-200 shadow-sm">
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
                 <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center space-x-2">
                   <span>📋</span>
                   <span>Sale Information</span>
@@ -1322,16 +1322,16 @@ export default function SaleForm({
                       required
                       value={soldBy}
                       onChange={(e) => setSoldBy(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                     >
-                      <option value="" className="bg-white text-slate-800">
+                      <option value="" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
                         -- Select Staff Member --
                       </option>
                       {staffMembers.map((s) => (
                         <option
                           key={s}
                           value={s}
-                          className="bg-white text-slate-800"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                         >
                           {s}
                         </option>
@@ -1345,13 +1345,13 @@ export default function SaleForm({
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                     >
                       {paymentMethods.map((m) => (
                         <option
                           key={m}
                           value={m}
-                          className="bg-white text-slate-800"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                         >
                           {m}
                         </option>
@@ -1368,7 +1368,7 @@ export default function SaleForm({
                       type="text"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                       placeholder="Walk-in Customer"
                     />
                   </div>
@@ -1385,7 +1385,7 @@ export default function SaleForm({
                           e.target.value as "paid" | "not_paid" | "partial"
                         )
                       }
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                     >
                       <option value="paid">Paid</option>
                       <option value="partial">Partial Payment</option>
@@ -1403,7 +1403,7 @@ export default function SaleForm({
                         type="number"
                         value={amountPaid}
                         onChange={(e) => setAmountPaid(e.target.value)}
-                        className="w-full min-h-[48px] px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-800 text-base focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all touch-manipulation"
+                        className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
                         placeholder="Enter amount paid"
                         step="0.01"
                         min="0"
@@ -1432,9 +1432,9 @@ export default function SaleForm({
             )}
 
             {/* Bulk Sales by Grade */}
-            <div className="bg-white rounded-xl p-4 border-2 border-slate-200 shadow-sm">
+            <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                   <span>📚</span>
                   <span>Quick Add by Grade</span>
                 </h4>
@@ -1643,7 +1643,7 @@ export default function SaleForm({
                     <div
                       key={li.id}
                       ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white border-2 border-slate-200 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 transition-all shadow-sm"
+                      className="relative bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 dark:hover:border-amber-600 transition-all shadow-sm"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-2">
@@ -1708,13 +1708,13 @@ export default function SaleForm({
                                 updateLine(li.id, { showDropdown: true })
                               }
                               placeholder="Type to search products..."
-                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-base text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all relative z-10 font-medium hover:border-amber-300 touch-manipulation"
+                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-base text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all relative z-10 font-medium hover:border-amber-300 dark:hover:border-amber-600 touch-manipulation"
                               style={{ background: "transparent" }}
                             />
 
                             {/* Predictive Suggestions Dropdown - Google Style */}
                             {li.showDropdown && (
-                              <div className="absolute z-30 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
+                              <div className="absolute z-30 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
                                 {/* Quick Access - When search is empty */}
                                 {!li.searchTerm &&
                                   quickAccessProducts.length > 0 && (
@@ -1893,7 +1893,7 @@ export default function SaleForm({
                               onChange={(e) =>
                                 updateLine(li.id, { quantity: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                              className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
                               placeholder="Qty"
                             />
                             {/* Quick Quantity Buttons */}
@@ -2000,23 +2000,23 @@ export default function SaleForm({
                                 discount_value: "",
                               })
                             }
-                            className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                            className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
                           >
                             <option
                               value="none"
-                              className="bg-white text-slate-800"
+                              className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                             >
                               None
                             </option>
                             <option
                               value="percentage"
-                              className="bg-white text-slate-800"
+                              className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                             >
                               Percentage (%)
                             </option>
                             <option
                               value="amount"
-                              className="bg-white text-slate-800"
+                              className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                             >
                               Amount (KES)
                             </option>
@@ -2046,7 +2046,7 @@ export default function SaleForm({
                             step={
                               li.discount_type === "percentage" ? "0.01" : "1"
                             }
-                            className="w-full px-3 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             placeholder={
                               li.discount_type === "percentage" ? "10" : "100"
                             }
@@ -2126,18 +2126,18 @@ export default function SaleForm({
                       setOverallDiscountType(e.target.value as DiscountType);
                       setOverallDiscountValue("");
                     }}
-                    className="w-full px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all"
                   >
-                    <option value="none" className="bg-white text-slate-800">
+                    <option value="none" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
                       No Overall Discount
                     </option>
                     <option
                       value="percentage"
-                      className="bg-white text-slate-800"
+                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                     >
                       Percentage (%)
                     </option>
-                    <option value="amount" className="bg-white text-slate-800">
+                    <option value="amount" className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white">
                       Fixed Amount (KES)
                     </option>
                   </select>

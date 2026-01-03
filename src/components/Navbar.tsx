@@ -7,9 +7,12 @@ import {
   X,
   Settings,
   LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import SearchSuggestions from "./SearchSuggestions";
 import type { Product } from "../types";
 
@@ -38,6 +41,7 @@ const Navbar = memo(
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
     const cart = useCart();
     const { user, signOut } = useAuth();
+    const { theme, toggleTheme } = useTheme();
 
     const handleSearchChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +104,7 @@ const Navbar = memo(
     }, []);
 
     return (
-      <header className="bg-white shadow-lg border-b-2 border-slate-200 sticky top-0 z-50">
+      <header className="bg-white dark:bg-slate-800 shadow-lg border-b-2 border-slate-200 dark:border-slate-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -109,7 +113,7 @@ const Navbar = memo(
                 <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">
                   HASSAN BOOKSHOP
                 </h1>
-                <p className="text-xs text-slate-600 hidden sm:block">
+                <p className="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">
                   Your trusted bookstore
                 </p>
               </div>
@@ -128,7 +132,7 @@ const Navbar = memo(
                   onBlur={() =>
                     setTimeout(() => setShowSearchSuggestions(false), 200)
                   }
-                  className="w-full pl-10 pr-4 py-2 bg-white border-2 border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
                 />
 
                 {/* Search Suggestions */}
@@ -152,6 +156,19 @@ const Navbar = memo(
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
+
               {/* Cart */}
               <button
                 onClick={onCartClick}
@@ -181,12 +198,12 @@ const Navbar = memo(
                     </button>
 
                     {isUserMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border-2 border-slate-200 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                        <div className="px-4 py-2 border-b-2 border-slate-100">
-                          <p className="text-sm font-medium text-slate-900">
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-2 border-b-2 border-slate-100 dark:border-slate-700">
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">
                             Welcome back!
                           </p>
-                          <p className="text-xs text-slate-500 truncate">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {user.email}
                           </p>
                         </div>
@@ -273,7 +290,7 @@ const Navbar = memo(
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t-2 border-slate-200">
+          <div className="md:hidden bg-white dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
             <div className="px-4 py-4 space-y-4">
               {/* Cart */}
               <button

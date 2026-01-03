@@ -81,7 +81,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
       {/* Header */}
-      <header className="bg-white shadow-lg border-b border-slate-200">
+      <header className="bg-white dark:bg-slate-800 shadow-lg border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -160,7 +160,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden border border-slate-200 dark:border-slate-700"
               >
                 {/* Product Image */}
                 <div className="relative">

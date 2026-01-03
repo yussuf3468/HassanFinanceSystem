@@ -301,10 +301,12 @@ export default function StaffDashboard() {
 
         {todaysSales.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/90 dark:bg-slate-700/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-amber-300/70 dark:border-amber-600/50 shadow-amber-100/50/60 shadow-sm">
               <ShoppingBag className="w-8 h-8 text-slate-700 dark:text-slate-400" />
             </div>
-            <p className="text-slate-900 dark:text-white font-bold mb-2">No sales yet today</p>
+            <p className="text-slate-900 dark:text-white font-bold mb-2">
+              No sales yet today
+            </p>
             <p className="text-slate-700 dark:text-slate-400 text-sm">
               Start making sales to see them here!
             </p>
@@ -316,7 +318,7 @@ export default function StaffDashboard() {
               return (
                 <div
                   key={sale.id}
-                  className="bg-gradient-to-br from-white to-stone-50/50 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 backdrop-blur-xl border border-amber-100/50 hover:border-emerald-500/30 rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01]"
+                  className="bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-800 dark:to-slate-700/50 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 dark:hover:from-slate-700 dark:hover:to-slate-600/50 backdrop-blur-xl border border-amber-100/50 dark:border-amber-700/30 hover:border-emerald-500/30 dark:hover:border-emerald-600/50 rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01]"
                 >
                   <div className="flex items-center space-x-4">
                     {/* Product Image */}
@@ -328,8 +330,8 @@ export default function StaffDashboard() {
                         preset="thumbnail"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 rounded-xl flex items-center justify-center border border-amber-300/70 shadow-amber-100/50/60 shadow-sm flex-shrink-0">
-                        <ShoppingBag className="w-8 h-8 text-slate-700 " />
+                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 dark:from-slate-700/50 dark:to-slate-600/50 rounded-xl flex items-center justify-center border border-amber-300/70 dark:border-amber-600/50 shadow-amber-100/50/60 shadow-sm flex-shrink-0">
+                        <ShoppingBag className="w-8 h-8 text-slate-700 dark:text-slate-400" />
                       </div>
                     )}
 
@@ -337,29 +339,29 @@ export default function StaffDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-slate-900 text-sm md:text-base truncate">
+                          <p className="font-bold text-slate-900 dark:text-slate-200 text-sm md:text-base truncate">
                             {product?.name || "Unknown Product"}
                           </p>
-                          <p className="text-xs text-slate-700 ">
+                          <p className="text-xs text-slate-700 dark:text-slate-400">
                             {new Date(sale.created_at).toLocaleTimeString()} •
                             Qty: {sale.quantity_sold}
                           </p>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="font-black text-slate-900 text-sm md:text-base">
+                          <p className="font-black text-slate-900 dark:text-white text-sm md:text-base">
                             {formatCurrency(sale.total_sale)}
                           </p>
-                          <p className="text-xs text-emerald-400 font-bold">
+                          <p className="text-xs text-emerald-400 dark:text-emerald-300 font-bold">
                             +{formatCurrency(sale.profit)}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-br from-amber-50/40 to-white text-amber-800 font-semibold border border-amber-300">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-br from-amber-50/40 to-white dark:from-amber-900/30 dark:to-slate-700 text-amber-800 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-600">
                           {sale.payment_method}
                         </span>
                         {product?.category && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-700 border border-rose-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700">
                             {product.category}
                           </span>
                         )}
@@ -417,9 +419,9 @@ function MetricCard({
   const colors = colorClasses[color];
 
   return (
-    <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white backdrop-blur-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-2xl hover:shadow-amber-400/20 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
+    <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white dark:from-slate-800 dark:via-amber-900/10 dark:to-slate-800 backdrop-blur-2xl border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm rounded-2xl p-4 md:p-5 shadow-2xl hover:shadow-2xl hover:shadow-amber-400/20 dark:hover:shadow-amber-600/20 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}
+        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-500 rounded-2xl`}
       ></div>
 
       <div className="relative flex items-center justify-between">
@@ -429,11 +431,11 @@ function MetricCard({
           >
             {title}
           </p>
-          <p className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-tight">
+          <p className="text-base sm:text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-slate-700 mt-0.5 font-medium">
+            <p className="text-xs text-slate-700 dark:text-slate-400 mt-0.5 font-medium">
               {subtitle}
             </p>
           )}

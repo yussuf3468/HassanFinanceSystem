@@ -276,10 +276,10 @@ export default function CustomerBalances() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-8">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-8">
         <div className="flex items-center justify-center space-x-3">
           <RefreshCw className="w-6 h-6 text-amber-500 animate-spin" />
-          <span className="text-slate-900 font-semibold">
+          <span className="text-slate-900 dark:text-white font-semibold">
             Loading customer balances...
           </span>
         </div>
@@ -292,18 +292,18 @@ export default function CustomerBalances() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-3">
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3">
             <Users className="w-8 h-8 text-amber-500" />
             Customer Balances
           </h2>
-          <p className="text-slate-600 mt-1 text-sm md:text-base">
+          <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm md:text-base">
             Track outstanding payments and customer credit
           </p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="p-3 bg-amber-50 hover:bg-amber-100 rounded-xl border-2 border-amber-400 transition-all active:scale-95 disabled:opacity-50"
+          className="p-3 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-xl border-2 border-amber-400 dark:border-amber-700 transition-all active:scale-95 disabled:opacity-50"
           title="Refresh data"
         >
           <RefreshCw
@@ -316,67 +316,69 @@ export default function CustomerBalances() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-amber-400 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-amber-400 dark:border-amber-700 p-6">
           <div className="flex items-center justify-between mb-2">
             <AlertCircle className="w-8 h-8 text-amber-500" />
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             {totals.totalCustomers}
           </div>
-          <div className="text-sm text-slate-600 font-semibold">
+          <div className="text-sm text-slate-600 dark:text-slate-400 font-semibold">
             Customers with Balance
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-red-400 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-red-400 dark:border-red-700 p-6">
           <div className="flex items-center justify-between mb-2">
             <TrendingDown className="w-8 h-8 text-red-500" />
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             KES{" "}
             {totals.totalOutstanding.toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className="text-sm text-slate-600 font-semibold">
+          <div className="text-sm text-slate-600 dark:text-slate-400 font-semibold">
             Total Outstanding
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-400 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-blue-400 dark:border-blue-700 p-6">
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-8 h-8 text-blue-500" />
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             KES{" "}
             {totals.totalSales.toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className="text-sm text-slate-600 font-semibold">
+          <div className="text-sm text-slate-600 dark:text-slate-400 font-semibold">
             Total Sales
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-emerald-400 p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-emerald-400 dark:border-emerald-700 p-6">
           <div className="flex items-center justify-between mb-2">
             <DollarSign className="w-8 h-8 text-emerald-500" />
           </div>
-          <div className="text-3xl font-black text-slate-900">
+          <div className="text-3xl font-black text-slate-900 dark:text-white">
             KES{" "}
             {totals.totalPaid.toLocaleString("en-US", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
           </div>
-          <div className="text-sm text-slate-600 font-semibold">Total Paid</div>
+          <div className="text-sm text-slate-600 dark:text-slate-400 font-semibold">
+            Total Paid
+          </div>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 p-6">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
@@ -386,7 +388,7 @@ export default function CustomerBalances() {
               placeholder="Search customer name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
             />
           </div>
 
@@ -395,7 +397,7 @@ export default function CustomerBalances() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all font-semibold"
+              className="px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all font-semibold"
             >
               <option value="balance" className="bg-white">
                 Sort by Balance

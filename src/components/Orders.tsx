@@ -252,15 +252,21 @@ const Orders = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-white/90 rounded w-1/4 mb-6"></div>
+          <div className="h-8 bg-white/90 dark:bg-slate-700 rounded w-1/4 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-white/90 rounded"></div>
+              <div
+                key={i}
+                className="h-24 bg-white/90 dark:bg-slate-700 rounded"
+              ></div>
             ))}
           </div>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 bg-white/90 rounded"></div>
+              <div
+                key={i}
+                className="h-20 bg-white/90 dark:bg-slate-700 rounded"
+              ></div>
             ))}
           </div>
         </div>
@@ -272,23 +278,23 @@ const Orders = () => {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-lg md:text-xl font-black text-slate-900 mb-1">
+        <h1 className="text-lg md:text-xl font-black text-slate-900 dark:text-white mb-1">
           Orders Management
         </h1>
-        <p className="text-slate-600 text-xs md:text-sm">
+        <p className="text-slate-600 dark:text-slate-400 text-xs md:text-sm">
           Manage and track customer orders
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                 Total Orders
               </p>
-              <p className="text-lg md:text-xl font-black text-slate-900 mt-1.5">
+              <p className="text-lg md:text-xl font-black text-slate-900 dark:text-white mt-1.5">
                 {orderStats.total}
               </p>
             </div>
@@ -297,13 +303,13 @@ const Orders = () => {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                 Pending
               </p>
-              <p className="text-lg md:text-xl font-black text-amber-400 mt-1.5">
+              <p className="text-lg md:text-xl font-black text-amber-400 dark:text-amber-500 mt-1.5">
                 {orderStats.pending}
               </p>
             </div>
@@ -312,13 +318,13 @@ const Orders = () => {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                 Delivered
               </p>
-              <p className="text-lg md:text-xl font-black text-emerald-400 mt-1.5">
+              <p className="text-lg md:text-xl font-black text-emerald-400 dark:text-emerald-500 mt-1.5">
                 {orderStats.delivered}
               </p>
             </div>
@@ -327,13 +333,13 @@ const Orders = () => {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
+        <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm hover:-translate-y-1 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                 Revenue
               </p>
-              <p className="text-base md:text-lg font-black text-slate-900 mt-1.5">
+              <p className="text-base md:text-lg font-black text-slate-900 dark:text-white mt-1.5">
                 KES {orderStats.totalRevenue.toLocaleString()}
               </p>
             </div>
@@ -345,26 +351,26 @@ const Orders = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-700 dark:text-slate-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/90 dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent transition-all"
               />
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Filter className="w-5 h-5 text-slate-700 " />
+            <Filter className="w-5 h-5 text-slate-700 dark:text-slate-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm rounded-2xl px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+              className="bg-white/90 dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-2xl px-3 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 transition-all"
             >
               <option
                 value="all"
@@ -414,53 +420,53 @@ const Orders = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 backdrop-blur-xl rounded-2xl shadow-xl border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-gradient-to-br from-white to-stone-50/50">
+          <table className="min-w-full divide-y divide-white/5 dark:divide-slate-700">
+            <thead className="bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-700 dark:to-slate-800">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Order
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white/50 divide-y divide-white/5">
+            <tbody className="bg-white/50 dark:bg-slate-800/50 divide-y divide-white/5 dark:divide-slate-700">
               {filteredOrders.map((order) => (
                 <tr
                   key={order.id}
-                  className="hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors"
+                  className="hover:bg-gradient-to-br from-white to-stone-50/50 dark:hover:from-slate-700 dark:hover:to-slate-700/50 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-bold text-white">
+                      <div className="text-sm font-bold text-white dark:text-white">
                         {order.order_number}
                       </div>
-                      <div className="text-xs text-slate-700 ">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
                         {order.order_items?.length || 0} items
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-bold text-white">
+                      <div className="text-sm font-bold text-white dark:text-white">
                         {order.customer_name}
                       </div>
-                      <div className="text-xs text-slate-700 ">
+                      <div className="text-xs text-slate-700 dark:text-slate-400">
                         {order.customer_phone}
                       </div>
                     </div>
@@ -475,7 +481,7 @@ const Orders = () => {
                       <span className="ml-1 capitalize">{order.status}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white dark:text-white">
                     KES {order.total_amount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 ">
