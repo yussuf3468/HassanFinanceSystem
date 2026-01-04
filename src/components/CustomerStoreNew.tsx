@@ -117,7 +117,7 @@ const ProductCard = memo(
 
           {/* Subtle Low Stock Warning */}
           {product.quantity_in_stock <= product.reorder_level && (
-            <div className="absolute bottom-4 left-4 bg-gradient-to-br from-rose-50 to-white text-rose-700 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300">
+            <div className="absolute bottom-4 left-4 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/30 dark:to-rose-900/20 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300 dark:border-rose-700">
               Only {product.quantity_in_stock} left
             </div>
           )}
@@ -414,7 +414,7 @@ export default function CustomerStore({
       >
         {/* Section Header */},
         <div className="text-center mb-12">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
             <Package className="w-4 h-4" />
             <span>Premium Collection</span>
           </div>
