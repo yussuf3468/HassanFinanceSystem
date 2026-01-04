@@ -349,7 +349,7 @@ const HeroSection = memo(
         {/* Featured Products Section */}
         <div
           id="products-section"
-          className="relative bg-gradient-to-br from-stone-50 to-amber-50"
+          className="relative bg-gradient-to-br from-stone-50 to-amber-50 dark:from-slate-900 dark:to-slate-800"
         >
           <div className="mt-8 sm:mt-16 lg:mt-20">
             <FeaturedProducts
