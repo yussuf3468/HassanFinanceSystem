@@ -1108,39 +1108,53 @@ export default function SaleForm({
 
         {/* Receipt View */}
         {receipt && (
-          <div className="p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-amber-900/20 dark:bg-slate-800 overflow-y-auto flex-1">
+          <div className="p-4 sm:p-6 space-y-6 bg-white dark:bg-slate-800 overflow-y-auto flex-1">
             <div className="bg-white dark:bg-slate-700 text-black dark:text-white rounded-xl border border-gray-300 dark:border-slate-600 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide text-slate-900 dark:text-white">
                   HASSAN BOOKSHOP
                 </h1>
-                <p className="text-xs text-gray-700">
+                <p className="text-xs text-gray-700 dark:text-gray-300">
                   Quality Educational Materials & Supplies
                 </p>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Tel: +254 722 979 547 | Email: yussufh080@gmail.com
                 </p>
-                <p className="text-sm font-bold mt-2">Sales Receipt</p>
+                <p className="text-sm font-bold mt-2 text-slate-900 dark:text-white">
+                  Sales Receipt
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 dark:bg-slate-700 p-3 rounded">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-4 bg-gray-50 dark:bg-slate-600 p-3 rounded">
                 <p>
-                  <span className="font-semibold">Transaction:</span>{" "}
-                  <span className="text-gray-700">{receipt.transactionId}</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Transaction:
+                  </span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {receipt.transactionId}
+                  </span>
                 </p>
                 <p className="sm:text-right">
-                  <span className="font-semibold">Date:</span>{" "}
-                  <span className="text-gray-700">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Date:
+                  </span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">
                     {receipt.created_at.toLocaleString()}
                   </span>
                 </p>
                 <p>
-                  <span className="font-semibold">Sold By:</span>{" "}
-                  <span className="text-gray-700">{receipt.sold_by}</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Sold By:
+                  </span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {receipt.sold_by}
+                  </span>
                 </p>
                 <p className="sm:text-right">
-                  <span className="font-semibold">Payment:</span>{" "}
-                  <span className="text-gray-700">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Payment:
+                  </span>{" "}
+                  <span className="text-gray-700 dark:text-gray-300">
                     {receipt.payment_method}
                   </span>
                 </p>
@@ -1149,30 +1163,36 @@ export default function SaleForm({
               <div className="overflow-x-auto">
                 <table className="w-full text-xs border-collapse">
                   <thead>
-                    <tr className="bg-gray-200 border-b-2 border-gray-400">
-                      <th className="px-3 py-2 text-left font-bold">Product</th>
-                      <th className="px-3 py-2 text-right font-bold">Qty</th>
-                      <th className="px-3 py-2 text-right font-bold">
+                    <tr className="bg-gray-200 dark:bg-slate-600 border-b-2 border-gray-400 dark:border-slate-500">
+                      <th className="px-3 py-2 text-left font-bold text-slate-900 dark:text-white">
+                        Product
+                      </th>
+                      <th className="px-3 py-2 text-right font-bold text-slate-900 dark:text-white">
+                        Qty
+                      </th>
+                      <th className="px-3 py-2 text-right font-bold text-slate-900 dark:text-white">
                         Unit Price
                       </th>
-                      <th className="px-3 py-2 text-right font-bold">
+                      <th className="px-3 py-2 text-right font-bold text-slate-900 dark:text-white">
                         Discount
                       </th>
-                      <th className="px-3 py-2 text-right font-bold">Total</th>
+                      <th className="px-3 py-2 text-right font-bold text-slate-900 dark:text-white">
+                        Total
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 dark:divide-slate-600">
                     {receipt.items.map((it, idx) => (
                       <tr
                         key={idx}
-                        className="hover:bg-gray-50 dark:bg-slate-700"
+                        className="hover:bg-gray-50 dark:hover:bg-slate-600 text-slate-900 dark:text-white"
                       >
                         <td className="px-3 py-2">{it.product_name}</td>
                         <td className="px-3 py-2 text-right">{it.quantity}</td>
                         <td className="px-3 py-2 text-right">
                           KES {it.unit_price.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2 text-right text-rose-700">
+                        <td className="px-3 py-2 text-right text-rose-700 dark:text-rose-400">
                           {it.discount_amount > 0
                             ? "-" + it.discount_amount.toLocaleString()
                             : "-"}
@@ -1183,48 +1203,48 @@ export default function SaleForm({
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="border-t-2 border-gray-400">
-                    <tr className="bg-gray-50 dark:bg-slate-700">
+                  <tfoot className="border-t-2 border-gray-400 dark:border-slate-500">
+                    <tr className="bg-gray-50 dark:bg-slate-600">
                       <td
-                        className="px-3 py-2 text-right font-semibold"
+                        className="px-3 py-2 text-right font-semibold text-slate-900 dark:text-white"
                         colSpan={4}
                       >
                         Subtotal
                       </td>
-                      <td className="px-3 py-2 text-right font-semibold">
+                      <td className="px-3 py-2 text-right font-semibold text-slate-900 dark:text-white">
                         KES {receipt.subtotal.toLocaleString()}
                       </td>
                     </tr>
                     {receipt.total_line_discount > 0 && (
-                      <tr className="bg-gray-50 dark:bg-slate-700">
+                      <tr className="bg-gray-50 dark:bg-slate-600">
                         <td
-                          className="px-3 py-2 text-right font-semibold"
+                          className="px-3 py-2 text-right font-semibold text-slate-900 dark:text-white"
                           colSpan={4}
                         >
                           Line Discounts
                         </td>
-                        <td className="px-3 py-2 text-right font-semibold text-rose-700">
+                        <td className="px-3 py-2 text-right font-semibold text-rose-700 dark:text-rose-400">
                           -KES {receipt.total_line_discount.toLocaleString()}
                         </td>
                       </tr>
                     )}
                     {receipt.overall_discount_amount > 0 && (
-                      <tr className="bg-gray-50 dark:bg-slate-700">
+                      <tr className="bg-gray-50 dark:bg-slate-600">
                         <td
-                          className="px-3 py-2 text-right font-semibold"
+                          className="px-3 py-2 text-right font-semibold text-slate-900 dark:text-white"
                           colSpan={4}
                         >
                           Overall Discount
                           {receipt.overall_discount_type === "percentage" &&
                             ` (${receipt.overall_discount_value}%)`}
                         </td>
-                        <td className="px-3 py-2 text-right font-semibold text-rose-700">
+                        <td className="px-3 py-2 text-right font-semibold text-rose-700 dark:text-rose-400">
                           -KES{" "}
                           {receipt.overall_discount_amount.toLocaleString()}
                         </td>
                       </tr>
                     )}
-                    <tr className="bg-gray-800 text-white">
+                    <tr className="bg-gray-800 dark:bg-slate-900 text-white">
                       <td
                         className="px-3 py-3 text-right font-bold text-base"
                         colSpan={4}
@@ -1239,7 +1259,7 @@ export default function SaleForm({
                 </table>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-300 text-center text-[10px] text-gray-600">
+              <div className="mt-6 pt-4 border-t border-gray-300 dark:border-slate-600 text-center text-[10px] text-gray-600 dark:text-gray-400">
                 Thank you for your purchase! Please keep this receipt for your
                 records.
               </div>

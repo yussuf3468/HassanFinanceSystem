@@ -135,7 +135,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === category
                     ? "bg-amber-500 text-white"
-                    : "bg-white text-slate-600 hover:bg-amber-50"
+                    : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-600"
                 }`}
               >
                 {category === "all" ? "All / Dhammaan" : category}

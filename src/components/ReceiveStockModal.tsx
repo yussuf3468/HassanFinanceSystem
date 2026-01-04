@@ -362,27 +362,30 @@ export default function ReceiveStockModal({
 
                 {/* Footer - Mobile Optimized */}
                 {items.length > 0 && (
-                  <div className="space-y-4 pt-4 sm:pt-6 border-t-2 border-slate-200 mt-4 sm:mt-6">
+                  <div className="space-y-4 pt-4 sm:pt-6 border-t-2 border-slate-200 dark:border-slate-700 mt-4 sm:mt-6">
                     {/* Staff Selection */}
-                    <div className="bg-gradient-to-br from-amber-50 to-stone-50 border-2 border-amber-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm">
-                      <label className="text-slate-900 font-bold text-sm sm:text-base mb-3 flex items-center gap-2">
-                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                    <div className="bg-gradient-to-br from-amber-50 to-stone-50 dark:from-amber-900/20 dark:to-stone-900/20 border-2 border-amber-200 dark:border-amber-700 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm">
+                      <label className="text-slate-900 dark:text-white font-bold text-sm sm:text-base mb-3 flex items-center gap-2">
+                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
                         Qofka Soo Qaaday - Received By *
                       </label>
                       <select
                         value={receivedBy}
                         onChange={(e) => setReceivedBy(e.target.value)}
                         required
-                        className="w-full bg-white border-2 border-slate-200 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 dark:text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm"
+                        className="w-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-2xl sm:rounded-2xl px-4 py-3 sm:py-4 text-slate-900 dark:text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all shadow-sm"
                       >
-                        <option value="" className="bg-white text-slate-900">
+                        <option
+                          value=""
+                          className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                        >
                           -- Dooro Shaqaalaha / Select Staff --
                         </option>
                         {staffMembers.map((staff) => (
                           <option
                             key={staff}
                             value={staff}
-                            className="bg-white text-slate-900"
+                            className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
                           >
                             {staff}
                           </option>

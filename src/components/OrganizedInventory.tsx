@@ -561,7 +561,7 @@ export default function OrganizedInventory() {
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="flex items-center justify-between p-3 bg-amber-50 rounded-xl hover:bg-gradient-to-br from-amber-50/40 to-white transition-colors border border-amber-100/50"
+                      className="flex items-center justify-between p-3 bg-amber-50 dark:bg-slate-700 rounded-xl hover:bg-gradient-to-br from-amber-50/40 to-white dark:from-slate-600 dark:to-slate-700 transition-colors border border-amber-100/50 dark:border-slate-600"
                     >
                       <div className="flex items-center gap-3">
                         {product.image_url ? (

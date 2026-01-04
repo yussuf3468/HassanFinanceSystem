@@ -564,7 +564,10 @@ export default function CustomerBalances() {
                     </tr>
                     {expandedCustomer === customer.customer_name && (
                       <tr>
-                        <td colSpan={7} className="px-6 py-4 bg-amber-50 dark:bg-slate-700">
+                        <td
+                          colSpan={7}
+                          className="px-6 py-4 bg-amber-50 dark:bg-slate-700"
+                        >
                           <div className="space-y-3">
                             <h4 className="font-bold text-slate-900 dark:text-white mb-3">
                               Transaction History

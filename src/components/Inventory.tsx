@@ -521,23 +521,23 @@ export default function Inventory() {
       {viewingProduct && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 overflow-y-auto">
           <div className="min-h-screen py-4 px-4 flex justify-center">
-            <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full h-fit my-4 max-h-[calc(100vh-2rem)] overflow-y-auto border-2 border-slate-100">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full h-fit my-4 max-h-[calc(100vh-2rem)] overflow-y-auto border-2 border-slate-100 dark:border-slate-700">
               {/* Modal Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-amber-50 via-white to-amber-50 border-b-2 border-amber-100 px-6 py-5 rounded-t-3xl shadow-sm">
+              <div className="sticky top-0 bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-amber-900/20 dark:via-slate-800 dark:to-amber-900/20 border-b-2 border-amber-100 dark:border-amber-700 px-6 py-5 rounded-t-3xl shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900">
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                       {viewingProduct.name}
                     </h3>
-                    <p className="text-slate-600 mt-1">
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
                       Product ID: {viewingProduct.product_id}
                     </p>
                   </div>
                   <button
                     onClick={handleCloseView}
-                    className="p-2.5 hover:bg-amber-100 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 border border-transparent hover:border-amber-200"
+                    className="p-2.5 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 dark:text-slate-300 border border-transparent hover:border-amber-200 dark:hover:border-amber-700"
                   >
-                    <X className="w-6 h-6 text-slate-700" />
+                    <X className="w-6 h-6 text-slate-700 dark:text-slate-300" />
                   </button>
                 </div>
               </div>
@@ -555,13 +555,13 @@ export default function Inventory() {
                           preset="large"
                         />
                       ) : (
-                        <div className="w-full h-80 lg:h-96 bg-slate-50 rounded-2xl flex items-center justify-center border-2 border-slate-200">
+                        <div className="w-full h-80 lg:h-96 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center border-2 border-slate-200 dark:border-slate-600">
                           <div className="text-center">
                             <Package className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                            <p className="text-slate-700 font-semibold">
+                            <p className="text-slate-700 dark:text-slate-300 font-semibold">
                               No Image Available
                             </p>
-                            <p className="text-slate-600 text-sm">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm">
                               Upload an image to enhance product display
                             </p>
                           </div>
@@ -576,7 +576,7 @@ export default function Inventory() {
                   <div className="space-y-6">
                     {/* Category Badge */}
                     <div>
-                      <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-amber-50 text-amber-700 border border-amber-300">
+                      <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700">
                         <Tag className="w-4 h-4 mr-2" />
                         {viewingProduct.category}
                       </span>
@@ -584,12 +584,12 @@ export default function Inventory() {
 
                     {/* Product Description */}
                     {viewingProduct.description && (
-                      <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
-                        <h4 className="font-semibold text-slate-900 mb-2 flex items-center">
-                          <Eye className="w-4 h-4 mr-2 text-amber-600" />
+                      <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-600">
+                        <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center">
+                          <Eye className="w-4 h-4 mr-2 text-amber-600 dark:text-amber-400" />
                           Product Description
                         </h4>
-                        <p className="text-slate-600 leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                           {viewingProduct.description}
                         </p>
                       </div>
@@ -597,32 +597,32 @@ export default function Inventory() {
 
                     {/* Price Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-300">
+                      <div className="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
                         <div className="flex items-center space-x-2 mb-2">
-                          <DollarSign className="w-5 h-5 text-emerald-600" />
-                          <h4 className="font-semibold text-emerald-700">
+                          <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <h4 className="font-semibold text-emerald-700 dark:text-emerald-300">
                             Buying Price
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-emerald-700">
+                        <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                           KES {viewingProduct.buying_price.toLocaleString()}
                         </p>
-                        <p className="text-sm text-emerald-600 mt-1">
+                        <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
                           Cost per unit
                         </p>
                       </div>
 
-                      <div className="bg-blue-50 p-4 rounded-2xl border-2 border-blue-300">
+                      <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl border-2 border-blue-300 dark:border-blue-700">
                         <div className="flex items-center space-x-2 mb-2">
-                          <TrendingUp className="w-5 h-5 text-blue-600" />
-                          <h4 className="font-semibold text-blue-700">
+                          <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                          <h4 className="font-semibold text-blue-700 dark:text-blue-300">
                             Selling Price
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-blue-700">
+                        <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                           KES {viewingProduct.selling_price.toLocaleString()}
                         </p>
-                        <p className="text-sm text-blue-600 mt-1">
+                        <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
                           Price per unit
                         </p>
                       </div>
@@ -662,32 +662,32 @@ export default function Inventory() {
 
                     {/* Stock Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+                      <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-600">
                         <div className="flex items-center space-x-2 mb-2">
-                          <Hash className="w-5 h-5 text-slate-700" />
-                          <h4 className="font-semibold text-slate-900">
+                          <Hash className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                          <h4 className="font-semibold text-slate-900 dark:text-white">
                             Current Stock
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-slate-900">
+                        <p className="text-2xl font-bold text-slate-900 dark:text-white">
                           {viewingProduct.quantity_in_stock}
                         </p>
-                        <p className="text-sm text-slate-600 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           Units available
                         </p>
                       </div>
 
-                      <div className="bg-orange-50 p-4 rounded-2xl border-2 border-orange-300">
+                      <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-2xl border-2 border-orange-300 dark:border-orange-700">
                         <div className="flex items-center space-x-2 mb-2">
-                          <AlertCircle className="w-5 h-5 text-orange-600" />
-                          <h4 className="font-semibold text-orange-700">
+                          <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                          <h4 className="font-semibold text-orange-700 dark:text-orange-300">
                             Reorder Level
                           </h4>
                         </div>
-                        <p className="text-2xl font-bold text-orange-700">
+                        <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
                           {viewingProduct.reorder_level}
                         </p>
-                        <p className="text-sm text-orange-600 mt-1">
+                        <p className="text-sm text-orange-600 dark:text-orange-400 mt-1">
                           Minimum stock alert
                         </p>
                       </div>
@@ -720,23 +720,27 @@ export default function Inventory() {
                     </div>
 
                     {/* Timestamps */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+                    <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-600">
                       <div className="flex items-center space-x-2 mb-2">
-                        <Calendar className="w-5 h-5 text-slate-700" />
-                        <h4 className="font-semibold text-slate-900">
+                        <Calendar className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+                        <h4 className="font-semibold text-slate-900 dark:text-white">
                           Product Information
                         </h4>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-slate-600">Created:</p>
-                          <p className="font-medium text-slate-900">
+                          <p className="text-slate-600 dark:text-slate-400">
+                            Created:
+                          </p>
+                          <p className="font-medium text-slate-900 dark:text-white">
                             {formatDate(viewingProduct.created_at)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-slate-600">Last Updated:</p>
-                          <p className="font-medium text-slate-900">
+                          <p className="text-slate-600 dark:text-slate-400">
+                            Last Updated:
+                          </p>
+                          <p className="font-medium text-slate-900 dark:text-white">
                             {formatDate(viewingProduct.updated_at)}
                           </p>
                         </div>
