@@ -998,7 +998,7 @@ export default function FinancialDashboard() {
       </div>
 
       {/* Financial Insights */}
-      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+      <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-slate-700/50 dark:to-slate-800 backdrop-blur-xl rounded-2xl sm:rounded-2xl p-4 sm:p-6 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm">
         <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
           <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
           <span>Financial Insights</span>
@@ -1190,8 +1190,8 @@ export default function FinancialDashboard() {
                   </div>
 
                   {investor.months_since_investment < 6 && (
-                    <div className="bg-gradient-to-br from-white via-amber-50/20 to-white rounded-xl p-3 border border-yellow-500/30 mt-2">
-                      <p className="text-xs text-yellow-700 text-center">
+                    <div className="bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-amber-900/20 dark:via-amber-900/10 dark:to-amber-900/20 rounded-xl p-3 border border-yellow-500/30 dark:border-yellow-700/30 mt-2">
+                      <p className="text-xs text-yellow-700 dark:text-yellow-400 text-center">
                         ⏳ First payout eligible in{" "}
                         {6 - investor.months_since_investment} months
                       </p>
@@ -1399,7 +1399,7 @@ function FinancialStatCard({
     <div
       className={`group relative bg-white dark:bg-slate-700 hover:bg-amber-50/30 dark:hover:bg-slate-600 rounded-2xl sm:rounded-2xl shadow-lg border ${colors.border} dark:border-amber-700/60 p-3 sm:p-6 hover:shadow-xl hover:${colors.glow} transition-all duration-300 hover:scale-105 cursor-pointer`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-2xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 dark:from-slate-600/30 to-transparent rounded-2xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
       <div className="relative flex items-center justify-between">
         <div className="flex-1">
