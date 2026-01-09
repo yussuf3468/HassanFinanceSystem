@@ -125,6 +125,14 @@ export default function SaleForm({
   const [submitting, setSubmitting] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
+  // Quick Add Product Modal
+  const [showQuickAddProduct, setShowQuickAddProduct] = useState(false);
+  const [quickProductName, setQuickProductName] = useState("");
+
+  // Barcode Scanner Mode
+  const [barcodeScannerMode, setBarcodeScannerMode] = useState(false);
+  const [barcodeInput, setBarcodeInput] = useState("");
+
   // Stock receive modal state
   const [showStockModal, setShowStockModal] = useState(false);
   const [currentStockItem, setCurrentStockItem] = useState<{
@@ -143,6 +151,53 @@ export default function SaleForm({
   >([]);
 
   const dropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const firstProductSearchRef = useRef<HTMLInputElement | null>(null);
+
+  // Keyboard shortcuts for faster operations
+  useEffect(() => {
+    function handleKeyboardShortcuts(e: KeyboardEvent) {
+      // F1-F3 for quick staff selection
+      if (e.key === "F1" && !quickSaleMode) {
+        e.preventDefault();
+        setSoldBy("Khalid");
+      } else if (e.key === "F2" && !quickSaleMode) {
+        e.preventDefault();
+        setSoldBy("Yussuf");
+      } else if (e.key === "F3" && !quickSaleMode) {
+        e.preventDefault();
+        setSoldBy("Zakaria");
+      }
+      // Ctrl+Enter to submit form quickly
+      else if (e.ctrlKey && e.key === "Enter" && !submitting && soldBy) {
+        e.preventDefault();
+        const form = document.querySelector("form");
+        if (form) {
+          form.dispatchEvent(
+            new Event("submit", { cancelable: true, bubbles: true })
+          );
+        }
+      }
+      // Ctrl+B to toggle barcode scanner mode
+      else if (e.ctrlKey && e.key === "b" && !receipt) {
+        e.preventDefault();
+        setBarcodeScannerMode(!barcodeScannerMode);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyboardShortcuts);
+    return () => {
+      document.removeEventListener("keydown", handleKeyboardShortcuts);
+    };
+  }, [quickSaleMode, submitting, soldBy, barcodeScannerMode, receipt]);
+
+  // Auto-focus on first product search input when form opens
+  useEffect(() => {
+    if (!receipt && firstProductSearchRef.current) {
+      setTimeout(() => {
+        firstProductSearchRef.current?.focus();
+      }, 300);
+    }
+  }, [receipt]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent | TouchEvent) {
@@ -923,7 +978,7 @@ export default function SaleForm({
         if (!product) return null;
 
         const quantity = parseInt(li.quantity || "0") || 0;
-        const sellingPrice = parseFloat(product.selling_price);
+        const sellingPrice = product.selling_price;
         const originalTotal = quantity * sellingPrice;
 
         let discountAmount = 0;
@@ -937,7 +992,7 @@ export default function SaleForm({
         const lineTotal = originalTotal - discountAmount;
         const finalUnitPrice =
           quantity > 0 ? lineTotal / quantity : sellingPrice;
-        const buyingPrice = parseFloat(product.buying_price);
+        const buyingPrice = product.buying_price;
         const profit = (finalUnitPrice - buyingPrice) * quantity;
 
         return {
@@ -1078,6 +1133,59 @@ export default function SaleForm({
     setPaymentStatus("paid");
     setAmountPaid("");
     setReceipt(null);
+  }
+
+  async function handleQuickAddProduct(e: React.FormEvent) {
+    e.preventDefault();
+    if (!quickProductName.trim()) return;
+
+    try {
+      // Generate a product ID
+      const productId = `PROD-${Date.now()}`;
+      
+      const { data, error } = await supabase
+        .from("products")
+        .insert({
+          product_id: productId,
+          name: quickProductName.trim(),
+          category: "Other",
+          buying_price: 0,
+          selling_price: 0,
+          quantity_in_stock: 1,
+          reorder_level: 5,
+          description: "Added during sale",
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        // Refresh products list
+        await queryClient.invalidateQueries({ queryKey: ["products"] });
+        
+        // Add the new product to the current sale
+        setLineItems((items) => [
+          ...items.filter(li => li.product_id !== ""),
+          {
+            id: crypto.randomUUID(),
+            product_id: data.id,
+            quantity: "1",
+            discount_type: "none",
+            discount_value: "",
+            searchTerm: data.name,
+            showDropdown: false,
+          },
+        ]);
+
+        alert(`✅ Product "${data.name}" added successfully!\n\n⚠️ Remember to update its price and stock later in inventory.`);
+        setShowQuickAddProduct(false);
+        setQuickProductName("");
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product. Please try again.");
+    }
   }
 
   return (
@@ -1296,6 +1404,106 @@ export default function SaleForm({
             className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-amber-900/20"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
+            {/* Keyboard Shortcuts Help Banner */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-3">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-xl">⌨️</span>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  Keyboard Shortcuts
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-blue-700 dark:text-blue-400">
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F1</kbd> = Khalid</div>
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F2</kbd> = Yussuf</div>
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F3</kbd> = Zakaria</div>
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Ctrl+Enter</kbd> = Submit</div>
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Ctrl+B</kbd> = Barcode Mode</div>
+                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Tab</kbd> = Autocomplete</div>
+              </div>
+            </div>
+
+            {/* Barcode Scanner Mode */}
+            {barcodeScannerMode && (
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl">📱</span>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        Barcode Scanner Mode Active
+                      </p>
+                      <p className="text-xs text-purple-700 dark:text-purple-400">
+                        Scan or type product ID and press Enter
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setBarcodeScannerMode(false)}
+                    className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition-all"
+                  >
+                    Exit
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && barcodeInput.trim()) {
+                      e.preventDefault();
+                      // Find product by product_id
+                      const product = products.find(
+                        (p) => p.product_id.toLowerCase() === barcodeInput.trim().toLowerCase()
+                      );
+                      if (product) {
+                        // Check if already in sale
+                        const existingLine = lineItems.find(li => li.product_id === product.id);
+                        if (existingLine) {
+                          // Increment quantity
+                          updateLine(existingLine.id, {
+                            quantity: String(parseInt(existingLine.quantity || "1") + 1)
+                          });
+                        } else {
+                          // Add new line
+                          const emptyLine = lineItems.find(li => li.product_id === "");
+                          if (emptyLine) {
+                            updateLine(emptyLine.id, {
+                              product_id: product.id,
+                              searchTerm: product.name,
+                              quantity: "1",
+                              showDropdown: false,
+                            });
+                          } else {
+                            setLineItems(items => [...items, {
+                              id: crypto.randomUUID(),
+                              product_id: product.id,
+                              quantity: "1",
+                              discount_type: "none",
+                              discount_value: "",
+                              searchTerm: product.name,
+                              showDropdown: false,
+                            }]);
+                          }
+                        }
+                        setBarcodeInput("");
+                        // Play success sound (optional)
+                        const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZjzkJGWS36+iebBAAUKXh8LljHgU2jNXwzn0vBSl+zPDZkUELEmCz6OqnWBUIRJze8cBlJAUrgc/y2ow6ChljuOvpn20RAlGl4PG5ZB8GM4/W8c1+MAUofsrw2JBCC");
+                        audio.volume = 0.3;
+                        audio.play().catch(() => {});
+                      } else {
+                        alert(`❌ Product with ID "${barcodeInput}" not found!`);
+                        setBarcodeInput("");
+                      }
+                    }
+                  }}
+                  placeholder="Scan or type product ID here..."
+                  autoFocus
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-purple-300 dark:border-purple-600 rounded-xl text-slate-800 dark:text-white text-lg font-mono focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-600 focus:border-purple-500 dark:focus:border-purple-600 transition-all"
+                />
+              </div>
+            )}
+
             {/* Quick Sale Mode Toggle */}
             <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -1681,11 +1889,11 @@ export default function SaleForm({
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-2">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 font-semibold text-xs">
+                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 font-semibold text-xs">
                             {idx + 1}
                           </span>
                           {product && (
-                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold border border-emerald-300 dark:border-emerald-700">
+                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold border border-emerald-300 dark:border-emerald-700">
                               Stock: {product.quantity_in_stock}
                             </span>
                           )}
@@ -1726,6 +1934,7 @@ export default function SaleForm({
 
                             <input
                               type="text"
+                              ref={idx === 0 ? firstProductSearchRef : undefined}
                               value={li.searchTerm}
                               required={!li.product_id}
                               onChange={(e) =>
@@ -1814,7 +2023,7 @@ export default function SaleForm({
                                         }
                                         className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 text-sm flex items-center space-x-2 transition-colors group"
                                       >
-                                        <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:text-amber-400 " />
+                                        <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400" />
                                         <span className="text-white">
                                           {suggestion
                                             .split(
@@ -1904,9 +2113,21 @@ export default function SaleForm({
                                     <p className="font-medium">
                                       No products found
                                     </p>
-                                    <p className="text-xs mt-1">
+                                    <p className="text-xs mt-1 mb-3">
                                       Try a different search term
                                     </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setQuickProductName(li.searchTerm);
+                                        setShowQuickAddProduct(true);
+                                        updateLine(li.id, { showDropdown: false });
+                                      }}
+                                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2 mx-auto"
+                                    >
+                                      <Plus className="w-4 h-4" />
+                                      <span>Add "{li.searchTerm}" to Inventory</span>
+                                    </button>
                                   </div>
                                 )}
                               </div>
@@ -2091,7 +2312,7 @@ export default function SaleForm({
                       {/* Line Summary */}
                       {product && comp.quantity > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
-                          <div className="bg-amber-50 dark:bg-amber-900/20 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
+                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
                             <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
                               Original
                             </span>
@@ -2333,6 +2554,78 @@ export default function SaleForm({
         onSkipItem={handleSkipItem}
         onCancel={handleCancelSale}
       />
+
+      {/* Quick Add Product Modal */}
+      {showQuickAddProduct && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-900/50 dark:to-emerald-800 p-4 sm:p-6 rounded-t-2xl border-b-2 border-green-400 dark:border-emerald-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Plus className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-black text-white">
+                      Quick Add Product
+                    </h3>
+                    <p className="text-green-50 text-xs sm:text-sm font-medium">
+                      Add missing product to inventory
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowQuickAddProduct(false);
+                    setQuickProductName("");
+                  }}
+                  className="p-2 bg-white/20 dark:bg-slate-700/40 hover:bg-white/30 dark:hover:bg-slate-600/50 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30 dark:border-slate-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <form onSubmit={handleQuickAddProduct} className="p-6 space-y-4">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-3">
+                <p className="text-xs text-yellow-800 dark:text-yellow-400">
+                  ⚠️ <strong>Quick Add:</strong> Product will be created with default values (Price: 0, Stock: 1).
+                  Please update full details in inventory management after completing this sale!
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                  Product Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={quickProductName}
+                  onChange={(e) => setQuickProductName(e.target.value)}
+                  placeholder="Enter product name..."
+                  required
+                  autoFocus
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-green-500 dark:focus:border-green-600 transition-all"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuickAddProduct(false);
+                    setQuickProductName("");
+                  }}
+                  className="flex-1 px-4 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold shadow-lg transition-all"
+                >
+                  Add Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Drafts Panel Modal */}
       {showDrafts && (
