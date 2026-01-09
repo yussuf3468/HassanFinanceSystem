@@ -1142,7 +1142,7 @@ export default function SaleForm({
     try {
       // Generate a product ID
       const productId = `PROD-${Date.now()}`;
-      
+
       const { data, error } = await supabase
         .from("products")
         .insert({
@@ -1163,10 +1163,10 @@ export default function SaleForm({
       if (data) {
         // Refresh products list
         await queryClient.invalidateQueries({ queryKey: ["products"] });
-        
+
         // Add the new product to the current sale
         setLineItems((items) => [
-          ...items.filter(li => li.product_id !== ""),
+          ...items.filter((li) => li.product_id !== ""),
           {
             id: crypto.randomUUID(),
             product_id: data.id,
@@ -1178,7 +1178,9 @@ export default function SaleForm({
           },
         ]);
 
-        alert(`✅ Product "${data.name}" added successfully!\n\n⚠️ Remember to update its price and stock later in inventory.`);
+        alert(
+          `✅ Product "${data.name}" added successfully!\n\n⚠️ Remember to update its price and stock later in inventory.`
+        );
         setShowQuickAddProduct(false);
         setQuickProductName("");
       }
@@ -1413,12 +1415,42 @@ export default function SaleForm({
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-blue-700 dark:text-blue-400">
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F1</kbd> = Khalid</div>
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F2</kbd> = Yussuf</div>
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">F3</kbd> = Zakaria</div>
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Ctrl+Enter</kbd> = Submit</div>
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Ctrl+B</kbd> = Barcode Mode</div>
-                <div><kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">Tab</kbd> = Autocomplete</div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    F1
+                  </kbd>{" "}
+                  = Khalid
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    F2
+                  </kbd>{" "}
+                  = Yussuf
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    F3
+                  </kbd>{" "}
+                  = Zakaria
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    Ctrl+Enter
+                  </kbd>{" "}
+                  = Submit
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    Ctrl+B
+                  </kbd>{" "}
+                  = Barcode Mode
+                </div>
+                <div>
+                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                    Tab
+                  </kbd>{" "}
+                  = Autocomplete
+                </div>
               </div>
             </div>
 
@@ -1454,19 +1486,27 @@ export default function SaleForm({
                       e.preventDefault();
                       // Find product by product_id
                       const product = products.find(
-                        (p) => p.product_id.toLowerCase() === barcodeInput.trim().toLowerCase()
+                        (p) =>
+                          p.product_id.toLowerCase() ===
+                          barcodeInput.trim().toLowerCase()
                       );
                       if (product) {
                         // Check if already in sale
-                        const existingLine = lineItems.find(li => li.product_id === product.id);
+                        const existingLine = lineItems.find(
+                          (li) => li.product_id === product.id
+                        );
                         if (existingLine) {
                           // Increment quantity
                           updateLine(existingLine.id, {
-                            quantity: String(parseInt(existingLine.quantity || "1") + 1)
+                            quantity: String(
+                              parseInt(existingLine.quantity || "1") + 1
+                            ),
                           });
                         } else {
                           // Add new line
-                          const emptyLine = lineItems.find(li => li.product_id === "");
+                          const emptyLine = lineItems.find(
+                            (li) => li.product_id === ""
+                          );
                           if (emptyLine) {
                             updateLine(emptyLine.id, {
                               product_id: product.id,
@@ -1475,24 +1515,31 @@ export default function SaleForm({
                               showDropdown: false,
                             });
                           } else {
-                            setLineItems(items => [...items, {
-                              id: crypto.randomUUID(),
-                              product_id: product.id,
-                              quantity: "1",
-                              discount_type: "none",
-                              discount_value: "",
-                              searchTerm: product.name,
-                              showDropdown: false,
-                            }]);
+                            setLineItems((items) => [
+                              ...items,
+                              {
+                                id: crypto.randomUUID(),
+                                product_id: product.id,
+                                quantity: "1",
+                                discount_type: "none",
+                                discount_value: "",
+                                searchTerm: product.name,
+                                showDropdown: false,
+                              },
+                            ]);
                           }
                         }
                         setBarcodeInput("");
                         // Play success sound (optional)
-                        const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZjzkJGWS36+iebBAAUKXh8LljHgU2jNXwzn0vBSl+zPDZkUELEmCz6OqnWBUIRJze8cBlJAUrgc/y2ow6ChljuOvpn20RAlGl4PG5ZB8GM4/W8c1+MAUofsrw2JBCC");
+                        const audio = new Audio(
+                          "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZjzkJGWS36+iebBAAUKXh8LljHgU2jNXwzn0vBSl+zPDZkUELEmCz6OqnWBUIRJze8cBlJAUrgc/y2ow6ChljuOvpn20RAlGl4PG5ZB8GM4/W8c1+MAUofsrw2JBCC"
+                        );
                         audio.volume = 0.3;
                         audio.play().catch(() => {});
                       } else {
-                        alert(`❌ Product with ID "${barcodeInput}" not found!`);
+                        alert(
+                          `❌ Product with ID "${barcodeInput}" not found!`
+                        );
                         setBarcodeInput("");
                       }
                     }
@@ -1934,7 +1981,9 @@ export default function SaleForm({
 
                             <input
                               type="text"
-                              ref={idx === 0 ? firstProductSearchRef : undefined}
+                              ref={
+                                idx === 0 ? firstProductSearchRef : undefined
+                              }
                               value={li.searchTerm}
                               required={!li.product_id}
                               onChange={(e) =>
@@ -2103,6 +2152,27 @@ export default function SaleForm({
                                         + {filtered.length - 15} more results
                                       </div>
                                     )}
+
+                                    {/* Quick Add Product Button - Always Show at Bottom */}
+                                    <div className="border-t-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setQuickProductName(li.searchTerm);
+                                          setShowQuickAddProduct(true);
+                                          updateLine(li.id, {
+                                            showDropdown: false,
+                                          });
+                                        }}
+                                        className="w-full px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-bold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
+                                      >
+                                        <Plus className="w-5 h-5" />
+                                        <span>
+                                          Product Not Here? Add "{li.searchTerm}
+                                          " to Inventory
+                                        </span>
+                                      </button>
+                                    </div>
                                   </div>
                                 )}
 
@@ -2121,12 +2191,16 @@ export default function SaleForm({
                                       onClick={() => {
                                         setQuickProductName(li.searchTerm);
                                         setShowQuickAddProduct(true);
-                                        updateLine(li.id, { showDropdown: false });
+                                        updateLine(li.id, {
+                                          showDropdown: false,
+                                        });
                                       }}
                                       className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2 mx-auto"
                                     >
                                       <Plus className="w-4 h-4" />
-                                      <span>Add "{li.searchTerm}" to Inventory</span>
+                                      <span>
+                                        Add "{li.searchTerm}" to Inventory
+                                      </span>
                                     </button>
                                   </div>
                                 )}
@@ -2586,8 +2660,9 @@ export default function SaleForm({
             <form onSubmit={handleQuickAddProduct} className="p-6 space-y-4">
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-3">
                 <p className="text-xs text-yellow-800 dark:text-yellow-400">
-                  ⚠️ <strong>Quick Add:</strong> Product will be created with default values (Price: 0, Stock: 1).
-                  Please update full details in inventory management after completing this sale!
+                  ⚠️ <strong>Quick Add:</strong> Product will be created with
+                  default values (Price: 0, Stock: 1). Please update full
+                  details in inventory management after completing this sale!
                 </p>
               </div>
               <div>
