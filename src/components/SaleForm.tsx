@@ -128,6 +128,8 @@ export default function SaleForm({
   // Quick Add Product Modal
   const [showQuickAddProduct, setShowQuickAddProduct] = useState(false);
   const [quickProductName, setQuickProductName] = useState("");
+  const [quickProductBuyingPrice, setQuickProductBuyingPrice] = useState("");
+  const [quickProductSellingPrice, setQuickProductSellingPrice] = useState("");
 
   // Barcode Scanner Mode
   const [barcodeScannerMode, setBarcodeScannerMode] = useState(false);
@@ -1139,6 +1141,14 @@ export default function SaleForm({
     e.preventDefault();
     if (!quickProductName.trim()) return;
 
+    const buyingPrice = parseFloat(quickProductBuyingPrice) || 0;
+    const sellingPrice = parseFloat(quickProductSellingPrice) || 0;
+
+    if (sellingPrice <= 0) {
+      alert("Please enter a valid selling price greater than 0.");
+      return;
+    }
+
     try {
       // Generate a product ID
       const productId = `PROD-${Date.now()}`;
@@ -1149,8 +1159,8 @@ export default function SaleForm({
           product_id: productId,
           name: quickProductName.trim(),
           category: "Other",
-          buying_price: 0,
-          selling_price: 0,
+          buying_price: buyingPrice,
+          selling_price: sellingPrice,
           quantity_in_stock: 1,
           reorder_level: 5,
           description: "Added during sale",
@@ -1179,10 +1189,14 @@ export default function SaleForm({
         ]);
 
         alert(
-          `✅ Product "${data.name}" added successfully!\n\n⚠️ Remember to update its price and stock later in inventory.`
+          `✅ Product "${
+            data.name
+          }" added successfully!\nBuying: KES ${buyingPrice.toLocaleString()}\nSelling: KES ${sellingPrice.toLocaleString()}`
         );
         setShowQuickAddProduct(false);
         setQuickProductName("");
+        setQuickProductBuyingPrice("");
+        setQuickProductSellingPrice("");
       }
     } catch (error) {
       console.error("Error adding product:", error);
@@ -2178,14 +2192,8 @@ export default function SaleForm({
 
                                 {/* No Results */}
                                 {li.searchTerm && filtered.length === 0 && (
-                                  <div className="p-4 text-center text-slate-700 dark:text-slate-300 text-sm">
-                                    <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
-                                    <p className="font-medium">
-                                      No products found
-                                    </p>
-                                    <p className="text-xs mt-1 mb-3">
-                                      Try a different search term
-                                    </p>
+                                  <div className="p-4 space-y-3">
+                                    {/* Add Product Button at Top */}
                                     <button
                                       type="button"
                                       onClick={() => {
@@ -2195,7 +2203,37 @@ export default function SaleForm({
                                           showDropdown: false,
                                         });
                                       }}
-                                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2 mx-auto"
+                                      className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold text-base transition-all shadow-lg flex items-center justify-center space-x-2 border-2 border-green-500"
+                                    >
+                                      <Plus className="w-5 h-5" />
+                                      <span>
+                                        Add "{li.searchTerm}" to Inventory
+                                      </span>
+                                    </button>
+
+                                    {/* No Results Message */}
+                                    <div className="text-center text-slate-700 dark:text-slate-300 text-sm">
+                                      <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
+                                      <p className="font-medium">
+                                        No products found
+                                      </p>
+                                      <p className="text-xs mt-1">
+                                        Product not in inventory? Click button
+                                        above to add it
+                                      </p>
+                                    </div>
+
+                                    {/* Duplicate Add Button at Bottom for convenience */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setQuickProductName(li.searchTerm);
+                                        setShowQuickAddProduct(true);
+                                        updateLine(li.id, {
+                                          showDropdown: false,
+                                        });
+                                      }}
+                                      className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
                                     >
                                       <Plus className="w-4 h-4" />
                                       <span>
@@ -2650,6 +2688,8 @@ export default function SaleForm({
                   onClick={() => {
                     setShowQuickAddProduct(false);
                     setQuickProductName("");
+                    setQuickProductBuyingPrice("");
+                    setQuickProductSellingPrice("");
                   }}
                   className="p-2 bg-white/20 dark:bg-slate-700/40 hover:bg-white/30 dark:hover:bg-slate-600/50 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30 dark:border-slate-600"
                 >
@@ -2658,11 +2698,11 @@ export default function SaleForm({
               </div>
             </div>
             <form onSubmit={handleQuickAddProduct} className="p-6 space-y-4">
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-3">
-                <p className="text-xs text-yellow-800 dark:text-yellow-400">
-                  ⚠️ <strong>Quick Add:</strong> Product will be created with
-                  default values (Price: 0, Stock: 1). Please update full
-                  details in inventory management after completing this sale!
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-3">
+                <p className="text-xs text-blue-800 dark:text-blue-400">
+                  ⚡ <strong>Quick Add:</strong> Product will be added with
+                  stock quantity of 1. You can update stock quantity and other
+                  details later in inventory management.
                 </p>
               </div>
               <div>
@@ -2679,12 +2719,47 @@ export default function SaleForm({
                   className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-green-500 dark:focus:border-green-600 transition-all"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    Buying Price (KES)
+                  </label>
+                  <input
+                    type="number"
+                    value={quickProductBuyingPrice}
+                    onChange={(e) => setQuickProductBuyingPrice(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-green-500 dark:focus:border-green-600 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    Selling Price (KES) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={quickProductSellingPrice}
+                    onChange={(e) =>
+                      setQuickProductSellingPrice(e.target.value)
+                    }
+                    placeholder="0"
+                    required
+                    min="0.01"
+                    step="0.01"
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white focus:ring-2 focus:ring-green-500 dark:focus:ring-green-600 focus:border-green-500 dark:focus:border-green-600 transition-all"
+                  />
+                </div>
+              </div>
               <div className="flex space-x-3">
                 <button
                   type="button"
                   onClick={() => {
                     setShowQuickAddProduct(false);
                     setQuickProductName("");
+                    setQuickProductBuyingPrice("");
+                    setQuickProductSellingPrice("");
                   }}
                   className="flex-1 px-4 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-all"
                 >
