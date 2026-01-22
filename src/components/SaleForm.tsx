@@ -1161,7 +1161,7 @@ export default function SaleForm({
           category: "Other",
           buying_price: buyingPrice,
           selling_price: sellingPrice,
-          quantity_in_stock: 1,
+          quantity_in_stock: 0,
           reorder_level: 5,
           description: "Added during sale",
         })
@@ -2701,8 +2701,9 @@ export default function SaleForm({
               <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-3">
                 <p className="text-xs text-blue-800 dark:text-blue-400">
                   ⚡ <strong>Quick Add:</strong> Product will be added with
-                  stock quantity of 1. You can update stock quantity and other
-                  details later in inventory management.
+                  stock quantity of 0. The sale will proceed and stock will be
+                  deducted. You can receive stock and update other details later
+                  in inventory management.
                 </p>
               </div>
               <div>
