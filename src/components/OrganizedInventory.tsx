@@ -23,7 +23,7 @@ import ProductForm from "./ProductForm";
 export default function OrganizedInventory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
-    null
+    null,
   );
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,7 +34,7 @@ export default function OrganizedInventory() {
   const [showForm, setShowForm] = useState(false);
   const itemsPerPage = 30;
 
-   // Scroll to top functionality
+  // Scroll to top functionality
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
@@ -143,6 +143,67 @@ export default function OrganizedInventory() {
       // For Books category, organize by grade and type
       if (category.toLowerCase() === "books") {
         let subcategory = "Story Books"; // Default for unmatched books
+        // Expanded story book keywords
+        const storyKeywords = [
+          "story",
+          "stories",
+          "novel",
+          "tale",
+          "tales",
+          "adventure",
+          "fiction",
+          "fairy",
+          "fable",
+          "narrative",
+          "legend",
+          "biography",
+          "autobiography",
+          "memoir",
+          "classic",
+          "literature",
+          "poetry",
+          "drama",
+          "myth",
+          "folklore",
+        ];
+        // Expanded revision book brands
+        const revisionKeywords = [
+          "targeter",
+          "target",
+          "signal",
+          "highflyer",
+          "highflayer",
+          "high fly",
+          "high flyer",
+          "encyclopedia",
+          "encyclopaedia",
+          "revision",
+          "topical",
+          "premier",
+          "combined",
+          "smartbost",
+          "smartways",
+        ];
+        // Expanded dictionary types
+        const dictionaryKeywords = [
+          "dictionary",
+          "kamusi",
+          "thesaurus",
+          "lexicon",
+        ];
+        // Expanded stationery keywords
+        const stationeryKeywords = [
+          "notebook",
+          "note book",
+          "composition book",
+          "writing book",
+          "pad",
+          "journal",
+          "diary",
+          "sketch",
+          "scribble",
+          "logbook",
+        ];
 
         // Check for Quran FIRST (highest priority)
         if (
@@ -152,41 +213,12 @@ export default function OrganizedInventory() {
         ) {
           subcategory = "Quran";
         }
-        // Check for story books - with explicit keywords
-        else if (
-          nameLower.includes("story") ||
-          nameLower.includes("stories") ||
-          nameLower.includes("novel") ||
-          nameLower.includes("tale") ||
-          nameLower.includes("tales") ||
-          nameLower.includes("adventure") ||
-          nameLower.includes("fiction") ||
-          nameLower.includes("fairy") ||
-          nameLower.includes("fable") ||
-          nameLower.includes("narrative") ||
-          nameLower.includes("legend")
-        ) {
+        // Check for story books - with expanded keywords
+        else if (storyKeywords.some((kw) => nameLower.includes(kw))) {
           subcategory = "Story Books";
         }
-        // Check for Revision Books (Targeter, Signal, Highflyer, Encyclopedia, etc.) - BEFORE Pre-Primary to catch "highflayer pp1/pp2"
-        else if (
-          nameLower.includes("targeter") ||
-          nameLower.includes("target") ||
-          nameLower.includes("signal") ||
-          nameLower.includes("highflyer") ||
-          nameLower.includes("highflayer") ||
-          nameLower.includes("high fly") ||
-          nameLower.includes("high flyer") ||
-          nameLower.includes("encyclopedia") ||
-          nameLower.includes("encyclopaedia") ||
-          nameLower.includes("revision") ||
-          nameLower.includes("topical") ||
-          nameLower.includes("premier") ||
-          nameLower.includes("combined") ||
-          nameLower.includes("smartbost") ||
-          nameLower.includes("smartways")
-        ) {
-          // Subcategorize revision books
+        // Check for Revision Books (expanded brands)
+        else if (revisionKeywords.some((kw) => nameLower.includes(kw))) {
           if (nameLower.includes("targeter") || nameLower.includes("target")) {
             subcategory = "Revision Books - Targeter";
           } else if (nameLower.includes("signal")) {
@@ -234,10 +266,7 @@ export default function OrganizedInventory() {
           subcategory = "Pre-Primary - General";
         }
         // Check for Dictionaries (Oxford, Kamusi, Longhorn, EAEP)
-        else if (
-          nameLower.includes("dictionary") ||
-          nameLower.includes("kamusi")
-        ) {
+        else if (dictionaryKeywords.some((kw) => nameLower.includes(kw))) {
           if (nameLower.includes("oxford")) {
             subcategory = "Dictionaries - Oxford";
           } else if (nameLower.includes("kamusi")) {
@@ -246,6 +275,10 @@ export default function OrganizedInventory() {
             subcategory = "Dictionaries - Longhorn";
           } else if (nameLower.includes("eaep")) {
             subcategory = "Dictionaries - EAEP";
+          } else if (nameLower.includes("thesaurus")) {
+            subcategory = "Dictionaries - Thesaurus";
+          } else if (nameLower.includes("lexicon")) {
+            subcategory = "Dictionaries - Lexicon";
           } else {
             subcategory = "Dictionaries - Other";
           }
@@ -270,7 +303,8 @@ export default function OrganizedInventory() {
               nameLower.includes(`std ${grade}`) ||
               nameLower.includes(`std${grade}`) ||
               nameLower.includes(`class ${grade}`) ||
-              nameLower.includes(`class${grade}`)
+              nameLower.includes(`class${grade}`) ||
+              nameLower.includes(`g${grade}`) // Add support for 'g1', 'g2', etc.
             ) {
               subcategory = `Workbooks - Grade ${grade}`;
               break;
@@ -314,7 +348,8 @@ export default function OrganizedInventory() {
               nameLower.includes(`std ${grade}`) ||
               nameLower.includes(`std${grade}`) ||
               nameLower.includes(`class ${grade}`) ||
-              nameLower.includes(`class${grade}`)
+              nameLower.includes(`class${grade}`) ||
+              nameLower.includes(`g${grade}`) // Add support for 'g1', 'g2', etc.
             ) {
               subcategory = `Grade ${grade} - Textbooks`;
               break;
@@ -393,10 +428,7 @@ export default function OrganizedInventory() {
         }
         // Check for notebooks (stationery items, not story books)
         else if (
-          (nameLower.includes("notebook") ||
-            nameLower.includes("note book") ||
-            nameLower.includes("composition book") ||
-            nameLower.includes("writing book")) &&
+          stationeryKeywords.some((kw) => nameLower.includes(kw)) &&
           !nameLower.includes("workbook") &&
           !nameLower.includes("activity")
         ) {
@@ -412,17 +444,40 @@ export default function OrganizedInventory() {
           subcategory = "Playgroup";
         }
 
+        // Catch-all for unmatched books
         if (!subcategories.has(subcategory)) {
           subcategories.set(subcategory, []);
         }
         subcategories.get(subcategory)!.push(product);
+        // If still unmatched, put in 'Other Books'
+        if (
+          subcategory === "Story Books" &&
+          !storyKeywords.some((kw) => nameLower.includes(kw))
+        ) {
+          if (!subcategories.has("Other Books")) {
+            subcategories.set("Other Books", []);
+          }
+          subcategories.get("Other Books")!.push(product);
+        }
       } else {
-        // For other categories, just use "All Items"
+        // For other categories, use 'All Items' but add catch-all for unmatched
         const subcategory = "All Items";
         if (!subcategories.has(subcategory)) {
           subcategories.set(subcategory, []);
         }
         subcategories.get(subcategory)!.push(product);
+        // If still unmatched, put in 'Other Items'
+        if (
+          category === "Uncategorized" ||
+          category === "Other" ||
+          category === "Miscellaneous" ||
+          category === "Unknown"
+        ) {
+          if (!subcategories.has("Other Items")) {
+            subcategories.set("Other Items", []);
+          }
+          subcategories.get("Other Items")!.push(product);
+        }
       }
     });
 
@@ -433,9 +488,9 @@ export default function OrganizedInventory() {
         .map(([cat, subs]) => [
           cat,
           new Map(
-            Array.from(subs.entries()).sort(([a], [b]) => a.localeCompare(b))
+            Array.from(subs.entries()).sort(([a], [b]) => a.localeCompare(b)),
           ),
-        ])
+        ]),
     );
 
     return sortedCategories;
@@ -446,7 +501,7 @@ export default function OrganizedInventory() {
     if (!searchTerm.trim()) return [];
 
     return products.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [products, searchTerm]);
 
@@ -626,7 +681,7 @@ export default function OrganizedInventory() {
                   })
                   .map(([category, subcategories]) => {
                     const totalProducts = Array.from(
-                      subcategories.values()
+                      subcategories.values(),
                     ).reduce((sum, prods) => sum + prods.length, 0);
                     const inStockCount = Array.from(subcategories.values())
                       .flat()
@@ -814,13 +869,13 @@ export default function OrganizedInventory() {
                     const subItems = folder.data as Map<string, Product[]>;
                     const totalProducts = Array.from(subItems.values()).reduce(
                       (sum, prods) => sum + prods.length,
-                      0
+                      0,
                     );
                     const inStockCount = Array.from(subItems.values()).reduce(
                       (sum, prods) =>
                         sum +
                         prods.filter((p) => p.quantity_in_stock > 0).length,
-                      0
+                      0,
                     );
 
                     return (
@@ -864,7 +919,7 @@ export default function OrganizedInventory() {
                   } else {
                     const products = folder.data as Product[];
                     const inStockCount = products.filter(
-                      (p) => p.quantity_in_stock > 0
+                      (p) => p.quantity_in_stock > 0,
                     ).length;
 
                     return (
@@ -948,10 +1003,10 @@ export default function OrganizedInventory() {
               .map(([subname, products]) => {
                 // Sort products within each group A-Z
                 const sortedProducts = [...products].sort((a, b) =>
-                  a.name.localeCompare(b.name)
+                  a.name.localeCompare(b.name),
                 );
                 const inStockCount = sortedProducts.filter(
-                  (p) => p.quantity_in_stock > 0
+                  (p) => p.quantity_in_stock > 0,
                 ).length;
 
                 return (
@@ -1073,7 +1128,7 @@ export default function OrganizedInventory() {
               })
               .map(([subcategory, products]) => {
                 const inStockCount = products.filter(
-                  (p) => p.quantity_in_stock > 0
+                  (p) => p.quantity_in_stock > 0,
                 ).length;
 
                 return (
@@ -1117,7 +1172,7 @@ export default function OrganizedInventory() {
 
   // Sort products alphabetically (A-Z) by name
   const sortedProducts = [...productsInSubcategory].sort((a, b) =>
-    a.name.localeCompare(b.name)
+    a.name.localeCompare(b.name),
   );
 
   // Pagination calculations
@@ -1541,7 +1596,7 @@ export default function OrganizedInventory() {
                       {page}
                     </button>
                   );
-                }
+                },
               )}
             </div>
 
