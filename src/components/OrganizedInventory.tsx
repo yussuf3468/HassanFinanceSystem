@@ -34,7 +34,25 @@ export default function OrganizedInventory() {
   const [showForm, setShowForm] = useState(false);
   const itemsPerPage = 30;
 
-   // Scroll to top functionality
+  // Handlers for editing / form
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingProduct(null);
+  };
+
+  const handleFormSuccess = async () => {
+    // Close form and trigger data refresh
+    setShowForm(false);
+    setEditingProduct(null);
+    await refetch();
+  };
+
+  // Scroll to top functionality
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
@@ -54,7 +72,11 @@ export default function OrganizedInventory() {
   }, [selectedCategory, selectedSubcategory, selectedGroup, currentPage]);
 
   // Fetch products
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const {
+    data: products = [],
+    isLoading,
+    refetch,
+  } = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -890,10 +912,8 @@ export default function OrganizedInventory() {
                           <span className="text-slate-700 dark:text-slate-400">
                             {products.length} items
                           </span>
-                          <span className="text-slate-400 dark:text-slate-600">
-                            •
-                          </span>
-                          <span className="text-green-600 dark:text-green-500 font-medium">
+                          <span className="text-slate-400">•</span>
+                          <span className="text-green-600 font-medium">
                             {inStockCount} in stock
                           </span>
                         </div>
@@ -1495,7 +1515,7 @@ export default function OrganizedInventory() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Previous
             </button>
@@ -1551,7 +1571,7 @@ export default function OrganizedInventory() {
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-white dark:bg-slate-800 border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white font-medium hover:bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:hover:from-slate-700 dark:hover:to-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Next
             </button>
