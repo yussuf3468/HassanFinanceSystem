@@ -377,6 +377,40 @@ export default function Reports() {
       },
     });
 
+    // --- NEW: print total buying price at the bottom ---
+    const totalBuyingPrice = sortedProducts.reduce(
+      (sum, p) =>
+        sum + Number(p.buying_price ?? 0) * Number(p.quantity_in_stock ?? 0),
+      0
+    );
+
+    // Get last table position from autotable; fall back to startY if unavailable
+    const lastAutoTable: any = (doc as any).lastAutoTable;
+    const finalY = lastAutoTable ? lastAutoTable.finalY : 36;
+
+    const pageSize = doc.internal.pageSize;
+    const pageWidth = (pageSize as any).width || pageSize.getWidth();
+    const pageHeight = (pageSize as any).height || pageSize.getHeight();
+
+    // Reserve ~20px for footer; if finalY is too close to bottom, add a new page
+    let yPos = finalY + 8;
+    if (yPos + 20 > pageHeight - 12) {
+      doc.addPage();
+      // reset header area offset for a new page
+      yPos = 20;
+    }
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(
+      `Total Buying Price: KES ${totalBuyingPrice.toLocaleString()}`,
+      pageWidth - 14,
+      yPos,
+      { align: "right" }
+    );
+    // ----------------------------------------------------
+
     const filename = `Hassan_Bookshop_Inventory_Print_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
