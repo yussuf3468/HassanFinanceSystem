@@ -13,10 +13,12 @@ import {
   Barcode,
   DollarSign,
   TrendingUp,
+  Edit,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import type { Product } from "../types";
+import ProductForm from "./ProductForm";
 
 export default function OrganizedInventory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -28,9 +30,11 @@ export default function OrganizedInventory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const itemsPerPage = 30;
 
-  // Scroll to top functionality
+   // Scroll to top functionality
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 400);
@@ -176,7 +180,11 @@ export default function OrganizedInventory() {
           nameLower.includes("encyclopedia") ||
           nameLower.includes("encyclopaedia") ||
           nameLower.includes("revision") ||
-          nameLower.includes("topical")
+          nameLower.includes("topical") ||
+          nameLower.includes("premier") ||
+          nameLower.includes("combined") ||
+          nameLower.includes("smartbost") ||
+          nameLower.includes("smartways")
         ) {
           // Subcategorize revision books
           if (nameLower.includes("targeter") || nameLower.includes("target")) {
@@ -195,17 +203,11 @@ export default function OrganizedInventory() {
             nameLower.includes("encyclopaedia")
           ) {
             subcategory = "Revision Books - Encyclopedia";
+          } else if (nameLower.includes("premier")) {
+            subcategory = "Revision Books - Premier";
           } else {
-            subcategory = "Revision Books - Other";
+            subcategory = "Revision Books - Smartways";
           }
-        }
-        // Check for Playgroup
-        else if (
-          nameLower.includes("playgroup") ||
-          nameLower.includes("play group") ||
-          nameLower.includes("play-group")
-        ) {
-          subcategory = "Playgroup";
         }
         // Check for Pre-Primary (PP1, PP2, Nursery, Pre-Primary)
         else if (
@@ -258,8 +260,8 @@ export default function OrganizedInventory() {
               nameLower.includes("std") ||
               nameLower.includes("class")))
         ) {
-          // Try to get grade from workbook
-          for (let grade = 1; grade <= 9; grade++) {
+          // Try to get grade from workbook (check from highest to lowest to avoid 10 matching as 1)
+          for (let grade = 10; grade >= 1; grade--) {
             if (
               nameLower.includes(`grade ${grade}`) ||
               nameLower.includes(`grade${grade}`) ||
@@ -301,9 +303,9 @@ export default function OrganizedInventory() {
         ) {
           subcategory = "Form 4 - Secondary";
         }
-        // Check for grades 1-9 (Primary School)
+        // Check for grades 1-10 (Primary School) - check from highest to lowest to avoid 10 matching as 1
         else {
-          for (let grade = 1; grade <= 9; grade++) {
+          for (let grade = 10; grade >= 1; grade--) {
             if (
               nameLower.includes(`grade ${grade}`) ||
               nameLower.includes(`grade${grade}`) ||
@@ -322,40 +324,7 @@ export default function OrganizedInventory() {
 
         // Final check: if it contains educational subject keywords, move to "Educational - Other"
         // This catches textbooks that don't have grade numbers
-        const educationalKeywords = [
-          "mathematics",
-          "math",
-          "maths",
-          "english",
-          "kiswahili",
-          "swahili",
-          "science",
-          "social",
-          "studies",
-          "chemistry",
-          "physics",
-          "biology",
-          "history",
-          "geography",
-          "cre",
-          "ire",
-          "business",
-          "agriculture",
-          "computer",
-          "textbook",
-          "coursebook",
-          "learner",
-          "teacher",
-          "scheme",
-          "notes",
-          "exam",
-          "test",
-          "assessment",
-        ];
-
-        const hasEducationalKeyword = educationalKeywords.some((keyword) =>
-          nameLower.includes(keyword)
-        );
+        // educational keyword detection reserved for future use
 
         // Check for exercise books with specific types
         const isExerciseBook =
@@ -438,6 +407,11 @@ export default function OrganizedInventory() {
           subcategory = "Atlas Books";
         }
 
+        // Check for Playgroup
+        else if (nameLower.includes("playgroup")) {
+          subcategory = "Playgroup";
+        }
+
         if (!subcategories.has(subcategory)) {
           subcategories.set(subcategory, []);
         }
@@ -452,7 +426,19 @@ export default function OrganizedInventory() {
       }
     });
 
-    return categories;
+    // Sort categories A→Z and their subcategory maps A→Z before returning
+    const sortedCategories = new Map(
+      Array.from(categories.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([cat, subs]) => [
+          cat,
+          new Map(
+            Array.from(subs.entries()).sort(([a], [b]) => a.localeCompare(b))
+          ),
+        ])
+    );
+
+    return sortedCategories;
   }, [products]);
 
   // Get filtered products if searching
@@ -563,7 +549,10 @@ export default function OrganizedInventory() {
                       key={product.id}
                       className="flex items-center justify-between p-3 bg-amber-50 dark:bg-slate-700 rounded-xl hover:bg-gradient-to-br from-amber-50/40 to-white dark:from-slate-600 dark:to-slate-700 transition-colors border border-amber-100/50 dark:border-slate-600"
                     >
-                      <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedProduct(product)}
+                        className="flex items-center gap-3 flex-1 text-left"
+                      >
                         {product.image_url ? (
                           <img
                             src={product.image_url}
@@ -584,14 +573,26 @@ export default function OrganizedInventory() {
                             {product.quantity_in_stock}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-amber-700 dark:text-amber-500">
-                          KES {Number(product.selling_price).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-500">
-                          {product.product_id}
-                        </p>
+                      </button>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <p className="font-bold text-amber-700 dark:text-amber-500">
+                            KES {Number(product.selling_price).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-500">
+                            {product.product_id}
+                          </p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(product);
+                          }}
+                          className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                          title="Edit Product"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -662,8 +663,8 @@ export default function OrganizedInventory() {
                             {totalProducts} items
                           </span>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-amber-100/50">
-                          <span className="text-xs text-green-600 font-medium">
+                        <div className="mt-3 pt-3 border-t border-amber-100/50 dark:border-slate-700">
+                          <span className="text-xs text-green-600 dark:text-green-500 font-medium">
                             ✓ {inStockCount} in stock
                           </span>
                         </div>
@@ -781,6 +782,7 @@ export default function OrganizedInventory() {
                   if (name === "Grade 7 - Textbooks") return 16;
                   if (name === "Grade 8 - Textbooks") return 17;
                   if (name === "Grade 9 - Textbooks") return 18;
+                  if (name === "Grade 10 - Textbooks") return 19;
                   // Secondary Forms
                   if (name === "Form 1 - Secondary") return 20;
                   if (name === "Form 2 - Secondary") return 21;
@@ -850,8 +852,10 @@ export default function OrganizedInventory() {
                           <span className="text-slate-700 dark:text-slate-400">
                             {totalProducts} items
                           </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-green-600 font-medium">
+                          <span className="text-slate-400 dark:text-slate-600">
+                            •
+                          </span>
+                          <span className="text-green-600 dark:text-green-500 font-medium">
                             {inStockCount} in stock
                           </span>
                         </div>
@@ -885,8 +889,10 @@ export default function OrganizedInventory() {
                           <span className="text-slate-700 dark:text-slate-400">
                             {products.length} items
                           </span>
-                          <span className="text-slate-400">•</span>
-                          <span className="text-green-600 font-medium">
+                          <span className="text-slate-400 dark:text-slate-600">
+                            •
+                          </span>
+                          <span className="text-green-600 dark:text-green-500 font-medium">
                             {inStockCount} in stock
                           </span>
                         </div>
@@ -918,7 +924,7 @@ export default function OrganizedInventory() {
           {/* Back Button */}
           <button
             onClick={() => setSelectedGroup(null)}
-            className="mb-6 flex items-center gap-2 text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
+            className="mb-6 flex items-center gap-2 text-amber-800 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-400 font-semibold transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to {selectedCategory}
@@ -970,8 +976,10 @@ export default function OrganizedInventory() {
                       <span className="text-slate-700 dark:text-slate-400">
                         {sortedProducts.length} items
                       </span>
-                      <span className="text-slate-400">•</span>
-                      <span className="text-green-600 font-medium">
+                      <span className="text-slate-400 dark:text-slate-600">
+                        •
+                      </span>
+                      <span className="text-green-600 dark:text-green-500 font-medium">
                         {inStockCount} in stock
                       </span>
                     </div>
@@ -1130,7 +1138,7 @@ export default function OrganizedInventory() {
               setSelectedGroup(null);
               setCurrentPage(1);
             }}
-            className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
+            className="text-amber-800 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-400 font-semibold transition-colors"
           >
             Categories
           </button>
@@ -1141,7 +1149,7 @@ export default function OrganizedInventory() {
               setSelectedGroup(null);
               setCurrentPage(1);
             }}
-            className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
+            className="text-amber-800 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-400 font-semibold transition-colors"
           >
             {selectedCategory}
           </button>
@@ -1153,14 +1161,14 @@ export default function OrganizedInventory() {
                   setSelectedSubcategory(null);
                   setCurrentPage(1);
                 }}
-                className="text-amber-800 font-semibold font-semibold hover:text-amber-800 font-semibold font-medium transition-colors"
+                className="text-amber-800 dark:text-amber-500 hover:text-amber-900 dark:hover:text-amber-400 font-semibold transition-colors"
               >
                 {selectedGroup}
               </button>
             </>
           )}
           <ChevronRight className="w-4 h-4 text-slate-700 dark:text-slate-400" />
-          <span className="text-amber-800 font-semibold font-bold">
+          <span className="text-amber-800 dark:text-amber-500 font-bold">
             {selectedSubcategory}
           </span>
         </div>
@@ -1278,12 +1286,21 @@ export default function OrganizedInventory() {
                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                   Product Details
                 </h2>
-                <button
-                  onClick={() => setSelectedProduct(null)}
-                  className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white/50 dark:hover:from-slate-700 dark:hover:to-slate-600 hover:border-amber-300/70 dark:hover:border-slate-600 rounded-xl transition-colors"
-                >
-                  <X className="w-6 h-6 text-slate-800 dark:text-white" />
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleEdit(selectedProduct)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedProduct(null)}
+                    className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white/50 dark:hover:from-slate-700 dark:hover:to-slate-600 hover:border-amber-300/70 dark:hover:border-slate-600 rounded-xl transition-colors"
+                  >
+                    <X className="w-6 h-6 text-slate-800 dark:text-white" />
+                  </button>
+                </div>
               </div>
 
               {/* Modal Content */}
@@ -1308,16 +1325,16 @@ export default function OrganizedInventory() {
                     {/* Status Badges */}
                     <div className="flex gap-2">
                       {selectedProduct.featured && (
-                        <span className="px-3 py-1 bg-gradient-to-br from-amber-50/30 to-white text-yellow-700 rounded-xl text-sm font-medium border border-yellow-300">
+                        <span className="px-3 py-1 bg-gradient-to-br from-amber-50/30 to-white dark:from-yellow-900/30 dark:to-yellow-800/20 text-yellow-700 dark:text-yellow-400 rounded-xl text-sm font-medium border border-yellow-300 dark:border-yellow-700">
                           ⭐ Featured
                         </span>
                       )}
                       {selectedProduct.published ? (
-                        <span className="px-3 py-1 bg-gradient-to-br from-emerald-50/80 to-teal-50/60 text-emerald-800 border border-emerald-200/60 shadow-sm rounded-xl text-sm font-medium border border-green-300">
+                        <span className="px-3 py-1 bg-gradient-to-br from-emerald-50/80 to-teal-50/60 dark:from-emerald-900/30 dark:to-teal-900/20 text-emerald-800 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-700 shadow-sm rounded-xl text-sm font-medium">
                           ✓ Published
                         </span>
                       ) : (
-                        <span className="px-3 py-1 bg-red-100 text-rose-800 rounded-xl text-sm font-medium border border-red-300">
+                        <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-rose-800 dark:text-rose-300 rounded-xl text-sm font-medium border border-red-300 dark:border-red-700">
                           ✗ Unpublished
                         </span>
                       )}
@@ -1358,10 +1375,10 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Product ID */}
-                      <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-xl p-4">
+                      <div className="bg-amber-50 dark:bg-slate-700 border border-amber-300 dark:border-slate-600 rounded-xl p-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <Barcode className="w-5 h-5 text-blue-700 dark:text-blue-500" />
+                          <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                            <Barcode className="w-5 h-5 text-blue-700 dark:text-blue-400" />
                           </div>
                           <div>
                             <p className="text-sm text-slate-700 dark:text-slate-400">
@@ -1400,11 +1417,11 @@ export default function OrganizedInventory() {
                       </div>
 
                       {/* Pricing */}
-                      <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl p-4">
+                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl p-4">
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                              <DollarSign className="w-5 h-5 text-green-700 dark:text-green-500" />
+                            <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                              <DollarSign className="w-5 h-5 text-green-700 dark:text-green-400" />
                             </div>
                             <div className="flex-1">
                               <p className="text-sm text-slate-700 dark:text-slate-400">
@@ -1550,6 +1567,15 @@ export default function OrganizedInventory() {
         >
           <ArrowUp className="w-6 h-6" />
         </button>
+      )}
+
+      {/* Product Form Modal */}
+      {showForm && (
+        <ProductForm
+          product={editingProduct}
+          onClose={handleCloseForm}
+          onSuccess={handleFormSuccess}
+        />
       )}
     </div>
   );
