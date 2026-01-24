@@ -287,6 +287,102 @@ export default function Reports() {
     doc.save(filename);
   }
 
+  // New: compact inventory PDF that includes only Product ID, Name, Qty and Buying Price
+  function exportInventoryPrintPDF() {
+    const doc = new jsPDF();
+    const today = new Date();
+    const dateStr = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Sort products alphabetically by name (A-Z)
+    const sortedProducts = [...products].sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" })
+    );
+
+    // Header (compact)
+    doc.setFillColor(11, 11, 20);
+    doc.rect(0, 0, 210, 30, "F");
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("HASSAN BOOKSHOP", 105, 11, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Inventory — ID, Name, Qty, Buying Price", 105, 20, {
+      align: "center",
+    });
+
+    doc.setFontSize(9);
+    doc.text(`Generated: ${dateStr}`, 14, 28);
+
+    // Build table data: only ID, Name, Qty, Buying Price
+    const tableData = sortedProducts.map((p, index) => [
+      index + 1,
+      p.product_id || "N/A",
+      p.name || "",
+      p.quantity_in_stock ?? 0,
+      `KES ${Number(p.buying_price ?? 0).toLocaleString()}`,
+    ]);
+
+    autoTable(doc, {
+      startY: 36,
+      head: [["#", "Product ID", "Name", "Qty", "Buying Price"]],
+      body: tableData,
+      theme: "striped",
+      headStyles: {
+        fillColor: [11, 11, 20],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        fontSize: 9,
+        halign: "center",
+      },
+      bodyStyles: {
+        fontSize: 9,
+        textColor: [0, 0, 0],
+      },
+      columnStyles: {
+        0: { cellWidth: 8, halign: "center" },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 80 },
+        3: { cellWidth: 18, halign: "center" },
+        4: { cellWidth: 40, halign: "right" },
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      margin: { left: 14, right: 14 },
+      didDrawPage: (data) => {
+        // Footer
+        const pageCount = (doc as any).internal.pages.length - 1;
+        const pageSize = doc.internal.pageSize;
+        const pageHeight = pageSize.height || pageSize.getHeight();
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          `Page ${data.pageNumber} of ${pageCount}`,
+          data.settings.margin.left,
+          pageHeight - 10
+        );
+        doc.text(
+          "Hassan Bookshop - Confidential",
+          pageSize.width / 2,
+          pageHeight - 10,
+          { align: "center" }
+        );
+      },
+    });
+
+    const filename = `Hassan_Bookshop_Inventory_Print_${
+      new Date().toISOString().split("T")[0]
+    }.pdf`;
+    doc.save(filename);
+  }
+
   function exportSalesPDF() {
     const doc = new jsPDF();
     const today = new Date();
@@ -787,6 +883,17 @@ export default function Reports() {
                 <FileDown className="w-4 h-4" />
                 <span>PDF</span>
               </button>
+
+              {/* New button: compact print PDF (ID, Name, Qty, Buying Price) */}
+              <button
+                onClick={exportInventoryPrintPDF}
+                className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 border-2 border-slate-500 dark:border-slate-600 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
+                title="Print compact inventory PDF (ID, Name, Qty, Buying Price)"
+              >
+                <FileDown className="w-4 h-4" />
+                <span>Print</span>
+              </button>
+
               <button
                 onClick={() => exportToCSV("inventory")}
                 className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 border-2 border-emerald-400 dark:border-emerald-500 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
