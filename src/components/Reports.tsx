@@ -313,7 +313,7 @@ export default function Reports() {
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
-    doc.text("Inventory — ID, Name, Qty, Buying Price", 105, 20, {
+    doc.text("Inventory — Current Stock", 105, 20, {
       align: "center",
     });
 
