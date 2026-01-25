@@ -922,7 +922,7 @@ export default function Reports() {
               <button
                 onClick={exportInventoryPrintPDF}
                 className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 border-2 border-slate-500 dark:border-slate-600 text-white px-3 py-2.5 sm:py-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg text-xs font-bold touch-manipulation"
-                title="Print compact inventory PDF (ID, Name, Qty, Buying Price)"
+                title="Print compact inventory PDF (Current Stock)"
               >
                 <FileDown className="w-4 h-4" />
                 <span>Print</span>
