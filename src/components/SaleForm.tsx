@@ -2243,6 +2243,23 @@ export default function SaleForm({
                   <span>Add Product Line</span>
                 </button>
 
+                {/* Quick Mode Info Banner */}
+                {quickSaleMode && (
+                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl p-4 flex items-center space-x-3 shadow-lg mt-3">
+                    <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-2xl">⚡</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-emerald-800 dark:text-emerald-200">
+                        Quick Sale Mode
+                      </p>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                        Till Number • Khalid
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Staff & Payment - Sale Information */}
                 {!quickSaleMode && (
                   <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg mt-3">
@@ -2358,23 +2375,6 @@ export default function SaleForm({
 
               {/* RIGHT COLUMN - Discount, Summary, Actions */}
               <div className="space-y-3">
-                {/* Quick Mode Info Banner */}
-                {quickSaleMode && (
-                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl p-4 flex items-center space-x-3 shadow-lg">
-                    <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
-                      <span className="text-2xl">⚡</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-base font-bold text-emerald-800 dark:text-emerald-200">
-                        Quick Sale Mode
-                      </p>
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                        Till Number • Khalid
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 {/* Overall Discount Section */}
                 <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
