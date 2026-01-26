@@ -1588,9 +1588,9 @@ export default function SaleForm({
             </div>
 
             {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
               {/* LEFT COLUMN - Line Items */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-600">
                   <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                     <Package className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -1601,7 +1601,7 @@ export default function SaleForm({
                   </h3>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {lineItems.map((li, idx) => {
                     const product = productById(li.product_id);
                     const comp = computed.find((c) => c.line.id === li.id)!;
@@ -2246,7 +2246,7 @@ export default function SaleForm({
               {/* End LEFT COLUMN */}
 
               {/* RIGHT COLUMN - Sale Info, Discount, Summary, Actions */}
-              <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+              <div className="space-y-3">
                 {/* Staff & Payment - Sale Information */}
                 {!quickSaleMode && (
                   <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
