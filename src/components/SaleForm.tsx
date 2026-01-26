@@ -2026,63 +2026,6 @@ export default function SaleForm({
                                 >
                                   +1
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = parseInt(
-                                      li.quantity || "1",
-                                    );
-                                    updateLine(li.id, {
-                                      quantity: String(current * 2),
-                                    });
-                                  }}
-                                  className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                  style={{
-                                    touchAction: "manipulation",
-                                    WebkitTapHighlightColor:
-                                      "rgba(139, 92, 246, 0.3)",
-                                  }}
-                                >
-                                  ×2
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = parseInt(
-                                      li.quantity || "1",
-                                    );
-                                    updateLine(li.id, {
-                                      quantity: String(current * 5),
-                                    });
-                                  }}
-                                  className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                  style={{
-                                    touchAction: "manipulation",
-                                    WebkitTapHighlightColor:
-                                      "rgba(139, 92, 246, 0.3)",
-                                  }}
-                                >
-                                  ×5
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = parseInt(
-                                      li.quantity || "1",
-                                    );
-                                    updateLine(li.id, {
-                                      quantity: String(current * 10),
-                                    });
-                                  }}
-                                  className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                  style={{
-                                    touchAction: "manipulation",
-                                    WebkitTapHighlightColor:
-                                      "rgba(139, 92, 246, 0.3)",
-                                  }}
-                                >
-                                  ×10
-                                </button>
                               </div>
                             </div>
                           </div>
@@ -2492,7 +2435,7 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={() => setShowDrafts(!showDrafts)}
-                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow min-h-[42px]"
                   >
                     <Clock className="w-4 h-4" />
                     <span>Drafts ({savedDrafts.length})</span>
@@ -2500,7 +2443,7 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={saveDraft}
-                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow min-h-[42px]"
                   >
                     <span>💾</span>
                     <span>Save Draft</span>
@@ -2508,14 +2451,14 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-full sm:w-auto px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow"
+                    className="w-full sm:w-auto px-5 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow min-h-[42px]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white rounded-lg transition-all disabled:cursor-not-allowed font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                    className="w-full sm:w-auto px-8 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white rounded-lg transition-all disabled:cursor-not-allowed font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl min-h-[42px]"
                   >
                     {submitting ? (
                       <>
