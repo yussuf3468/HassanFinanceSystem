@@ -56,10 +56,7 @@ export default function BusinessProfitTracker() {
   const [formData, setFormData] = useState({
     initialInvestment: "",
     currentStock: "",
-    totalSales: "",
     cash: "",
-    equipment: "",
-    expenses: "",
     debts: "",
     investorAmount: "",
     notes: "",
@@ -116,9 +113,7 @@ export default function BusinessProfitTracker() {
   const calculateProfit = () => {
     const initialInvestment = parseFloat(formData.initialInvestment) || 0;
     const currentStockValue = parseFloat(formData.currentStock) || 0;
-    const totalSales = parseFloat(formData.totalSales) || 0;
     const cashInStore = parseFloat(formData.cash) || 0;
-    const totalExpenses = parseFloat(formData.expenses) || 0;
     const outstandingDebts = parseFloat(formData.debts) || 0;
     const investorAmount = parseFloat(formData.investorAmount) || 0;
 
@@ -163,9 +158,9 @@ export default function BusinessProfitTracker() {
         "\n" +
         `Outstanding debts: KES ${fmt(outstandingDebts)}` +
         "\n" +
-        `Total assets = stock + cash = KES ${fmt(currentStockValue)} + KES ${fmt(
-          cashInStore,
-        )} = KES ${fmt(totalAssets)}` +
+        `Total assets = stock + cash = KES ${fmt(
+          currentStockValue,
+        )} + KES ${fmt(cashInStore)} = KES ${fmt(totalAssets)}` +
         "\n" +
         `Net worth today = total assets - debts = KES ${fmt(
           totalAssets,
@@ -177,11 +172,7 @@ export default function BusinessProfitTracker() {
         "\n" +
         `Status: ${status} (the shop is ${
           status === "Profit" ? "above" : "below"
-        } the original capital by KES ${fmt(Math.abs(realProfit))})` +
-        "\n" +
-        `Period sales (info): KES ${fmt(totalSales)}` +
-        "\n" +
-        `Period expenses (info): KES ${fmt(totalExpenses)}`,
+        } the original capital by KES ${fmt(Math.abs(realProfit))})`,
     );
 
     setResults({
@@ -230,10 +221,10 @@ export default function BusinessProfitTracker() {
         .insert({
           initial_investment: parseFloat(formData.initialInvestment) || 0,
           current_stock: parseFloat(formData.currentStock) || 0,
-          total_sales: parseFloat(formData.totalSales) || 0,
+          total_sales: 0,
           cash: parseFloat(formData.cash) || 0,
-          machines: parseFloat(formData.equipment) || 0,
-          expenses: parseFloat(formData.expenses) || 0,
+          machines: 0,
+          expenses: 0,
           debts: parseFloat(formData.debts) || 0,
           investor_amount: parseFloat(formData.investorAmount) || 0,
           pure_profit: results.pureProfit,
@@ -275,10 +266,7 @@ export default function BusinessProfitTracker() {
     setFormData({
       initialInvestment: entry.initial_investment.toString(),
       currentStock: entry.current_stock.toString(),
-      totalSales: entry.total_sales.toString(),
       cash: entry.cash.toString(),
-      equipment: entry.machines.toString(),
-      expenses: entry.expenses.toString(),
       debts: entry.debts.toString(),
       investorAmount: entry.investor_amount.toString(),
       notes: entry.notes || "",
@@ -317,10 +305,7 @@ export default function BusinessProfitTracker() {
     setFormData({
       initialInvestment: report.inputs.initialInvestment,
       currentStock: report.inputs.currentStock,
-      totalSales: report.inputs.totalSales,
       cash: report.inputs.cash,
-      equipment: report.inputs.equipment,
-      expenses: report.inputs.expenses,
       debts: report.inputs.debts,
       investorAmount: report.inputs.investorAmount,
       notes: report.inputs.notes,
@@ -406,21 +391,6 @@ export default function BusinessProfitTracker() {
                 />
               </div>
 
-              {/* Total Sales */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Total Sales (KES)
-                </label>
-                <input
-                  type="text"
-                  name="totalSales"
-                  value={formData.totalSales}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                  className="w-full px-4 py-2.5 border-2 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-base font-medium"
-                />
-              </div>
-
               {/* Cash in Store / M-Pesa */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -430,36 +400,6 @@ export default function BusinessProfitTracker() {
                   type="text"
                   name="cash"
                   value={formData.cash}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                  className="w-full px-4 py-2.5 border-2 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-base font-medium"
-                />
-              </div>
-
-              {/* Equipment Value */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Equipment Value (KES)
-                </label>
-                <input
-                  type="text"
-                  name="equipment"
-                  value={formData.equipment}
-                  onChange={handleInputChange}
-                  placeholder="0"
-                  className="w-full px-4 py-2.5 border-2 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-base font-medium"
-                />
-              </div>
-
-              {/* Total Expenses */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Total Expenses (KES)
-                </label>
-                <input
-                  type="text"
-                  name="expenses"
-                  value={formData.expenses}
                   onChange={handleInputChange}
                   placeholder="0"
                   className="w-full px-4 py-2.5 border-2 border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-base font-medium"

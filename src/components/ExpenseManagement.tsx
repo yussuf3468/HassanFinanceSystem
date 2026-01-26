@@ -40,7 +40,7 @@ export default function ExpenseManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseUI | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7)
+    new Date().toISOString().slice(0, 7),
   );
   const [tablesExist, setTablesExist] = useState(true);
   const [categories, setCategories] = useState<DbCategory[]>([]);
@@ -131,7 +131,7 @@ export default function ExpenseManagement() {
       if (error) {
         if ((error as any).code === "42P01") {
           console.log(
-            "Expenses table not found. Please run the database setup from FINANCIAL_SETUP.md"
+            "Expenses table not found. Please run the database setup from FINANCIAL_SETUP.md",
           );
           setTablesExist(false);
           setExpenses([]);
@@ -293,7 +293,7 @@ export default function ExpenseManagement() {
 
   const totalExpenses = useMemo(
     () => expenses.reduce((sum, e) => sum + (e.amount || 0), 0),
-    [expenses]
+    [expenses],
   );
 
   const expensesByCategory = useMemo(() => {
@@ -307,70 +307,56 @@ export default function ExpenseManagement() {
 
   const averageExpense = useMemo(
     () => (expenses.length ? totalExpenses / expenses.length : 0),
-    [expenses, totalExpenses]
+    [expenses, totalExpenses],
   );
 
   return (
     <>
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
-        {/* Stunning Animated Header */}
-        <div className="mb-4 sm:mb-8 relative">
-          {/* Background Glow Effects */}
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-rose-100/30 to-amber-100/30 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-white dark:bg-slate-800 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg border border-amber-100/50 dark:border-slate-700 overflow-hidden">
-            {/* Animated Background Patterns */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-amber-500 to-rose-500 rounded-full animate-pulse transform rotate-45"></div>
-              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-amber-500 to-rose-400 rounded-full animate-pulse transform rotate-12 animation-delay-1000"></div>
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-rose-500 to-amber-500 p-2.5 rounded-xl shadow-lg">
+                <Receipt className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
+                  💸 Expense Management
+                </h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Track and control your shop expenses clearly
+                </p>
+              </div>
             </div>
 
-            <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-br from-red-500 to-pink-600 p-3 rounded-2xl shadow-lg shadow-amber-300/10">
-                      <Receipt className="w-6 h-6 sm:w-8 sm:h-8 text-slate-900 animate-bounce" />
-                    </div>
-                  </div>
-                  <div>
-                    <h1 className="text-xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-pink-200 animate-gradient">
-                      💸 Expense Management
-                    </h1>
-                    <p className="text-sm sm:text-base text-slate-600 font-semibold">
-                      Track and analyze all business expenses with style
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-4">
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-transparent text-sm sm:text-base text-slate-800 dark:text-white"
-                />
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-3 sm:px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-800 dark:text-white"
+              />
 
-                {categories.length === 0 && (
-                  <button
-                    type="button"
-                    onClick={seedDefaultCategories}
-                    disabled={seeding}
-                    className="px-3 sm:px-4 py-2 sm:py-3 border border-purple-500/30 bg-purple-500/20 text-purple-300 rounded-xl sm:rounded-2xl hover:bg-purple-500/30 transition-all text-sm sm:text-base disabled:opacity-60"
-                    title="Insert a set of common expense categories"
-                  >
-                    {seeding ? "Seeding…" : "Seed Categories"}
-                  </button>
-                )}
-
+              {categories.length === 0 && (
                 <button
-                  onClick={() => setShowForm(true)}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                  type="button"
+                  onClick={seedDefaultCategories}
+                  disabled={seeding}
+                  className="px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-sm disabled:opacity-60"
+                  title="Insert a set of common expense categories"
                 >
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>Add Expense</span>
+                  {seeding ? "Seeding…" : "Seed Categories"}
                 </button>
-              </div>
+              )}
+
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 text-sm font-semibold shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Expense</span>
+              </button>
             </div>
           </div>
         </div>
@@ -380,82 +366,51 @@ export default function ExpenseManagement() {
           <DatabaseSetupNotice message="The expenses table hasn't been created yet. Financial management features require database tables to be set up first." />
         )}
 
-        {/* Stunning Summary Cards */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div
-            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-red-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
-            style={{ animationDelay: "0.1s" }}
-          >
-            {/* Animated Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400/10 to-pink-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-red-400 uppercase tracking-wide mb-2">
-                  Total Expenses
-                </p>
-                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
-                  KES {totalExpenses.toLocaleString()}
-                </p>
-              </div>
-              <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-red-500 to-red-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <TrendingDown className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
-                </div>
-              </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-4 sm:p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Total Expenses
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                KES {totalExpenses.toLocaleString()}
+              </p>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+            <div className="bg-rose-100 dark:bg-rose-900/30 rounded-lg p-2.5">
+              <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-300" />
+            </div>
           </div>
 
-          <div
-            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-blue-400 uppercase tracking-wide mb-2">
-                  Total Records
-                </p>
-                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
-                  {expenses.length}
-                </p>
-              </div>
-              <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <Receipt className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
-                </div>
-              </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-4 sm:p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Total Records
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                {expenses.length}
+              </p>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+            <div className="bg-sky-100 dark:bg-sky-900/30 rounded-lg p-2.5">
+              <Receipt className="w-5 h-5 text-sky-600 dark:text-sky-300" />
+            </div>
           </div>
 
-          <div
-            className="group relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-pink-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-purple-400 uppercase tracking-wide mb-2">
-                  Average Expense
-                </p>
-                <p className="text-xl sm:text-3xl font-black text-slate-900 group-hover:scale-105 transition-transform duration-300">
-                  KES{" "}
-                  {averageExpense.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-              </div>
-              <div className="relative ml-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl blur-sm opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
-                <div className="relative bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-2xl shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <Calendar className="w-5 h-5 text-slate-900 group-hover:animate-pulse" />
-                </div>
-              </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-4 sm:p-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Average Expense
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                KES{" "}
+                {averageExpense.toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })}
+              </p>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+            <div className="bg-violet-100 dark:bg-violet-900/30 rounded-lg p-2.5">
+              <Calendar className="w-5 h-5 text-violet-600 dark:text-violet-300" />
+            </div>
           </div>
         </div>
         {/* Stunning Expenses List */}
@@ -730,7 +685,7 @@ export default function ExpenseManagement() {
                           </div>
                         </div>
                       );
-                    }
+                    },
                   )}
                 </div>
               </div>
