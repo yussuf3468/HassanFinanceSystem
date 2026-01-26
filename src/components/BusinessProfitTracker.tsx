@@ -18,11 +18,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { formatDate } from "../utils/dateFormatter";
 
 interface ProfitResults {
-  pureProfit: number; // (Total Sales + Current Stock) - Initial Investment
-  netProfit: number; // (Total Sales + Current Stock + Equipment) - (Initial Investment + Expenses + Debts)
-  capitalComparison: number; // (Current Stock + Cash + Equipment) - Initial Investment
-  investorOwnership: number; // (Investor Amount / Initial Investment) × 100
-  investorProfitShare: number; // (Investor Ownership / 100) × Net Profit
+  // Mapped fields:
+  // pureProfit -> realProfit
+  // netProfit -> netWorth
+  // capitalComparison -> totalAssets
+  pureProfit: number;
+  netProfit: number;
+  capitalComparison: number;
+  investorOwnership: number;
+  investorProfitShare: number;
+  status: "Profit" | "Loss";
 }
 
 interface HistoryEntry {
@@ -110,41 +115,86 @@ export default function BusinessProfitTracker() {
 
   const calculateProfit = () => {
     const initialInvestment = parseFloat(formData.initialInvestment) || 0;
-    const currentStock = parseFloat(formData.currentStock) || 0;
+    const currentStockValue = parseFloat(formData.currentStock) || 0;
     const totalSales = parseFloat(formData.totalSales) || 0;
-    const cash = parseFloat(formData.cash) || 0;
-    const equipment = parseFloat(formData.equipment) || 0;
-    const expenses = parseFloat(formData.expenses) || 0;
-    const debts = parseFloat(formData.debts) || 0;
+    const cashInStore = parseFloat(formData.cash) || 0;
+    const totalExpenses = parseFloat(formData.expenses) || 0;
+    const outstandingDebts = parseFloat(formData.debts) || 0;
     const investorAmount = parseFloat(formData.investorAmount) || 0;
 
-    // Pure Profit = (Total Sales + Current Stock) − Initial Investment
-    const pureProfit = totalSales + currentStock - initialInvestment;
+    // Equipment is assumed to be part of the initial investment and
+    // MUST NOT be added again in these calculations.
 
-    // Net Profit = (Total Sales + Current Stock + Equipment Value) − (Initial Investment + Expenses + Debts)
-    const netProfit =
-      totalSales +
-      currentStock +
-      equipment -
-      (initialInvestment + expenses + debts);
+    // 1) Total assets = currentStockValue + cashInStore
+    const totalAssets = currentStockValue + cashInStore;
 
-    // Capital Comparison = (Current Stock + Cash + Equipment Value) − Initial Investment
-    const capitalComparison =
-      currentStock + cash + equipment - initialInvestment;
+    // 2) Net worth today = Total assets - outstandingDebts
+    const netWorth = totalAssets - outstandingDebts;
 
-    // Investor Ownership = (Investor Amount ÷ Initial Investment) × 100
+    // 3) Real profit = Net worth today - initialInvestment
+    const realProfit = netWorth - initialInvestment;
+
+    // 4) Status: Profit or Loss
+    const status: "Profit" | "Loss" = realProfit >= 0 ? "Profit" : "Loss";
+
+    // Optional: investor view based on real profit
     const investorOwnership =
       initialInvestment > 0 ? (investorAmount / initialInvestment) * 100 : 0;
+    const investorProfitShare = (investorOwnership / 100) * realProfit;
 
-    // Investor Profit Share = (Investor Ownership ÷ 100) × Net Profit
-    const investorProfitShare = (investorOwnership / 100) * netProfit;
+    // Console explanation with formatted numbers
+    const fmt = (n: number) =>
+      n.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+
+    // Clear, step‑by‑step explanation
+    // Note: totalSales and totalExpenses are shown for context but
+    // the real profit here is based on current assets vs initial capital.
+    console.log(
+      "[Shop Real Profit Calculation]" +
+        "\n" +
+        `Initial investment: KES ${fmt(initialInvestment)}` +
+        "\n" +
+        `Current stock value: KES ${fmt(currentStockValue)}` +
+        "\n" +
+        `Cash in store: KES ${fmt(cashInStore)}` +
+        "\n" +
+        `Outstanding debts: KES ${fmt(outstandingDebts)}` +
+        "\n" +
+        `Total assets = stock + cash = KES ${fmt(currentStockValue)} + KES ${fmt(
+          cashInStore,
+        )} = KES ${fmt(totalAssets)}` +
+        "\n" +
+        `Net worth today = total assets - debts = KES ${fmt(
+          totalAssets,
+        )} - KES ${fmt(outstandingDebts)} = KES ${fmt(netWorth)}` +
+        "\n" +
+        `Real profit = net worth today - initial investment = KES ${fmt(
+          netWorth,
+        )} - KES ${fmt(initialInvestment)} = KES ${fmt(realProfit)}` +
+        "\n" +
+        `Status: ${status} (the shop is ${
+          status === "Profit" ? "above" : "below"
+        } the original capital by KES ${fmt(Math.abs(realProfit))})` +
+        "\n" +
+        `Period sales (info): KES ${fmt(totalSales)}` +
+        "\n" +
+        `Period expenses (info): KES ${fmt(totalExpenses)}`,
+    );
 
     setResults({
-      pureProfit,
-      netProfit,
-      capitalComparison,
+      // Map new meanings into existing fields used by the UI
+      // pureProfit  -> realProfit
+      // netProfit   -> netWorth
+      // capitalComparison -> totalAssets
+      pureProfit: realProfit,
+      netProfit: netWorth,
+      capitalComparison: totalAssets,
       investorOwnership,
       investorProfitShare,
+      status,
     });
 
     // Save to localStorage
@@ -152,11 +202,12 @@ export default function BusinessProfitTracker() {
       timestamp: new Date().toISOString(),
       inputs: formData,
       results: {
-        pureProfit,
-        netProfit,
-        capitalComparison,
+        pureProfit: realProfit,
+        netProfit: netWorth,
+        capitalComparison: totalAssets,
         investorOwnership,
         investorProfitShare,
+        status,
       },
     };
 
