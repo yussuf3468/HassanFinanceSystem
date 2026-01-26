@@ -65,7 +65,9 @@ export default function BusinessProfitTracker() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "success" | "error"
+  >("idle");
 
   // Load history on mount
   useEffect(() => {
@@ -167,7 +169,7 @@ export default function BusinessProfitTracker() {
 
       setSaveStatus("success");
       await loadHistory();
-      
+
       // Reset success message after 3 seconds
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch (error) {
@@ -226,35 +228,55 @@ export default function BusinessProfitTracker() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <div className="max-w-7xl mx-auto p-3 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl shadow-lg">
-              <Calculator className="w-8 h-8 text-white" />
+        <div className="mb-4 sm:mb-8 relative">
+          {/* Background Glow Effects */}
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/30 via-teal-100/30 to-emerald-100/30 rounded-3xl blur-3xl"></div>
+          <div className="relative bg-white dark:bg-slate-800 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg border border-emerald-100/50 dark:border-slate-700 overflow-hidden">
+            {/* Animated Background Patterns */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
+              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full animate-pulse transform rotate-45"></div>
+              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-emerald-500 to-teal-400 rounded-full animate-pulse transform rotate-12 animation-delay-1000"></div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              Business Profit Tracker
-            </h1>
+
+            <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-2xl shadow-lg">
+                      <Calculator className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-4xl font-black text-slate-800 dark:text-white">
+                      📊 Business Profit Tracker
+                    </h1>
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-semibold">
+                      Xisaabinta Faa'iidada Ganacsiga - Calculate Business
+                      Profits
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="text-slate-600 text-lg ml-16">
-            Calculate Your Business Profits
-          </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-8">
           {/* Input Form */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <BarChart3 className="w-6 h-6 text-emerald-600" />
+          <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-6 md:p-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
               Enter Business Data
             </h2>
 
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               {/* Initial Investment */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Initial Investment (Maalgelinta Hore)
                 </label>
                 <div className="relative">
@@ -267,14 +289,14 @@ export default function BusinessProfitTracker() {
                     value={formData.initialInvestment}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Current Stock */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                   Current Stock Value
                 </label>
                 <div className="relative">
@@ -287,7 +309,7 @@ export default function BusinessProfitTracker() {
                     value={formData.currentStock}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -307,7 +329,7 @@ export default function BusinessProfitTracker() {
                     value={formData.totalSales}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -327,7 +349,7 @@ export default function BusinessProfitTracker() {
                     value={formData.cash}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -347,7 +369,7 @@ export default function BusinessProfitTracker() {
                     value={formData.machines}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -367,7 +389,7 @@ export default function BusinessProfitTracker() {
                     value={formData.expenses}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -387,7 +409,7 @@ export default function BusinessProfitTracker() {
                     value={formData.debts}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -407,7 +429,7 @@ export default function BusinessProfitTracker() {
                     value={formData.investorAmount}
                     onChange={handleInputChange}
                     placeholder="0.00"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm sm:text-base"
                   />
                 </div>
               </div>
@@ -425,20 +447,23 @@ export default function BusinessProfitTracker() {
                     name="notes"
                     value={formData.notes}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
                     }
                     placeholder="Add any notes about this calculation..."
                     rows={3}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
+                    className="w-full pl-11 pr-4 py-2 sm:py-3 border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <button
                   onClick={calculateProfit}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                 >
                   <Calculator className="w-6 h-6" />
                   Calculate Profit
@@ -449,18 +474,19 @@ export default function BusinessProfitTracker() {
                   className="w-full bg-gradient-to-r from-slate-600 to-slate-700 text-white py-3 rounded-xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all flex items-center justify-center gap-2"
                 >
                   <History className="w-5 h-5" />
-                  {showHistory ? "Hide History" : "View History"} ({history.length})
+                  {showHistory ? "Hide History" : "View History"} (
+                  {history.length})
                 </button>
               </div>
             </div>
           </div>
 
           {/* Results Card */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {results ? (
               <>
-                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                  <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-6 md:p-8">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
                     <TrendingUp className="w-6 h-6 text-emerald-600" />
                     Profit Analysis Results
                   </h2>
@@ -670,14 +696,14 @@ export default function BusinessProfitTracker() {
                 </div>
               </>
             ) : (
-              <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-                <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
-                  <Calculator className="w-12 h-12 text-slate-400" />
+              <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8 text-center">
+                <div className="bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mx-auto mb-4">
+                  <Calculator className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-700 mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-700 dark:text-white mb-2">
                   Ready to Calculate
                 </h3>
-                <p className="text-slate-500">
+                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
                   Fill in your business data and click "Calculate Profit" to see
                   your results
                 </p>
@@ -688,22 +714,24 @@ export default function BusinessProfitTracker() {
 
         {/* History Section */}
         {showHistory && (
-          <div className="mt-8">
-            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+          <div className="mt-4 sm:mt-8">
+            <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-4 sm:p-6 md:p-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                  <History className="w-6 h-6 text-blue-600" />
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <History className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                   Calculation History ({history.length})
                 </h2>
               </div>
 
               {history.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="bg-slate-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                    <History className="w-10 h-10 text-slate-400" />
+                <div className="text-center py-8 sm:py-12">
+                  <div className="bg-slate-100 dark:bg-slate-700 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mx-auto mb-4">
+                    <History className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400" />
                   </div>
-                  <p className="text-slate-600 font-medium">No history yet</p>
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-slate-600 dark:text-slate-300 font-medium">
+                    No history yet
+                  </p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
                     Calculate and save your first profit analysis
                   </p>
                 </div>
@@ -712,7 +740,7 @@ export default function BusinessProfitTracker() {
                   {history.map((entry) => (
                     <div
                       key={entry.id}
-                      className="border-2 border-slate-200 rounded-xl p-5 hover:border-emerald-300 transition-all"
+                      className="border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 sm:p-5 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -726,12 +754,12 @@ export default function BusinessProfitTracker() {
                             </span>
                           </div>
                           {entry.notes && (
-                            <p className="text-sm text-slate-600 italic mb-2">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 italic mb-2">
                               "{entry.notes}"
                             </p>
                           )}
                           {entry.created_by && (
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                               By: {entry.created_by}
                             </p>
                           )}
@@ -739,13 +767,13 @@ export default function BusinessProfitTracker() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => loadFromHistory(entry)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                            className="px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm font-medium"
                           >
                             Load
                           </button>
                           <button
                             onClick={() => deleteHistoryEntry(entry.id)}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-5 h-5" />
                           </button>
@@ -825,6 +853,6 @@ export default function BusinessProfitTracker() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
