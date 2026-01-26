@@ -62,12 +62,25 @@ export default function BusinessProfitTracker() {
 
   const [results, setResults] = useState<ProfitResults | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [localReports, setLocalReports] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   // Load history on mount
   useEffect(() => {
     loadHistory();
+    loadLocalReports();
   }, []);
+
+  const loadLocalReports = () => {
+    try {
+      const saved = localStorage.getItem("profitReports");
+      if (saved) {
+        setLocalReports(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error("Error loading local reports:", error);
+    }
+  };
 
   const loadHistory = async () => {
     try {
@@ -154,6 +167,7 @@ export default function BusinessProfitTracker() {
     // Keep only last 50 reports
     if (savedReports.length > 50) savedReports.pop();
     localStorage.setItem("profitReports", JSON.stringify(savedReports));
+    loadLocalReports(); // Refresh local reports view
   };
 
   const saveToHistory = async () => {
@@ -231,7 +245,38 @@ export default function BusinessProfitTracker() {
       return;
     }
     calculateProfit(); // This will save to localStorage
-    alert("Report saved successfully!");
+    alert(
+      "Report saved to device! Click 'View History' button to see all saved reports.",
+    );
+  };
+
+  const deleteLocalReport = (index: number) => {
+    if (!confirm("Delete this local report?")) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem("profitReports") || "[]");
+      saved.splice(index, 1);
+      localStorage.setItem("profitReports", JSON.stringify(saved));
+      loadLocalReports();
+    } catch (error) {
+      console.error("Error deleting local report:", error);
+    }
+  };
+
+  const loadFromLocalReport = (report: any) => {
+    setFormData({
+      initialInvestment: report.inputs.initialInvestment,
+      currentStock: report.inputs.currentStock,
+      totalSales: report.inputs.totalSales,
+      cash: report.inputs.cash,
+      equipment: report.inputs.equipment,
+      expenses: report.inputs.expenses,
+      debts: report.inputs.debts,
+      investorAmount: report.inputs.investorAmount,
+      notes: report.inputs.notes,
+    });
+    setResults(report.results);
+    setShowHistory(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const formatKES = (amount: number) => {
@@ -272,10 +317,10 @@ export default function BusinessProfitTracker() {
               </h2>
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="text-sm px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2"
+                className="text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 font-semibold shadow-md"
               >
                 <History className="w-4 h-4" />
-                {history.length}
+                View History ({history.length + localReports.length})
               </button>
             </div>
 
@@ -651,11 +696,19 @@ export default function BusinessProfitTracker() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                   <History className="w-5 h-5 text-blue-600" />
-                  Calculation History ({history.length})
+                  Calculation History ({history.length +
+                    localReports.length}{" "}
+                  total)
                 </h2>
+                <button
+                  onClick={() => setShowHistory(false)}
+                  className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-semibold text-sm"
+                >
+                  Close History
+                </button>
               </div>
 
-              {history.length === 0 ? (
+              {history.length === 0 && localReports.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="bg-slate-100 dark:bg-slate-700 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                     <History className="w-10 h-10 text-slate-400" />
@@ -668,92 +721,212 @@ export default function BusinessProfitTracker() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                  {history.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Calendar className="w-4 h-4 text-slate-500" />
-                            <span className="font-semibold text-slate-700 dark:text-slate-300">
-                              {formatDate(entry.calculation_date)}
-                            </span>
-                            <span className="text-xs text-slate-500">
-                              {new Date(entry.created_at).toLocaleTimeString()}
-                            </span>
-                          </div>
-                          {entry.notes && (
-                            <p className="text-sm text-slate-600 dark:text-slate-400 italic mb-2">
-                              "{entry.notes}"
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => loadFromHistory(entry)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                  {/* Local Reports Section */}
+                  {localReports.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <Save className="w-4 h-4 text-emerald-600" />
+                        📱 Device Saved Reports ({localReports.length})
+                      </h3>
+                      <div className="space-y-4">
+                        {localReports.map((report, index) => (
+                          <div
+                            key={index}
+                            className="border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-5 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all"
                           >
-                            Load
-                          </button>
-                          <button
-                            onClick={() => deleteHistoryEntry(entry.id)}
-                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Calendar className="w-4 h-4 text-emerald-600" />
+                                  <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                    {new Date(
+                                      report.timestamp,
+                                    ).toLocaleDateString()}
+                                  </span>
+                                  <span className="text-xs text-slate-500">
+                                    {new Date(
+                                      report.timestamp,
+                                    ).toLocaleTimeString()}
+                                  </span>
+                                  <span className="ml-2 px-2 py-0.5 bg-emerald-600 text-white text-xs rounded-full font-semibold">
+                                    LOCAL
+                                  </span>
+                                </div>
+                                {report.inputs.notes && (
+                                  <p className="text-sm text-slate-600 dark:text-slate-400 italic mb-2">
+                                    "{report.inputs.notes}"
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => loadFromLocalReport(report)}
+                                  className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
+                                >
+                                  Load
+                                </button>
+                                <button
+                                  onClick={() => deleteLocalReport(index)}
+                                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
 
-                      {/* Mini Results Summary */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mb-1">
-                            Pure Profit
-                          </p>
-                          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
-                            {formatKES(entry.pure_profit)}
-                          </p>
-                        </div>
-                        <div
-                          className={`p-3 rounded-lg border ${
-                            entry.net_profit >= 0
-                              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-                              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-                          }`}
-                        >
-                          <p
-                            className={`text-xs font-semibold mb-1 ${
-                              entry.net_profit >= 0
-                                ? "text-green-700 dark:text-green-400"
-                                : "text-red-700 dark:text-red-400"
-                            }`}
-                          >
-                            Net Profit
-                          </p>
-                          <p
-                            className={`text-sm font-bold ${
-                              entry.net_profit >= 0
-                                ? "text-green-800 dark:text-green-300"
-                                : "text-red-800 dark:text-red-300"
-                            }`}
-                          >
-                            {formatKES(entry.net_profit)}
-                          </p>
-                        </div>
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mb-1">
-                            Capital Comp.
-                          </p>
-                          <p className="text-sm font-bold text-blue-800 dark:text-blue-300">
-                            {formatKES(entry.capital_comparison)}
-                          </p>
-                        </div>
+                            {/* Mini Results Summary */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                              <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-lg border border-emerald-300 dark:border-emerald-700">
+                                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mb-1">
+                                  Pure Profit
+                                </p>
+                                <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                                  {formatKES(report.results.pureProfit)}
+                                </p>
+                              </div>
+                              <div
+                                className={`p-3 rounded-lg border ${
+                                  report.results.netProfit >= 0
+                                    ? "bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700"
+                                    : "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700"
+                                }`}
+                              >
+                                <p
+                                  className={`text-xs font-semibold mb-1 ${
+                                    report.results.netProfit >= 0
+                                      ? "text-green-700 dark:text-green-400"
+                                      : "text-red-700 dark:text-red-400"
+                                  }`}
+                                >
+                                  Net Profit
+                                </p>
+                                <p
+                                  className={`text-sm font-bold ${
+                                    report.results.netProfit >= 0
+                                      ? "text-green-800 dark:text-green-300"
+                                      : "text-red-800 dark:text-red-300"
+                                  }`}
+                                >
+                                  {formatKES(report.results.netProfit)}
+                                </p>
+                              </div>
+                              <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-300 dark:border-blue-700">
+                                <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mb-1">
+                                  Capital Comp.
+                                </p>
+                                <p className="text-sm font-bold text-blue-800 dark:text-blue-300">
+                                  {formatKES(report.results.capitalComparison)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Cloud History Section */}
+                  {history.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                        <History className="w-4 h-4 text-blue-600" />
+                        ☁️ Cloud Saved History ({history.length})
+                      </h3>
+                      <div className="space-y-4">
+                        {history.map((entry) => (
+                          <div
+                            key={entry.id}
+                            className="border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-5 hover:border-blue-400 dark:hover:border-blue-600 transition-all"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Calendar className="w-4 h-4 text-blue-600" />
+                                  <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                    {formatDate(entry.calculation_date)}
+                                  </span>
+                                  <span className="text-xs text-slate-500">
+                                    {new Date(
+                                      entry.created_at,
+                                    ).toLocaleTimeString()}
+                                  </span>
+                                  <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full font-semibold">
+                                    CLOUD
+                                  </span>
+                                </div>
+                                {entry.notes && (
+                                  <p className="text-sm text-slate-600 dark:text-slate-400 italic mb-2">
+                                    "{entry.notes}"
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => loadFromHistory(entry)}
+                                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+                                >
+                                  Load
+                                </button>
+                                <button
+                                  onClick={() => deleteHistoryEntry(entry.id)}
+                                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Mini Results Summary */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold mb-1">
+                                  Pure Profit
+                                </p>
+                                <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                                  {formatKES(entry.pure_profit)}
+                                </p>
+                              </div>
+                              <div
+                                className={`p-3 rounded-lg border ${
+                                  entry.net_profit >= 0
+                                    ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                    : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                                }`}
+                              >
+                                <p
+                                  className={`text-xs font-semibold mb-1 ${
+                                    entry.net_profit >= 0
+                                      ? "text-green-700 dark:text-green-400"
+                                      : "text-red-700 dark:text-red-400"
+                                  }`}
+                                >
+                                  Net Profit
+                                </p>
+                                <p
+                                  className={`text-sm font-bold ${
+                                    entry.net_profit >= 0
+                                      ? "text-green-800 dark:text-green-300"
+                                      : "text-red-800 dark:text-red-300"
+                                  }`}
+                                >
+                                  {formatKES(entry.net_profit)}
+                                </p>
+                              </div>
+                              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mb-1">
+                                  Capital Comp.
+                                </p>
+                                <p className="text-sm font-bold text-blue-800 dark:text-blue-300">
+                                  {formatKES(entry.capital_comparison)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
