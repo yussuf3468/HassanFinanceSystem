@@ -2242,14 +2242,10 @@ export default function SaleForm({
                   <Plus className="w-4 h-4" />
                   <span>Add Product Line</span>
                 </button>
-              </div>
-              {/* End LEFT COLUMN */}
 
-              {/* RIGHT COLUMN - Sale Info, Discount, Summary, Actions */}
-              <div className="space-y-3">
                 {/* Staff & Payment - Sale Information */}
                 {!quickSaleMode && (
-                  <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
+                  <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg mt-3">
                     <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
                       <span className="text-lg">📋</span>
                       <span>Sale Information</span>
@@ -2357,7 +2353,11 @@ export default function SaleForm({
                     </div>
                   </div>
                 )}
+              </div>
+              {/* End LEFT COLUMN */}
 
+              {/* RIGHT COLUMN - Discount, Summary, Actions */}
+              <div className="space-y-3">
                 {/* Quick Mode Info Banner */}
                 {quickSaleMode && (
                   <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl p-4 flex items-center space-x-3 shadow-lg">
@@ -2374,194 +2374,198 @@ export default function SaleForm({
                     </div>
                   </div>
                 )}
+
+                {/* Overall Discount Section */}
+                <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
+                  <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
+                    <span className="text-lg">🏷️</span>
+                    <span>Discount</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                        Discount Type
+                      </label>
+                      <select
+                        value={overallDiscountType}
+                        onChange={(e) => {
+                          setOverallDiscountType(
+                            e.target.value as DiscountType,
+                          );
+                          setOverallDiscountValue("");
+                        }}
+                        className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                      >
+                        <option
+                          value="none"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          No Overall Discount
+                        </option>
+                        <option
+                          value="percentage"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          Percentage (%)
+                        </option>
+                        <option
+                          value="amount"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          Fixed Amount (KES)
+                        </option>
+                      </select>
+                    </div>
+                    {overallDiscountType !== "none" && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                          Discount Value
+                        </label>
+                        <input
+                          type="number"
+                          value={overallDiscountValue}
+                          onChange={(e) =>
+                            setOverallDiscountValue(e.target.value)
+                          }
+                          min="0"
+                          max={
+                            overallDiscountType === "percentage"
+                              ? 100
+                              : undefined
+                          }
+                          step={
+                            overallDiscountType === "percentage" ? "0.01" : "1"
+                          }
+                          className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                          placeholder={
+                            overallDiscountType === "percentage"
+                              ? "e.g., 10 for 10%"
+                              : "e.g., 500 for KES 500"
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Overall Totals */}
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg">
+                  <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center space-x-2 pb-3 border-b border-emerald-200 dark:border-emerald-700">
+                    <span className="text-lg">💰</span>
+                    <span>Summary</span>
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">
+                        Subtotal
+                      </span>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        KES {subtotal.toLocaleString()}
+                      </span>
+                    </div>
+                    {total_line_discount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Line Discounts
+                        </span>
+                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                          -KES {total_line_discount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    {overallDiscountAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Overall Discount
+                          {overallDiscountType === "percentage" &&
+                            ` (${overallDiscountValue}%)`}
+                        </span>
+                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                          -KES {overallDiscountAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-300 dark:border-emerald-600 pt-4 mt-2">
+                      <span className="text-emerald-800 dark:text-emerald-200">
+                        Total Amount
+                      </span>
+                      <span className="text-emerald-700 dark:text-emerald-300">
+                        KES {total.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-emerald-100 dark:border-emerald-900">
+                      <span className="text-emerald-700 dark:text-emerald-400">
+                        Estimated Profit
+                      </span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                        KES {total_profit.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDrafts(!showDrafts)}
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                  >
+                    <Clock className="w-4 h-4" />
+                    <span>Drafts ({savedDrafts.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveDraft}
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                  >
+                    <span>💾</span>
+                    <span>Save Draft</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-full sm:w-auto px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white rounded-lg transition-all disabled:cursor-not-allowed font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                  >
+                    {submitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      "Complete Sale"
+                    )}
+                  </button>
+                </div>
               </div>
               {/* End RIGHT COLUMN */}
             </div>
             {/* End Two Column Layout */}
-
-            {/* Discount, Summary & Actions - Full Width */}
-            <div className="mt-4 space-y-4">
-              {/* Overall Discount Section */}
-              <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
-                <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
-                  <span className="text-lg">🏷️</span>
-                  <span>Discount</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                      Discount Type
-                    </label>
-                    <select
-                      value={overallDiscountType}
-                      onChange={(e) => {
-                        setOverallDiscountType(e.target.value as DiscountType);
-                        setOverallDiscountValue("");
-                      }}
-                      className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                    >
-                      <option
-                        value="none"
-                        className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                      >
-                        No Overall Discount
-                      </option>
-                      <option
-                        value="percentage"
-                        className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                      >
-                        Percentage (%)
-                      </option>
-                      <option
-                        value="amount"
-                        className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                      >
-                        Fixed Amount (KES)
-                      </option>
-                    </select>
-                  </div>
-                  {overallDiscountType !== "none" && (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                        Discount Value
-                      </label>
-                      <input
-                        type="number"
-                        value={overallDiscountValue}
-                        onChange={(e) =>
-                          setOverallDiscountValue(e.target.value)
-                        }
-                        min="0"
-                        max={
-                          overallDiscountType === "percentage" ? 100 : undefined
-                        }
-                        step={
-                          overallDiscountType === "percentage" ? "0.01" : "1"
-                        }
-                        className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                        placeholder={
-                          overallDiscountType === "percentage"
-                            ? "e.g., 10 for 10%"
-                            : "e.g., 500 for KES 500"
-                        }
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Overall Totals */}
-              <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg">
-                <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center space-x-2 pb-3 border-b border-emerald-200 dark:border-emerald-700">
-                  <span className="text-lg">💰</span>
-                  <span>Summary</span>
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Subtotal
-                    </span>
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      KES {subtotal.toLocaleString()}
-                    </span>
-                  </div>
-                  {total_line_discount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">
-                        Line Discounts
-                      </span>
-                      <span className="font-medium text-rose-600 dark:text-rose-400">
-                        -KES {total_line_discount.toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                  {overallDiscountAmount > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">
-                        Overall Discount
-                        {overallDiscountType === "percentage" &&
-                          ` (${overallDiscountValue}%)`}
-                      </span>
-                      <span className="font-medium text-rose-600 dark:text-rose-400">
-                        -KES {overallDiscountAmount.toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-300 dark:border-emerald-600 pt-4 mt-2">
-                    <span className="text-emerald-800 dark:text-emerald-200">
-                      Total Amount
-                    </span>
-                    <span className="text-emerald-700 dark:text-emerald-300">
-                      KES {total.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-emerald-100 dark:border-emerald-900">
-                    <span className="text-emerald-700 dark:text-emerald-400">
-                      Estimated Profit
-                    </span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      KES {total_profit.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowDrafts(!showDrafts)}
-                  className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
-                >
-                  <Clock className="w-4 h-4" />
-                  <span>Drafts ({savedDrafts.length})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={saveDraft}
-                  className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
-                >
-                  <span>💾</span>
-                  <span>Save Draft</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="w-full sm:w-auto px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white rounded-lg transition-all disabled:cursor-not-allowed font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                >
-                  {submitting ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    "Complete Sale"
-                  )}
-                </button>
-              </div>
-            </div>
           </form>
         )}
       </div>
