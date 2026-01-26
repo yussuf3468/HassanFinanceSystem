@@ -1588,16 +1588,10 @@ export default function SaleForm({
                         setPaymentMethod("Till Number");
                       }
                     }}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 ${
-                      quickSaleMode ? "bg-green-600" : "bg-gray-600"
-                    }`}
+                    className="relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 bg-green-600"
                     style={{ WebkitTapHighlightColor: "rgba(34,197,94,0.3)" }}
                   >
-                    <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        quickSaleMode ? "translate-x-7" : "translate-x-1"
-                      }`}
-                    />
+                    <span className="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-7" />
                   </button>
                 </div>
 
