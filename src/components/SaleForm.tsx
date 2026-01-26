@@ -1552,41 +1552,6 @@ export default function SaleForm({
               </div>
             )}
 
-            {/* Quick Sale Mode Toggle */}
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">⚡</span>
-                <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
-                    Quick Sale Mode
-                  </p>
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                    Skip payment selection for faster checkout
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuickSaleMode(!quickSaleMode);
-                  if (!quickSaleMode) {
-                    setSoldBy("Khalid");
-                    setPaymentMethod("Till Number");
-                  }
-                }}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 ${
-                  quickSaleMode ? "bg-green-600" : "bg-gray-600"
-                }`}
-                style={{ WebkitTapHighlightColor: "rgba(34,197,94,0.3)" }}
-              >
-                <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                    quickSaleMode ? "translate-x-7" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
-
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
               {/* LEFT COLUMN - Line Items */}
@@ -1599,6 +1564,41 @@ export default function SaleForm({
                       {lineItems.length}
                     </span>
                   </h3>
+                </div>
+
+                {/* Quick Sale Mode Toggle */}
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl">⚡</span>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        Quick Sale Mode
+                      </p>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                        Skip payment selection for faster checkout
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuickSaleMode(!quickSaleMode);
+                      if (!quickSaleMode) {
+                        setSoldBy("Khalid");
+                        setPaymentMethod("Till Number");
+                      }
+                    }}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 ${
+                      quickSaleMode ? "bg-green-600" : "bg-gray-600"
+                    }`}
+                    style={{ WebkitTapHighlightColor: "rgba(34,197,94,0.3)" }}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                        quickSaleMode ? "translate-x-7" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
                 </div>
 
                 <div className="space-y-2">
