@@ -1588,129 +1588,19 @@ export default function SaleForm({
             </div>
 
             {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
               {/* LEFT COLUMN - Line Items */}
-              <div className="space-y-3">
-                {/* Bulk Sales by Grade */}
-                <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-slate-200 dark:border-slate-600 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                      <span>📚</span>
-                      <span>Quick Add by Grade</span>
-                    </h4>
-                    <span className="text-xs text-slate-700 dark:text-slate-300">
-                      Click to load all books
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => {
-                      const gradeBooks = products.filter((p) => {
-                        const nameLower = p.name.toLowerCase();
-                        return (
-                          p.quantity_in_stock > 0 &&
-                          (nameLower.includes(`grade ${grade}`) ||
-                            nameLower.includes(`grade${grade}`) ||
-                            nameLower.includes(`std ${grade}`) ||
-                            nameLower.includes(`std${grade}`) ||
-                            nameLower.includes(`class ${grade}`) ||
-                            nameLower.includes(`class${grade}`))
-                        );
-                      });
-
-                      return (
-                        <button
-                          key={grade}
-                          type="button"
-                          onClick={() => {
-                            if (gradeBooks.length === 0) {
-                              alert(
-                                `No books found for Grade ${grade} with stock available.`,
-                              );
-                              return;
-                            }
-
-                            // Check for duplicates before adding
-                            const newBooks = gradeBooks.filter((book) => {
-                              const exists = lineItems.some(
-                                (li) => li.product_id === book.id,
-                              );
-                              return !exists;
-                            });
-
-                            if (newBooks.length === 0) {
-                              alert(
-                                `All Grade ${grade} books are already in the sale!`,
-                              );
-                              return;
-                            }
-
-                            // Add all grade books to line items
-                            const newLineItems = newBooks.map((book) => ({
-                              id: crypto.randomUUID(),
-                              product_id: book.id,
-                              quantity: "1",
-                              discount_type: "none" as DiscountType,
-                              discount_value: "",
-                              searchTerm: book.name,
-                              showDropdown: false,
-                            }));
-
-                            // Remove empty line items before adding new ones
-                            const nonEmptyItems = lineItems.filter(
-                              (item) =>
-                                item.product_id !== "" &&
-                                item.searchTerm !== "",
-                            );
-
-                            setLineItems([...nonEmptyItems, ...newLineItems]);
-
-                            // Show success message
-                            const skipped = gradeBooks.length - newBooks.length;
-                            const message =
-                              skipped > 0
-                                ? `✅ Added ${newBooks.length} Grade ${grade} books!\n\n(${skipped} already in sale)`
-                                : `✅ Added ${newBooks.length} Grade ${grade} books!`;
-
-                            alert(message);
-                          }}
-                          disabled={gradeBooks.length === 0}
-                          className={`relative px-4 py-2 rounded-lg text-sm transition-all touch-manipulation ${
-                            gradeBooks.length === 0
-                              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-50 border border-slate-200 dark:border-slate-700"
-                              : "bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700"
-                          }`}
-                          style={{
-                            WebkitTapHighlightColor: "rgba(99, 102, 241, 0.3)",
-                          }}
-                        >
-                          <span className="block font-medium">
-                            Grade {grade}
-                          </span>
-                          <span className="block text-xs opacity-70">
-                            {gradeBooks.length}{" "}
-                            {gradeBooks.length === 1 ? "book" : "books"}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-3 pt-3 border-t border-amber-100/50 dark:border-slate-700">
-                    <p className="text-xs text-slate-700 dark:text-slate-300 text-center">
-                      💡 Tip: Each book will be added with quantity 1. You can
-                      adjust quantities after adding.
-                    </p>
-                  </div>
-                </div>
-
+              <div className="space-y-4">
                 {/* Line Items */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                      <Package className="w-4 h-4" />
-                      <span>Products ({lineItems.length})</span>
-                    </h4>
+                  <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-600">
+                    <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Products</span>
+                      <span className="ml-2 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-medium">
+                        {lineItems.length}
+                      </span>
+                    </h3>
                   </div>
 
                   <div className="space-y-2">
@@ -1813,7 +1703,7 @@ export default function SaleForm({
                         <div
                           key={li.id}
                           ref={(el) => (dropdownRefs.current[li.id] = el)}
-                          className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 space-y-2 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                          className="relative bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2">
@@ -2376,15 +2266,15 @@ export default function SaleForm({
               {/* End LEFT COLUMN */}
 
               {/* RIGHT COLUMN - Sale Info, Discount, Summary, Actions */}
-              <div className="space-y-3">
+              <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
                 {/* Staff & Payment - Sale Information */}
                 {!quickSaleMode && (
-                  <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border border-slate-200 dark:border-slate-600 shadow-sm">
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
-                      <span>📋</span>
+                  <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
+                    <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
+                      <span className="text-lg">📋</span>
                       <span>Sale Information</span>
-                    </h4>
-                    <div className="grid grid-cols-1 gap-3">
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                           Sold By (Staff) *
@@ -2490,15 +2380,15 @@ export default function SaleForm({
 
                 {/* Quick Mode Info Banner */}
                 {quickSaleMode && (
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 flex items-center space-x-3">
-                    <div className="flex-shrink-0 w-10 h-10 bg-green-600/30 rounded-full flex items-center justify-center">
-                      <span className="text-xl">💨</span>
+                  <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 border-2 border-emerald-300 dark:border-emerald-700 rounded-xl p-4 flex items-center space-x-3 shadow-lg">
+                    <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-2xl">⚡</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                        Quick Sale Active
+                      <p className="text-base font-bold text-emerald-800 dark:text-emerald-200">
+                        Quick Sale Mode
                       </p>
-                      <p className="text-xs text-green-600 dark:text-green-400">
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
                         Till Number • Khalid
                       </p>
                     </div>
@@ -2506,11 +2396,12 @@ export default function SaleForm({
                 )}
 
                 {/* Overall Discount Section */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    Overall Discount (Applied to Total)
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
+                  <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
+                    <span className="text-lg">🏷️</span>
+                    <span>Discount</span>
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                         Discount Type
@@ -2578,11 +2469,12 @@ export default function SaleForm({
                 </div>
 
                 {/* Overall Totals */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                    Sale Summary
-                  </h4>
-                  <div className="space-y-2">
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg">
+                  <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center space-x-2 pb-3 border-b border-emerald-200 dark:border-emerald-700">
+                    <span className="text-lg">💰</span>
+                    <span>Summary</span>
+                  </h3>
+                  <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600 dark:text-slate-400">
                         Subtotal
@@ -2613,19 +2505,19 @@ export default function SaleForm({
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between text-base border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
-                      <span className="font-semibold text-slate-900 dark:text-white">
+                    <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-300 dark:border-emerald-600 pt-4 mt-2">
+                      <span className="text-emerald-800 dark:text-emerald-200">
                         Total Amount
                       </span>
-                      <span className="font-semibold text-slate-900 dark:text-white">
+                      <span className="text-emerald-700 dark:text-emerald-300">
                         KES {total.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
-                      <span className="text-slate-500 dark:text-slate-500">
+                    <div className="flex justify-between text-sm pt-2 border-t border-emerald-100 dark:border-emerald-900">
+                      <span className="text-emerald-700 dark:text-emerald-400">
                         Estimated Profit
                       </span>
-                      <span className="text-emerald-600 dark:text-emerald-500">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                         KES {total_profit.toLocaleString()}
                       </span>
                     </div>
@@ -2633,11 +2525,11 @@ export default function SaleForm({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4">
                   <button
                     type="button"
                     onClick={() => setShowDrafts(!showDrafts)}
-                    className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
                   >
                     <Clock className="w-4 h-4" />
                     <span>Drafts ({savedDrafts.length})</span>
@@ -2645,7 +2537,7 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={saveDraft}
-                    className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-5 py-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg transition-all text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
                   >
                     <span>💾</span>
                     <span>Save Draft</span>
@@ -2653,14 +2545,14 @@ export default function SaleForm({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="w-full sm:w-auto px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
+                    className="w-full sm:w-auto px-5 py-2.5 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-all text-sm font-medium shadow-sm hover:shadow"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white rounded-lg transition-all disabled:cursor-not-allowed font-bold text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                   >
                     {submitting ? (
                       <>
