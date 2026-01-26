@@ -77,8 +77,8 @@ export default function SaleForm({
   onSuccess,
 }: SaleFormProps) {
   const queryClient = useQueryClient();
-  const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [soldBy, setSoldBy] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("Till Number");
+  const [soldBy, setSoldBy] = useState("Khalid");
   const [customerName, setCustomerName] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<
     "paid" | "not_paid" | "partial"
