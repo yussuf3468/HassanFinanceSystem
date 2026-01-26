@@ -1419,11 +1419,11 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto touch-scroll p-2 sm:p-3 space-y-2 bg-slate-50 dark:bg-slate-900"
+            className="flex-1 overflow-y-auto touch-scroll p-2 bg-slate-50 dark:bg-slate-900"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
-            {/* Keyboard Shortcuts Help Banner */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5">
+            {/* Keyboard Shortcuts Help Banner - Full Width */}
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 mb-2">
               <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
                 <span className="font-medium text-slate-700 dark:text-slate-300">
                   Shortcuts:
@@ -1587,1054 +1587,1113 @@ export default function SaleForm({
               </button>
             </div>
 
-            {/* Staff & Payment - Moved to top for better UX */}
-            {!quickSaleMode && (
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-2 border border-slate-200 dark:border-slate-600 shadow-sm">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center space-x-2">
-                  <span>📋</span>
-                  <span>Sale Information</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Sold By (Staff) *
-                    </label>
-                    <select
-                      required
-                      value={soldBy}
-                      onChange={(e) => setSoldBy(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
-                    >
-                      <option
-                        value=""
-                        className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                      >
-                        -- Select Staff Member --
-                      </option>
-                      {staffMembers.map((s) => (
-                        <option
-                          key={s}
-                          value={s}
-                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {/* LEFT COLUMN - Line Items */}
+              <div className="space-y-2">
+                {/* Bulk Sales by Grade */}
+                <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                      <span>📚</span>
+                      <span>Quick Add by Grade</span>
+                    </h4>
+                    <span className="text-xs text-slate-700 dark:text-slate-300">
+                      Click to load all books
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => {
+                      const gradeBooks = products.filter((p) => {
+                        const nameLower = p.name.toLowerCase();
+                        return (
+                          p.quantity_in_stock > 0 &&
+                          (nameLower.includes(`grade ${grade}`) ||
+                            nameLower.includes(`grade${grade}`) ||
+                            nameLower.includes(`std ${grade}`) ||
+                            nameLower.includes(`std${grade}`) ||
+                            nameLower.includes(`class ${grade}`) ||
+                            nameLower.includes(`class${grade}`))
+                        );
+                      });
+
+                      return (
+                        <button
+                          key={grade}
+                          type="button"
+                          onClick={() => {
+                            if (gradeBooks.length === 0) {
+                              alert(
+                                `No books found for Grade ${grade} with stock available.`,
+                              );
+                              return;
+                            }
+
+                            // Check for duplicates before adding
+                            const newBooks = gradeBooks.filter((book) => {
+                              const exists = lineItems.some(
+                                (li) => li.product_id === book.id,
+                              );
+                              return !exists;
+                            });
+
+                            if (newBooks.length === 0) {
+                              alert(
+                                `All Grade ${grade} books are already in the sale!`,
+                              );
+                              return;
+                            }
+
+                            // Add all grade books to line items
+                            const newLineItems = newBooks.map((book) => ({
+                              id: crypto.randomUUID(),
+                              product_id: book.id,
+                              quantity: "1",
+                              discount_type: "none" as DiscountType,
+                              discount_value: "",
+                              searchTerm: book.name,
+                              showDropdown: false,
+                            }));
+
+                            // Remove empty line items before adding new ones
+                            const nonEmptyItems = lineItems.filter(
+                              (item) =>
+                                item.product_id !== "" &&
+                                item.searchTerm !== "",
+                            );
+
+                            setLineItems([...nonEmptyItems, ...newLineItems]);
+
+                            // Show success message
+                            const skipped = gradeBooks.length - newBooks.length;
+                            const message =
+                              skipped > 0
+                                ? `✅ Added ${newBooks.length} Grade ${grade} books!\n\n(${skipped} already in sale)`
+                                : `✅ Added ${newBooks.length} Grade ${grade} books!`;
+
+                            alert(message);
+                          }}
+                          disabled={gradeBooks.length === 0}
+                          className={`relative px-4 py-2 rounded-lg text-sm transition-all touch-manipulation ${
+                            gradeBooks.length === 0
+                              ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-50 border border-slate-200 dark:border-slate-700"
+                              : "bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700"
+                          }`}
+                          style={{
+                            WebkitTapHighlightColor: "rgba(99, 102, 241, 0.3)",
+                          }}
                         >
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Payment Method *
-                    </label>
-                    <select
-                      value={paymentMethod}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
-                    >
-                      {paymentMethods.map((m) => (
-                        <option
-                          key={m}
-                          value={m}
-                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                        >
-                          {m}
-                        </option>
-                      ))}
-                    </select>
+                          <span className="block font-medium">
+                            Grade {grade}
+                          </span>
+                          <span className="block text-xs opacity-70">
+                            {gradeBooks.length}{" "}
+                            {gradeBooks.length === 1 ? "book" : "books"}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Customer Name */}
-                  <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Customer Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
-                      placeholder="Walk-in Customer"
-                    />
+                  <div className="mt-3 pt-3 border-t border-amber-100/50 dark:border-slate-700">
+                    <p className="text-xs text-slate-700 dark:text-slate-300 text-center">
+                      💡 Tip: Each book will be added with quantity 1. You can
+                      adjust quantities after adding.
+                    </p>
                   </div>
-
-                  {/* Payment Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Payment Status <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={paymentStatus}
-                      onChange={(e) =>
-                        setPaymentStatus(
-                          e.target.value as "paid" | "not_paid" | "partial",
-                        )
-                      }
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
-                    >
-                      <option value="paid">Paid</option>
-                      <option value="partial">Partial Payment</option>
-                      <option value="not_paid">Not Paid</option>
-                    </select>
-                  </div>
-
-                  {/* Amount Paid - Only show for partial payment */}
-                  {paymentStatus === "partial" && (
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        Amount Paid <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        value={amountPaid}
-                        onChange={(e) => setAmountPaid(e.target.value)}
-                        className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
-                        placeholder="Enter amount paid"
-                        step="0.01"
-                        min="0"
-                      />
-                    </div>
-                  )}
                 </div>
-              </div>
-            )}
 
-            {/* Quick Mode Info Banner */}
-            {quickSaleMode && (
-              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 flex items-center space-x-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-green-600/30 rounded-full flex items-center justify-center">
-                  <span className="text-xl">💨</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-green-300">
-                    Quick Sale Active
-                  </p>
-                  <p className="text-xs text-green-400">
-                    Payment: Till Number • Sold by: Khalid
-                  </p>
-                </div>
-              </div>
-            )}
+                {/* Line Items */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                      <Package className="w-4 h-4" />
+                      <span>Products ({lineItems.length})</span>
+                    </h4>
+                  </div>
 
-            {/* Bulk Sales by Grade */}
-            <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                  <span>📚</span>
-                  <span>Quick Add by Grade</span>
-                </h4>
-                <span className="text-xs text-slate-700 dark:text-slate-300">
-                  Click to load all books
-                </span>
-              </div>
+                  <div className="space-y-2">
+                    {lineItems.map((li, idx) => {
+                      const product = productById(li.product_id);
+                      const comp = computed.find((c) => c.line.id === li.id)!;
+                      // Use advanced search with fuzzy matching
+                      const searchResults = searchProducts(
+                        products,
+                        li.searchTerm,
+                        {
+                          fuzzyThreshold: 0.6, // More lenient (0.6 instead of default 0.7)
+                          includeDescription: false,
+                          maxResults: 15,
+                        },
+                      );
 
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => {
-                  const gradeBooks = products.filter((p) => {
-                    const nameLower = p.name.toLowerCase();
-                    return (
-                      p.quantity_in_stock > 0 &&
-                      (nameLower.includes(`grade ${grade}`) ||
-                        nameLower.includes(`grade${grade}`) ||
-                        nameLower.includes(`std ${grade}`) ||
-                        nameLower.includes(`std${grade}`) ||
-                        nameLower.includes(`class ${grade}`) ||
-                        nameLower.includes(`class${grade}`))
-                    );
-                  });
+                      const filtered = searchResults.map(
+                        (result) => result.product,
+                      );
 
-                  return (
-                    <button
-                      key={grade}
-                      type="button"
-                      onClick={() => {
-                        if (gradeBooks.length === 0) {
-                          alert(
-                            `No books found for Grade ${grade} with stock available.`,
-                          );
-                          return;
+                      // Get best prediction for autocomplete (first result)
+                      const prediction =
+                        filtered.length > 0 && li.searchTerm
+                          ? filtered[0].name
+                          : "";
+
+                      // Calculate autocomplete suggestion
+                      const autocompleteSuggestion =
+                        prediction &&
+                        prediction
+                          .toLowerCase()
+                          .startsWith(li.searchTerm.toLowerCase())
+                          ? li.searchTerm +
+                            prediction.slice(li.searchTerm.length)
+                          : "";
+
+                      // Handle keyboard navigation
+                      const handleSearchKeyDown = (
+                        e: React.KeyboardEvent<HTMLInputElement>,
+                      ) => {
+                        if (e.key === "Tab" && autocompleteSuggestion) {
+                          e.preventDefault();
+                          updateLine(li.id, {
+                            searchTerm: autocompleteSuggestion,
+                            showDropdown: true,
+                          });
+                        } else if (e.key === "Enter" && filtered.length > 0) {
+                          e.preventDefault();
+                          updateLine(li.id, {
+                            product_id: filtered[0].id,
+                            searchTerm: filtered[0].name,
+                            showDropdown: false,
+                          });
+                        } else if (e.key === "Escape") {
+                          updateLine(li.id, { showDropdown: false });
                         }
+                      };
 
-                        // Check for duplicates before adding
-                        const newBooks = gradeBooks.filter((book) => {
-                          const exists = lineItems.some(
-                            (li) => li.product_id === book.id,
-                          );
-                          return !exists;
+                      // Quick Access - Top selling or featured products
+                      const quickAccessProducts = products
+                        .filter((p) => p.quantity_in_stock > 0)
+                        .sort(
+                          (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0),
+                        )
+                        .slice(0, 5);
+
+                      // Generate suggestions like Google (product names and categories)
+                      const suggestions: string[] = [];
+                      if (li.searchTerm) {
+                        const searchLower = li.searchTerm.toLowerCase();
+                        const uniqueSuggestions = new Set<string>();
+
+                        // Add matching product names
+                        products.forEach((p) => {
+                          if (
+                            p.name.toLowerCase().includes(searchLower) &&
+                            p.name.toLowerCase() !== searchLower
+                          ) {
+                            uniqueSuggestions.add(p.name);
+                          }
                         });
 
-                        if (newBooks.length === 0) {
-                          alert(
-                            `All Grade ${grade} books are already in the sale!`,
-                          );
-                          return;
-                        }
+                        // Add matching categories
+                        products.forEach((p) => {
+                          if (
+                            p.category.toLowerCase().includes(searchLower) &&
+                            p.category.toLowerCase() !== searchLower
+                          ) {
+                            uniqueSuggestions.add(p.category);
+                          }
+                        });
 
-                        // Add all grade books to line items
-                        const newLineItems = newBooks.map((book) => ({
-                          id: crypto.randomUUID(),
-                          product_id: book.id,
-                          quantity: "1",
-                          discount_type: "none" as DiscountType,
-                          discount_value: "",
-                          searchTerm: book.name,
-                          showDropdown: false,
-                        }));
-
-                        // Remove empty line items before adding new ones
-                        const nonEmptyItems = lineItems.filter(
-                          (item) =>
-                            item.product_id !== "" && item.searchTerm !== "",
+                        suggestions.push(
+                          ...Array.from(uniqueSuggestions).slice(0, 3),
                         );
-
-                        setLineItems([...nonEmptyItems, ...newLineItems]);
-
-                        // Show success message
-                        const skipped = gradeBooks.length - newBooks.length;
-                        const message =
-                          skipped > 0
-                            ? `✅ Added ${newBooks.length} Grade ${grade} books!\n\n(${skipped} already in sale)`
-                            : `✅ Added ${newBooks.length} Grade ${grade} books!`;
-
-                        alert(message);
-                      }}
-                      disabled={gradeBooks.length === 0}
-                      className={`relative px-4 py-2 rounded-lg text-sm transition-all touch-manipulation ${
-                        gradeBooks.length === 0
-                          ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-50 border border-slate-200 dark:border-slate-700"
-                          : "bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700"
-                      }`}
-                      style={{
-                        WebkitTapHighlightColor: "rgba(99, 102, 241, 0.3)",
-                      }}
-                    >
-                      <span className="block font-medium">Grade {grade}</span>
-                      <span className="block text-xs opacity-70">
-                        {gradeBooks.length}{" "}
-                        {gradeBooks.length === 1 ? "book" : "books"}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-amber-100/50 dark:border-slate-700">
-                <p className="text-xs text-slate-700 dark:text-slate-300 text-center">
-                  💡 Tip: Each book will be added with quantity 1. You can
-                  adjust quantities after adding.
-                </p>
-              </div>
-            </div>
-
-            {/* Line Items */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <Package className="w-4 h-4" />
-                  <span>Products ({lineItems.length})</span>
-                </h4>
-              </div>
-
-              <div className="space-y-2">
-                {lineItems.map((li, idx) => {
-                  const product = productById(li.product_id);
-                  const comp = computed.find((c) => c.line.id === li.id)!;
-                  // Use advanced search with fuzzy matching
-                  const searchResults = searchProducts(
-                    products,
-                    li.searchTerm,
-                    {
-                      fuzzyThreshold: 0.6, // More lenient (0.6 instead of default 0.7)
-                      includeDescription: false,
-                      maxResults: 15,
-                    },
-                  );
-
-                  const filtered = searchResults.map(
-                    (result) => result.product,
-                  );
-
-                  // Get best prediction for autocomplete (first result)
-                  const prediction =
-                    filtered.length > 0 && li.searchTerm
-                      ? filtered[0].name
-                      : "";
-
-                  // Calculate autocomplete suggestion
-                  const autocompleteSuggestion =
-                    prediction &&
-                    prediction
-                      .toLowerCase()
-                      .startsWith(li.searchTerm.toLowerCase())
-                      ? li.searchTerm + prediction.slice(li.searchTerm.length)
-                      : "";
-
-                  // Handle keyboard navigation
-                  const handleSearchKeyDown = (
-                    e: React.KeyboardEvent<HTMLInputElement>,
-                  ) => {
-                    if (e.key === "Tab" && autocompleteSuggestion) {
-                      e.preventDefault();
-                      updateLine(li.id, {
-                        searchTerm: autocompleteSuggestion,
-                        showDropdown: true,
-                      });
-                    } else if (e.key === "Enter" && filtered.length > 0) {
-                      e.preventDefault();
-                      updateLine(li.id, {
-                        product_id: filtered[0].id,
-                        searchTerm: filtered[0].name,
-                        showDropdown: false,
-                      });
-                    } else if (e.key === "Escape") {
-                      updateLine(li.id, { showDropdown: false });
-                    }
-                  };
-
-                  // Quick Access - Top selling or featured products
-                  const quickAccessProducts = products
-                    .filter((p) => p.quantity_in_stock > 0)
-                    .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
-                    .slice(0, 5);
-
-                  // Generate suggestions like Google (product names and categories)
-                  const suggestions: string[] = [];
-                  if (li.searchTerm) {
-                    const searchLower = li.searchTerm.toLowerCase();
-                    const uniqueSuggestions = new Set<string>();
-
-                    // Add matching product names
-                    products.forEach((p) => {
-                      if (
-                        p.name.toLowerCase().includes(searchLower) &&
-                        p.name.toLowerCase() !== searchLower
-                      ) {
-                        uniqueSuggestions.add(p.name);
                       }
-                    });
 
-                    // Add matching categories
-                    products.forEach((p) => {
-                      if (
-                        p.category.toLowerCase().includes(searchLower) &&
-                        p.category.toLowerCase() !== searchLower
-                      ) {
-                        uniqueSuggestions.add(p.category);
-                      }
-                    });
-
-                    suggestions.push(
-                      ...Array.from(uniqueSuggestions).slice(0, 3),
-                    );
-                  }
-
-                  return (
-                    <div
-                      key={li.id}
-                      ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 space-y-2 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-medium text-xs">
-                            {idx + 1}
-                          </span>
-                          {product && (
-                            <span className="text-xs px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded border border-emerald-200 dark:border-emerald-700">
-                              Stock: {product.quantity_in_stock}
-                            </span>
-                          )}
-                        </div>
-                        {lineItems.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeLine(li.id)}
-                            className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 hover:text-red-600 transition-colors"
-                            title="Remove line"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-                        {/* Product Search */}
-                        <div className="sm:col-span-2">
-                          <label className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                            <span className="mr-2">🔍</span>
-                            Product *{" "}
-                            {autocompleteSuggestion && (
-                              <span className="text-amber-700 dark:text-amber-400 font-semibold text-xs ml-2 animate-pulse">
-                                Press Tab ↹ to complete
+                      return (
+                        <div
+                          key={li.id}
+                          ref={(el) => (dropdownRefs.current[li.id] = el)}
+                          className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 space-y-2 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-medium text-xs">
+                                {idx + 1}
                               </span>
+                              {product && (
+                                <span className="text-xs px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded border border-emerald-200 dark:border-emerald-700">
+                                  Stock: {product.quantity_in_stock}
+                                </span>
+                              )}
+                            </div>
+                            {lineItems.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeLine(li.id)}
+                                className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 hover:text-red-600 transition-colors"
+                                title="Remove line"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             )}
-                          </label>
-                          <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-800 pointer-events-none z-10 transition-all group-focus-within:text-amber-800 group-focus-within:scale-110" />
+                          </div>
 
-                            {/* Autocomplete preview (ghost text) */}
-                            {autocompleteSuggestion && li.showDropdown && (
-                              <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none z-[5] text-sm text-slate-700 dark:text-slate-300 font-medium">
-                                {autocompleteSuggestion}
-                              </div>
-                            )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                            {/* Product Search */}
+                            <div className="sm:col-span-2">
+                              <label className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                <span className="mr-2">🔍</span>
+                                Product *{" "}
+                                {autocompleteSuggestion && (
+                                  <span className="text-amber-700 dark:text-amber-400 font-semibold text-xs ml-2 animate-pulse">
+                                    Press Tab ↹ to complete
+                                  </span>
+                                )}
+                              </label>
+                              <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-800 pointer-events-none z-10 transition-all group-focus-within:text-amber-800 group-focus-within:scale-110" />
 
-                            <input
-                              type="text"
-                              ref={
-                                idx === 0 ? firstProductSearchRef : undefined
-                              }
-                              value={li.searchTerm}
-                              required={!li.product_id}
-                              onChange={(e) =>
-                                updateLine(li.id, {
-                                  searchTerm: e.target.value,
-                                  showDropdown: true,
-                                  product_id: e.target.value
-                                    ? li.product_id
-                                    : "",
-                                })
-                              }
-                              onKeyDown={handleSearchKeyDown}
-                              onFocus={() =>
-                                updateLine(li.id, { showDropdown: true })
-                              }
-                              placeholder="Type to search products..."
-                              className="w-full pl-10 pr-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all relative z-10 font-medium hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
-                              style={{ background: "transparent" }}
-                            />
-
-                            {/* Predictive Suggestions Dropdown - Google Style */}
-                            {li.showDropdown && (
-                              <div className="absolute z-30 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
-                                {/* Quick Access - When search is empty */}
-                                {!li.searchTerm &&
-                                  quickAccessProducts.length > 0 && (
-                                    <div className="border-b border-amber-100/50 dark:border-slate-700">
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
-                                        <TrendingUp className="w-3 h-3" />
-                                        <span>Quick Access</span>
-                                      </div>
-                                      {quickAccessProducts.map((p) => (
-                                        <button
-                                          key={p.id}
-                                          type="button"
-                                          onClick={() =>
-                                            updateLine(li.id, {
-                                              product_id: p.id,
-                                              searchTerm: p.name,
-                                              showDropdown: false,
-                                            })
-                                          }
-                                          className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors"
-                                        >
-                                          {p.image_url ? (
-                                            <img
-                                              src={p.image_url}
-                                              alt={p.name}
-                                              className="w-8 h-8 object-cover rounded border border-amber-100/50 dark:border-slate-700"
-                                            />
-                                          ) : (
-                                            <div className="w-8 h-8 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
-                                              <Package className="w-4 h-4 text-slate-700 dark:text-slate-300 " />
-                                            </div>
-                                          )}
-                                          <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-slate-900 dark:text-white text-xs truncate">
-                                              {p.name}
-                                            </p>
-                                            <p className="text-xs text-slate-700 dark:text-slate-300 ">
-                                              KES{" "}
-                                              {p.selling_price.toLocaleString()}
-                                            </p>
-                                          </div>
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                {/* Search Suggestions - Like Google */}
-                                {suggestions.length > 0 && li.searchTerm && (
-                                  <div className="border-b border-amber-100/50 dark:border-slate-700">
-                                    <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
-                                      <Search className="w-3 h-3" />
-                                      <span>Suggestions</span>
-                                    </div>
-                                    {suggestions.map((suggestion, idx) => (
-                                      <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={() =>
-                                          updateLine(li.id, {
-                                            searchTerm: suggestion,
-                                            showDropdown: true,
-                                          })
-                                        }
-                                        className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors group"
-                                      >
-                                        <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400" />
-                                        <span className="text-white">
-                                          {suggestion
-                                            .split(
-                                              new RegExp(
-                                                `(${li.searchTerm})`,
-                                                "gi",
-                                              ),
-                                            )
-                                            .map((part, i) =>
-                                              part.toLowerCase() ===
-                                              li.searchTerm.toLowerCase() ? (
-                                                <span
-                                                  key={i}
-                                                  className="font-bold text-amber-700 dark:text-amber-400 "
-                                                >
-                                                  {part}
-                                                </span>
-                                              ) : (
-                                                <span key={i}>{part}</span>
-                                              ),
-                                            )}
-                                        </span>
-                                      </button>
-                                    ))}
+                                {/* Autocomplete preview (ghost text) */}
+                                {autocompleteSuggestion && li.showDropdown && (
+                                  <div className="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none z-[5] text-sm text-slate-700 dark:text-slate-300 font-medium">
+                                    {autocompleteSuggestion}
                                   </div>
                                 )}
 
-                                {/* Full Product Results */}
-                                {li.searchTerm && filtered.length > 0 && (
-                                  <div>
-                                    {suggestions.length > 0 && (
-                                      <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
-                                        <Package className="w-3 h-3" />
-                                        <span>
-                                          Products ({filtered.length})
-                                        </span>
-                                      </div>
-                                    )}
-                                    {filtered.slice(0, 15).map((p) => (
-                                      <button
-                                        key={p.id}
-                                        type="button"
-                                        onClick={() =>
-                                          updateLine(li.id, {
-                                            product_id: p.id,
-                                            searchTerm: p.name,
-                                            showDropdown: false,
-                                          })
-                                        }
-                                        className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0"
-                                      >
-                                        {p.image_url ? (
-                                          <img
-                                            src={p.image_url}
-                                            alt={p.name}
-                                            className="w-10 h-10 object-cover rounded border border-amber-100/50 dark:border-slate-700"
-                                          />
-                                        ) : (
-                                          <div className="w-10 h-10 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
-                                            <Package className="w-5 h-5 text-slate-700 dark:text-slate-300 " />
+                                <input
+                                  type="text"
+                                  ref={
+                                    idx === 0
+                                      ? firstProductSearchRef
+                                      : undefined
+                                  }
+                                  value={li.searchTerm}
+                                  required={!li.product_id}
+                                  onChange={(e) =>
+                                    updateLine(li.id, {
+                                      searchTerm: e.target.value,
+                                      showDropdown: true,
+                                      product_id: e.target.value
+                                        ? li.product_id
+                                        : "",
+                                    })
+                                  }
+                                  onKeyDown={handleSearchKeyDown}
+                                  onFocus={() =>
+                                    updateLine(li.id, { showDropdown: true })
+                                  }
+                                  placeholder="Type to search products..."
+                                  className="w-full pl-10 pr-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all relative z-10 font-medium hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
+                                  style={{ background: "transparent" }}
+                                />
+
+                                {/* Predictive Suggestions Dropdown - Google Style */}
+                                {li.showDropdown && (
+                                  <div className="absolute z-30 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
+                                    {/* Quick Access - When search is empty */}
+                                    {!li.searchTerm &&
+                                      quickAccessProducts.length > 0 && (
+                                        <div className="border-b border-amber-100/50 dark:border-slate-700">
+                                          <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
+                                            <TrendingUp className="w-3 h-3" />
+                                            <span>Quick Access</span>
+                                          </div>
+                                          {quickAccessProducts.map((p) => (
+                                            <button
+                                              key={p.id}
+                                              type="button"
+                                              onClick={() =>
+                                                updateLine(li.id, {
+                                                  product_id: p.id,
+                                                  searchTerm: p.name,
+                                                  showDropdown: false,
+                                                })
+                                              }
+                                              className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors"
+                                            >
+                                              {p.image_url ? (
+                                                <img
+                                                  src={p.image_url}
+                                                  alt={p.name}
+                                                  className="w-8 h-8 object-cover rounded border border-amber-100/50 dark:border-slate-700"
+                                                />
+                                              ) : (
+                                                <div className="w-8 h-8 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
+                                                  <Package className="w-4 h-4 text-slate-700 dark:text-slate-300 " />
+                                                </div>
+                                              )}
+                                              <div className="min-w-0 flex-1">
+                                                <p className="font-medium text-slate-900 dark:text-white text-xs truncate">
+                                                  {p.name}
+                                                </p>
+                                                <p className="text-xs text-slate-700 dark:text-slate-300 ">
+                                                  KES{" "}
+                                                  {p.selling_price.toLocaleString()}
+                                                </p>
+                                              </div>
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+
+                                    {/* Search Suggestions - Like Google */}
+                                    {suggestions.length > 0 &&
+                                      li.searchTerm && (
+                                        <div className="border-b border-amber-100/50 dark:border-slate-700">
+                                          <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
+                                            <Search className="w-3 h-3" />
+                                            <span>Suggestions</span>
+                                          </div>
+                                          {suggestions.map(
+                                            (suggestion, idx) => (
+                                              <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() =>
+                                                  updateLine(li.id, {
+                                                    searchTerm: suggestion,
+                                                    showDropdown: true,
+                                                  })
+                                                }
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors group"
+                                              >
+                                                <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400" />
+                                                <span className="text-white">
+                                                  {suggestion
+                                                    .split(
+                                                      new RegExp(
+                                                        `(${li.searchTerm})`,
+                                                        "gi",
+                                                      ),
+                                                    )
+                                                    .map((part, i) =>
+                                                      part.toLowerCase() ===
+                                                      li.searchTerm.toLowerCase() ? (
+                                                        <span
+                                                          key={i}
+                                                          className="font-bold text-amber-700 dark:text-amber-400 "
+                                                        >
+                                                          {part}
+                                                        </span>
+                                                      ) : (
+                                                        <span key={i}>
+                                                          {part}
+                                                        </span>
+                                                      ),
+                                                    )}
+                                                </span>
+                                              </button>
+                                            ),
+                                          )}
+                                        </div>
+                                      )}
+
+                                    {/* Full Product Results */}
+                                    {li.searchTerm && filtered.length > 0 && (
+                                      <div>
+                                        {suggestions.length > 0 && (
+                                          <div className="px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
+                                            <Package className="w-3 h-3" />
+                                            <span>
+                                              Products ({filtered.length})
+                                            </span>
                                           </div>
                                         )}
-                                        <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-slate-900 dark:text-white truncate">
-                                            {p.name}
-                                          </p>
-                                          <p className="text-xs text-slate-700 dark:text-slate-300 truncate">
-                                            {p.product_id} • Stock{" "}
-                                            {p.quantity_in_stock} • KES{" "}
-                                            {p.selling_price.toLocaleString()}
-                                          </p>
+                                        {filtered.slice(0, 15).map((p) => (
+                                          <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() =>
+                                              updateLine(li.id, {
+                                                product_id: p.id,
+                                                searchTerm: p.name,
+                                                showDropdown: false,
+                                              })
+                                            }
+                                            className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0"
+                                          >
+                                            {p.image_url ? (
+                                              <img
+                                                src={p.image_url}
+                                                alt={p.name}
+                                                className="w-10 h-10 object-cover rounded border border-amber-100/50 dark:border-slate-700"
+                                              />
+                                            ) : (
+                                              <div className="w-10 h-10 bg-white/90 dark:bg-slate-700/90 rounded flex items-center justify-center border border-amber-100/50 dark:border-slate-600">
+                                                <Package className="w-5 h-5 text-slate-700 dark:text-slate-300 " />
+                                              </div>
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                              <p className="font-medium text-slate-900 dark:text-white truncate">
+                                                {p.name}
+                                              </p>
+                                              <p className="text-xs text-slate-700 dark:text-slate-300 truncate">
+                                                {p.product_id} • Stock{" "}
+                                                {p.quantity_in_stock} • KES{" "}
+                                                {p.selling_price.toLocaleString()}
+                                              </p>
+                                            </div>
+                                          </button>
+                                        ))}
+                                        {filtered.length > 15 && (
+                                          <div className="px-3 py-2 text-xs text-center text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700">
+                                            + {filtered.length - 15} more
+                                            results
+                                          </div>
+                                        )}
+
+                                        {/* Quick Add Product Button - Always Show at Bottom */}
+                                        <div className="border-t-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setQuickProductName(
+                                                li.searchTerm,
+                                              );
+                                              setShowQuickAddProduct(true);
+                                              updateLine(li.id, {
+                                                showDropdown: false,
+                                              });
+                                            }}
+                                            className="w-full px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-bold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
+                                          >
+                                            <Plus className="w-5 h-5" />
+                                            <span>
+                                              Product Not Here? Add "
+                                              {li.searchTerm}" to Inventory
+                                            </span>
+                                          </button>
                                         </div>
-                                      </button>
-                                    ))}
-                                    {filtered.length > 15 && (
-                                      <div className="px-3 py-2 text-xs text-center text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700">
-                                        + {filtered.length - 15} more results
                                       </div>
                                     )}
 
-                                    {/* Quick Add Product Button - Always Show at Bottom */}
-                                    <div className="border-t-2 border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3">
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setQuickProductName(li.searchTerm);
-                                          setShowQuickAddProduct(true);
-                                          updateLine(li.id, {
-                                            showDropdown: false,
-                                          });
-                                        }}
-                                        className="w-full px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-bold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
-                                      >
-                                        <Plus className="w-5 h-5" />
-                                        <span>
-                                          Product Not Here? Add "{li.searchTerm}
-                                          " to Inventory
-                                        </span>
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
+                                    {/* No Results */}
+                                    {li.searchTerm && filtered.length === 0 && (
+                                      <div className="p-4 space-y-3">
+                                        {/* Add Product Button at Top */}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setQuickProductName(li.searchTerm);
+                                            setShowQuickAddProduct(true);
+                                            updateLine(li.id, {
+                                              showDropdown: false,
+                                            });
+                                          }}
+                                          className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold text-base transition-all shadow-lg flex items-center justify-center space-x-2 border-2 border-green-500"
+                                        >
+                                          <Plus className="w-5 h-5" />
+                                          <span>
+                                            Add "{li.searchTerm}" to Inventory
+                                          </span>
+                                        </button>
 
-                                {/* No Results */}
-                                {li.searchTerm && filtered.length === 0 && (
-                                  <div className="p-4 space-y-3">
-                                    {/* Add Product Button at Top */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setQuickProductName(li.searchTerm);
-                                        setShowQuickAddProduct(true);
-                                        updateLine(li.id, {
-                                          showDropdown: false,
-                                        });
-                                      }}
-                                      className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl font-bold text-base transition-all shadow-lg flex items-center justify-center space-x-2 border-2 border-green-500"
-                                    >
-                                      <Plus className="w-5 h-5" />
-                                      <span>
-                                        Add "{li.searchTerm}" to Inventory
-                                      </span>
-                                    </button>
+                                        {/* No Results Message */}
+                                        <div className="text-center text-slate-700 dark:text-slate-300 text-sm">
+                                          <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
+                                          <p className="font-medium">
+                                            No products found
+                                          </p>
+                                          <p className="text-xs mt-1">
+                                            Product not in inventory? Click
+                                            button above to add it
+                                          </p>
+                                        </div>
 
-                                    {/* No Results Message */}
-                                    <div className="text-center text-slate-700 dark:text-slate-300 text-sm">
-                                      <Search className="w-8 h-8 mx-auto mb-2 text-slate-500" />
-                                      <p className="font-medium">
-                                        No products found
-                                      </p>
-                                      <p className="text-xs mt-1">
-                                        Product not in inventory? Click button
-                                        above to add it
-                                      </p>
-                                    </div>
-
-                                    {/* Duplicate Add Button at Bottom for convenience */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setQuickProductName(li.searchTerm);
-                                        setShowQuickAddProduct(true);
-                                        updateLine(li.id, {
-                                          showDropdown: false,
-                                        });
-                                      }}
-                                      className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
-                                    >
-                                      <Plus className="w-4 h-4" />
-                                      <span>
-                                        Add "{li.searchTerm}" to Inventory
-                                      </span>
-                                    </button>
+                                        {/* Duplicate Add Button at Bottom for convenience */}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setQuickProductName(li.searchTerm);
+                                            setShowQuickAddProduct(true);
+                                            updateLine(li.id, {
+                                              showDropdown: false,
+                                            });
+                                          }}
+                                          className="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg font-semibold text-sm transition-all shadow-lg flex items-center justify-center space-x-2"
+                                        >
+                                          <Plus className="w-4 h-4" />
+                                          <span>
+                                            Add "{li.searchTerm}" to Inventory
+                                          </span>
+                                        </button>
+                                      </div>
+                                    )}
                                   </div>
                                 )}
                               </div>
-                            )}
-                          </div>
-                        </div>
+                            </div>
 
-                        {/* Quantity */}
-                        <div>
-                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Quantity *
-                          </label>
-                          <div className="space-y-2">
-                            <input
-                              type="number"
-                              min={1}
-                              value={li.quantity}
-                              onChange={(e) =>
-                                updateLine(li.id, { quantity: e.target.value })
-                              }
-                              className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
-                              placeholder="Qty"
-                            />
-                            {/* Quick Quantity Buttons */}
-                            <div className="grid grid-cols-5 gap-1">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = parseInt(li.quantity || "1");
+                            {/* Quantity */}
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                Quantity *
+                              </label>
+                              <div className="space-y-2">
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={li.quantity}
+                                  onChange={(e) =>
+                                    updateLine(li.id, {
+                                      quantity: e.target.value,
+                                    })
+                                  }
+                                  className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                                  placeholder="Qty"
+                                />
+                                {/* Quick Quantity Buttons */}
+                                <div className="grid grid-cols-5 gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = parseInt(
+                                        li.quantity || "1",
+                                      );
+                                      updateLine(li.id, {
+                                        quantity: String(
+                                          Math.max(1, current - 1),
+                                        ),
+                                      });
+                                    }}
+                                    className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
+                                    style={{
+                                      touchAction: "manipulation",
+                                      WebkitTapHighlightColor:
+                                        "rgba(139, 92, 246, 0.3)",
+                                    }}
+                                  >
+                                    -1
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = parseInt(
+                                        li.quantity || "1",
+                                      );
+                                      updateLine(li.id, {
+                                        quantity: String(current + 1),
+                                      });
+                                    }}
+                                    className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
+                                    style={{
+                                      touchAction: "manipulation",
+                                      WebkitTapHighlightColor:
+                                        "rgba(139, 92, 246, 0.3)",
+                                    }}
+                                  >
+                                    +1
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = parseInt(
+                                        li.quantity || "1",
+                                      );
+                                      updateLine(li.id, {
+                                        quantity: String(current * 2),
+                                      });
+                                    }}
+                                    className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
+                                    style={{
+                                      touchAction: "manipulation",
+                                      WebkitTapHighlightColor:
+                                        "rgba(139, 92, 246, 0.3)",
+                                    }}
+                                  >
+                                    ×2
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = parseInt(
+                                        li.quantity || "1",
+                                      );
+                                      updateLine(li.id, {
+                                        quantity: String(current * 5),
+                                      });
+                                    }}
+                                    className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
+                                    style={{
+                                      touchAction: "manipulation",
+                                      WebkitTapHighlightColor:
+                                        "rgba(139, 92, 246, 0.3)",
+                                    }}
+                                  >
+                                    ×5
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const current = parseInt(
+                                        li.quantity || "1",
+                                      );
+                                      updateLine(li.id, {
+                                        quantity: String(current * 10),
+                                      });
+                                    }}
+                                    className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
+                                    style={{
+                                      touchAction: "manipulation",
+                                      WebkitTapHighlightColor:
+                                        "rgba(139, 92, 246, 0.3)",
+                                    }}
+                                  >
+                                    ×10
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Discount Type */}
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                Discount Type
+                              </label>
+                              <select
+                                value={li.discount_type}
+                                onChange={(e) =>
                                   updateLine(li.id, {
-                                    quantity: String(Math.max(1, current - 1)),
-                                  });
-                                }}
-                                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
-                                style={{
-                                  touchAction: "manipulation",
-                                  WebkitTapHighlightColor:
-                                    "rgba(139, 92, 246, 0.3)",
-                                }}
+                                    discount_type: e.target
+                                      .value as DiscountType,
+                                    discount_value: "",
+                                  })
+                                }
+                                className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
                               >
-                                -1
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = parseInt(li.quantity || "1");
+                                <option
+                                  value="none"
+                                  className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                                >
+                                  None
+                                </option>
+                                <option
+                                  value="percentage"
+                                  className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                                >
+                                  Percentage (%)
+                                </option>
+                                <option
+                                  value="amount"
+                                  className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                                >
+                                  Amount (KES)
+                                </option>
+                              </select>
+                            </div>
+
+                            {/* Discount Value */}
+                            <div>
+                              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                Discount Value
+                              </label>
+                              <input
+                                type="number"
+                                disabled={li.discount_type === "none"}
+                                value={li.discount_value}
+                                onChange={(e) =>
                                   updateLine(li.id, {
-                                    quantity: String(current + 1),
-                                  });
-                                }}
-                                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
-                                style={{
-                                  touchAction: "manipulation",
-                                  WebkitTapHighlightColor:
-                                    "rgba(139, 92, 246, 0.3)",
-                                }}
-                              >
-                                +1
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = parseInt(li.quantity || "1");
-                                  updateLine(li.id, {
-                                    quantity: String(current * 2),
-                                  });
-                                }}
-                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                style={{
-                                  touchAction: "manipulation",
-                                  WebkitTapHighlightColor:
-                                    "rgba(139, 92, 246, 0.3)",
-                                }}
-                              >
-                                ×2
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = parseInt(li.quantity || "1");
-                                  updateLine(li.id, {
-                                    quantity: String(current * 5),
-                                  });
-                                }}
-                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                style={{
-                                  touchAction: "manipulation",
-                                  WebkitTapHighlightColor:
-                                    "rgba(139, 92, 246, 0.3)",
-                                }}
-                              >
-                                ×5
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const current = parseInt(li.quantity || "1");
-                                  updateLine(li.id, {
-                                    quantity: String(current * 10),
-                                  });
-                                }}
-                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
-                                style={{
-                                  touchAction: "manipulation",
-                                  WebkitTapHighlightColor:
-                                    "rgba(139, 92, 246, 0.3)",
-                                }}
-                              >
-                                ×10
-                              </button>
+                                    discount_value: e.target.value,
+                                  })
+                                }
+                                min="0"
+                                max={
+                                  li.discount_type === "percentage"
+                                    ? 100
+                                    : undefined
+                                }
+                                step={
+                                  li.discount_type === "percentage"
+                                    ? "0.01"
+                                    : "1"
+                                }
+                                className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                placeholder={
+                                  li.discount_type === "percentage"
+                                    ? "10"
+                                    : "100"
+                                }
+                              />
                             </div>
                           </div>
-                        </div>
 
-                        {/* Discount Type */}
-                        <div>
-                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Discount Type
-                          </label>
-                          <select
-                            value={li.discount_type}
-                            onChange={(e) =>
-                              updateLine(li.id, {
-                                discount_type: e.target.value as DiscountType,
-                                discount_value: "",
-                              })
-                            }
-                            className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
+                          {/* Line Summary */}
+                          {product && comp.quantity > 0 && (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
+                              <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-2 border border-slate-200 dark:border-slate-700">
+                                <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                                  Original
+                                </span>
+                                <span className="font-bold text-slate-700 dark:text-slate-300">
+                                  KES {comp.original_total.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-2 border border-red-200 dark:border-red-800">
+                                <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
+                                  Discount
+                                </span>
+                                <span className="font-bold text-red-600 dark:text-red-400">
+                                  {comp.discount_amount > 0
+                                    ? "-" +
+                                      comp.discount_amount.toLocaleString()
+                                    : "-"}
+                                </span>
+                              </div>
+                              <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
+                                <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
+                                  Line Total
+                                </span>
+                                <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                                  KES {comp.final_total.toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
+                                <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
+                                  Profit Est.
+                                </span>
+                                <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                                  KES {comp.profit.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Add Line Button */}
+                  <button
+                    type="button"
+                    onClick={addLine}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Product Line</span>
+                  </button>
+                </div>
+              </div>
+              {/* End LEFT COLUMN */}
+
+              {/* RIGHT COLUMN - Sale Info, Discount, Summary, Actions */}
+              <div className="space-y-2">
+                {/* Staff & Payment - Sale Information */}
+                {!quickSaleMode && (
+                  <div className="bg-white dark:bg-slate-700 rounded-xl p-2 border border-slate-200 dark:border-slate-600 shadow-sm">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center space-x-2">
+                      <span>📋</span>
+                      <span>Sale Information</span>
+                    </h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                          Sold By (Staff) *
+                        </label>
+                        <select
+                          required
+                          value={soldBy}
+                          onChange={(e) => setSoldBy(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                        >
+                          <option
+                            value=""
+                            className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                           >
+                            -- Select Staff Member --
+                          </option>
+                          {staffMembers.map((s) => (
                             <option
-                              value="none"
+                              key={s}
+                              value={s}
                               className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                             >
-                              None
+                              {s}
                             </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                          Payment Method *
+                        </label>
+                        <select
+                          value={paymentMethod}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                        >
+                          {paymentMethods.map((m) => (
                             <option
-                              value="percentage"
+                              key={m}
+                              value={m}
                               className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
                             >
-                              Percentage (%)
+                              {m}
                             </option>
-                            <option
-                              value="amount"
-                              className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                            >
-                              Amount (KES)
-                            </option>
-                          </select>
-                        </div>
+                          ))}
+                        </select>
+                      </div>
 
-                        {/* Discount Value */}
+                      {/* Customer Name */}
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                          Customer Name (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                          placeholder="Walk-in Customer"
+                        />
+                      </div>
+
+                      {/* Payment Status */}
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                          Payment Status *
+                        </label>
+                        <select
+                          value={paymentStatus}
+                          onChange={(e) =>
+                            setPaymentStatus(
+                              e.target.value as "paid" | "not_paid" | "partial",
+                            )
+                          }
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                        >
+                          <option value="paid">Paid</option>
+                          <option value="partial">Partial Payment</option>
+                          <option value="not_paid">Not Paid</option>
+                        </select>
+                      </div>
+
+                      {/* Amount Paid - Only show for partial payment */}
+                      {paymentStatus === "partial" && (
                         <div>
-                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                            Discount Value
+                          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                            Amount Paid *
                           </label>
                           <input
                             type="number"
-                            disabled={li.discount_type === "none"}
-                            value={li.discount_value}
-                            onChange={(e) =>
-                              updateLine(li.id, {
-                                discount_value: e.target.value,
-                              })
-                            }
+                            value={amountPaid}
+                            onChange={(e) => setAmountPaid(e.target.value)}
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
+                            placeholder="Enter amount paid"
+                            step="0.01"
                             min="0"
-                            max={
-                              li.discount_type === "percentage"
-                                ? 100
-                                : undefined
-                            }
-                            step={
-                              li.discount_type === "percentage" ? "0.01" : "1"
-                            }
-                            className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                            placeholder={
-                              li.discount_type === "percentage" ? "10" : "100"
-                            }
                           />
-                        </div>
-                      </div>
-
-                      {/* Line Summary */}
-                      {product && comp.quantity > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
-                          <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-2 border border-slate-200 dark:border-slate-700">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
-                              Original
-                            </span>
-                            <span className="font-bold text-slate-700 dark:text-slate-300">
-                              KES {comp.original_total.toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="bg-red-50 dark:bg-red-900/20 rounded-md p-2 border border-red-200 dark:border-red-800">
-                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
-                              Discount
-                            </span>
-                            <span className="font-bold text-red-600 dark:text-red-400">
-                              {comp.discount_amount > 0
-                                ? "-" + comp.discount_amount.toLocaleString()
-                                : "-"}
-                            </span>
-                          </div>
-                          <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
-                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
-                              Line Total
-                            </span>
-                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                              KES {comp.final_total.toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
-                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
-                              Profit Est.
-                            </span>
-                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                              KES {comp.profit.toLocaleString()}
-                            </span>
-                          </div>
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                )}
 
-              {/* Add Line Button */}
-              <button
-                type="button"
-                onClick={addLine}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Product Line</span>
-              </button>
-            </div>
+                {/* Quick Mode Info Banner */}
+                {quickSaleMode && (
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 flex items-center space-x-2">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-600/30 rounded-full flex items-center justify-center">
+                      <span className="text-lg">💨</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-green-700 dark:text-green-300">
+                        Quick Sale Active
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        Till Number • Khalid
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-            {/* Overall Discount Section */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Overall Discount (Applied to Total)
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                    Discount Type
-                  </label>
-                  <select
-                    value={overallDiscountType}
-                    onChange={(e) => {
-                      setOverallDiscountType(e.target.value as DiscountType);
-                      setOverallDiscountValue("");
-                    }}
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                {/* Overall Discount Section */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Overall Discount (Applied to Total)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                        Discount Type
+                      </label>
+                      <select
+                        value={overallDiscountType}
+                        onChange={(e) => {
+                          setOverallDiscountType(
+                            e.target.value as DiscountType,
+                          );
+                          setOverallDiscountValue("");
+                        }}
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                      >
+                        <option
+                          value="none"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          No Overall Discount
+                        </option>
+                        <option
+                          value="percentage"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          Percentage (%)
+                        </option>
+                        <option
+                          value="amount"
+                          className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
+                        >
+                          Fixed Amount (KES)
+                        </option>
+                      </select>
+                    </div>
+                    {overallDiscountType !== "none" && (
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                          Discount Value
+                        </label>
+                        <input
+                          type="number"
+                          value={overallDiscountValue}
+                          onChange={(e) =>
+                            setOverallDiscountValue(e.target.value)
+                          }
+                          min="0"
+                          max={
+                            overallDiscountType === "percentage"
+                              ? 100
+                              : undefined
+                          }
+                          step={
+                            overallDiscountType === "percentage" ? "0.01" : "1"
+                          }
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                          placeholder={
+                            overallDiscountType === "percentage"
+                              ? "e.g., 10 for 10%"
+                              : "e.g., 500 for KES 500"
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Overall Totals */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Sale Summary
+                  </h4>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">
+                        Subtotal
+                      </span>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        KES {subtotal.toLocaleString()}
+                      </span>
+                    </div>
+                    {total_line_discount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Line Discounts
+                        </span>
+                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                          -KES {total_line_discount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    {overallDiscountAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Overall Discount
+                          {overallDiscountType === "percentage" &&
+                            ` (${overallDiscountValue}%)`}
+                        </span>
+                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                          -KES {overallDiscountAmount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        Total Amount
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        KES {total.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <span className="text-slate-500 dark:text-slate-500">
+                        Estimated Profit
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-500">
+                        KES {total_profit.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row justify-end items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setShowDrafts(!showDrafts)}
+                    className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                   >
-                    <option
-                      value="none"
-                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                    >
-                      No Overall Discount
-                    </option>
-                    <option
-                      value="percentage"
-                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                    >
-                      Percentage (%)
-                    </option>
-                    <option
-                      value="amount"
-                      className="bg-white dark:bg-slate-700 text-slate-800 dark:text-white"
-                    >
-                      Fixed Amount (KES)
-                    </option>
-                  </select>
-                </div>
-                {overallDiscountType !== "none" && (
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                      Discount Value
-                    </label>
-                    <input
-                      type="number"
-                      value={overallDiscountValue}
-                      onChange={(e) => setOverallDiscountValue(e.target.value)}
-                      min="0"
-                      max={
-                        overallDiscountType === "percentage" ? 100 : undefined
-                      }
-                      step={overallDiscountType === "percentage" ? "0.01" : "1"}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                      placeholder={
-                        overallDiscountType === "percentage"
-                          ? "e.g., 10 for 10%"
-                          : "e.g., 500 for KES 500"
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Overall Totals */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Sale Summary
-              </h4>
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">
-                    Subtotal
-                  </span>
-                  <span className="font-medium text-slate-900 dark:text-white">
-                    KES {subtotal.toLocaleString()}
-                  </span>
-                </div>
-                {total_line_discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Line Discounts
-                    </span>
-                    <span className="font-medium text-rose-600 dark:text-rose-400">
-                      -KES {total_line_discount.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                {overallDiscountAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Overall Discount
-                      {overallDiscountType === "percentage" &&
-                        ` (${overallDiscountValue}%)`}
-                    </span>
-                    <span className="font-medium text-rose-600 dark:text-rose-400">
-                      -KES {overallDiscountAmount.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between text-base border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
-                  <span className="font-semibold text-slate-900 dark:text-white">
-                    Total Amount
-                  </span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
-                    KES {total.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 dark:text-slate-500">
-                    Estimated Profit
-                  </span>
-                  <span className="text-emerald-600 dark:text-emerald-500">
-                    KES {total_profit.toLocaleString()}
-                  </span>
+                    <Clock className="w-4 h-4" />
+                    <span>Drafts ({savedDrafts.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveDraft}
+                    className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                  >
+                    <span>💾</span>
+                    <span>Save Draft</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-full sm:w-auto px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      "Complete Sale"
+                    )}
+                  </button>
                 </div>
               </div>
+              {/* End RIGHT COLUMN */}
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => setShowDrafts(!showDrafts)}
-                className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                <Clock className="w-4 h-4" />
-                <span>Drafts ({savedDrafts.length})</span>
-              </button>
-              <button
-                type="button"
-                onClick={saveDraft}
-                className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                <span>💾</span>
-                <span>Save Draft</span>
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
-              >
-                {submitting ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  "Complete Sale"
-                )}
-              </button>
-            </div>
+            {/* End Two Column Layout */}
           </form>
         )}
       </div>
