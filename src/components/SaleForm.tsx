@@ -1205,10 +1205,10 @@ export default function SaleForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-slate-300 dark:border-slate-700 flex flex-col touch-auto">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-2 touch-pan-y">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[98vh] overflow-hidden border border-slate-300 dark:border-slate-700 flex flex-col touch-auto">
         {/* Header - Fixed */}
-        <div className="bg-slate-50 dark:bg-slate-800 px-6 py-4 flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
+        <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
@@ -1419,11 +1419,11 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-slate-50 dark:bg-slate-900"
+            className="flex-1 overflow-y-auto touch-scroll p-2 sm:p-3 space-y-2 bg-slate-50 dark:bg-slate-900"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Keyboard Shortcuts Help Banner */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5">
               <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
                 <span className="font-medium text-slate-700 dark:text-slate-300">
                   Shortcuts:
@@ -1589,21 +1589,21 @@ export default function SaleForm({
 
             {/* Staff & Payment - Moved to top for better UX */}
             {!quickSaleMode && (
-              <div className="bg-white dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600 shadow-sm">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
+              <div className="bg-white dark:bg-slate-700 rounded-xl p-2 border border-slate-200 dark:border-slate-600 shadow-sm">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center space-x-2">
                   <span>📋</span>
                   <span>Sale Information</span>
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Sold By (Staff) *
                     </label>
                     <select
                       required
                       value={soldBy}
                       onChange={(e) => setSoldBy(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
                     >
                       <option
                         value=""
@@ -1623,13 +1623,13 @@ export default function SaleForm({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Payment Method *
                     </label>
                     <select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white text-sm focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
                     >
                       {paymentMethods.map((m) => (
                         <option
@@ -1645,7 +1645,7 @@ export default function SaleForm({
 
                   {/* Customer Name */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Customer Name (Optional)
                     </label>
                     <input
@@ -1834,7 +1834,7 @@ export default function SaleForm({
                 </h4>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {lineItems.map((li, idx) => {
                   const product = productById(li.product_id);
                   const comp = computed.find((c) => c.line.id === li.id)!;
@@ -1931,7 +1931,7 @@ export default function SaleForm({
                     <div
                       key={li.id}
                       ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                      className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 space-y-2 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
@@ -1956,10 +1956,10 @@ export default function SaleForm({
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
                         {/* Product Search */}
                         <div className="sm:col-span-2">
-                          <label className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                          <label className="flex items-center text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                             <span className="mr-2">🔍</span>
                             Product *{" "}
                             {autocompleteSuggestion && (
@@ -1999,7 +1999,7 @@ export default function SaleForm({
                                 updateLine(li.id, { showDropdown: true })
                               }
                               placeholder="Type to search products..."
-                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-base text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all relative z-10 font-medium hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
+                              className="w-full pl-10 pr-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all relative z-10 font-medium hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
                               style={{ background: "transparent" }}
                             />
 
@@ -2462,13 +2462,13 @@ export default function SaleForm({
             </div>
 
             {/* Overall Discount Section */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+            <div className="bg-white dark:bg-slate-800 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Overall Discount (Applied to Total)
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Discount Type
                   </label>
                   <select
@@ -2501,7 +2501,7 @@ export default function SaleForm({
                 </div>
                 {overallDiscountType !== "none" && (
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Discount Value
                     </label>
                     <input
@@ -2526,11 +2526,11 @@ export default function SaleForm({
             </div>
 
             {/* Overall Totals */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+            <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Sale Summary
               </h4>
-              <div className="space-y-2.5">
+              <div className="space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">
                     Subtotal
@@ -2581,7 +2581,7 @@ export default function SaleForm({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col sm:flex-row justify-end items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setShowDrafts(!showDrafts)}

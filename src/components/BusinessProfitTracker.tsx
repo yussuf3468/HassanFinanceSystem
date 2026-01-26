@@ -12,7 +12,10 @@ import {
   Wallet,
   ShoppingBag,
   Users,
+  FileText,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { formatDate } from "../utils/dateFormatter";
@@ -322,6 +325,296 @@ export default function BusinessProfitTracker() {
     })}`;
   };
 
+  const generatePDFReport = () => {
+    if (!results) {
+      alert("Please calculate results first!");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Shop Profit Analysis Report", pageWidth / 2, yPos, {
+      align: "center",
+    });
+
+    yPos += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+      pageWidth / 2,
+      yPos,
+      { align: "center" },
+    );
+
+    yPos += 15;
+
+    // Business Inputs Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Business Inputs", 14, yPos);
+    yPos += 8;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+
+    const initialInvestment = parseFloat(formData.initialInvestment) || 0;
+    const currentStockValue = parseFloat(formData.currentStock) || 0;
+    const cashInStore = parseFloat(formData.cash) || 0;
+    const outstandingDebts = parseFloat(formData.debts) || 0;
+    const investorAmount = parseFloat(formData.investorAmount) || 0;
+
+    const inputsData = [
+      ["Initial Investment", formatKES(initialInvestment)],
+      ["Current Stock Value", formatKES(currentStockValue)],
+      ["Cash in Store/M-Pesa", formatKES(cashInStore)],
+      ["Outstanding Debts", formatKES(outstandingDebts)],
+      ["Investor Amount", formatKES(investorAmount)],
+    ];
+
+    (doc as any).autoTable({
+      startY: yPos,
+      head: [["Input", "Amount"]],
+      body: inputsData,
+      theme: "striped",
+      headStyles: { fillColor: [16, 185, 129] },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+
+    // Profit Analysis Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Profit Analysis Results", 14, yPos);
+    yPos += 8;
+
+    const totalAssets = results.capitalComparison;
+    const netWorth = results.netProfit;
+    const realProfit = results.pureProfit;
+
+    const resultsData = [
+      ["Total Assets", formatKES(totalAssets), "Stock + Cash"],
+      ["Net Worth", formatKES(netWorth), "Assets - Debts"],
+      ["Real Profit", formatKES(realProfit), "Net Worth - Investment"],
+      ["Status", results.status, realProfit >= 0 ? "✓ Profitable" : "✗ Loss"],
+    ];
+
+    (doc as any).autoTable({
+      startY: yPos,
+      head: [["Metric", "Amount", "Calculation"]],
+      body: resultsData,
+      theme: "grid",
+      headStyles: { fillColor: [59, 130, 246] },
+      bodyStyles: {
+        cellPadding: 3,
+      },
+      columnStyles: {
+        2: { fontStyle: "italic", textColor: [100, 100, 100] },
+      },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+
+    // Detailed Explanation Section
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Detailed Explanation", 14, yPos);
+    yPos += 8;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+
+    const explanations = [
+      "1. TOTAL ASSETS CALCULATION:",
+      `   Current Stock: ${formatKES(currentStockValue)}`,
+      `   Cash in Store: ${formatKES(cashInStore)}`,
+      `   Total Assets = ${formatKES(totalAssets)}`,
+      "",
+      "2. NET WORTH CALCULATION:",
+      `   Total Assets: ${formatKES(totalAssets)}`,
+      `   Outstanding Debts: ${formatKES(outstandingDebts)}`,
+      `   Net Worth = ${formatKES(netWorth)}`,
+      "",
+      "3. REAL PROFIT CALCULATION:",
+      `   Net Worth Today: ${formatKES(netWorth)}`,
+      `   Initial Investment: ${formatKES(initialInvestment)}`,
+      `   Real Profit = ${formatKES(realProfit)}`,
+      "",
+      "INTERPRETATION:",
+      realProfit >= 0
+        ? `✓ Your business is PROFITABLE! You have gained ${formatKES(
+            Math.abs(realProfit),
+          )} above your initial investment.`
+        : `✗ Your business is at a LOSS. You are ${formatKES(
+            Math.abs(realProfit),
+          )} below your initial investment.`,
+    ];
+
+    explanations.forEach((line) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, 14, yPos);
+      yPos += 6;
+    });
+
+    // Why This Happened Section
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    yPos += 5;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Why This Happened", 14, yPos);
+    yPos += 8;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+
+    const reasons = [];
+
+    if (realProfit > 0) {
+      reasons.push("POSITIVE FACTORS:");
+      if (currentStockValue > initialInvestment * 0.7) {
+        reasons.push("• Strong inventory value maintained");
+      }
+      if (cashInStore > initialInvestment * 0.3) {
+        reasons.push("• Good cash flow generation");
+      }
+      if (outstandingDebts < initialInvestment * 0.2) {
+        reasons.push("• Low debt burden");
+      }
+      reasons.push("• Effective business operations");
+      reasons.push("• Positive return on investment");
+    } else {
+      reasons.push("CHALLENGES IDENTIFIED:");
+      if (currentStockValue < initialInvestment * 0.5) {
+        reasons.push("• Inventory value has decreased significantly");
+      }
+      if (cashInStore < initialInvestment * 0.2) {
+        reasons.push("• Low cash reserves");
+      }
+      if (outstandingDebts > initialInvestment * 0.3) {
+        reasons.push("• High debt burden affecting net worth");
+      }
+      if (totalAssets < initialInvestment) {
+        reasons.push("• Total business assets below initial capital");
+      }
+    }
+
+    reasons.forEach((line) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(line, 14, yPos);
+      yPos += 6;
+    });
+
+    // Investor Information (if applicable)
+    if (investorAmount > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      yPos += 10;
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Investor Information", 14, yPos);
+      yPos += 8;
+
+      const investorData = [
+        ["Investor Investment", formatKES(investorAmount)],
+        ["Ownership Percentage", `${results.investorOwnership.toFixed(2)}%`],
+        ["Profit Share", formatKES(results.investorProfitShare)],
+      ];
+
+      (doc as any).autoTable({
+        startY: yPos,
+        head: [["Investor Metric", "Value"]],
+        body: investorData,
+        theme: "striped",
+        headStyles: { fillColor: [168, 85, 247] },
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 8;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.text(
+        `Investor owns ${results.investorOwnership.toFixed(
+          2,
+        )}% of the business and`,
+        14,
+        yPos,
+      );
+      yPos += 5;
+      doc.text(
+        `${
+          results.investorProfitShare >= 0 ? "gains" : "shares the loss of"
+        } ${formatKES(Math.abs(results.investorProfitShare))}`,
+        14,
+        yPos,
+      );
+    }
+
+    // Notes Section
+    if (formData.notes) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      yPos += 10;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Notes:", 14, yPos);
+      yPos += 6;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      const splitNotes = doc.splitTextToSize(formData.notes, pageWidth - 28);
+      splitNotes.forEach((line: string) => {
+        if (yPos > 280) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(line, 14, yPos);
+        yPos += 5;
+      });
+    }
+
+    // Footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(150);
+      doc.text(
+        `Page ${i} of ${pageCount} | Hassan Bookshop Profit Tracker`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: "center" },
+      );
+    }
+
+    // Save the PDF
+    const fileName = `Profit_Report_${
+      new Date().toISOString().split("T")[0]
+    }_${new Date().getTime()}.pdf`;
+    doc.save(fileName);
+  };
+
   return (
     <>
       <div className="max-w-7xl mx-auto p-3 sm:p-6">
@@ -489,6 +782,13 @@ export default function BusinessProfitTracker() {
                       >
                         <History className="w-4 h-4" />
                         Cloud Save
+                      </button>
+                      <button
+                        onClick={generatePDFReport}
+                        className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors flex items-center gap-2 font-semibold text-sm"
+                      >
+                        <FileText className="w-4 h-4" />
+                        PDF Report
                       </button>
                     </div>
                   </div>
