@@ -26,6 +26,7 @@ import QueryDiagnostics from "./components/QueryDiagnostics";
 import StaffDashboard from "./components/StaffDashboard";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import OrganizedInventory from "./components/OrganizedInventory";
+import BusinessProfitTracker from "./components/BusinessProfitTracker";
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
@@ -133,6 +134,7 @@ function AppContent() {
         {activeTab === "debts" && <DebtManagement />}
         {activeTab === "customer-credit" && <CustomerCredit />}
         {activeTab === "cyber-services" && <CyberServices />}
+        {activeTab === "business-profit" && <BusinessProfitTracker />}
       </Layout>
 
       {/* PWA Install Prompt for iOS and Android */}

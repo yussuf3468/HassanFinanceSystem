@@ -24,6 +24,7 @@ import {
   Layers,
   Moon,
   Sun,
+  Calculator,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -162,6 +163,12 @@ export default function Layout({
       label: "Warbixinnada",
       icon: FileText,
       color: "from-amber-500 to-amber-600",
+    },
+    {
+      id: "business-profit",
+      label: "Business Profit Tracker",
+      icon: Calculator,
+      color: "from-emerald-600 to-teal-600",
     },
     {
       id: "orders",
