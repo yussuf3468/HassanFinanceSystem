@@ -2374,7 +2374,7 @@ export default function SaleForm({
               {/* End LEFT COLUMN */}
 
               {/* RIGHT COLUMN - Discount, Summary, Actions */}
-              <div className="space-y-3">
+              <div className="space-y-3 flex flex-col h-full">
                 {/* Overall Discount Section */}
                 <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-700 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-600 shadow-lg">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center space-x-2 pb-3 border-b border-slate-200 dark:border-slate-600">
@@ -2449,7 +2449,7 @@ export default function SaleForm({
                 </div>
 
                 {/* Overall Totals */}
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg">
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg flex-1 flex flex-col">
                   <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center space-x-2 pb-3 border-b border-emerald-200 dark:border-emerald-700">
                     <span className="text-lg">💰</span>
                     <span>Summary</span>
