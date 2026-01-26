@@ -102,7 +102,7 @@ export default function SaleForm({
   const [overallDiscountValue, setOverallDiscountValue] = useState("");
 
   // Quick Sale Mode - Skip payment method selection
-  const [quickSaleMode, setQuickSaleMode] = useState(false);
+  const [quickSaleMode, setQuickSaleMode] = useState(true);
 
   // Sale Drafts
   const [showDrafts, setShowDrafts] = useState(false);
@@ -1566,35 +1566,6 @@ export default function SaleForm({
                   </h3>
                 </div>
 
-                {/* Quick Sale Mode Toggle */}
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl">⚡</span>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">
-                        Quick Sale Mode
-                      </p>
-                      <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                        Skip payment selection for faster checkout
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuickSaleMode(!quickSaleMode);
-                      if (!quickSaleMode) {
-                        setSoldBy("Khalid");
-                        setPaymentMethod("Till Number");
-                      }
-                    }}
-                    className="relative inline-flex h-8 w-14 items-center rounded-full transition-colors touch-manipulation active:scale-95 bg-green-600"
-                    style={{ WebkitTapHighlightColor: "rgba(34,197,94,0.3)" }}
-                  >
-                    <span className="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-7" />
-                  </button>
-                </div>
-
                 <div className="space-y-2">
                   {lineItems.map((li, idx) => {
                     const product = productById(li.product_id);
@@ -2236,6 +2207,24 @@ export default function SaleForm({
                   <Plus className="w-4 h-4" />
                   <span>Add Product Line</span>
                 </button>
+
+                {/* Quick Sale Mode - Always Active */}
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl">⚡</span>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        Quick Sale Mode
+                      </p>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                        Skip payment selection for faster checkout
+                      </p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-full">
+                    ACTIVE
+                  </div>
+                </div>
 
                 {/* Quick Mode Info Banner */}
                 {quickSaleMode && (
