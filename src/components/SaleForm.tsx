@@ -1984,49 +1984,6 @@ export default function SaleForm({
                                 className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
                                 placeholder="Qty"
                               />
-                              {/* Quick Quantity Buttons */}
-                              <div className="grid grid-cols-5 gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = parseInt(
-                                      li.quantity || "1",
-                                    );
-                                    updateLine(li.id, {
-                                      quantity: String(
-                                        Math.max(1, current - 1),
-                                      ),
-                                    });
-                                  }}
-                                  className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
-                                  style={{
-                                    touchAction: "manipulation",
-                                    WebkitTapHighlightColor:
-                                      "rgba(139, 92, 246, 0.3)",
-                                  }}
-                                >
-                                  -1
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const current = parseInt(
-                                      li.quantity || "1",
-                                    );
-                                    updateLine(li.id, {
-                                      quantity: String(current + 1),
-                                    });
-                                  }}
-                                  className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
-                                  style={{
-                                    touchAction: "manipulation",
-                                    WebkitTapHighlightColor:
-                                      "rgba(139, 92, 246, 0.3)",
-                                  }}
-                                >
-                                  +1
-                                </button>
-                              </div>
                             </div>
                           </div>
 
@@ -2375,55 +2332,55 @@ export default function SaleForm({
                 </div>
 
                 {/* Overall Totals */}
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-5 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg flex-1 flex flex-col">
-                  <h3 className="text-base font-bold text-emerald-800 dark:text-emerald-200 mb-4 flex items-center space-x-2 pb-3 border-b border-emerald-200 dark:border-emerald-700">
-                    <span className="text-lg">💰</span>
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl p-6 border-2 border-emerald-200 dark:border-emerald-700 shadow-lg flex-1 flex flex-col">
+                  <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-200 mb-5 flex items-center space-x-2 pb-3 border-b-2 border-emerald-300 dark:border-emerald-600">
+                    <span className="text-xl">💰</span>
                     <span>Summary</span>
                   </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">
+                  <div className="space-y-4 flex-1">
+                    <div className="flex justify-between items-center text-base">
+                      <span className="text-slate-700 dark:text-slate-300 font-medium">
                         Subtotal
                       </span>
-                      <span className="font-medium text-slate-900 dark:text-white">
+                      <span className="font-semibold text-slate-900 dark:text-white text-lg">
                         KES {subtotal.toLocaleString()}
                       </span>
                     </div>
                     {total_line_discount > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600 dark:text-slate-400">
+                      <div className="flex justify-between items-center text-base">
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">
                           Line Discounts
                         </span>
-                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                        <span className="font-semibold text-rose-600 dark:text-rose-400 text-lg">
                           -KES {total_line_discount.toLocaleString()}
                         </span>
                       </div>
                     )}
                     {overallDiscountAmount > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600 dark:text-slate-400">
+                      <div className="flex justify-between items-center text-base">
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">
                           Overall Discount
                           {overallDiscountType === "percentage" &&
                             ` (${overallDiscountValue}%)`}
                         </span>
-                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                        <span className="font-semibold text-rose-600 dark:text-rose-400 text-lg">
                           -KES {overallDiscountAmount.toLocaleString()}
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between text-lg font-bold border-t-2 border-emerald-300 dark:border-emerald-600 pt-4 mt-2">
+                    <div className="flex justify-between items-center text-xl font-bold border-t-2 border-emerald-300 dark:border-emerald-600 pt-5 mt-auto">
                       <span className="text-emerald-800 dark:text-emerald-200">
                         Total Amount
                       </span>
-                      <span className="text-emerald-700 dark:text-emerald-300">
+                      <span className="text-emerald-600 dark:text-emerald-400">
                         KES {total.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm pt-2 border-t border-emerald-100 dark:border-emerald-900">
-                      <span className="text-emerald-700 dark:text-emerald-400">
+                    <div className="flex justify-between items-center text-base pt-3 border-t border-emerald-200 dark:border-emerald-800">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-medium">
                         Estimated Profit
                       </span>
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 text-lg">
                         KES {total_profit.toLocaleString()}
                       </span>
                     </div>
