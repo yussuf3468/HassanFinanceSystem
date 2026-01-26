@@ -170,12 +170,12 @@ export default function Layout({
       icon: Calculator,
       color: "from-emerald-600 to-teal-600",
     },
-    {
-      id: "orders",
-      label: "Dalabyada",
-      icon: ClipboardList,
-      color: "from-orange-600 to-amber-600",
-    },
+    // {
+    //   id: "orders",
+    //   label: "Dalabyada",
+    //   icon: ClipboardList,
+    //   color: "from-orange-600 to-amber-600",
+    // },
 
     // {
     //   id: "user-activity",

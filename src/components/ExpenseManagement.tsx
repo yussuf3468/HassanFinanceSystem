@@ -39,9 +39,7 @@ export default function ExpenseManagement() {
   const [expenses, setExpenses] = useState<ExpenseUI[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseUI | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState(
-    new Date().toISOString().slice(0, 7),
-  );
+
   const [tablesExist, setTablesExist] = useState(true);
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [seeding, setSeeding] = useState(false);
@@ -70,28 +68,16 @@ export default function ExpenseManagement() {
     return map;
   }, [categories]);
 
-  // Recompute UI expenses whenever expensesData, selectedMonth or category mapping changes.
-  // Including categoryIdToName in deps ensures names appear once categories are loaded.
+  // Recompute UI expenses whenever expensesData or category mapping changes.
+  // Show all expenses without date filtering.
   useEffect(() => {
     if (expensesData.length === 0) {
       setExpenses([]);
       return;
     }
 
-    const startDate = selectedMonth + "-01";
-    const endDate = new Date(selectedMonth + "-01");
-    endDate.setMonth(endDate.getMonth() + 1);
-
-    const filtered = expensesData.filter((exp) => {
-      const expDate = (exp as any).incurred_on as string | undefined;
-      if (!expDate) return false;
-      return (
-        expDate >= startDate && expDate < endDate.toISOString().split("T")[0]
-      );
-    });
-
-    // Map DB rows to UI model so fields like category/description/date match what the UI expects
-    const mapped: ExpenseUI[] = (filtered as DbExpense[]).map((row) => ({
+    // Map DB rows to UI model - show ALL expenses
+    const mapped: ExpenseUI[] = (expensesData as DbExpense[]).map((row) => ({
       id: row.id,
       category: row.category_id
         ? categoryIdToName.get(row.category_id) || ""
@@ -103,14 +89,10 @@ export default function ExpenseManagement() {
     }));
 
     setExpenses(mapped);
-  }, [expensesData, selectedMonth, categoryIdToName]);
+  }, [expensesData, categoryIdToName]);
 
   async function loadCategoriesAndExpenses() {
     try {
-      const startDate = selectedMonth + "-01";
-      const endDate = new Date(selectedMonth + "-01");
-      endDate.setMonth(endDate.getMonth() + 1);
-
       const [{ data: cats, error: catErr }, { data, error }] =
         await Promise.all([
           supabase
@@ -120,8 +102,6 @@ export default function ExpenseManagement() {
           supabase
             .from("expenses")
             .select("*")
-            .gte("incurred_on", startDate)
-            .lt("incurred_on", endDate.toISOString().split("T")[0])
             .order("incurred_on", { ascending: false }),
         ]);
 
@@ -165,12 +145,12 @@ export default function ExpenseManagement() {
     }
   }
 
-  // Load categories and expenses on mount and whenever the selected month changes.
+  // Load categories and expenses on mount.
   // This ensures categories are available before the UI mapping runs.
   useEffect(() => {
     loadCategoriesAndExpenses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMonth]);
+  }, []);
 
   async function seedDefaultCategories() {
     try {
@@ -317,8 +297,8 @@ export default function ExpenseManagement() {
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-br from-rose-500 to-amber-500 p-2.5 rounded-xl shadow-lg">
-                <Receipt className="w-6 h-6 text-white" />
+              <div className="bg-rose-100 dark:bg-rose-900/30 p-2.5 rounded-xl">
+                <Receipt className="w-6 h-6 text-rose-600 dark:text-rose-400" />
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
@@ -331,13 +311,6 @@ export default function ExpenseManagement() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <input
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="px-3 sm:px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm text-slate-800 dark:text-white"
-              />
-
               {categories.length === 0 && (
                 <button
                   type="button"
@@ -413,453 +386,359 @@ export default function ExpenseManagement() {
             </div>
           </div>
         </div>
-        {/* Stunning Expenses List */}
-        <div className="relative group">
-          {/* Glow Effect */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-purple-600 to-blue-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-          <div className="relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
-            <div className="relative p-4 sm:p-6 border-b border-amber-300/70 shadow-amber-100/50/60 shadow-sm bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
-                  <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 p-2 rounded-xl">
-                    <Receipt className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-                <h2 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
-                  📊 Expense Records
-                </h2>
-              </div>
-            </div>
+        {/* Expenses List */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-emerald-600" />
+              Expense Records
+            </h2>
+          </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-br from-white to-stone-50/50 backdrop-blur-xl">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 dark:bg-slate-700/50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Date
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Description
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Type
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                {expenses.length === 0 ? (
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Date
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Category
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Description
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Amount
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Type
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 ">
-                      Actions
-                    </th>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-12 text-center text-slate-500 dark:text-slate-400"
+                    >
+                      <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                      <p className="text-lg font-medium mb-2">
+                        No expenses recorded
+                      </p>
+                      <p className="text-sm">
+                        Add your first expense to start tracking
+                      </p>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {expenses.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className="px-6 py-12 text-center text-slate-700 "
-                      >
-                        <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-500" />
-                        <p className="text-lg font-medium mb-2 text-white">
-                          No expenses recorded
-                        </p>
-                        <p>Add your first expense to start tracking</p>
+                ) : (
+                  expenses.map((expense) => (
+                    <tr
+                      key={expense.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-slate-700 dark:text-slate-300">
+                        {formatDate(expense.date)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          {expense.category || "Uncategorized"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-900 dark:text-white">
+                        {expense.description}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-rose-600 dark:text-rose-400">
+                        KES {expense.amount.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                          Expense
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEdit(expense)}
+                            className="p-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(expense.id)}
+                            className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
-                  ) : (
-                    expenses.map((expense) => (
-                      <tr
-                        key={expense.id}
-                        className="hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4 text-sm text-slate-700 ">
-                          {formatDate(expense.date)}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            {expenses.length === 0 ? (
+              <div className="p-6 text-center text-slate-500 dark:text-slate-400">
+                <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-400" />
+                <p className="text-lg font-medium mb-2">No expenses recorded</p>
+                <p className="text-sm">
+                  Add your first expense to start tracking
+                </p>
+              </div>
+            ) : (
+              <div className="p-3 sm:p-6 space-y-3">
+                {expenses.map((expense) => (
+                  <div
+                    key={expense.id}
+                    className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600 shadow-sm"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                             {expense.category || "Uncategorized"}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-white">
-                          {expense.description}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-red-400">
-                          KES {expense.amount.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-600 border border-gray-500/30">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                             Expense
                           </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleEdit(expense)}
-                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(expense.id)}
-                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="lg:hidden">
-              {expenses.length === 0 ? (
-                <div className="p-6 text-center text-slate-700 ">
-                  <Receipt className="w-16 h-16 mx-auto mb-4 text-slate-500" />
-                  <p className="text-lg font-medium mb-2 text-white">
-                    No expenses recorded
-                  </p>
-                  <p className="text-sm">
-                    Add your first expense to start tracking
-                  </p>
-                </div>
-              ) : (
-                <div className="p-3 sm:p-6 space-y-3">
-                  {expenses.map((expense) => (
-                    <div
-                      key={expense.id}
-                      className="bg-white/90 dark:bg-slate-700/90 backdrop-blur-xl rounded-2xl p-4 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                              {expense.category || "Uncategorized"}
-                            </span>
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-500/20 text-slate-600 border border-gray-500/30">
-                              Expense
-                            </span>
-                          </div>
-                          <h4 className="text-sm font-semibold text-slate-900 mb-1">
-                            {expense.description}
-                          </h4>
-                          <p className="text-xs text-slate-700 ">
-                            {formatDate(expense.date)}
-                          </p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-red-400 mb-2">
-                            KES {expense.amount.toLocaleString()}
-                          </p>
-                          <div className="flex space-x-1">
-                            <button
-                              onClick={() => handleEdit(expense)}
-                              className="p-1 text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(expense.id)}
-                              className="p-1 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
+                          {expense.description}
+                        </h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          {formatDate(expense.date)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-rose-600 dark:text-rose-400 mb-2">
+                          KES {expense.amount.toLocaleString()}
+                        </p>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => handleEdit(expense)}
+                            className="p-1.5 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(expense.id)}
+                            className="p-1.5 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Category Breakdown */}
+      {Object.keys(expensesByCategory).length > 0 && (
+        <div className="mt-6 sm:mt-8">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 sm:p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingDown className="w-5 h-5 text-emerald-600" />
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+                Expenses by Category
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(expensesByCategory).map(
+                ([category, amount], index) => {
+                  const colors = [
+                    { bar: "bg-blue-500", text: "text-blue-600" },
+                    { bar: "bg-violet-500", text: "text-violet-600" },
+                    { bar: "bg-rose-500", text: "text-rose-600" },
+                    { bar: "bg-emerald-500", text: "text-emerald-600" },
+                    { bar: "bg-amber-500", text: "text-amber-600" },
+                    { bar: "bg-cyan-500", text: "text-cyan-600" },
+                  ];
+                  const colorSet = colors[index % colors.length];
+
+                  return (
+                    <div
+                      key={category}
+                      className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600"
+                    >
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                        {category}
+                      </p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                        KES {amount.toLocaleString()}
+                      </p>
+                      <div>
+                        <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`${colorSet.bar} h-2 rounded-full transition-all`}
+                            style={{
+                              width: `${(amount / totalExpenses) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                          {((amount / totalExpenses) * 100).toFixed(1)}% of
+                          total
+                        </p>
+                      </div>
+                    </div>
+                  );
+                },
               )}
             </div>
           </div>
         </div>
+      )}
 
-        {/* Stunning Category Breakdown */}
-        {Object.keys(expensesByCategory).length > 0 && (
-          <div className="mt-6 sm:mt-8 relative group">
-            {/* Glow Effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative bg-gradient-to-br from-white via-amber-50/20 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-amber-300/70 shadow-amber-100/50/60 shadow-sm overflow-hidden">
-              {/* Animated Background */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-2xl animate-pulse"></div>
-
-              <div className="relative">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-br from-purple-500 to-pink-600 p-2 rounded-xl">
-                      <TrendingDown className="w-5 h-5 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-pink-200">
-                    📈 Expenses by Category
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(expensesByCategory).map(
-                    ([category, amount], index) => {
-                      const colors = [
-                        {
-                          from: "from-blue-500",
-                          to: "to-blue-600",
-                          bg: "from-blue-50",
-                          bgTo: "to-blue-100",
-                          text: "text-blue-700",
-                        },
-                        {
-                          from: "from-purple-500",
-                          to: "to-purple-600",
-                          bg: "from-purple-50",
-                          bgTo: "to-purple-100",
-                          text: "text-purple-700",
-                        },
-                        {
-                          from: "from-pink-500",
-                          to: "to-pink-600",
-                          bg: "from-pink-50",
-                          bgTo: "to-pink-100",
-                          text: "text-pink-700",
-                        },
-                        {
-                          from: "from-green-500",
-                          to: "to-green-600",
-                          bg: "from-green-50",
-                          bgTo: "to-green-100",
-                          text: "text-green-700",
-                        },
-                        {
-                          from: "from-red-500",
-                          to: "to-red-600",
-                          bg: "from-red-50",
-                          bgTo: "to-red-100",
-                          text: "text-rose-800",
-                        },
-                        {
-                          from: "from-indigo-500",
-                          to: "to-indigo-600",
-                          bg: "from-indigo-50",
-                          bgTo: "to-indigo-100",
-                          text: "text-indigo-700",
-                        },
-                      ];
-                      const colorSet = colors[index % colors.length];
-
-                      return (
-                        <div
-                          key={category}
-                          className="group relative bg-white/90 dark:bg-slate-700/90 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden"
-                          style={{ animationDelay: `${index * 0.1}s` }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative">
-                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
-                              {category}
-                            </p>
-                            <p className="text-xl font-black text-slate-900 mb-3 group-hover:scale-105 transition-transform duration-300">
-                              KES {amount.toLocaleString()}
-                            </p>
-                            <div className="relative">
-                              <div className="w-full bg-white/90 dark:bg-slate-600 rounded-full h-3 overflow-hidden">
-                                <div
-                                  className={`bg-gradient-to-r ${colorSet.from} ${colorSet.to} h-3 rounded-full transition-all duration-1000 ease-out shadow-lg shadow-amber-300/10`}
-                                  style={{
-                                    width: `${(amount / totalExpenses) * 100}%`,
-                                  }}
-                                ></div>
-                              </div>
-                              <p className="text-xs text-slate-700 mt-1 font-medium">
-                                {((amount / totalExpenses) * 100).toFixed(1)}%
-                                of total
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    },
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Stunning Add/Edit Expense Modal */}
+      {/* Add/Edit Expense Modal */}
       {showForm && (
         <ModalPortal>
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-[1000]">
-            <div className="relative group">
-              {/* Modal Glow Effect */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition duration-1000 animate-pulse"></div>
-              <div className="relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
-                {/* Animated Background Pattern */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-5">
-                  <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full animate-spin-slow"></div>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-[1000]">
+            <div className="absolute inset-0" onClick={closeForm}></div>
+            <div className="relative bg-white dark:bg-slate-800 rounded-xl p-6 sm:p-8 w-full max-w-md shadow-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
+                  <Plus className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
-
-                <div className="relative">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl blur-sm opacity-60 animate-pulse"></div>
-                      <div className="relative bg-gradient-to-br from-purple-500 to-blue-600 p-2 rounded-xl">
-                        <Plus className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                    <h3 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
-                      {editingExpense
-                        ? "✏️ Edit Expense"
-                        : "➕ Add New Expense"}
-                    </h3>
-                  </div>
-
-                  <form
-                    onSubmit={handleSubmit}
-                    className="space-y-3 sm:space-y-4"
-                  >
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-2">
-                        Category
-                      </label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            category: e.target.value,
-                          }))
-                        }
-                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/90 dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm text-slate-900 dark:text-white rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-600 focus:border-transparent text-sm sm:text-base"
-                        required
-                      >
-                        <option
-                          value=""
-                          disabled
-                          className="bg-slate-900 text-white"
-                        >
-                          Select category
-                        </option>
-                        {/* Allow creating expenses without a category */}
-                        <option
-                          value="Uncategorized"
-                          className="bg-slate-900 text-white"
-                        >
-                          Uncategorized
-                        </option>
-                        {categories.map((cat) => (
-                          <option
-                            key={cat.id}
-                            value={cat.name || ""}
-                            className="bg-slate-900 text-white"
-                          >
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
-                        Description
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.description}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
-                        placeholder="Enter expense description"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
-                        Amount (KES)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={formData.amount}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            amount: parseFloat(e.target.value) || 0,
-                          }))
-                        }
-                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
-                        placeholder="0.00"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
-                        Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            date: e.target.value,
-                          }))
-                        }
-                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
-                        Notes (optional)
-                      </label>
-                      <textarea
-                        value={formData.notes || ""}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            notes: e.target.value,
-                          }))
-                        }
-                        className="w-full px-4 py-3 bg-white/90 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-slate-400"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-3 sm:pt-4">
-                      <button
-                        type="button"
-                        onClick={closeForm}
-                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm text-slate-900 rounded-xl sm:rounded-2xl hover:bg-gradient-to-br from-white to-stone-50/50 transition-colors text-sm sm:text-base"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-slate-900 rounded-xl sm:rounded-2xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base"
-                      >
-                        {editingExpense ? "Update" : "Add"} Expense
-                      </button>
-                    </div>
-                  </form>
-                </div>
+                <h3 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">
+                  {editingExpense ? "Edit Expense" : "Add New Expense"}
+                </h3>
               </div>
+
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Category
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        category: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm sm:text-base"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select category
+                    </option>
+                    {/* Allow creating expenses without a category */}
+                    <option value="Uncategorized">Uncategorized</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.name || ""}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-slate-400"
+                    placeholder="Enter expense description"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Amount (KES)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.amount}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        amount: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-slate-400"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        date: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Notes (optional)
+                  </label>
+                  <textarea
+                    value={formData.notes || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-slate-400"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-3 sm:pt-4">
+                  <button
+                    type="button"
+                    onClick={closeForm}
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm sm:text-base"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
+                  >
+                    {editingExpense ? "Update" : "Add"} Expense
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </ModalPortal>

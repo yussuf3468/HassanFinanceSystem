@@ -175,7 +175,7 @@ export default function SaleForm({
         const form = document.querySelector("form");
         if (form) {
           form.dispatchEvent(
-            new Event("submit", { cancelable: true, bubbles: true })
+            new Event("submit", { cancelable: true, bubbles: true }),
           );
         }
       }
@@ -211,7 +211,7 @@ export default function SaleForm({
             return { ...li, showDropdown: false };
           }
           return li;
-        })
+        }),
       );
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -228,7 +228,7 @@ export default function SaleForm({
     // Check for duplicate products when setting a product_id
     if (patch.product_id && patch.product_id.trim() !== "") {
       const isDuplicate = lineItems.some(
-        (li) => li.id !== id && li.product_id === patch.product_id
+        (li) => li.id !== id && li.product_id === patch.product_id,
       );
 
       if (isDuplicate) {
@@ -236,14 +236,14 @@ export default function SaleForm({
         alert(
           `⚠️ "${
             product?.name || "This product"
-          }" is already added to this sale!\n\nPlease update the quantity on the existing line instead of adding it again.`
+          }" is already added to this sale!\n\nPlease update the quantity on the existing line instead of adding it again.`,
         );
         return;
       }
     }
 
     setLineItems((items) =>
-      items.map((li) => (li.id === id ? { ...li, ...patch } : li))
+      items.map((li) => (li.id === id ? { ...li, ...patch } : li)),
     );
   }
 
@@ -291,7 +291,7 @@ export default function SaleForm({
               customerName: d.customer_name,
               paymentStatus: d.payment_status,
               amountPaid: d.amount_paid,
-            }))
+            })),
           );
         }
       } catch (e) {
@@ -304,7 +304,7 @@ export default function SaleForm({
   async function saveDraft() {
     const draftName = prompt(
       "Enter a name for this draft:",
-      `Sale ${new Date().toLocaleTimeString()}`
+      `Sale ${new Date().toLocaleTimeString()}`,
     );
     if (!draftName) return;
 
@@ -363,7 +363,7 @@ export default function SaleForm({
     setOverallDiscountValue(draft.overallDiscountValue);
     setCustomerName(draft.customerName || "");
     setPaymentStatus(
-      (draft.paymentStatus as "paid" | "not_paid" | "partial") || "paid"
+      (draft.paymentStatus as "paid" | "not_paid" | "partial") || "paid",
     );
     setAmountPaid(draft.amountPaid || "");
     setShowDrafts(false);
@@ -444,7 +444,7 @@ export default function SaleForm({
   const subtotal = computed.reduce((s, c) => s + c.original_total, 0);
   const total_line_discount = computed.reduce(
     (s, c) => s + c.discount_amount,
-    0
+    0,
   );
   const subtotalAfterLineDiscounts = subtotal - total_line_discount;
 
@@ -537,7 +537,7 @@ export default function SaleForm({
               notes: source, // Include source in notes
             },
           ],
-        }
+        },
       );
 
       if (receiptError) {
@@ -562,7 +562,7 @@ export default function SaleForm({
           const form = document.querySelector("form");
           if (form) {
             form.dispatchEvent(
-              new Event("submit", { cancelable: true, bubbles: true })
+              new Event("submit", { cancelable: true, bubbles: true }),
             );
           }
         }, 100);
@@ -570,7 +570,7 @@ export default function SaleForm({
     } catch (error) {
       console.error("Error updating stock:", error);
       alert(
-        `Failed to update stock for ${currentStockItem.product.name}. Please try again.`
+        `Failed to update stock for ${currentStockItem.product.name}. Please try again.`,
       );
     }
   }
@@ -581,7 +581,7 @@ export default function SaleForm({
 
     // Remove line items for this product
     setLineItems((items) =>
-      items.filter((li) => li.product_id !== currentStockItem.product.id)
+      items.filter((li) => li.product_id !== currentStockItem.product.id),
     );
 
     // Move to next item or close modal if done
@@ -599,7 +599,7 @@ export default function SaleForm({
         const form = document.querySelector("form");
         if (form) {
           form.dispatchEvent(
-            new Event("submit", { cancelable: true, bubbles: true })
+            new Event("submit", { cancelable: true, bubbles: true }),
           );
         }
       }, 100);
@@ -636,7 +636,7 @@ export default function SaleForm({
       }
       if (parseFloat(amountPaid) >= total) {
         alert(
-          "Partial payment amount must be less than the total amount. Please select 'Paid' if paying in full."
+          "Partial payment amount must be less than the total amount. Please select 'Paid' if paying in full.",
         );
         return;
       }
@@ -665,7 +665,7 @@ export default function SaleForm({
       // Calculate how to distribute the overall discount proportionally
       const totalBeforeOverallDiscount = computed.reduce(
         (sum, c) => sum + c.final_total,
-        0
+        0,
       );
 
       for (const c of computed) {
@@ -771,7 +771,7 @@ export default function SaleForm({
                 : "-"
             }</td>
             <td class="num">KES ${it.line_total.toLocaleString()}</td>
-          </tr>`
+          </tr>`,
       )
       .join("");
 
@@ -843,7 +843,7 @@ export default function SaleForm({
       <tr>
         <td><strong>Sold By:</strong> ${escapeHtml(r.sold_by)}</td>
         <td><strong>Payment Status:</strong> ${escapeHtml(
-          r.payment_status.replace("_", " ").toUpperCase()
+          r.payment_status.replace("_", " ").toUpperCase(),
         )}</td>
       </tr>
       <tr>
@@ -1012,11 +1012,11 @@ export default function SaleForm({
 
     const subtotal = draftItems.reduce(
       (sum, item) => sum + item.original_total,
-      0
+      0,
     );
     const totalLineDiscount = draftItems.reduce(
       (sum, item) => sum + item.discount_amount,
-      0
+      0,
     );
 
     let overallDiscountAmount = 0;
@@ -1191,7 +1191,7 @@ export default function SaleForm({
         alert(
           `✅ Product "${
             data.name
-          }" added successfully!\nBuying: KES ${buyingPrice.toLocaleString()}\nSelling: KES ${sellingPrice.toLocaleString()}`
+          }" added successfully!\nBuying: KES ${buyingPrice.toLocaleString()}\nSelling: KES ${sellingPrice.toLocaleString()}`,
         );
         setShowQuickAddProduct(false);
         setQuickProductName("");
@@ -1205,27 +1205,29 @@ export default function SaleForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border-2 border-slate-100 dark:border-slate-700 animate-scaleIn flex flex-col touch-auto">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 touch-pan-y">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-full sm:max-w-3xl md:max-w-6xl max-h-[95vh] overflow-hidden border border-slate-300 dark:border-slate-700 flex flex-col touch-auto">
         {/* Header - Fixed */}
-        <div className="relative bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-900/50 dark:to-slate-800 p-4 sm:p-6 rounded-t-2xl flex-shrink-0 border-b-2 border-amber-400 dark:border-slate-700">
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+        <div className="bg-slate-50 dark:bg-slate-800 px-6 py-4 flex-shrink-0 border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
               <div>
-                <h3 className="text-lg sm:text-2xl font-black text-white">
-                  Record New Sale
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  New Sale
                 </h3>
-                <p className="text-amber-50 text-xs sm:text-sm font-medium">
-                  Multi-Product Sale System
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Point of Sale System
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 bg-white/20 dark:bg-slate-700/40 hover:bg-white/30 dark:hover:bg-slate-600/50 rounded-xl transition-all duration-300 hover:scale-110 text-white border border-white/30 dark:border-slate-600"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400"
             >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -1399,7 +1401,7 @@ export default function SaleForm({
               </button>
               <button
                 onClick={resetForm}
-                className="w-full sm:w-auto px-6 py-3 bg-amber-500 dark:bg-amber-600 text-white rounded-xl hover:bg-amber-600 dark:hover:bg-amber-700 font-medium shadow-lg"
+                className="w-full sm:w-auto px-6 py-3 bg-emerald-600 dark:bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-700 font-medium shadow-sm"
               >
                 New Sale
               </button>
@@ -1417,54 +1419,39 @@ export default function SaleForm({
         {!receipt && (
           <form
             onSubmit={handleSubmit}
-            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-amber-50 dark:bg-amber-900/20"
+            className="flex-1 overflow-y-auto touch-scroll p-4 sm:p-6 space-y-6 bg-slate-50 dark:bg-slate-900"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {/* Keyboard Shortcuts Help Banner */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl p-3">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="text-xl">⌨️</span>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  Keyboard Shortcuts
-                </p>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-blue-700 dark:text-blue-400">
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2">
+              <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  Shortcuts:
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-mono">
                     F1
                   </kbd>{" "}
-                  = Khalid
-                </div>
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                  Khalid
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-mono">
                     F2
                   </kbd>{" "}
-                  = Yussuf
-                </div>
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
+                  Yussuf
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-mono">
                     F3
                   </kbd>{" "}
-                  = Zakaria
-                </div>
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
-                    Ctrl+Enter
+                  Zakaria
+                </span>
+                <span>
+                  <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-mono">
+                    Ctrl+↵
                   </kbd>{" "}
-                  = Submit
-                </div>
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
-                    Ctrl+B
-                  </kbd>{" "}
-                  = Barcode Mode
-                </div>
-                <div>
-                  <kbd className="px-2 py-1 bg-white dark:bg-blue-900/30 rounded border border-blue-300 dark:border-blue-600 font-mono">
-                    Tab
-                  </kbd>{" "}
-                  = Autocomplete
-                </div>
+                  Submit
+                </span>
               </div>
             </div>
 
@@ -1502,24 +1489,24 @@ export default function SaleForm({
                       const product = products.find(
                         (p) =>
                           p.product_id.toLowerCase() ===
-                          barcodeInput.trim().toLowerCase()
+                          barcodeInput.trim().toLowerCase(),
                       );
                       if (product) {
                         // Check if already in sale
                         const existingLine = lineItems.find(
-                          (li) => li.product_id === product.id
+                          (li) => li.product_id === product.id,
                         );
                         if (existingLine) {
                           // Increment quantity
                           updateLine(existingLine.id, {
                             quantity: String(
-                              parseInt(existingLine.quantity || "1") + 1
+                              parseInt(existingLine.quantity || "1") + 1,
                             ),
                           });
                         } else {
                           // Add new line
                           const emptyLine = lineItems.find(
-                            (li) => li.product_id === ""
+                            (li) => li.product_id === "",
                           );
                           if (emptyLine) {
                             updateLine(emptyLine.id, {
@@ -1546,13 +1533,13 @@ export default function SaleForm({
                         setBarcodeInput("");
                         // Play success sound (optional)
                         const audio = new Audio(
-                          "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZjzkJGWS36+iebBAAUKXh8LljHgU2jNXwzn0vBSl+zPDZkUELEmCz6OqnWBUIRJze8cBlJAUrgc/y2ow6ChljuOvpn20RAlGl4PG5ZB8GM4/W8c1+MAUofsrw2JBCC"
+                          "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZjzkJGWS36+iebBAAUKXh8LljHgU2jNXwzn0vBSl+zPDZkUELEmCz6OqnWBUIRJze8cBlJAUrgc/y2ow6ChljuOvpn20RAlGl4PG5ZB8GM4/W8c1+MAUofsrw2JBCC",
                         );
                         audio.volume = 0.3;
                         audio.play().catch(() => {});
                       } else {
                         alert(
-                          `❌ Product with ID "${barcodeInput}" not found!`
+                          `❌ Product with ID "${barcodeInput}" not found!`,
                         );
                         setBarcodeInput("");
                       }
@@ -1679,7 +1666,7 @@ export default function SaleForm({
                       value={paymentStatus}
                       onChange={(e) =>
                         setPaymentStatus(
-                          e.target.value as "paid" | "not_paid" | "partial"
+                          e.target.value as "paid" | "not_paid" | "partial",
                         )
                       }
                       className="w-full min-h-[48px] px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white text-base focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all touch-manipulation"
@@ -1762,7 +1749,7 @@ export default function SaleForm({
                       onClick={() => {
                         if (gradeBooks.length === 0) {
                           alert(
-                            `No books found for Grade ${grade} with stock available.`
+                            `No books found for Grade ${grade} with stock available.`,
                           );
                           return;
                         }
@@ -1770,14 +1757,14 @@ export default function SaleForm({
                         // Check for duplicates before adding
                         const newBooks = gradeBooks.filter((book) => {
                           const exists = lineItems.some(
-                            (li) => li.product_id === book.id
+                            (li) => li.product_id === book.id,
                           );
                           return !exists;
                         });
 
                         if (newBooks.length === 0) {
                           alert(
-                            `All Grade ${grade} books are already in the sale!`
+                            `All Grade ${grade} books are already in the sale!`,
                           );
                           return;
                         }
@@ -1796,7 +1783,7 @@ export default function SaleForm({
                         // Remove empty line items before adding new ones
                         const nonEmptyItems = lineItems.filter(
                           (item) =>
-                            item.product_id !== "" && item.searchTerm !== ""
+                            item.product_id !== "" && item.searchTerm !== "",
                         );
 
                         setLineItems([...nonEmptyItems, ...newLineItems]);
@@ -1811,19 +1798,17 @@ export default function SaleForm({
                         alert(message);
                       }}
                       disabled={gradeBooks.length === 0}
-                      className={`relative px-3 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg active:scale-95 touch-manipulation border-2 ${
+                      className={`relative px-4 py-2 rounded-lg text-sm transition-all touch-manipulation ${
                         gradeBooks.length === 0
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed opacity-50 border-slate-200"
-                          : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-amber-400"
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed opacity-50 border border-slate-200 dark:border-slate-700"
+                          : "bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700"
                       }`}
                       style={{
                         WebkitTapHighlightColor: "rgba(99, 102, 241, 0.3)",
                       }}
                     >
-                      <span className="block text-lg mb-0.5">
-                        Grade {grade}
-                      </span>
-                      <span className="block text-xs opacity-80">
+                      <span className="block font-medium">Grade {grade}</span>
+                      <span className="block text-xs opacity-70">
                         {gradeBooks.length}{" "}
                         {gradeBooks.length === 1 ? "book" : "books"}
                       </span>
@@ -1843,8 +1828,8 @@ export default function SaleForm({
             {/* Line Items */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                  <Package className="w-5 h-5" />
+                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Package className="w-4 h-4" />
                   <span>Products ({lineItems.length})</span>
                 </h4>
               </div>
@@ -1861,11 +1846,11 @@ export default function SaleForm({
                       fuzzyThreshold: 0.6, // More lenient (0.6 instead of default 0.7)
                       includeDescription: false,
                       maxResults: 15,
-                    }
+                    },
                   );
 
                   const filtered = searchResults.map(
-                    (result) => result.product
+                    (result) => result.product,
                   );
 
                   // Get best prediction for autocomplete (first result)
@@ -1885,7 +1870,7 @@ export default function SaleForm({
 
                   // Handle keyboard navigation
                   const handleSearchKeyDown = (
-                    e: React.KeyboardEvent<HTMLInputElement>
+                    e: React.KeyboardEvent<HTMLInputElement>,
                   ) => {
                     if (e.key === "Tab" && autocompleteSuggestion) {
                       e.preventDefault();
@@ -1938,7 +1923,7 @@ export default function SaleForm({
                     });
 
                     suggestions.push(
-                      ...Array.from(uniqueSuggestions).slice(0, 3)
+                      ...Array.from(uniqueSuggestions).slice(0, 3),
                     );
                   }
 
@@ -1946,15 +1931,15 @@ export default function SaleForm({
                     <div
                       key={li.id}
                       ref={(el) => (dropdownRefs.current[li.id] = el)}
-                      className="relative bg-white dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-3 sm:p-4 space-y-3 hover:border-amber-300 dark:hover:border-amber-600 transition-all shadow-sm"
+                      className="relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                     >
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400 font-semibold text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-medium text-xs">
                             {idx + 1}
                           </span>
                           {product && (
-                            <span className="text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold border border-emerald-300 dark:border-emerald-700">
+                            <span className="text-xs px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded border border-emerald-200 dark:border-emerald-700">
                               Stock: {product.quantity_in_stock}
                             </span>
                           )}
@@ -1963,7 +1948,7 @@ export default function SaleForm({
                           <button
                             type="button"
                             onClick={() => removeLine(li.id)}
-                            className="p-2 rounded-xl hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all"
+                            className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 hover:text-red-600 transition-colors"
                             title="Remove line"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -2014,7 +1999,7 @@ export default function SaleForm({
                                 updateLine(li.id, { showDropdown: true })
                               }
                               placeholder="Type to search products..."
-                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-base text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all relative z-10 font-medium hover:border-amber-300 dark:hover:border-amber-600 touch-manipulation"
+                              className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-base text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all relative z-10 font-medium hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
                               style={{ background: "transparent" }}
                             />
 
@@ -2040,7 +2025,7 @@ export default function SaleForm({
                                               showDropdown: false,
                                             })
                                           }
-                                          className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors"
+                                          className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors"
                                         >
                                           {p.image_url ? (
                                             <img
@@ -2084,7 +2069,7 @@ export default function SaleForm({
                                             showDropdown: true,
                                           })
                                         }
-                                        className="w-full text-left px-3 py-2 hover:bg-amber-50 dark:bg-amber-900/20 text-sm flex items-center space-x-2 transition-colors group"
+                                        className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors group"
                                       >
                                         <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400" />
                                         <span className="text-white">
@@ -2092,8 +2077,8 @@ export default function SaleForm({
                                             .split(
                                               new RegExp(
                                                 `(${li.searchTerm})`,
-                                                "gi"
-                                              )
+                                                "gi",
+                                              ),
                                             )
                                             .map((part, i) =>
                                               part.toLowerCase() ===
@@ -2106,7 +2091,7 @@ export default function SaleForm({
                                                 </span>
                                               ) : (
                                                 <span key={i}>{part}</span>
-                                              )
+                                              ),
                                             )}
                                         </span>
                                       </button>
@@ -2136,7 +2121,7 @@ export default function SaleForm({
                                             showDropdown: false,
                                           })
                                         }
-                                        className="w-full text-left px-3 py-2.5 hover:bg-amber-50 dark:bg-amber-900/20 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0"
+                                        className="w-full text-left px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm flex items-center space-x-2 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-0"
                                       >
                                         {p.image_url ? (
                                           <img
@@ -2260,7 +2245,7 @@ export default function SaleForm({
                               onChange={(e) =>
                                 updateLine(li.id, { quantity: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 transition-all"
+                              className="w-full px-3 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-600 focus:border-emerald-500 dark:focus:border-emerald-600 transition-all"
                               placeholder="Qty"
                             />
                             {/* Quick Quantity Buttons */}
@@ -2273,7 +2258,7 @@ export default function SaleForm({
                                     quantity: String(Math.max(1, current - 1)),
                                   });
                                 }}
-                                className="px-2 py-1 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 border border-slate-300 dark:border-slate-500 rounded text-xs text-slate-900 dark:text-white font-medium transition-all active:scale-95"
+                                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2290,7 +2275,7 @@ export default function SaleForm({
                                     quantity: String(current + 1),
                                   });
                                 }}
-                                className="px-2 py-1 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 border border-slate-300 dark:border-slate-500 rounded text-xs text-slate-900 dark:text-white font-medium transition-all active:scale-95"
+                                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-700 dark:text-slate-300 font-medium transition-colors"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2307,7 +2292,7 @@ export default function SaleForm({
                                     quantity: String(current * 2),
                                   });
                                 }}
-                                className="px-2 py-1 bg-amber-500 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-700 border border-amber-600 dark:border-amber-700 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-md"
+                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2324,7 +2309,7 @@ export default function SaleForm({
                                     quantity: String(current * 5),
                                   });
                                 }}
-                                className="px-2 py-1 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 border border-rose-400 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-lg shadow-amber-300/10"
+                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2341,7 +2326,7 @@ export default function SaleForm({
                                     quantity: String(current * 10),
                                   });
                                 }}
-                                className="px-2 py-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 border border-red-500/50 rounded text-xs text-white font-bold transition-all active:scale-95 shadow-lg shadow-amber-300/10"
+                                className="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 rounded text-xs text-emerald-700 dark:text-emerald-400 font-medium transition-colors"
                                 style={{
                                   touchAction: "manipulation",
                                   WebkitTapHighlightColor:
@@ -2424,11 +2409,11 @@ export default function SaleForm({
                       {/* Line Summary */}
                       {product && comp.quantity > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2 pt-3 border-t border-slate-100 dark:border-slate-700">
-                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
-                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
+                          <div className="bg-slate-50 dark:bg-slate-800 rounded-md p-2 border border-slate-200 dark:border-slate-700">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Original
                             </span>
-                            <span className="font-bold text-amber-700 dark:text-amber-400">
+                            <span className="font-bold text-slate-700 dark:text-slate-300">
                               KES {comp.original_total.toLocaleString()}
                             </span>
                           </div>
@@ -2442,11 +2427,11 @@ export default function SaleForm({
                                 : "-"}
                             </span>
                           </div>
-                          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-md p-2 border border-amber-200 dark:border-amber-700">
-                            <span className="text-slate-700 dark:text-slate-300 block mb-0.5">
+                          <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-md p-2 border border-emerald-200 dark:border-emerald-700">
+                            <span className="text-slate-600 dark:text-slate-400 block mb-0.5">
                               Line Total
                             </span>
-                            <span className="font-bold text-amber-700 dark:text-amber-400">
+                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
                               KES {comp.final_total.toLocaleString()}
                             </span>
                           </div>
@@ -2465,26 +2450,25 @@ export default function SaleForm({
                 })}
               </div>
 
-              {/* Add Line Button - NOW AT THE BOTTOM */}
+              {/* Add Line Button */}
               <button
                 type="button"
                 onClick={addLine}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg font-medium border-2 border-amber-400"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
               >
-                <Plus className="w-5 h-5" />
-                <span>Add Another Product Line</span>
+                <Plus className="w-4 h-4" />
+                <span>Add Product Line</span>
               </button>
             </div>
 
             {/* Overall Discount Section */}
-            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border-2 border-orange-200 dark:border-orange-700">
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
-                <span>🎁</span>
-                <span>Overall Discount (Applied to Total)</span>
+            <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                Overall Discount (Applied to Total)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                     Discount Type
                   </label>
                   <select
@@ -2493,7 +2477,7 @@ export default function SaleForm({
                       setOverallDiscountType(e.target.value as DiscountType);
                       setOverallDiscountValue("");
                     }}
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   >
                     <option
                       value="none"
@@ -2515,102 +2499,101 @@ export default function SaleForm({
                     </option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
-                    Discount Value
-                  </label>
-                  <input
-                    type="number"
-                    disabled={overallDiscountType === "none"}
-                    value={overallDiscountValue}
-                    onChange={(e) => setOverallDiscountValue(e.target.value)}
-                    min="0"
-                    max={overallDiscountType === "percentage" ? 100 : undefined}
-                    step={overallDiscountType === "percentage" ? "0.01" : "1"}
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 dark:focus:ring-orange-600 focus:border-orange-500 dark:focus:border-orange-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                    placeholder={
-                      overallDiscountType === "percentage"
-                        ? "e.g., 10 for 10%"
-                        : "e.g., 500 for KES 500"
-                    }
-                  />
-                </div>
+                {overallDiscountType !== "none" && (
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                      Discount Value
+                    </label>
+                    <input
+                      type="number"
+                      value={overallDiscountValue}
+                      onChange={(e) => setOverallDiscountValue(e.target.value)}
+                      min="0"
+                      max={
+                        overallDiscountType === "percentage" ? 100 : undefined
+                      }
+                      step={overallDiscountType === "percentage" ? "0.01" : "1"}
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                      placeholder={
+                        overallDiscountType === "percentage"
+                          ? "e.g., 10 for 10%"
+                          : "e.g., 500 for KES 500"
+                      }
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Overall Totals */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border-2 border-slate-200 dark:border-slate-700 space-y-3 shadow-md">
-              <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center space-x-2">
-                <span>💵</span>
-                <span>Sale Summary</span>
+            <div className="bg-white dark:bg-slate-800 rounded-lg p-5 border border-slate-200 dark:border-slate-700">
+              <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+                Sale Summary
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-700 dark:text-slate-300">
-                    Subtotal:
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Subtotal
                   </span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="font-medium text-slate-900 dark:text-white">
                     KES {subtotal.toLocaleString()}
                   </span>
                 </div>
                 {total_line_discount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-700 dark:text-slate-300">
-                      Line Discounts:
+                    <span className="text-slate-600 dark:text-slate-400">
+                      Line Discounts
                     </span>
-                    <span className="font-semibold text-red-600 dark:text-red-400">
+                    <span className="font-medium text-rose-600 dark:text-rose-400">
                       -KES {total_line_discount.toLocaleString()}
                     </span>
                   </div>
                 )}
                 {overallDiscountAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-slate-600 dark:text-slate-400">
                       Overall Discount
                       {overallDiscountType === "percentage" &&
                         ` (${overallDiscountValue}%)`}
-                      :
                     </span>
-                    <span className="font-semibold text-red-600 dark:text-red-400">
+                    <span className="font-medium text-rose-600 dark:text-rose-400">
                       -KES {overallDiscountAmount.toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg border-t-2 border-amber-200 dark:border-amber-700 pt-3 font-bold">
-                  <span className="text-amber-700 dark:text-amber-400">
-                    Final Total:
+                <div className="flex justify-between text-base border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Total Amount
                   </span>
-                  <span className="text-amber-700 dark:text-amber-400">
+                  <span className="font-semibold text-slate-900 dark:text-white">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-slate-100">
-                  <span className="text-slate-700 dark:text-slate-300">
-                    Estimated Profit:
+                <div className="flex justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500 dark:text-slate-500">
+                    Estimated Profit
                   </span>
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                  <span className="text-emerald-600 dark:text-emerald-500">
                     KES {total_profit.toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons - Improved for mobile touch */}
-            <div className="flex flex-col sm:flex-row justify-end items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4 border-t-2 border-slate-200">
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setShowDrafts(!showDrafts)}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all font-medium touch-manipulation active:scale-95 shadow-lg flex items-center justify-center space-x-2 border-2 border-amber-400"
-                style={{ WebkitTapHighlightColor: "rgba(245,158,11,0.3)" }}
+                className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
               >
-                <span>📋</span>
-                <span>Draft History ({savedDrafts.length})</span>
+                <Clock className="w-4 h-4" />
+                <span>Drafts ({savedDrafts.length})</span>
               </button>
               <button
                 type="button"
                 onClick={saveDraft}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all font-medium touch-manipulation active:scale-95 shadow-lg flex items-center justify-center space-x-2 border-2 border-orange-500"
-                style={{ WebkitTapHighlightColor: "rgba(251,191,36,0.3)" }}
+                className="w-full sm:w-auto px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
               >
                 <span>💾</span>
                 <span>Save Draft</span>
@@ -2618,20 +2601,18 @@ export default function SaleForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto min-h-[48px] px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all font-medium touch-manipulation active:scale-95"
-                style={{ WebkitTapHighlightColor: "rgba(255,255,255,0.2)" }}
+                className="w-full sm:w-auto px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base touch-manipulation active:scale-95 border-2 border-amber-400"
-                style={{ WebkitTapHighlightColor: "rgba(139,92,246,0.4)" }}
+                className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
               >
                 {submitting ? (
-                  <span className="flex items-center justify-center space-x-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -2647,8 +2628,8 @@ export default function SaleForm({
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    <span>Recording Sale...</span>
-                  </span>
+                    <span>Processing...</span>
+                  </>
                 ) : (
                   "Complete Sale"
                 )}
@@ -2783,7 +2764,7 @@ export default function SaleForm({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-200 dark:border-amber-700 px-6 py-4 flex items-center justify-between">
+            <div className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📋</span>
                 <div>
@@ -2798,7 +2779,7 @@ export default function SaleForm({
               </div>
               <button
                 onClick={() => setShowDrafts(false)}
-                className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xl transition-colors text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-amber-300 dark:hover:border-amber-600"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 style={{
                   touchAction: "manipulation",
                   WebkitTapHighlightColor: "rgba(139, 92, 246, 0.3)",
@@ -2915,7 +2896,7 @@ export default function SaleForm({
                               >
                                 <span className="truncate flex-1">
                                   {products.find(
-                                    (p) => p.id === item.product_id
+                                    (p) => p.id === item.product_id,
                                   )?.name || "Unknown"}
                                 </span>
                                 <span className="text-slate-700 dark:text-slate-300 ml-2">
