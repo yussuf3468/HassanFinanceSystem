@@ -151,13 +151,13 @@ const ProductCard = memo(
           </div>
 
           {/* Product Name */}
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+          <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-base mb-1 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
             {product.name}
           </h3>
 
           {/* Price */}
           <div className="mb-2 mt-auto pt-2">
-            <p className="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-400">
+            <p className="text-base sm:text-xl font-bold text-amber-600 dark:text-amber-400">
               KES {product.selling_price.toLocaleString()}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
