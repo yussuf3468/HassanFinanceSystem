@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback, useMemo, memo } from "react";
-import { 
-  Filter, 
-  Star, 
-  Package, 
-  ShoppingCart, 
+import {
+  Filter,
+  Star,
+  Package,
+  ShoppingCart,
   Heart,
   Search,
   ChevronDown,
-  X
+  X,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -113,7 +113,11 @@ const ProductCard = memo(
                 : "bg-white/90 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:bg-amber-400 hover:text-white"
             }`}
           >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? "fill-current" : ""}`} />
+            <Heart
+              className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                isLiked ? "fill-current" : ""
+              }`}
+            />
           </button>
 
           {/* Featured Badge */}
@@ -179,13 +183,17 @@ const ProductCard = memo(
           >
             <ShoppingCart className="w-4 h-4" />
             <span className="hidden sm:inline">
-              {isOutOfStock ? "Unavailable" : isAddingToCart ? "Adding..." : "Add"}
+              {isOutOfStock
+                ? "Unavailable"
+                : isAddingToCart
+                ? "Adding..."
+                : "Add"}
             </span>
           </button>
         </div>
       </div>
     );
-  }
+  },
 );
 
 ProductCard.displayName = "ProductCard";
@@ -256,7 +264,7 @@ const FilterDrawer = memo(
         </div>
       </>
     );
-  }
+  },
 );
 
 FilterDrawer.displayName = "FilterDrawer";
@@ -273,7 +281,9 @@ export default function CustomerStore({
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
+    null,
+  );
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
   const PRODUCTS_PER_PAGE = 12;
@@ -296,7 +306,7 @@ export default function CustomerStore({
       "Markers",
       "Other",
     ],
-    []
+    [],
   );
 
   const loadProducts = useCallback(async () => {
@@ -329,16 +339,18 @@ export default function CustomerStore({
     if (debouncedSearchTerm) {
       filtered = filtered.filter(
         (product) =>
-          product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          product.name
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()) ||
           product.category
             .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase())
+            .includes(debouncedSearchTerm.toLowerCase()),
       );
     }
 
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (product) => product.category === selectedCategory
+        (product) => product.category === selectedCategory,
       );
     }
 
@@ -358,7 +370,7 @@ export default function CustomerStore({
       cart.addItem(product);
       compactToast.addToCart(product.name);
     },
-    [cart]
+    [cart],
   );
 
   const handleSearchChange = useCallback((value: string) => {
@@ -470,8 +482,8 @@ export default function CustomerStore({
           </div>
         ) : (
           <div>
-            {/* Grid: 3 columns on mobile, 3 on tablet, 4 on desktop */}
-            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-8">
+            {/* Grid: 2 columns on mobile, 3 on tablet, 4 on desktop */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-8">
               {paginatedProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}
@@ -574,7 +586,10 @@ export default function CustomerStore({
           </div>
 
           <div className="border-t border-slate-800 pt-6 text-center text-slate-400 text-sm">
-            <p>&copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights reserved.</p>
+            <p>
+              &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
+              reserved.
+            </p>
           </div>
         </div>
       </footer>
