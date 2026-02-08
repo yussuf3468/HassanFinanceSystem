@@ -74,8 +74,8 @@ const ProductCard = memo(
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-48 sm:h-52 md:h-56 object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-700 ease-out"
-            fallbackClassName="w-full h-48 sm:h-52 md:h-56"
+            className="w-full h-24 sm:h-36 md:h-48 object-contain p-1 sm:p-2 group-hover:scale-105 transition-transform duration-700 ease-out"
+            fallbackClassName="w-full h-24 sm:h-36 md:h-48"
             onClick={handleQuickView}
             priority={index < 3}
             preload={index < 6}
@@ -89,7 +89,7 @@ const ProductCard = memo(
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 dark:hover:bg-slate-600 border border-amber-300 dark:border-amber-600"
+              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-4 py-2 rounded-full font-medium text-sm transform translate-y-3 sm:translate-y-4 group-hover:translate-y-0 transition-all duration-400 shadow-lg hover:bg-amber-50 dark:hover:bg-slate-600 border border-amber-300 dark:border-amber-600"
             >
               Quick View
             </button>
@@ -98,18 +98,18 @@ const ProductCard = memo(
           {/* Refined Wishlist Button */}
           <button
             onClick={toggleLike}
-            className={`absolute top-4 right-4 w-10 h-10 rounded-full transition-all duration-300 flex items-center justify-center ${
+            className={`absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all duration-300 flex items-center justify-center ${
               isLiked
                 ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25"
                 : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-600 hover:text-rose-400 hover:shadow-md border border-slate-200 hover:border-amber-300 shadow-sm"
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${isLiked ? "fill-current" : ""}`} />
           </button>
 
           {/* Minimal Featured Badge */}
           {product.featured && (
-            <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-2.5 py-1 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
               <Star className="w-3 h-3 fill-current" />
               <span>Featured</span>
             </div>
@@ -117,14 +117,14 @@ const ProductCard = memo(
 
           {/* Subtle Low Stock Warning */}
           {product.quantity_in_stock <= product.reorder_level && (
-            <div className="absolute bottom-4 left-4 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/30 dark:to-rose-900/20 text-rose-700 dark:text-rose-300 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-rose-300 dark:border-rose-700">
+            <div className="absolute bottom-3 left-3 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/30 dark:to-rose-900/20 text-rose-700 dark:text-rose-300 px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm border border-rose-300 dark:border-rose-700">
               Only {product.quantity_in_stock} left
             </div>
           )}
         </div>
 
         {/* Elegant Product Info */}
-        <div className="p-6">
+        <div className="p-3 sm:p-4">
           {/* Category Tag */}
           <div className="mb-3">
             <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">
@@ -133,13 +133,13 @@ const ProductCard = memo(
           </div>
 
           {/* Product Name */}
-          <h3 className="font-semibold text-slate-900 dark:text-white text-lg mb-3 line-clamp-2 leading-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base mb-2 line-clamp-2 leading-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">
             {product.name}
           </h3>
 
           {/* Product Description */}
           {product.description && (
-            <p className="text-sm text-slate-600 mb-4 line-clamp-2 leading-relaxed">
+            <p className="text-sm text-slate-600 mb-2 line-clamp-2 leading-relaxed hidden sm:block">
               {product.description}
             </p>
           )}
@@ -147,7 +147,7 @@ const ProductCard = memo(
           {/* Price & Stock Info */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col">
-              <p className="text-2xl font-light text-slate-900 dark:text-white mb-1">
+              <p className="text-lg sm:text-xl font-light text-slate-900 dark:text-white mb-1">
                 KES {product.selling_price.toLocaleString()}
               </p>
               <p className="text-xs text-slate-600 flex items-center">
@@ -161,7 +161,7 @@ const ProductCard = memo(
           <button
             onClick={handleAddToCart}
             disabled={product.quantity_in_stock === 0 || isAddingToCart}
-            className={`w-full py-3.5 px-4 rounded-2xl font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
+            className={`w-full sm:w-full py-2 px-2 sm:py-2.5 sm:px-3 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
               product.quantity_in_stock === 0
                 ? "bg-slate-100 text-slate-500 cursor-not-allowed border border-slate-200"
                 : isAddingToCart
@@ -172,7 +172,7 @@ const ProductCard = memo(
             <ShoppingCart
               className={`w-4 h-4 ${isAddingToCart ? "animate-pulse" : ""}`}
             />
-            <span>
+            <span className="hidden sm:inline">
               {product.quantity_in_stock === 0
                 ? "Out of Stock"
                 : isAddingToCart
@@ -400,28 +400,21 @@ export default function CustomerStore({
         onProductSelect={handleProductSelect}
       />
 
-      {/* Hero Section */}
-      <HeroSection
-        onShopNowClick={handleShopNowClick}
-        onAddToCart={handleAddToCart}
-        onQuickView={handleQuickViewMain}
-      />
-
       {/* Products Section */}
       <section
         id="products-section"
-        className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+        className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
       >
         {/* Section Header */},
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-2 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-sm">
             <Package className="w-4 h-4" />
             <span>Premium Collection</span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text mb-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 bg-clip-text mb-4">
             Our Products
           </h2>
-          <p className="text-xl text-amber-700 dark:text-amber-300 mb-2 font-somali">
+          <p className="text-lg text-amber-700 dark:text-amber-300 mb-2 font-somali">
             Alaabteenna
           </p>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -430,7 +423,7 @@ export default function CustomerStore({
           </p>
         </div>
         {/* Category Filter */}
-        <div className="mb-12">
+        <div className="mb-6">
           {/* Mobile Filter Design */}
           <div className="block lg:hidden">
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
@@ -508,7 +501,7 @@ export default function CustomerStore({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2">
             {paginatedProducts.map((product, index) => (
               <ProductCard
                 key={product.id}
@@ -548,9 +541,16 @@ export default function CustomerStore({
             </button>
           </div>
         )}
-      </section>
+        </section>
 
-      {/* Footer */}
+        {/* Hero Section (moved below products so products show first) */}
+        <HeroSection
+          onShopNowClick={handleShopNowClick}
+          onAddToCart={handleAddToCart}
+          onQuickView={handleQuickViewMain}
+        />
+
+        {/* Footer */}
       <footer className="bg-slate-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -581,10 +581,10 @@ export default function CustomerStore({
                 <p className="flex items-center space-x-2">
                   <span>📧</span>
                   <a
-                    href="mailto:galiyowabi@gmail.com"
+                    href="mailto:yussufh080@gmail.com"
                     className="hover:text-amber-400 transition-colors"
                   >
-                    galiyowabi@gmail.com
+                    yussufh080@gmail.com
                   </a>
                 </p>
                 <p className="flex items-center space-x-2">
