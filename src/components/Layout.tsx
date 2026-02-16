@@ -589,16 +589,16 @@ export default function Layout({
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400 dark:text-slate-500">
-                    Designed & Developed by
+                    Powered by
                   </span>
                   <a
-                    href="https://lenzro.com"
+                    href="https://horumarin.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 dark:from-amber-500/10 dark:to-amber-600/10 dark:hover:from-amber-500/20 dark:hover:to-amber-600/20 border border-amber-500/30 hover:border-amber-500/50 dark:border-amber-500/20 dark:hover:border-amber-500/40 rounded-xl transition-all hover:scale-105 font-semibold text-amber-800 dark:text-amber-500 hover:text-amber-800 dark:hover:text-amber-400 shadow-lg shadow-amber-300/10 dark:shadow-amber-500/5"
                   >
                     <span className="text-lg">⚡</span>
-                    <span>Lenzro</span>
+                    <span>Horumar</span>
                   </a>
                 </div>
               </div>

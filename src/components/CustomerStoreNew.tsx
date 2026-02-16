@@ -573,12 +573,12 @@ export default function CustomerStore({
             <div>
               <h4 className="font-semibold mb-4 text-slate-200">Powered by</h4>
               <a
-                href="https://lenzro.com"
+                href="https://horumarin.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-3 py-1.5 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors"
               >
-                ⚡ Lenzro
+                ⚡ Horumar
               </a>
             </div>
           </div>

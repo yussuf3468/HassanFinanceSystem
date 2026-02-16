@@ -1,14 +1,24 @@
-# Hassan Bookshop 📚 - Best Bookstore in Eastleigh, Nairobi Kenya
+# Hassan Bookshop by Horumar 📚 - Trusted Educational Partner in Eastleigh, Nairobi Kenya
 
-[![Live Site](https://img.shields.io/badge/Live-Hassan%20Bookshop-purple?style=for-the-badge)](https://hassan.lenzro.com)
-[![Made in Kenya](https://img.shields.io/badge/Made%20in-Kenya%20🇰🇪-green?style=for-the-badge)](https://hassan.lenzro.com)
+[![Live Site](https://img.shields.io/badge/Live-Hassan%20Bookshop-amber?style=for-the-badge)](https://hassan.horumarin.com)
+[![Made in Kenya](https://img.shields.io/badge/Made%20in-Kenya%20🇰🇪-green?style=for-the-badge)](https://hassan.horumarin.com)
 [![Contact](https://img.shields.io/badge/Call-%2B254%20722%20979%20547-blue?style=for-the-badge)](tel:+254722979547)
+[![Powered by Horumar](https://img.shields.io/badge/Powered%20by-Horumar-amber?style=for-the-badge)](https://horumarin.com)
 
-> 🏆 **Leading Educational Bookstore in Eastleigh, Nairobi** - Your trusted partner for textbooks, stationery, electronics, and school supplies with over 10,000+ products in stock!
+> 🏆 **Your Trusted Educational Partner in Eastleigh, Nairobi** - Premium quality textbooks, authentic stationery, verified electronics, and professional school supplies. Serving 10,000+ satisfied students & professionals!
 
-## 🌟 About Hassan Bookshop
+## 🌟 About Hassan Bookshop by Horumar
 
-Hassan Bookshop is the premier destination for educational materials in Eastleigh, Nairobi Kenya. We specialize in providing quality textbooks, stationery, electronics, and school supplies to students, schools, and educational institutions across Kenya.
+Hassan Bookshop by Horumar is your trusted educational partner in Eastleigh, Nairobi Kenya. We specialize in providing authentic, premium quality textbooks, professional stationery, verified electronics, and reliable school supplies to students, schools, professionals, and educational institutions across Kenya.
+
+**Why Choose Us:**
+
+- ✅ Verified Authentic Products
+- ✅ Expert Guidance & Support
+- ✅ Competitive Prices
+- ✅ Secure Online Checkout
+- ✅ Reliable Delivery Services
+- ✅ 10,000+ Satisfied Customers
 
 ### 📍 Location
 
@@ -374,4 +384,3 @@ Created by Yussuf Hassan Muse
 ---
 
 **Hassan Financial System** - Modern, Beautiful, and Powerful Financial Management 💼✨
-

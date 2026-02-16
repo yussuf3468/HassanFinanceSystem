@@ -209,20 +209,17 @@ export default function StorefrontFooter() {
             <p className="text-center sm:text-left">
               © {currentYear} Horumar. All rights reserved.
             </p>
-            <div className="flex items-center justify-center gap-1 text-sm text-white">
-              <span>Made with</span>
-              <Heart className="w-4 h-4 text-red-500 fill-current" />
-              <span>
-                by{" "}
-                <a
-                  href="https://lenzro.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  Lenzro
-                </a>
-              </span>
+            <div className="flex items-center justify-center gap-1 text-sm text-amber-200/80">
+              <span>Powered by</span>
+              <a
+                href="https://horumarin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                Horumar
+              </a>
+              <span className="text-amber-300/60">- Your Progress Partner</span>
             </div>
 
             <div className="flex gap-4">

@@ -193,15 +193,15 @@ export default function Login({ onLogin }: LoginProps) {
         {/* Professional Credit Footer */}
         <div className="mt-8 pt-6 border-t-2 border-slate-200 dark:border-slate-700 text-center">
           <div className="flex items-center justify-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-            <span>Crafted with excellence by</span>
+            <span>Powered by</span>
             <a
-              href="https://lenzro.com"
+              href="https://horumarin.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 hover:from-amber-200 hover:to-stone-200 dark:hover:from-amber-900/50 dark:hover:to-stone-900/50 border border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 rounded-md transition-all hover:scale-105 font-bold text-amber-800 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400"
             >
               <span>⚡</span>
-              <span>Lenzro</span>
+              <span>Horumar</span>
             </a>
           </div>
         </div>

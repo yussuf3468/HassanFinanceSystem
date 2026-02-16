@@ -1,11 +1,11 @@
 {
-  "name": "Hassan Bookshop - Best Bookstore in Eastleigh Nairobi Kenya",
+  "name": "Hassan Bookshop by Horumar - Trusted Educational Partner in Eastleigh Nairobi Kenya",
   "short_name": "Hassan Bookshop",
-  "description": "Leading bookstore in Eastleigh Nairobi Kenya. Buy textbooks, stationery, electronics, school supplies online. 10,000+ books. Fast delivery. Best prices.",
+  "description": "Hassan Bookshop by Horumar - Your trusted educational partner in Eastleigh, Nairobi Kenya. Premium quality textbooks, authentic stationery, verified electronics. Serving 10,000+ satisfied customers. Secure checkout, reliable delivery.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#7c3aed",
+  "theme_color": "#d97706",
   "orientation": "portrait-primary",
   "icons": [
     {

@@ -2,7 +2,7 @@
   "name": "hassan-bookshop",
   "private": false,
   "version": "1.0.0",
-  "description": "Hassan Bookshop - Leading educational bookstore in Eastleigh, Nairobi Kenya. Buy textbooks, stationery, electronics and school supplies online with fast delivery.",
+  "description": "Hassan Bookshop by Horumar - Your trusted educational partner in Eastleigh, Nairobi Kenya. Premium quality textbooks, stationery, electronics and school supplies online with secure checkout and reliable delivery.",
   "keywords": [
     "bookstore",
     "Kenya",
@@ -14,10 +14,13 @@
     "school supplies",
     "educational materials",
     "books online",
-    "Hassan Bookshop"
+    "Hassan Bookshop",
+    "Horumar",
+    "trusted bookstore",
+    "verified books"
   ],
   "author": "Yussuf Muse <yussufh080@gmail.com>",
-  "homepage": "https://hassan.lenzro.com",
+  "homepage": "https://hassan.horumarin.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/yussuf3468/HassanFinanceSystem.git"
@@ -32,7 +35,7 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:bundle": "npm run build && npx cap copy android && cd android && .\\gradlew.bat bundleRelease",
     "android:clean": "cd android && .\\gradlew.bat clean",
-    "android:keystore:hint": "echo Use keytool to create keystore: keytool -genkeypair -v -keystore hassan-lenzro.keystore -alias lenzro -keyalg RSA -keysize 2048 -validity 10000",
+    "android:keystore:hint": "echo Use keytool to create keystore: keytool -genkeypair -v -keystore hassan-horumar.keystore -alias horumar -keyalg RSA -keysize 2048 -validity 10000",
     "assets:generate": "npx capacitor-assets generate android --iconBackgroundColor=#0B0B14 --splashBackgroundColor=#0B0B14",
     "lint": "eslint .",
     "preview": "vite preview",

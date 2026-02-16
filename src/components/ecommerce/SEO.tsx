@@ -11,15 +11,16 @@ interface SEOProps {
 }
 
 export default function SEO({
-  title = "Horumar - Your Business, Your Progress",
-  description = "Premium educational materials, stationery, and electronics in Eastleigh, Nairobi. Quality products for students and professionals. Shop online with fast delivery.",
-  keywords = "bookstore, Kenya, Nairobi, Eastleigh, textbooks, stationery, electronics, school supplies, Horumar",
+  title = "Hassan Bookshop by Horumar - Your Trusted Educational Partner",
+  description = "Hassan Bookshop by Horumar - Premium quality textbooks, authentic stationery, and verified electronics in Eastleigh, Nairobi. Trusted educational partner for students and professionals. Shop online with secure checkout and reliable delivery.",
+  keywords = "Hassan Bookshop, Horumar, trusted bookstore Kenya, verified books Nairobi, Eastleigh bookshop, premium textbooks, quality stationery, authentic electronics, school supplies Kenya",
   image = "/og-image.jpg",
   url,
   type = "website",
 }: SEOProps) {
   const location = useLocation();
-  const fullUrl = url || `https://horumar.com${location?.pathname || ""}`;
+  const fullUrl =
+    url || `https://hassan.horumarin.com${location?.pathname || ""}`;
 
   useEffect(() => {
     // Set document title
@@ -36,7 +37,7 @@ export default function SEO({
       { property: "og:image", content: image },
       { property: "og:url", content: fullUrl },
       { property: "og:type", content: type },
-      { property: "og:site_name", content: "Horumar" },
+      { property: "og:site_name", content: "Hassan Bookshop by Horumar" },
 
       // Twitter Card
       { name: "twitter:card", content: "summary_large_image" },
@@ -47,7 +48,7 @@ export default function SEO({
       // Additional SEO
       { name: "robots", content: "index, follow" },
       { name: "language", content: "English" },
-      { name: "author", content: "Horumar" },
+      { name: "author", content: "Hassan Bookshop by Horumar" },
     ];
 
     metaTags.forEach(({ name, property, content }) => {

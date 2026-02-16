@@ -1,8 +1,8 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.lenzro.erp",
-  appName: "Lenzro ERP",
+  appId: "com.horumar.hassanbookshop",
+  appName: "Hassan Bookshop by Horumar",
   webDir: "dist",
   server: {
     androidScheme: "https",
