@@ -537,9 +537,7 @@ export default function CustomerStore({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3">
-                HASSAN BOOKSHOP
-              </h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-3">HORUMAR</h3>
               <p className="text-slate-400 text-sm">
                 Your trusted partner for books, stationery, and more.
               </p>
@@ -587,8 +585,7 @@ export default function CustomerStore({
 
           <div className="border-t border-slate-800 pt-6 text-center text-slate-400 text-sm">
             <p>
-              &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} HORUMAR. All rights reserved.
             </p>
           </div>
         </div>

@@ -61,14 +61,14 @@ const Navbar = memo(
           }, 100);
         }
       },
-      [onSearchChange]
+      [onSearchChange],
     );
 
     // Function to highlight product and scroll to it
     const highlightProduct = useCallback((productId: string) => {
       setTimeout(() => {
         const productElement = document.querySelector(
-          `[data-product-id="${productId}"]`
+          `[data-product-id="${productId}"]`,
         );
         if (productElement) {
           productElement.scrollIntoView({
@@ -110,8 +110,8 @@ const Navbar = memo(
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">
-                  HASSAN BOOKSHOP
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                  HORUMAR
                 </h1>
                 <p className="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">
                   Your trusted bookstore
@@ -391,7 +391,7 @@ const Navbar = memo(
         )}
       </header>
     );
-  }
+  },
 );
 
 Navbar.displayName = "Navbar";

@@ -110,7 +110,7 @@ export default function DeliveryAddressSelector({
           <div>
             <label
               className={`block text-sm font-medium mb-2 ${
-                dark ? "text-slate-700 " : "text-slate-700"
+                dark ? "text-white" : "text-slate-900"
               }`}
             >
               Select Area / Dooro Degaanka
@@ -157,7 +157,7 @@ export default function DeliveryAddressSelector({
             <div>
               <label
                 className={`block text-sm font-medium mb-2 ${
-                  dark ? "text-slate-700 " : "text-slate-700"
+                  dark ? "text-white" : "text-slate-900"
                 }`}
               >
                 Select Specific Location / Dooro Meesha
@@ -181,7 +181,7 @@ export default function DeliveryAddressSelector({
                     Choose location...
                   </option>
                   {EASTLEIGH_LOCATIONS.find(
-                    (area) => area.area === selectedArea
+                    (area) => area.area === selectedArea,
                   )?.locations.map((location) => (
                     <option
                       key={location}
@@ -234,7 +234,7 @@ export default function DeliveryAddressSelector({
         <div>
           <label
             className={`block text-sm font-medium mb-2 ${
-              dark ? "text-slate-700 " : "text-slate-700"
+              dark ? "text-white" : "text-slate-900"
             }`}
           >
             Enter Custom Address / Gali Ciwaanka

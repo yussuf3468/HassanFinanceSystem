@@ -14,7 +14,7 @@ import Reports from "./components/Reports";
 import UserActivityDashboard from "./components/UserActivityDashboard";
 import Orders from "./components/Orders";
 import CustomerBalances from "./components/CustomerBalances";
-import CustomerStoreNew from "./components/CustomerStoreNew";
+import HorumarStorefront from "./components/HorumarStorefront";
 import { Store, Settings } from "lucide-react";
 import FinancialDashboard from "./components/FinancialDashboard";
 import ExpenseManagement from "./components/ExpenseManagement";
@@ -77,19 +77,7 @@ function AppContent() {
 
   // Customer view (no authentication required)
   if (viewMode === "customer") {
-    return (
-      <div className="relative">
-        {/* View Toggle Button */}
-        <button
-          onClick={() => setViewMode("admin")}
-          className="fixed top-4 right-4 z-50 bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2 shadow-lg"
-        >
-          <Settings className="w-4 h-4" />
-          <span className="hidden sm:inline">Admin Panel</span>
-        </button>
-        <CustomerStoreNew onAdminClick={() => setViewMode("admin")} />
-      </div>
-    );
+    return <HorumarStorefront onAdminClick={() => setViewMode("admin")} />;
   }
 
   // Admin view (requires authentication)

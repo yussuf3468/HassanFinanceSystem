@@ -137,6 +137,14 @@ export interface Database {
             | "cancelled";
           payment_method: "cash" | "mpesa" | "card" | "bank_transfer";
           payment_status: "pending" | "paid" | "failed" | "refunded";
+          payment_reference?: string | null;
+          payment_channel?: string | null;
+          payment_phone?: string | null;
+          payment_amount?: number | null;
+          payment_receipt_code?: string | null;
+          payment_proof_url?: string | null;
+          payment_submitted_at?: string | null;
+          payment_verified_at?: string | null;
           notes?: string | null;
           created_at: string;
           updated_at: string;
@@ -160,6 +168,14 @@ export interface Database {
             | "cancelled";
           payment_method?: "cash" | "mpesa" | "card" | "bank_transfer";
           payment_status?: "pending" | "paid" | "failed" | "refunded";
+          payment_reference?: string | null;
+          payment_channel?: string | null;
+          payment_phone?: string | null;
+          payment_amount?: number | null;
+          payment_receipt_code?: string | null;
+          payment_proof_url?: string | null;
+          payment_submitted_at?: string | null;
+          payment_verified_at?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -183,6 +199,14 @@ export interface Database {
             | "cancelled";
           payment_method?: "cash" | "mpesa" | "card" | "bank_transfer";
           payment_status?: "pending" | "paid" | "failed" | "refunded";
+          payment_reference?: string | null;
+          payment_channel?: string | null;
+          payment_phone?: string | null;
+          payment_amount?: number | null;
+          payment_receipt_code?: string | null;
+          payment_proof_url?: string | null;
+          payment_submitted_at?: string | null;
+          payment_verified_at?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -194,7 +218,93 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "customers";
             referencedColumns: ["id"];
-          }
+          },
+        ];
+      };
+      payment_confirmations: {
+        Row: {
+          id: string;
+          order_id: string;
+          order_number: string;
+          payment_reference: string;
+          customer_phone: string;
+          amount: number;
+          receipt_code: string;
+          proof_url?: string | null;
+          status: "submitted" | "verified" | "rejected";
+          submitted_at: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          raw_data?: Record<string, unknown> | null;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          order_number: string;
+          payment_reference: string;
+          customer_phone: string;
+          amount: number;
+          receipt_code: string;
+          proof_url?: string | null;
+          status?: "submitted" | "verified" | "rejected";
+          submitted_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          raw_data?: Record<string, unknown> | null;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          order_number?: string;
+          payment_reference?: string;
+          customer_phone?: string;
+          amount?: number;
+          receipt_code?: string;
+          proof_url?: string | null;
+          status?: "submitted" | "verified" | "rejected";
+          submitted_at?: string;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          raw_data?: Record<string, unknown> | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_confirmations_order_id_fkey";
+            columns: ["order_id"];
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payment_events: {
+        Row: {
+          id: string;
+          order_id: string;
+          event_type: string;
+          event_data?: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          event_type: string;
+          event_data?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          event_type?: string;
+          event_data?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_order_id_fkey";
+            columns: ["order_id"];
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
         ];
       };
       order_items: {
@@ -242,7 +352,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "products";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       sales: {
@@ -346,7 +456,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "expense_categories";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       initial_investments: {
@@ -444,7 +554,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "debts";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
     };

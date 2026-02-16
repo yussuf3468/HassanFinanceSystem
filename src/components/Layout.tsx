@@ -170,12 +170,12 @@ export default function Layout({
       icon: Calculator,
       color: "from-emerald-600 to-teal-600",
     },
-    // {
-    //   id: "orders",
-    //   label: "Dalabyada",
-    //   icon: ClipboardList,
-    //   color: "from-orange-600 to-amber-600",
-    // },
+    {
+      id: "orders",
+      label: "Dalabyada",
+      icon: ClipboardList,
+      color: "from-orange-600 to-amber-600",
+    },
 
     // {
     //   id: "user-activity",
@@ -259,10 +259,10 @@ export default function Layout({
                   </div>
                   <div>
                     <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                      HASSAN BOOKSHOP
+                      HORUMAR
                     </h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      Bookshop & Cyber
+                      Your Business, Your Progress
                     </p>
                   </div>
                 </div>
@@ -434,7 +434,7 @@ export default function Layout({
                 </div>
                 <div className="hidden sm:block min-w-0">
                   <h1 className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[160px]">
-                    HASSAN BOOKSHOP
+                    HORUMAR
                   </h1>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                     ERP System

@@ -601,7 +601,7 @@ export default function BusinessProfitTracker() {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(150);
       doc.text(
-        `Page ${i} of ${pageCount} | Hassan Bookshop Profit Tracker`,
+        `Page ${i} of ${pageCount} | Horumar Profit Tracker`,
         pageWidth / 2,
         doc.internal.pageSize.getHeight() - 10,
         { align: "center" },

@@ -63,10 +63,10 @@ export interface Customer {
 
 export interface Order {
   id: string;
-  customer_id?: string;
+  customer_id?: string | null;
   order_number: string;
   customer_name: string;
-  customer_email?: string;
+  customer_email?: string | null;
   customer_phone: string;
   delivery_address: string;
   delivery_fee: number;
@@ -81,7 +81,15 @@ export interface Order {
     | "cancelled";
   payment_method: "cash" | "mpesa" | "card" | "bank_transfer";
   payment_status: "pending" | "paid" | "failed" | "refunded";
-  notes?: string;
+  payment_reference?: string | null;
+  payment_channel?: string | null;
+  payment_phone?: string | null;
+  payment_amount?: number | null;
+  payment_receipt_code?: string | null;
+  payment_proof_url?: string | null;
+  payment_submitted_at?: string | null;
+  payment_verified_at?: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];

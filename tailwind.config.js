@@ -11,6 +11,10 @@ export default {
         "spin-slow": "spin 20s linear infinite",
         "bounce-slow": "bounce 3s infinite",
         gradient: "gradient 8s ease infinite",
+        "fade-in": "fadeIn 0.2s ease-in-out",
+        "scale-in": "scaleIn 0.2s ease-in-out",
+        "slide-in-right": "slideInRight 0.3s ease-out",
+        "slide-in-left": "slideInLeft 0.3s ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -20,6 +24,14 @@ export default {
         slideInLeft: {
           "0%": { opacity: "0", transform: "translateX(-20px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        scaleIn: {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        slideInRight: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(0)" },
         },
         gradient: {
           "0%, 100%": {

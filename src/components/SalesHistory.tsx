@@ -174,7 +174,7 @@ export default function SalesHistory() {
         if (tx.sold_by.toLowerCase().includes(q)) return true;
         if (
           tx.items.some((it) =>
-            (getProductName(it.product_id) + "").toLowerCase().includes(q)
+            (getProductName(it.product_id) + "").toLowerCase().includes(q),
           )
         )
           return true;
@@ -216,15 +216,15 @@ export default function SalesHistory() {
     // If filters are active, use client-side calculation on filtered data
     const revenue = filteredTransactions.reduce(
       (s, t) => s + (t.total_amount || 0),
-      0
+      0,
     );
     const profit = filteredTransactions.reduce(
       (s, t) => s + (t.total_profit || 0),
-      0
+      0,
     );
     const discounts = filteredTransactions.reduce(
       (s, t) => s + (t.total_discount || 0),
-      0
+      0,
     );
     return {
       revenue,
@@ -338,7 +338,7 @@ export default function SalesHistory() {
     } catch (e) {
       console.error(e);
       alert(
-        "Failed to prepare receipt for printing. Please use the PDF option."
+        "Failed to prepare receipt for printing. Please use the PDF option.",
       );
     }
   };
@@ -372,20 +372,20 @@ export default function SalesHistory() {
                 : "-"
             }</td>
             <td class="num">KES ${item.total_sale.toLocaleString()}</td>
-          </tr>`
+          </tr>`,
       )
       .join("");
 
     const subtotal = transaction.items.reduce(
       (sum, item) => sum + item.selling_price * item.quantity_sold,
-      0
+      0,
     );
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Receipt - HASSAN BOOKSHOP</title>
+<title>Receipt - HORUMAR</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
   @page { size: A4; margin: 10mm; }
@@ -408,7 +408,7 @@ export default function SalesHistory() {
 <body>
   <div class="wrap">
     <div class="header">
-      <h1>HASSAN BOOKSHOP</h1>
+      <h1>HORUMAR</h1>
       <div class="sub">Quality Educational Materials & Supplies</div>
       <div class="sub">Tel: +254 722 979 547 • Email: yussufh080@gmail.com</div>
       <div style="margin-top:10px;font-weight:700;">Sales Receipt</div>
@@ -418,21 +418,23 @@ export default function SalesHistory() {
       <tr>
         <td><strong>Transaction:</strong> ${transaction.transaction_id}</td>
         <td class="mono"><strong>Date:</strong> ${new Date(
-          transaction.created_at
+          transaction.created_at,
         ).toLocaleString()}</td>
       </tr>
       <tr>
         <td><strong>Customer:</strong> ${escapeHtml(
-          transaction.customer_name || "Walk-in Customer"
+          transaction.customer_name || "Walk-in Customer",
         )}</td>
         <td><strong>Payment:</strong> ${escapeHtml(
-          transaction.payment_method
+          transaction.payment_method,
         )}</td>
       </tr>
       <tr>
         <td><strong>Sold By:</strong> ${escapeHtml(transaction.sold_by)}</td>
         <td><strong>Payment Status:</strong> ${escapeHtml(
-          (transaction.payment_status || "paid").replace("_", " ").toUpperCase()
+          (transaction.payment_status || "paid")
+            .replace("_", " ")
+            .toUpperCase(),
         )}</td>
       </tr>
       ${
@@ -773,7 +775,7 @@ export default function SalesHistory() {
           const isOpen = expanded.has(transaction.transaction_id);
           const preview = transaction.items
             .map(
-              (it) => `${getProductName(it.product_id)} (${it.quantity_sold})`
+              (it) => `${getProductName(it.product_id)} (${it.quantity_sold})`,
             )
             .slice(0, 4)
             .join(", ");
@@ -1148,7 +1150,7 @@ export default function SalesHistory() {
                       a.href = url;
                       a.download = `receipt-${selectedTransaction.transaction_id.slice(
                         0,
-                        8
+                        8,
                       )}.html`;
                       document.body.appendChild(a);
                       a.click();
@@ -1176,7 +1178,7 @@ export default function SalesHistory() {
                 <div className="max-w-[820px] mx-auto">
                   <div className="text-center mb-4">
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                      HASSAN BOOKSHOP
+                      HORUMAR
                     </h3>
                     <div className="text-sm text-slate-700 dark:text-slate-400">
                       Quality Educational Materials & Supplies
@@ -1201,7 +1203,7 @@ export default function SalesHistory() {
                       </div>
                       <div className="font-medium text-slate-900 dark:text-white">
                         {new Date(
-                          selectedTransaction.created_at
+                          selectedTransaction.created_at,
                         ).toLocaleString()}
                       </div>
                     </div>
@@ -1354,7 +1356,7 @@ export default function SalesHistory() {
                     a.href = url;
                     a.download = `receipt-${selectedTransaction.transaction_id.slice(
                       0,
-                      8
+                      8,
                     )}.html`;
                     document.body.appendChild(a);
                     a.click();

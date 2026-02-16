@@ -14,7 +14,7 @@ import type { Product } from "../types";
 export function useSupabaseQuery<T = any>(
   key: string | string[],
   queryFn: () => Promise<{ data: T | null; error: any }>,
-  options?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<T, Error>({
     queryKey: Array.isArray(key) ? key : [key],
@@ -43,7 +43,7 @@ export function useSupabaseQuery<T = any>(
 export function useSupabaseQueryDirect<T = any>(
   key: string | string[],
   queryFn: () => Promise<T>,
-  options?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">,
 ) {
   return useQuery<T, Error>({
     queryKey: Array.isArray(key) ? key : [key],
@@ -74,7 +74,7 @@ export function useProducts() {
     const { data, error } = await supabase
       .from("products")
       .select(
-        "id,name,product_id,category,buying_price,selling_price,quantity_in_stock,reorder_level,image_url,featured,published,created_at"
+        "id,name,product_id,category,buying_price,selling_price,quantity_in_stock,reorder_level,image_url,featured,published,created_at",
       )
       .order("created_at", { ascending: false }); // Index on created_at for faster sorting
 
@@ -97,13 +97,13 @@ export function useProductsPaginated(page: number = 0, pageSize: number = 50) {
       const { data, error } = await supabase
         .from("products")
         .select(
-          "id,name,product_id,category,buying_price,selling_price,quantity_in_stock,reorder_level,image_url,featured,published,created_at"
+          "id,name,product_id,category,buying_price,selling_price,quantity_in_stock,reorder_level,image_url,featured,published,created_at",
         )
         .order("created_at", { ascending: false })
         .range(from, to);
 
       return { data, error };
-    }
+    },
   );
 }
 
@@ -125,7 +125,7 @@ export function useSales() {
         const { data, error } = await supabase
           .from("sales")
           .select(
-            "id,transaction_id,product_id,quantity_sold,selling_price,buying_price,total_sale,profit,payment_method,sold_by,discount_amount,discount_percentage,original_price,final_price,created_at,sale_date,customer_name,payment_status,amount_paid"
+            "id,transaction_id,product_id,quantity_sold,selling_price,buying_price,total_sale,profit,payment_method,sold_by,discount_amount,discount_percentage,original_price,final_price,created_at,sale_date,customer_name,payment_status,amount_paid",
           )
           .order("created_at", { ascending: false })
           .range(from, from + pageSize - 1);
@@ -144,7 +144,7 @@ export function useSales() {
       }
 
       return { data: allSales, error: null };
-    }
+    },
     // ✅ No auto-refetch - use manual Refresh button to save costs!
   );
 }
@@ -158,7 +158,7 @@ export function useRecentSales(limit: number = 100) {
     const { data, error } = await supabase
       .from("sales")
       .select(
-        "id,product_id,quantity_sold,total_sale,profit,payment_method,sold_by,created_at"
+        "id,product_id,quantity_sold,total_sale,profit,payment_method,sold_by,created_at",
       )
       .order("created_at", { ascending: false })
       .limit(limit);
@@ -266,7 +266,7 @@ export function useFinancialTotals() {
 export function useOrders() {
   return useSupabaseQuery<any[]>(
     "orders",
-    async () => await supabase.from("orders").select("*, order_items(*)")
+    async () => await supabase.from("orders").select("*, order_items(*)"),
   );
 }
 
@@ -292,7 +292,7 @@ export function usePendingOrdersCount() {
     {
       staleTime: Infinity, // NEVER refetch automatically - infinite cache!
       refetchInterval: false, // ❌ DISABLED auto-polling - saves 100+ requests/day!
-    }
+    },
   );
 }
 
@@ -333,7 +333,7 @@ export function useExpenses() {
   return useSupabaseQuery<any[]>(
     "expenses",
     async () =>
-      await supabase.from("expenses").select("*, expense_categories(name)")
+      await supabase.from("expenses").select("*, expense_categories(name)"),
   );
 }
 
@@ -343,7 +343,7 @@ export function useExpenses() {
 export function useDebts() {
   return useSupabaseQuery<any[]>(
     "debts",
-    async () => await supabase.from("debts").select("*")
+    async () => await supabase.from("debts").select("*"),
   );
 }
 
@@ -357,10 +357,9 @@ export function usePublicProducts() {
       await supabase
         .from("products")
         .select("*")
-        .eq("published", true)
         .gt("quantity_in_stock", 0)
-        .order("featured", { ascending: false })
-        .order("name")
+        .order("selling_price", { ascending: false })
+        .order("name"),
   );
 }
 
@@ -375,8 +374,8 @@ export function useFeaturedProducts(limit = 8) {
         .from("products")
         .select("*")
         .gt("quantity_in_stock", 0)
-        .order("quantity_in_stock", { ascending: true })
-        .limit(limit)
+        .order("selling_price", { ascending: false })
+        .limit(limit),
   );
 }
 
@@ -386,7 +385,7 @@ export function useFeaturedProducts(limit = 8) {
 export function useInitialInvestments() {
   return useSupabaseQuery<any[]>(
     "initial-investments",
-    async () => await supabase.from("initial_investments").select("*")
+    async () => await supabase.from("initial_investments").select("*"),
   );
 }
 
@@ -400,6 +399,6 @@ export function useReturns() {
       await supabase
         .from("returns")
         .select("*")
-        .order("return_date", { ascending: false })
+        .order("return_date", { ascending: false }),
   );
 }

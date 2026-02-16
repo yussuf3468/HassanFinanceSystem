@@ -29,7 +29,7 @@ export default function Login({ onLogin }: LoginProps) {
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
           setError(
-            "Magaca isticmaalaha ama furaha sirta ah ayaa qaldan - Invalid email or password"
+            "Magaca isticmaalaha ama furaha sirta ah ayaa qaldan - Invalid email or password",
           );
         } else {
           setError("Khalad ayaa dhacay - An error occurred: " + error.message);
@@ -80,8 +80,8 @@ export default function Login({ onLogin }: LoginProps) {
                 <BookOpen className="w-12 h-12 text-white mx-auto" />
               </div>
             </div>
-            <h1 className="text-3xl font-black bg-gradient-to-r from-amber-600 to-amber-700 dark:from-amber-500 dark:to-amber-600 bg-clip-text text-transparent">
-              HASSAN BOOKSHOP
+            <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              HORUMAR
             </h1>
             <p className="text-slate-600 dark:text-slate-400 font-medium mt-2">
               Gal Nidaamka - Staff Login System
@@ -198,7 +198,7 @@ export default function Login({ onLogin }: LoginProps) {
               href="https://lenzro.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 hover:from-amber-200 hover:to-stone-200 dark:hover:from-amber-900/50 dark:hover:to-stone-900/50 border border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 rounded-md transition-all hover:scale-105 font-bold text-amber-800 dark:text-amber-500 font-semibold hover:text-amber-700 dark:hover:text-amber-400"
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 hover:from-amber-200 hover:to-stone-200 dark:hover:from-amber-900/50 dark:hover:to-stone-900/50 border border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 rounded-md transition-all hover:scale-105 font-bold text-amber-800 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400"
             >
               <span>⚡</span>
               <span>Lenzro</span>

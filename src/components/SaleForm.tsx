@@ -779,7 +779,7 @@ export default function SaleForm({
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Receipt - HASSAN BOOKSHOP</title>
+<title>Receipt - HORUMAR</title>
 <style>
   @page { size: A4; margin: 10mm; }
   html, body { height: 100%; }
@@ -824,7 +824,7 @@ export default function SaleForm({
 </head>
 <body>
   <div class="header">
-    <h1>HASSAN BOOKSHOP</h1>
+    <h1>HORUMAR</h1>
     <div class="sub">Quality Educational Materials & Supplies</div>
     <div class="sub">Tel: +254 722 979 547 Email: yussufh080@gmail.com</div>
     <div class="title">Sales Receipt</div>
@@ -1238,7 +1238,7 @@ export default function SaleForm({
             <div className="bg-white dark:bg-slate-700 text-black dark:text-white rounded-xl border border-gray-300 dark:border-slate-600 p-4 sm:p-6 shadow-lg">
               <div className="text-center space-y-1 mb-4">
                 <h1 className="text-xl sm:text-2xl font-extrabold tracking-wide text-slate-900 dark:text-white">
-                  HASSAN BOOKSHOP
+                  HORUMAR
                 </h1>
                 <p className="text-xs text-gray-700 dark:text-gray-300">
                   Quality Educational Materials & Supplies

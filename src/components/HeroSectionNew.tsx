@@ -65,13 +65,11 @@ const HeroSection = memo(
                   {/* Main Heading with Trilingual Touch */}
                   <div className="space-y-4">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-tight">
-                      <span className="block">HASSAN</span>
-                      <span className="block bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 bg-clip-text text-transparent">
-                        BOOKSHOP
+                      <span className="block bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                        HORUMAR
                       </span>
                       <span className="block text-xl sm:text-2xl lg:text-3xl font-normal text-slate-600 dark:text-slate-400 mt-2">
-                        Educational Store •{" "}
-                        <span className="font-somali">Dukaanka Buugaagta</span>
+                        Your Business, Your Progress
                       </span>
                     </h1>
 
@@ -360,7 +358,7 @@ const HeroSection = memo(
         </div>
       </>
     );
-  }
+  },
 );
 
 HeroSection.displayName = "HeroSection";

@@ -1,6 +1,5 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import {
-  X,
   CreditCard,
   Truck,
   Phone,
@@ -8,15 +7,24 @@ import {
   User,
   MessageSquare,
   CheckCircle,
-  Loader,
 } from "lucide-react";
 import compactToast from "../utils/compactToast";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../contexts/CartContext";
-// import DeliveryCalculator from "./DeliveryCalculator";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 import type { Database } from "../lib/database.types";
+import Dialog from "./ecommerce/Dialog";
+import Button from "./ecommerce/Button";
+import Input from "./ecommerce/Input";
+import Badge from "./ecommerce/Badge";
+import Spinner from "./ecommerce/Spinner";
+import Alert from "./ecommerce/Alert";
+import OrderConfirmationDialog from "./ecommerce/OrderConfirmationDialog";
+import {
+  notifyAdminNewOrder,
+  requestNotificationPermission,
+} from "../utils/adminNotifications";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
 
@@ -41,6 +49,39 @@ const CheckoutModal = memo(
     const [paymentMethod, setPaymentMethod] = useState<
       "cash" | "mpesa" | "card" | "bank_transfer"
     >("mpesa");
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+    const [orderItems, setOrderItems] = useState<any[]>([]);
+    const [saveInfo, setSaveInfo] = useState(true);
+
+    // Load saved customer info on mount
+    useEffect(() => {
+      if (isOpen) {
+        const savedInfo = localStorage.getItem("customerInfo");
+        if (savedInfo) {
+          try {
+            const parsed = JSON.parse(savedInfo);
+            setFormData({
+              customer_name: parsed.customer_name || "",
+              phone_number: parsed.phone_number || "",
+              delivery_address: parsed.delivery_address || "",
+              email: parsed.email || "",
+              notes: "", // Don't restore notes
+            });
+            if (parsed.payment_method) {
+              setPaymentMethod(parsed.payment_method);
+            }
+          } catch (e) {
+            console.error("Failed to load saved customer info", e);
+          }
+        }
+
+        // Request notification permission for admin alerts
+        requestNotificationPermission().catch((err) => {
+          console.log("Notification permission not granted:", err);
+        });
+      }
+    }, [isOpen]);
 
     const handleDeliveryFeeChange = useCallback((fee: number) => {
       setDeliveryFee(fee);
@@ -53,7 +94,7 @@ const CheckoutModal = memo(
           [field]: value,
         }));
       },
-      []
+      [],
     );
 
     const validateForm = useCallback(() => {
@@ -95,9 +136,9 @@ const CheckoutModal = memo(
             customer_email: formData.email || null,
             customer_phone: formData.phone_number,
             delivery_address: formData.delivery_address,
-            delivery_fee: deliveryFee,
+            delivery_fee: deliveryFee || 0,
             subtotal: cart.totalPrice,
-            total_amount: cart.totalPrice + deliveryFee,
+            total_amount: cart.totalPrice + (deliveryFee || 0),
             payment_method: paymentMethod,
             payment_status: "pending" as const,
             notes: formData.notes || null,
@@ -150,13 +191,36 @@ const CheckoutModal = memo(
             }
           }
 
-          // Success! Clear cart and show success message
-          cart.clearCart();
+          // Success! Show confirmation dialog
+          setCompletedOrder(order);
+          setOrderItems(orderItems);
+          setShowConfirmation(true);
 
-          compactToast.orderSuccess(order.order_number);
+          // Send admin notification
+          try {
+            await notifyAdminNewOrder(order);
+          } catch (notifError) {
+            console.error("Failed to send admin notification:", notifError);
+            // Don't block the order flow if notification fails
+          }
+
+          // Save customer info for next time if enabled
+          if (saveInfo) {
+            const customerInfo = {
+              customer_name: formData.customer_name,
+              phone_number: formData.phone_number,
+              delivery_address: formData.delivery_address,
+              email: formData.email,
+              payment_method: paymentMethod,
+            };
+            localStorage.setItem("customerInfo", JSON.stringify(customerInfo));
+          }
+
+          // Save last order to localStorage for tracking
+          localStorage.setItem("lastOrderNumber", order.order_number);
+          localStorage.setItem("lastOrderDate", new Date().toISOString());
 
           onOrderComplete?.(order);
-          onClose();
         } catch (error) {
           console.error("Checkout error:", error);
           compactToast.error("Failed to place order. Please try again.");
@@ -172,53 +236,39 @@ const CheckoutModal = memo(
         validateForm,
         onOrderComplete,
         onClose,
-      ]
+      ],
     );
 
     if (!isOpen) return null;
 
-    const subtotal = cart.totalPrice;
-    const total = subtotal + deliveryFee;
+    const subtotal = cart.totalPrice || 0;
+    const total = subtotal + (deliveryFee || 0);
 
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900/40 via-amber-900/20 to-slate-900/40 backdrop-blur-md backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden border border-amber-300/70 dark:border-slate-700 shadow-amber-100/50/60 shadow-sm">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-900/50 dark:to-slate-800 text-white p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <CreditCard className="w-6 h-6" />
-                <h2 className="text-xl font-bold">Checkout</h2>
-              </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-700 dark:hover:to-slate-600 rounded-full transition-colors"
-                disabled={isSubmitting}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-amber-50 dark:text-slate-300 mt-2">
-              Complete your order
-            </p>
-          </div>
-
-          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+      <>
+        <Dialog
+          isOpen={isOpen}
+          onClose={onClose}
+          title="Complete Your Order"
+          size="lg"
+        >
+          <div className="space-y-4 sm:space-y-6">
             {/* Order Summary */}
-            <div className="p-6 border-b border-amber-100/50 dark:border-slate-700 bg-stone-50 dark:bg-slate-800/50">
-              <h3 className="font-semibold text-slate-800 dark:text-white mb-4">
+            <div className="p-3 sm:p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-200 dark:border-violet-800">
+              <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-violet-600" />
                 Order Summary
               </h3>
               <div className="space-y-2">
                 {cart.items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex justify-between items-center text-sm"
+                    className="flex justify-between text-sm"
                   >
                     <span className="text-slate-700 dark:text-slate-300">
-                      {item.product.name} × {item.quantity}
+                      {item.product.name} x {item.quantity}
                     </span>
-                    <span className="font-medium text-slate-800 dark:text-white">
+                    <span className="font-semibold text-slate-900 dark:text-white whitespace-nowrap text-xs sm:text-sm">
                       KES{" "}
                       {(
                         item.product.selling_price * item.quantity
@@ -226,206 +276,210 @@ const CheckoutModal = memo(
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between items-center text-sm pt-2 border-t border-amber-100/50 dark:border-slate-700">
-                  <span className="text-slate-700 dark:text-slate-300">
-                    Subtotal:
+                <div className="pt-2 sm:pt-3 mt-2 border-t border-violet-200 dark:border-violet-800 flex justify-between">
+                  <span className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                    Total
                   </span>
-                  <span className="font-medium text-slate-800 dark:text-white">
-                    KES {subtotal.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-700 dark:text-slate-300">
-                    Delivery Fee:
-                  </span>
-                  <span className="font-medium text-slate-800 dark:text-white">
-                    {deliveryFee === 0
-                      ? "FREE"
-                      : `KES ${deliveryFee.toLocaleString()}`}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-amber-100/50 dark:border-slate-700">
-                  <span className="text-slate-800 dark:text-white">Total:</span>
-                  <span className="text-amber-700 dark:text-amber-400">
+                  <span className="font-bold text-sm sm:text-base text-violet-600 dark:text-violet-400">
                     KES {total.toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Checkout Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="p-6 space-y-6 bg-white dark:bg-slate-800"
-            >
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Customer Information */}
-              <div>
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
-                  <User className="w-5 h-5" />
-                  <span>Customer Information</span>
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <User className="w-5 h-5 text-violet-600" />
+                  Customer Information
                 </h3>
+
+                <Input
+                  label="Full Name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={formData.customer_name}
+                  onChange={(e) =>
+                    handleInputChange("customer_name", e.target.value)
+                  }
+                  required
+                  icon={User}
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.customer_name}
-                      onChange={(e) =>
-                        handleInputChange("customer_name", e.target.value)
-                      }
-                      className="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
-                      placeholder="Enter your full name"
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Phone Number *
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 dark:text-slate-400" />
-                      <input
-                        type="tel"
-                        value={formData.phone_number}
-                        onChange={(e) =>
-                          handleInputChange("phone_number", e.target.value)
-                        }
-                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
-                        placeholder="+254 700 000 000"
-                        required
-                        disabled={isSubmitting}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Email Address (Optional)
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-700 dark:text-slate-400" />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
-                      placeholder="your@email.com"
-                      disabled={isSubmitting}
-                    />
-                  </div>
+                  <Input
+                    label="Phone Number"
+                    type="tel"
+                    placeholder="+254 712 345 678"
+                    value={formData.phone_number}
+                    onChange={(e) =>
+                      handleInputChange("phone_number", e.target.value)
+                    }
+                    required
+                    icon={Phone}
+                  />
+
+                  <Input
+                    label="Email (Optional)"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email || ""}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    icon={Mail}
+                  />
                 </div>
               </div>
 
               {/* Delivery Information */}
-              <div>
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
-                  <Truck className="w-5 h-5" />
-                  <span>Delivery Information</span>
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-violet-600" />
+                  Delivery Information
                 </h3>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Delivery Address *
-                  </label>
-                  <div className="bg-gradient-to-br from-amber-50/30 via-white to-stone-50/40 dark:from-slate-700/30 dark:via-slate-800 dark:to-slate-700/40 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl p-1">
-                    <DeliveryAddressSelector
-                      value={formData.delivery_address}
-                      onChange={(address) =>
-                        handleInputChange("delivery_address", address)
-                      }
-                      onDeliveryFeeChange={handleDeliveryFeeChange}
-                      disabled={isSubmitting}
-                      dark
-                    />
-                  </div>
-                </div>
+
+                <DeliveryAddressSelector
+                  value={formData.delivery_address}
+                  onChange={(address) =>
+                    handleInputChange("delivery_address", address)
+                  }
+                  onDeliveryFeeChange={handleDeliveryFeeChange}
+                  dark
+                />
+
+                <Input
+                  label="Delivery Notes (Optional)"
+                  placeholder="Any special delivery instructions?"
+                  value={formData.notes || ""}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  icon={MessageSquare}
+                />
               </div>
 
               {/* Payment Method */}
-              <div>
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5" />
-                  <span>Payment Method</span>
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-violet-600" />
+                  Payment Method
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {[
-                    { id: "mpesa", label: "M-Pesa", emoji: "📱" },
-                    { id: "cash", label: "Cash on Delivery", emoji: "💵" },
-                    { id: "card", label: "Card Payment", emoji: "💳" },
+                    { value: "mpesa", label: "M-Pesa", icon: "📱" },
+                    { value: "cash", label: "Cash on Delivery", icon: "💵" },
+                    { value: "card", label: "Card", icon: "💳" },
                     {
-                      id: "bank_transfer",
+                      value: "bank_transfer",
                       label: "Bank Transfer",
-                      emoji: "🏦",
+                      icon: "🏦",
                     },
                   ].map((method) => (
                     <button
-                      key={method.id}
+                      key={method.value}
                       type="button"
-                      onClick={() =>
-                        setPaymentMethod(method.id as typeof paymentMethod)
-                      }
-                      className={`p-3 border-2 rounded-xl text-center transition-all ${
-                        paymentMethod === method.id
-                          ? "border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-slate-800 dark:text-white"
-                          : "border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-stone-50 dark:hover:bg-slate-600"
+                      onClick={() => setPaymentMethod(method.value as any)}
+                      className={`p-3 sm:p-4 rounded-xl border-2 transition-all touch-manipulation active:scale-95 ${
+                        paymentMethod === method.value
+                          ? "border-violet-600 bg-violet-50 dark:bg-violet-900/20"
+                          : "border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700"
                       }`}
-                      disabled={isSubmitting}
                     >
-                      <div className="text-2xl mb-1">{method.emoji}</div>
-                      <div className="text-sm font-medium">{method.label}</div>
+                      <div className="text-xl sm:text-2xl mb-1">
+                        {method.icon}
+                      </div>
+                      <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white line-clamp-2">
+                        {method.label}
+                      </div>
+                      {paymentMethod === method.value && (
+                        <Badge variant="success" size="sm" className="mt-2">
+                          Selected
+                        </Badge>
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Order Notes */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Order Notes (Optional)
-                </label>
-                <div className="relative">
-                  <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-slate-700 dark:text-slate-400" />
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-700 border border-amber-300/70 dark:border-slate-600 shadow-amber-100/50/60 shadow-sm rounded-xl text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 resize-none"
-                    placeholder="Any special instructions or notes for your order..."
-                    rows={3}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
-
               {/* Submit Button */}
-              <div className="pt-4">
-                <button
+              <div className="pt-2 sm:pt-4 space-y-2 sm:space-y-3">
+                {/* Save Info Checkbox */}
+                <label className="flex items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 transition-colors touch-manipulation">
+                  <input
+                    type="checkbox"
+                    checked={saveInfo}
+                    onChange={(e) => setSaveInfo(e.target.checked)}
+                    className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 sm:mt-0 rounded border-slate-300 text-violet-600 focus:ring-violet-500 focus:ring-offset-0 cursor-pointer"
+                  />
+                  <div className="flex-1">
+                    <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
+                      Remember my information
+                    </span>
+                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Save my details for faster checkout next time
+                    </p>
+                  </div>
+                </label>
+
+                <Alert variant="info">
+                  <strong>Secure Checkout:</strong> Your information is
+                  encrypted and secure
+                </Alert>
+
+                <Button
                   type="submit"
-                  disabled={isSubmitting || cart.items.length === 0}
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-6 rounded-2xl font-semibold text-lg hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg shadow-amber-300/10"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  isLoading={isSubmitting}
+                  disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader className="w-5 h-5 animate-spin" />
-                      <span>Placing Order...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5" />
-                      <span>Place Order - KES {total.toLocaleString()}</span>
-                    </>
-                  )}
-                </button>
+                  {isSubmitting
+                    ? "Processing Order..."
+                    : `Place Order • KES ${total.toLocaleString()}`}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={onClose}
+                  variant="outline"
+                  size="md"
+                  fullWidth
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           </div>
-        </div>
-      </div>
+        </Dialog>
+
+        {/* Order Confirmation Dialog */}
+        {completedOrder && (
+          <OrderConfirmationDialog
+            isOpen={showConfirmation}
+            onClose={() => {
+              setShowConfirmation(false);
+              setCompletedOrder(null);
+              setOrderItems([]);
+              cart.clearCart();
+              onClose();
+            }}
+            orderNumber={completedOrder.order_number}
+            orderId={completedOrder.id}
+            paymentReference={completedOrder.payment_reference}
+            orderDetails={{
+              customer_name: completedOrder.customer_name,
+              customer_phone: completedOrder.customer_phone,
+              delivery_address: completedOrder.delivery_address,
+              total_amount: completedOrder.total_amount,
+              payment_method: completedOrder.payment_method,
+              items: orderItems,
+            }}
+          />
+        )}
+      </>
     );
-  }
+  },
 );
 
 CheckoutModal.displayName = "CheckoutModal";

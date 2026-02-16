@@ -45,14 +45,14 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
       filtered = filtered.filter(
         (product: Product) =>
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchTerm.toLowerCase())
+          product.category.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (product: Product) => product.category === selectedCategory
+        (product: Product) => product.category === selectedCategory,
       );
     }
 
@@ -86,7 +86,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent">
-                HASSAN BOOKSHOP
+                HORUMAR
               </h1>
               <p className="text-slate-600 mt-1">
                 Dukaan Online - Online Store
