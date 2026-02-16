@@ -7,75 +7,75 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://hassan.lenzro.com/</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link
       rel="alternate"
       hreflang="en-ke"
-      href="https://hassan.lenzro.com/"
+      href="https://hassan.horumarin.com/"
     />
     <xhtml:link
       rel="alternate"
       hreflang="sw-ke"
-      href="https://hassan.lenzro.com/"
+      href="https://hassan.horumarin.com/"
     />
     <xhtml:link
       rel="alternate"
       hreflang="so-ke"
-      href="https://hassan.lenzro.com/"
+      href="https://hassan.horumarin.com/"
     />
   </url>
   
   <!-- Shop/Products Page -->
   <url>
-    <loc>https://hassan.lenzro.com/shop</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/shop</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <!-- Categories -->
   <url>
-    <loc>https://hassan.lenzro.com/textbooks</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/textbooks</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://hassan.lenzro.com/stationery</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/stationery</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://hassan.lenzro.com/electronics</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/electronics</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://hassan.lenzro.com/school-supplies</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/school-supplies</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <!-- About & Contact -->
   <url>
-    <loc>https://hassan.lenzro.com/about</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/about</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://hassan.lenzro.com/contact</loc>
-    <lastmod>2025-12-10</lastmod>
+    <loc>https://hassan.horumarin.com/contact</loc>
+    <lastmod>2026-02-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
