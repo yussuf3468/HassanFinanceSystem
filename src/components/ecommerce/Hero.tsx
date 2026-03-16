@@ -1,152 +1,183 @@
-import { ArrowRight, Package, TruckIcon, ShieldCheck } from "lucide-react";
+import { ArrowRight, Package, ShoppingCart, Sparkles, TruckIcon } from "lucide-react";
+import type { Product } from "../../types";
+import OptimizedImage from "../OptimizedImage";
+import Badge from "./Badge";
 import Button from "./Button";
 import Container from "./Container";
 
 interface HeroProps {
+  featuredProduct?: Product | null;
   onShopNow?: () => void;
   onTrackOrder?: () => void;
+  onViewFeatured?: (product: Product) => void;
 }
 
-export default function Hero({ onShopNow, onTrackOrder }: HeroProps) {
+export default function Hero({
+  featuredProduct,
+  onShopNow,
+  onTrackOrder,
+  onViewFeatured,
+}: HeroProps) {
+  const highlightProduct = featuredProduct;
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-amber-900 to-slate-800 dark:from-slate-950 dark:via-amber-950 dark:to-slate-900">
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-400 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse-slow delay-1000" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 dark:from-slate-950 dark:via-slate-900 dark:to-black">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute -left-16 top-0 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
+        <div className="absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-yellow-400/20 blur-3xl" />
       </div>
 
-      <Container className="relative z-10 py-12 sm:py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Text Content */}
-          <div className="text-white space-y-6 lg:space-y-8">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Premium Quality Guaranteed</span>
+      <Container className="relative z-10 py-10 sm:py-12 lg:py-14">
+        <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-6 text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+              <Sparkles className="h-4 w-4 text-amber-300" />
+              Fresh arrivals from Hassan Books
             </div>
 
-            {/* Heading */}
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-tight">
-                <span className="block mb-2">Horumar</span>
-                <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium text-yellow-50">
-                  Your business. Your progress.
+              <h1 className="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+                Shop smarter.
+                <span className="mt-1 block text-amber-300">
+                  Pick today&apos;s highlight.
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-yellow-50 max-w-2xl">
-                Premium educational materials, stationery, and electronics.
-                Quality products for students and professionals in Eastleigh,
-                Nairobi.
+              <p className="max-w-2xl text-base text-slate-200 sm:text-lg">
+                Discover top school and office essentials, then order instantly on the
+                website for pickup or delivery in Eastleigh.
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                onClick={onShopNow}
-                variant="secondary"
-                size="lg"
-                className="group"
-              >
-                <Package className="w-5 h-5" />
-                Shop Now
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            {highlightProduct ? (
+              <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md sm:p-5">
+                <div className="mb-2 flex items-center gap-2">
+                  <Badge variant="warning" size="sm">
+                    Featured
+                  </Badge>
+                  <span className="text-xs uppercase tracking-wide text-amber-200">
+                    {highlightProduct.category}
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black text-white">
+                  {highlightProduct.name}
+                </h2>
+                <p className="mt-2 line-clamp-2 text-sm text-slate-200 sm:text-base">
+                  {highlightProduct.description ||
+                    "Quality stock selected for students, parents, and professionals."}
+                </p>
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-2xl font-black text-amber-300">
+                    KES {highlightProduct.selling_price.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-slate-300">
+                    {highlightProduct.quantity_in_stock > 0
+                      ? `${highlightProduct.quantity_in_stock} in stock`
+                      : "Out of stock"}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
+                <p className="text-slate-200">
+                  Browse our latest books, stationery, and electronics.
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {highlightProduct ? (
+                <Button
+                  onClick={() => onViewFeatured?.(highlightProduct)}
+                  variant="secondary"
+                  size="lg"
+                  className="group"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  View Featured Product
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={onShopNow}
+                  variant="secondary"
+                  size="lg"
+                  className="group"
+                >
+                  <Package className="h-5 w-5" />
+                  Shop Now
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              )}
+
               <Button
                 onClick={onTrackOrder}
                 variant="outline"
                 size="lg"
-                className="!bg-white/10 !backdrop-blur-md !border-white/30 !text-white hover:!bg-white/20"
+                className="!border-white/40 !bg-white/10 !text-white hover:!bg-white/20"
               >
-                <TruckIcon className="w-5 h-5" />
+                <TruckIcon className="h-5 w-5" />
                 Track Order
               </Button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-8 border-t border-white/20">
+            <div className="grid grid-cols-3 gap-3 pt-2 sm:gap-5">
               <div>
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300">
+                <div className="text-2xl font-black text-amber-300 sm:text-3xl">
                   5000+
                 </div>
-                <div className="text-sm sm:text-base text-yellow-50 mt-1">
-                  Products
-                </div>
+                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Products</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300">
-                  10k+
-                </div>
-                <div className="text-sm sm:text-base text-yellow-50 mt-1">
-                  Customers
-                </div>
+                <div className="text-2xl font-black text-amber-300 sm:text-3xl">Fast</div>
+                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Delivery</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300">
-                  24/7
+                <div className="text-2xl font-black text-amber-300 sm:text-3xl">
+                  Direct
                 </div>
-                <div className="text-sm sm:text-base text-yellow-50 mt-1">
-                  Support
-                </div>
+                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Web Orders</div>
               </div>
             </div>
           </div>
 
-          {/* Hero Image */}
           <div className="relative">
-            <div className="relative aspect-square lg:aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-600/20" />
-              <img
-                src="/hero-products.jpg"
-                alt="Horumar Products"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src =
-                    "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&auto=format&fit=crop";
-                }}
-              />
-            </div>
-
-            {/* Floating Cards */}
-            <div className="hidden lg:block absolute -left-8 top-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 animate-bounce-slow">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center">
-                  <ShieldCheck className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">
-                    Quality Assured
-                  </div>
-                  <div className="text-xs text-slate-500">100% Authentic</div>
-                </div>
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/40 backdrop-blur-md">
+              <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-900/40">
+                {highlightProduct ? (
+                  <OptimizedImage
+                    src={highlightProduct.image_url}
+                    alt={highlightProduct.name}
+                    className="h-full w-full object-contain p-3"
+                    fallbackClassName="flex h-full w-full items-center justify-center bg-slate-800"
+                    sizes="(max-width: 1024px) 100vw, 45vw"
+                    priority
+                  />
+                ) : (
+                  <img
+                    src="/hero-products.jpg"
+                    alt="Hassan Books products"
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src =
+                        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&auto=format&fit=crop";
+                    }}
+                  />
+                )}
               </div>
-            </div>
 
-            <div className="hidden lg:block absolute -right-8 bottom-8 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 animate-bounce-slow delay-500">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
-                  <TruckIcon className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">
-                    Fast Delivery
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    Same day in Eastleigh
-                  </div>
-                </div>
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-950/40 px-4 py-3 text-sm text-slate-200">
+                <span>Order directly on the website</span>
+                <span className="font-semibold text-amber-300">Secure checkout</span>
               </div>
             </div>
           </div>
         </div>
       </Container>
 
-      {/* Wave Divider */}
       <div className="absolute bottom-0 left-0 right-0">
         <svg
-          className="w-full h-12 sm:h-16 lg:h-24 fill-slate-50 dark:fill-slate-900"
+          className="h-12 w-full fill-slate-50 dark:fill-slate-900 sm:h-14"
           viewBox="0 0 1200 120"
           preserveAspectRatio="none"
         >

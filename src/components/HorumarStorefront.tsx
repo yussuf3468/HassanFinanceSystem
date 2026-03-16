@@ -112,6 +112,11 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       )
     : [];
 
+  const heroProduct =
+    products.find((product) => product.featured && product.quantity_in_stock > 0) ||
+    products.find((product) => product.quantity_in_stock > 0) ||
+    null;
+
   const seoTitle =
     currentPage === "home"
       ? "Horumar - Your Business, Your Progress"
@@ -151,7 +156,12 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       <main>
         {currentPage === "home" && (
           <>
-            <Hero onShopNow={handleShopNow} onTrackOrder={openOrderTracking} />
+            <Hero
+              featuredProduct={heroProduct}
+              onShopNow={handleShopNow}
+              onTrackOrder={openOrderTracking}
+              onViewFeatured={handleProductSelect}
+            />
             <CategoryGrid onCategoryClick={handleCategoryClick} />
             <FeaturedProducts
               products={products}
