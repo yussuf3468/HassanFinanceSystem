@@ -1,4 +1,13 @@
-import { ArrowRight, Package, ShoppingCart, Sparkles, TruckIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Package,
+  ShoppingCart,
+  Sparkles,
+  TruckIcon,
+} from "lucide-react";
 import type { Product } from "../../types";
 import OptimizedImage from "../OptimizedImage";
 import Badge from "./Badge";
@@ -6,19 +15,50 @@ import Button from "./Button";
 import Container from "./Container";
 
 interface HeroProps {
-  featuredProduct?: Product | null;
+  featuredProducts?: Product[];
   onShopNow?: () => void;
   onTrackOrder?: () => void;
   onViewFeatured?: (product: Product) => void;
 }
 
 export default function Hero({
-  featuredProduct,
+  featuredProducts = [],
   onShopNow,
   onTrackOrder,
   onViewFeatured,
 }: HeroProps) {
-  const highlightProduct = featuredProduct;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const heroProducts = useMemo(() => featuredProducts.slice(0, 3), [featuredProducts]);
+  const highlightProduct = heroProducts[activeIndex] || null;
+
+  useEffect(() => {
+    if (heroProducts.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setActiveIndex((current) => (current + 1) % heroProducts.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [heroProducts.length]);
+
+  useEffect(() => {
+    if (activeIndex > heroProducts.length - 1) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, heroProducts.length]);
+
+  const goToPrevious = () => {
+    if (heroProducts.length <= 1) return;
+    setActiveIndex((current) =>
+      current === 0 ? heroProducts.length - 1 : current - 1,
+    );
+  };
+
+  const goToNext = () => {
+    if (heroProducts.length <= 1) return;
+    setActiveIndex((current) => (current + 1) % heroProducts.length);
+  };
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 dark:from-slate-950 dark:via-slate-900 dark:to-black">
@@ -170,6 +210,39 @@ export default function Hero({
                 <span>Order directly on the website</span>
                 <span className="font-semibold text-amber-300">Secure checkout</span>
               </div>
+
+              {heroProducts.length > 1 && (
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <button
+                    onClick={goToPrevious}
+                    className="rounded-lg border border-white/20 bg-white/10 p-2 text-white transition hover:bg-white/20"
+                    aria-label="Previous featured product"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    {heroProducts.map((product, index) => (
+                      <button
+                        key={product.id}
+                        onClick={() => setActiveIndex(index)}
+                        className={`h-2.5 w-2.5 rounded-full transition ${
+                          activeIndex === index ? "bg-amber-400" : "bg-white/40"
+                        }`}
+                        aria-label={`Show featured product ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={goToNext}
+                    className="rounded-lg border border-white/20 bg-white/10 p-2 text-white transition hover:bg-white/20"
+                    aria-label="Next featured product"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

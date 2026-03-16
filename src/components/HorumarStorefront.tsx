@@ -112,10 +112,14 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       )
     : [];
 
-  const heroProduct =
-    products.find((product) => product.featured && product.quantity_in_stock > 0) ||
-    products.find((product) => product.quantity_in_stock > 0) ||
-    null;
+  const heroProducts = products
+    .filter((product) => product.quantity_in_stock > 0)
+    .sort((a, b) => {
+      const aScore = (a.featured ? 1000 : 0) + a.quantity_in_stock;
+      const bScore = (b.featured ? 1000 : 0) + b.quantity_in_stock;
+      return bScore - aScore;
+    })
+    .slice(0, 3);
 
   const seoTitle =
     currentPage === "home"
@@ -157,7 +161,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
         {currentPage === "home" && (
           <>
             <Hero
-              featuredProduct={heroProduct}
+              featuredProducts={heroProducts}
               onShopNow={handleShopNow}
               onTrackOrder={openOrderTracking}
               onViewFeatured={handleProductSelect}

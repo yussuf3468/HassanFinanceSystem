@@ -189,7 +189,7 @@ export default function ProductDetailsPage({
                     <OptimizedImage
                       src={relatedProduct.image_url}
                       alt={relatedProduct.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain p-2"
                       fallbackClassName="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-900"
                       sizes="(max-width: 1280px) 50vw, 25vw"
                     />
