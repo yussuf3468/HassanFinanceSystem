@@ -156,15 +156,15 @@ export default function ProductCatalog({
   ].filter(Boolean).length;
 
   return (
-    <section className="min-h-screen py-6 sm:py-12 bg-slate-50 dark:bg-slate-900">
+    <section className="min-h-screen py-4 sm:py-12 bg-slate-50 dark:bg-slate-900">
       <Container>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-1 sm:mb-2">
+            <h2 className="mb-1 text-xl font-black text-slate-900 dark:text-white sm:mb-2 sm:text-3xl md:text-4xl">
               All Products
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-slate-600 dark:text-slate-400 sm:text-base">
               {filteredProducts.length} products found
             </p>
           </div>
@@ -173,8 +173,8 @@ export default function ProductCatalog({
           <Button
             onClick={onToggleFilters}
             variant="outline"
-            size="lg"
-            className="sm:hidden !min-h-[48px] touch-manipulation font-semibold"
+            size="md"
+            className="sm:hidden !min-h-[42px] touch-manipulation font-semibold"
           >
             <SlidersHorizontal className="w-5 h-5" />
             Filters
@@ -187,14 +187,14 @@ export default function ProductCatalog({
         </div>
 
         {/* Search Bar - Larger on mobile */}
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-3 sm:mb-6">
           <Input
             type="search"
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => onSearchTermChange(e.target.value)}
             icon={Search}
-            className="max-w-full sm:max-w-2xl text-base sm:text-sm h-12 sm:h-auto"
+            className="max-w-full sm:max-w-2xl text-sm sm:text-sm h-10 sm:h-auto"
           />
         </div>
 
@@ -202,11 +202,11 @@ export default function ProductCatalog({
         <div
           className={`${
             showFilters ? "block" : "hidden"
-          } sm:block mb-6 sm:mb-8 space-y-4 sm:space-y-6 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg`}
+          } sm:block mb-5 sm:mb-8 space-y-3 sm:space-y-6 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-lg`}
         >
           {/* Category Filter */}
           <div>
-            <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="mb-2.5 flex items-center justify-between sm:mb-4">
               <h3 className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
                 <Filter className="w-4 h-4" />
                 Categories
@@ -227,7 +227,7 @@ export default function ProductCatalog({
                   <button
                     key={category}
                     onClick={() => onCategoryChange(category)}
-                    className={`px-4 sm:px-4 py-2.5 sm:py-2 rounded-full text-sm sm:text-sm font-semibold transition-all duration-300 min-h-[44px] sm:min-h-[40px] touch-manipulation ${
+                    className={`rounded-full px-3 py-2 text-xs font-semibold transition-all duration-300 min-h-[38px] touch-manipulation sm:px-4 sm:py-2 sm:text-sm sm:min-h-[40px] ${
                       selectedCategory === category
                         ? "bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg shadow-amber-500/50"
                         : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-100 dark:hover:bg-amber-900 active:scale-95"
@@ -241,7 +241,7 @@ export default function ProductCatalog({
           </div>
 
           {/* Price Range & Additional Filters - Full width on mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4">
             {/* Price Range */}
             <div>
               <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 sm:mb-3">
@@ -250,7 +250,7 @@ export default function ProductCatalog({
               <select
                 value={selectedPriceRange}
                 onChange={(e) => setSelectedPriceRange(Number(e.target.value))}
-                className="w-full px-4 py-3 sm:py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all text-base sm:text-sm min-h-[48px] sm:min-h-[44px] touch-manipulation"
+                className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 transition-all focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:px-4 sm:py-2.5 sm:text-sm sm:min-h-[44px] touch-manipulation"
               >
                 {priceRanges.map((range, index) => (
                   <option key={index} value={index}>
@@ -268,7 +268,7 @@ export default function ProductCatalog({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full px-4 py-3 sm:py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all text-base sm:text-sm min-h-[48px] sm:min-h-[44px] touch-manipulation"
+                className="w-full rounded-xl border-2 border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 transition-all focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white sm:px-4 sm:py-2.5 sm:text-sm sm:min-h-[44px] touch-manipulation"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -280,14 +280,14 @@ export default function ProductCatalog({
 
             {/* Stock Filter - Larger touch target */}
             <div className="flex items-end">
-              <label className="flex items-center gap-3 cursor-pointer bg-slate-100 dark:bg-slate-700 px-4 py-3 sm:py-3 rounded-xl hover:bg-amber-100 dark:hover:bg-amber-900 active:bg-amber-200 dark:active:bg-amber-800 transition-colors w-full min-h-[48px] sm:min-h-[44px] touch-manipulation">
+              <label className="flex w-full cursor-pointer items-center gap-3 rounded-xl bg-slate-100 px-3 py-2.5 transition-colors hover:bg-amber-100 active:bg-amber-200 dark:bg-slate-700 dark:hover:bg-amber-900 dark:active:bg-amber-800 sm:px-4 sm:py-3 sm:min-h-[44px] touch-manipulation">
                 <input
                   type="checkbox"
                   checked={showInStockOnly}
                   onChange={(e) => setShowInStockOnly(e.target.checked)}
-                  className="w-6 h-6 sm:w-5 sm:h-5 rounded border-2 border-slate-300 dark:border-slate-600 text-amber-600 focus:ring-2 focus:ring-amber-500 focus:ring-offset-0"
+                  className="h-5 w-5 rounded border-2 border-slate-300 text-amber-600 focus:ring-2 focus:ring-amber-500 focus:ring-offset-0 dark:border-slate-600 sm:h-5 sm:w-5"
                 />
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 sm:text-sm">
                   In Stock Only
                 </span>
               </label>
@@ -324,7 +324,7 @@ export default function ProductCatalog({
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
             {filteredProducts.map((product, index) => (
               <ProductCardEcommerce
                 key={product.id}

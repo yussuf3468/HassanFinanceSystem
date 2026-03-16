@@ -51,14 +51,14 @@ interface CategoryGridProps {
 
 export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
   return (
-    <section className="py-12 lg:py-16">
+    <section className="py-6 sm:py-12 lg:py-16">
       <Container>
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4">
+        <div className="text-center mb-6 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-2 sm:mb-4">
             Shop By Category
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Find exactly what you need from our diverse collection
           </p>
         </div>
@@ -81,21 +81,21 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
                 className="cursor-pointer group"
               >
                 <div
-                  className={`p-6 bg-gradient-to-br ${category.bgGradient} ${category.darkBgGradient} h-full flex flex-col items-center justify-center text-center space-y-4 transition-all duration-300 group-hover:scale-105`}
+                  className={`p-3 sm:p-6 bg-gradient-to-br ${category.bgGradient} ${category.darkBgGradient} h-full flex flex-col items-center justify-center text-center space-y-2 sm:space-y-4 transition-all duration-300 group-hover:scale-105`}
                 >
                   {/* Icon */}
                   <div
-                    className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-shadow duration-300`}
+                    className={`w-12 h-12 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-shadow duration-300`}
                   >
-                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    <Icon className="w-6 h-6 sm:w-10 sm:h-10 text-white" />
                   </div>
 
                   {/* Name */}
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-1">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-base mb-0.5 sm:mb-1">
                       {category.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-[11px] sm:text-sm text-slate-600 dark:text-slate-400">
                       {category.count} items
                     </p>
                   </div>

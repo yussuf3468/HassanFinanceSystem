@@ -65,29 +65,29 @@ export default function Hero({
         <div className="absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-yellow-400/20 blur-3xl" />
       </div>
 
-      <Container className="relative z-10 py-10 sm:py-12 lg:py-14">
-        <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-6 text-white">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+      <Container className="relative z-10 py-6 sm:py-10 lg:py-14">
+        <div className="grid items-center gap-5 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-4 sm:space-y-6 text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md sm:px-4 sm:py-2 sm:text-sm">
               <Sparkles className="h-4 w-4 text-amber-300" />
               Fresh arrivals from Hassan Books
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+              <h1 className="text-2xl font-black leading-tight sm:text-4xl lg:text-5xl">
                 Shop smarter.
                 <span className="mt-1 block text-amber-300">
                   Pick today&apos;s highlight.
                 </span>
               </h1>
-              <p className="max-w-2xl text-base text-slate-200 sm:text-lg">
+              <p className="max-w-2xl text-sm text-slate-200 sm:text-lg">
                 Discover top school and office essentials, then order instantly on the
                 website for pickup or delivery in Eastleigh.
               </p>
             </div>
 
             {highlightProduct ? (
-              <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md sm:p-5">
+              <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md sm:p-5">
                 <div className="mb-2 flex items-center gap-2">
                   <Badge variant="warning" size="sm">
                     Featured
@@ -96,18 +96,18 @@ export default function Hero({
                     {highlightProduct.category}
                   </span>
                 </div>
-                <h2 className="text-2xl font-black text-white">
+                <h2 className="text-lg font-black text-white sm:text-2xl">
                   {highlightProduct.name}
                 </h2>
-                <p className="mt-2 line-clamp-2 text-sm text-slate-200 sm:text-base">
+                <p className="mt-2 line-clamp-2 text-xs text-slate-200 sm:text-base">
                   {highlightProduct.description ||
                     "Quality stock selected for students, parents, and professionals."}
                 </p>
                 <div className="mt-3 flex items-center gap-3">
-                  <span className="text-2xl font-black text-amber-300">
+                  <span className="text-xl font-black text-amber-300 sm:text-2xl">
                     KES {highlightProduct.selling_price.toLocaleString()}
                   </span>
-                  <span className="text-sm text-slate-300">
+                  <span className="text-xs text-slate-300 sm:text-sm">
                     {highlightProduct.quantity_in_stock > 0
                       ? `${highlightProduct.quantity_in_stock} in stock`
                       : "Out of stock"}
@@ -115,8 +115,8 @@ export default function Hero({
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
-                <p className="text-slate-200">
+              <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
+                <p className="text-sm text-slate-200">
                   Browse our latest books, stationery, and electronics.
                 </p>
               </div>
@@ -127,7 +127,7 @@ export default function Hero({
                 <Button
                   onClick={() => onViewFeatured?.(highlightProduct)}
                   variant="secondary"
-                  size="lg"
+                  size="md"
                   className="group"
                 >
                   <ShoppingCart className="h-5 w-5" />
@@ -138,7 +138,7 @@ export default function Hero({
                 <Button
                   onClick={onShopNow}
                   variant="secondary"
-                  size="lg"
+                  size="md"
                   className="group"
                 >
                   <Package className="h-5 w-5" />
@@ -150,7 +150,7 @@ export default function Hero({
               <Button
                 onClick={onTrackOrder}
                 variant="outline"
-                size="lg"
+                size="md"
                 className="!border-white/40 !bg-white/10 !text-white hover:!bg-white/20"
               >
                 <TruckIcon className="h-5 w-5" />
@@ -158,34 +158,34 @@ export default function Hero({
               </Button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 pt-2 sm:gap-5">
+            <div className="grid grid-cols-3 gap-2 pt-1 sm:gap-5 sm:pt-2">
               <div>
-                <div className="text-2xl font-black text-amber-300 sm:text-3xl">
-                  5000+
-                </div>
-                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Products</div>
+                <div className="text-xl font-black text-amber-300 sm:text-3xl">5000+</div>
+                <div className="mt-1 text-[11px] text-slate-300 sm:text-sm">Products</div>
               </div>
               <div>
-                <div className="text-2xl font-black text-amber-300 sm:text-3xl">Fast</div>
-                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Delivery</div>
+                <div className="text-xl font-black text-amber-300 sm:text-3xl">Fast</div>
+                <div className="mt-1 text-[11px] text-slate-300 sm:text-sm">Delivery</div>
               </div>
               <div>
-                <div className="text-2xl font-black text-amber-300 sm:text-3xl">
+                <div className="text-xl font-black text-amber-300 sm:text-3xl">
                   Direct
                 </div>
-                <div className="mt-1 text-xs text-slate-300 sm:text-sm">Web Orders</div>
+                <div className="mt-1 text-[11px] text-slate-300 sm:text-sm">
+                  Web Orders
+                </div>
               </div>
             </div>
           </div>
 
           <div className="relative">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-black/40 backdrop-blur-md">
-              <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-900/40">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2.5 shadow-2xl shadow-black/40 backdrop-blur-md sm:rounded-3xl sm:p-4">
+              <div className="aspect-[5/4] overflow-hidden rounded-xl bg-slate-900/40 sm:aspect-[4/3] sm:rounded-2xl">
                 {highlightProduct ? (
                   <OptimizedImage
                     src={highlightProduct.image_url}
                     alt={highlightProduct.name}
-                    className="h-full w-full object-contain p-3"
+                    className="h-full w-full object-contain p-2"
                     fallbackClassName="flex h-full w-full items-center justify-center bg-slate-800"
                     sizes="(max-width: 1024px) 100vw, 45vw"
                     priority
@@ -204,9 +204,9 @@ export default function Hero({
                 )}
               </div>
 
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-slate-950/40 px-4 py-3 text-sm text-slate-200">
-                <span>Order directly on the website</span>
-                <span className="font-semibold text-amber-300">Secure checkout</span>
+              <div className="mt-2.5 flex items-center justify-between rounded-xl bg-slate-950/40 px-3 py-2 text-xs text-slate-200 sm:mt-3 sm:px-4 sm:py-3 sm:text-sm">
+                <span>Order directly on website</span>
+                <span className="font-semibold text-amber-300">Secure</span>
               </div>
 
               {heroProducts.length > 1 && (
