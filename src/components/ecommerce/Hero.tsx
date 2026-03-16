@@ -88,10 +88,31 @@ export default function Hero({
 
             {highlightProduct ? (
               <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md sm:p-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <Badge variant="warning" size="sm">
-                    Featured
-                  </Badge>
+                <div
+                  className="relative mb-2 cursor-pointer group"
+                  onClick={() => onViewFeatured?.(highlightProduct)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="View featured product details"
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { onViewFeatured?.(highlightProduct); } }}
+                >
+                  <div className="overflow-hidden rounded-xl bg-white/20 flex items-center justify-center mb-2">
+                    <OptimizedImage
+                      src={highlightProduct.image_url}
+                      alt={highlightProduct.name}
+                      className="object-contain w-32 h-32 sm:w-40 sm:h-40 mx-auto transition-transform duration-300 group-hover:scale-105"
+                      fallbackClassName="w-32 h-32 sm:w-40 sm:h-40"
+                      sizes="(max-width: 640px) 60vw, 200px"
+                      priority
+                    />
+                  </div>
+                  <div className="absolute top-2 left-2">
+                    <Badge variant="warning" size="sm">
+                      Featured
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs uppercase tracking-wide text-amber-200">
                     {highlightProduct.category}
                   </span>
