@@ -1,11 +1,4 @@
-import {
-  CheckCircle,
-  Copy,
-  Package,
-  Phone,
-  MapPin,
-  CreditCard,
-} from "lucide-react";
+import { CheckCircle, Copy, Package, Phone, MapPin, CreditCard } from "lucide-react";
 import { useState } from "react";
 import Dialog from "./Dialog";
 import Button from "./Button";
@@ -24,6 +17,7 @@ interface OrderConfirmationDialogProps {
   orderDetails: {
     customer_name: string;
     customer_phone: string;
+    delivery_address_label?: string | null;
     delivery_address: string;
     total_amount: number;
     payment_method: string;
@@ -69,9 +63,7 @@ export default function OrderConfirmationDialog({
       ? MPESA_CONFIG.paybillNumber
       : null;
   const tillNumber =
-    MPESA_CONFIG.tillNumber !== "REPLACE_WITH_TILL"
-      ? MPESA_CONFIG.tillNumber
-      : null;
+    MPESA_CONFIG.tillNumber !== "REPLACE_WITH_TILL" ? MPESA_CONFIG.tillNumber : null;
 
   const submitReceipt = async () => {
     const normalized = receiptCode.trim().toUpperCase();
@@ -86,9 +78,7 @@ export default function OrderConfirmationDialog({
     setSubmittingReceipt(true);
     try {
       const paymentChannel = paybillNumber ? "mpesa_paybill" : "mpesa_till";
-      const apiBase = import.meta.env.VITE_PAYMENT_API_URL as
-        | string
-        | undefined;
+      const apiBase = import.meta.env.VITE_PAYMENT_API_URL as string | undefined;
 
       if (apiBase) {
         const response = await fetch(`${apiBase}/api/payments/confirm`, {
@@ -168,9 +158,7 @@ export default function OrderConfirmationDialog({
             >
               <Copy
                 className={`w-5 h-5 ${
-                  copied
-                    ? "text-green-600"
-                    : "text-amber-600 dark:text-amber-400"
+                  copied ? "text-green-600" : "text-amber-600 dark:text-amber-400"
                 }`}
               />
             </button>
@@ -190,10 +178,7 @@ export default function OrderConfirmationDialog({
           {/* Items */}
           <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
             {orderDetails.items.map((item, index) => (
-              <div
-                key={index}
-                className="flex justify-between text-xs sm:text-sm gap-2"
-              >
+              <div key={index} className="flex justify-between text-xs sm:text-sm gap-2">
                 <span className="text-slate-700 dark:text-slate-300 line-clamp-1">
                   {item.product_name} x {item.quantity}
                 </span>
@@ -223,6 +208,13 @@ export default function OrderConfirmationDialog({
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
                   Delivery Address
                 </p>
+                {orderDetails.delivery_address_label ? (
+                  <div className="mb-1">
+                    <span className="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                      {orderDetails.delivery_address_label}
+                    </span>
+                  </div>
+                ) : null}
                 <p className="text-sm text-slate-900 dark:text-white">
                   {orderDetails.delivery_address}
                 </p>
@@ -265,12 +257,10 @@ export default function OrderConfirmationDialog({
             </li>
             <li>• You'll receive a call shortly to confirm your order</li>
             <li>
-              • Keep your phone <strong>{orderDetails.customer_phone}</strong>{" "}
-              available
+              • Keep your phone <strong>{orderDetails.customer_phone}</strong> available
             </li>
             <li>
-              • Prepare payment for{" "}
-              {paymentMethodLabels[orderDetails.payment_method]}
+              • Prepare payment for {paymentMethodLabels[orderDetails.payment_method]}
             </li>
           </ul>
         </div>

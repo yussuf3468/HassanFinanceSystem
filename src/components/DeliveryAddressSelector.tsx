@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { MapPin, ChevronDown } from "lucide-react";
-import {
-  EASTLEIGH_LOCATIONS,
-  getDeliveryFee,
-} from "../utils/eastleighLocations";
+import { EASTLEIGH_LOCATIONS, getDeliveryFee } from "../utils/eastleighLocations";
 
 interface DeliveryAddressSelectorProps {
   value: string;
@@ -27,6 +24,24 @@ export default function DeliveryAddressSelector({
   const [customAddress, setCustomAddress] = useState("");
   const [useCustom, setUseCustom] = useState(false);
 
+  const findLocationFromValue = (rawValue: string) => {
+    const normalized = rawValue.trim().toLowerCase();
+    if (!normalized) {
+      return null;
+    }
+
+    for (const area of EASTLEIGH_LOCATIONS) {
+      const match = area.locations.find(
+        (location) => location.trim().toLowerCase() === normalized,
+      );
+      if (match) {
+        return { area: area.area, location: match };
+      }
+    }
+
+    return null;
+  };
+
   // Update delivery fee when location changes
   // Note: don't include onDeliveryFeeChange in deps to avoid identity-change loops
   useEffect(() => {
@@ -47,6 +62,31 @@ export default function DeliveryAddressSelector({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLocation, customAddress, useCustom, value]);
+
+  // Sync internal selector state when parent provides a prefilled value
+  useEffect(() => {
+    if (!value) {
+      setUseCustom(false);
+      setSelectedArea("");
+      setSelectedLocation("");
+      setCustomAddress("");
+      return;
+    }
+
+    const locationMatch = findLocationFromValue(value);
+    if (locationMatch) {
+      setUseCustom(false);
+      setSelectedArea(locationMatch.area);
+      setSelectedLocation(locationMatch.location);
+      setCustomAddress("");
+      return;
+    }
+
+    setUseCustom(true);
+    setSelectedArea("");
+    setSelectedLocation("");
+    setCustomAddress(value);
+  }, [value]);
 
   const handleAreaChange = (area: string) => {
     setSelectedArea(area);
@@ -80,8 +120,8 @@ export default function DeliveryAddressSelector({
                 ? "bg-amber-50 text-slate-800 border-amber-500"
                 : "bg-amber-500 text-slate-900 border-amber-500"
               : dark
-              ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
-              : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
+                ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
+                : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           Eastleigh Locations
@@ -96,8 +136,8 @@ export default function DeliveryAddressSelector({
                 ? "bg-amber-50 text-slate-800 border-amber-500"
                 : "bg-amber-500 text-slate-900 border-amber-500"
               : dark
-              ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
-              : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
+                ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
+                : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           Other Location
@@ -258,13 +298,9 @@ export default function DeliveryAddressSelector({
               rows={3}
             />
           </div>
-          <p
-            className={`text-sm mt-2 ${
-              dark ? "text-slate-700 " : "text-slate-500"
-            }`}
-          >
-            Note: Delivery fee for locations outside Eastleigh will be
-            calculated based on distance.
+          <p className={`text-sm mt-2 ${dark ? "text-slate-700 " : "text-slate-500"}`}>
+            Note: Delivery fee for locations outside Eastleigh will be calculated based on
+            distance.
           </p>
         </div>
       )}

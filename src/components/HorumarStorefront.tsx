@@ -134,7 +134,9 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
           />
         )}
 
-        {currentPage === "dashboard" && <CustomerDashboard />}
+        {currentPage === "dashboard" && (
+          <CustomerDashboard onLoginClick={() => setShowAuth(true)} />
+        )}
       </main>
 
       {/* Footer */}

@@ -66,7 +66,7 @@ const HeroSection = memo(
                   <div className="space-y-4">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white leading-tight">
                       <span className="block bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                        HORUMAR
+                        HORUMARI
                       </span>
                       <span className="block text-xl sm:text-2xl lg:text-3xl font-normal text-slate-600 dark:text-slate-400 mt-2">
                         Your Business, Your Progress

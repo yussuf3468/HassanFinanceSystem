@@ -35,7 +35,9 @@ export default function StorefrontNavbar({
             <h1 className="truncate text-lg font-black uppercase tracking-wide text-amber-500 sm:text-2xl">
               HASSAN BOOKS
             </h1>
-            <p className="text-xs text-slate-300 sm:text-sm">Your Business. Your Progress.</p>
+            <p className="text-xs text-slate-300 sm:text-sm">
+              Your Trusted Bookstore.
+            </p>
           </button>
 
           {/* Desktop Search */}
