@@ -9,6 +9,7 @@ interface FeaturedProductsProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
   onQuickView?: (product: Product) => void;
+  onProductSelect?: (product: Product) => void;
   onViewAll?: () => void;
   isLoading?: boolean;
 }
@@ -17,6 +18,7 @@ export default function FeaturedProducts({
   products,
   onAddToCart,
   onQuickView,
+  onProductSelect,
   onViewAll,
   isLoading = false,
 }: FeaturedProductsProps) {
@@ -64,6 +66,7 @@ export default function FeaturedProducts({
               product={product}
               onAddToCart={onAddToCart}
               onQuickView={onQuickView}
+              onProductSelect={onProductSelect}
               index={index}
             />
           ))}
@@ -72,12 +75,7 @@ export default function FeaturedProducts({
         {/* View All Button */}
         {onViewAll && featuredProducts.length > 0 && (
           <div className="text-center">
-            <Button
-              onClick={onViewAll}
-              variant="outline"
-              size="lg"
-              className="group"
-            >
+            <Button onClick={onViewAll} variant="outline" size="lg" className="group">
               View All Products
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>

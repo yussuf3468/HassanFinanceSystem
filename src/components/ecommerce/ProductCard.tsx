@@ -10,11 +10,18 @@ interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   onQuickView?: (product: Product) => void;
+  onProductSelect?: (product: Product) => void;
   index?: number;
 }
 
 const ProductCardEcommerce = memo(
-  ({ product, onAddToCart, onQuickView, index = 0 }: ProductCardProps) => {
+  ({
+    product,
+    onAddToCart,
+    onQuickView,
+    onProductSelect,
+    index = 0,
+  }: ProductCardProps) => {
     const [isLiked, setIsLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
@@ -32,9 +39,14 @@ const ProductCardEcommerce = memo(
       }
     }, [isLiked]);
 
-    const handleQuickView = useCallback(() => {
+    const handleProductSelect = useCallback(() => {
+      if (onProductSelect) {
+        onProductSelect(product);
+        return;
+      }
+
       onQuickView?.(product);
-    }, [onQuickView, product]);
+    }, [onProductSelect, onQuickView, product]);
 
     const isOutOfStock = product.quantity_in_stock === 0;
     const isLowStock =
@@ -51,14 +63,14 @@ const ProductCardEcommerce = memo(
         {/* Product Image Container */}
         <div
           className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-slate-50 to-amber-50 dark:from-slate-700 dark:to-slate-600 aspect-square touch-manipulation"
-          onClick={handleQuickView}
+          onClick={handleProductSelect}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             fallbackClassName="w-full h-full"
-            onClick={handleQuickView}
+            onClick={handleProductSelect}
             priority={index < 3}
             preload={index < 6}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -69,11 +81,11 @@ const ProductCardEcommerce = memo(
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleQuickView();
+                handleProductSelect();
               }}
               className="bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 px-6 py-3 rounded-full font-bold text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl hover:bg-amber-50 dark:hover:bg-slate-800 min-w-[120px]"
             >
-              Quick View
+              View Product
             </button>
           </div>
 
@@ -130,7 +142,7 @@ const ProductCardEcommerce = memo(
 
           {/* Product Name */}
           <h3
-            onClick={handleQuickView}
+            onClick={handleProductSelect}
             className="font-bold text-slate-900 dark:text-white text-base sm:text-base leading-snug mb-2 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors cursor-pointer touch-manipulation"
           >
             {product.name}
@@ -163,13 +175,11 @@ const ProductCardEcommerce = memo(
                   isOutOfStock
                     ? "text-red-500"
                     : isLowStock
-                    ? "text-orange-500"
-                    : "text-emerald-500"
+                      ? "text-orange-500"
+                      : "text-emerald-500"
                 }`}
               >
-                {isOutOfStock
-                  ? "Out of stock"
-                  : `${product.quantity_in_stock} in stock`}
+                {isOutOfStock ? "Out of stock" : `${product.quantity_in_stock} in stock`}
               </span>
               {/* Rating placeholder */}
               <div className="flex items-center gap-1 text-amber-500">
@@ -193,8 +203,8 @@ const ProductCardEcommerce = memo(
                 {isOutOfStock
                   ? "Unavailable"
                   : isAddingToCart
-                  ? "Adding..."
-                  : "Add to Cart"}
+                    ? "Adding..."
+                    : "Add to Cart"}
               </span>
             </Button>
           </div>

@@ -8,18 +8,18 @@ import Hero from "./ecommerce/Hero";
 import CategoryGrid from "./ecommerce/CategoryGrid";
 import FeaturedProducts from "./ecommerce/FeaturedProducts";
 import ProductCatalog from "./ecommerce/ProductCatalog";
+import ProductDetailsPage from "./ecommerce/ProductDetailsPage";
 import OrderTrackingModal from "./OrderTrackingModal";
 import CustomerDashboard from "./ecommerce/CustomerDashboard";
 import StorefrontFooter from "./ecommerce/StorefrontFooter";
 import CartSidebar from "./CartSidebar";
 import AuthModal from "./AuthModal";
-import ProductQuickView from "./ProductQuickView";
 import CheckoutModal from "./CheckoutModal";
 import compactToast from "../utils/compactToast";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-type PageView = "home" | "catalog" | "dashboard";
+type PageView = "home" | "catalog" | "dashboard" | "product";
 
 interface HorumarStorefrontProps {
   onAdminClick?: () => void;
@@ -30,6 +30,8 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
   const cart = useCart();
 
   const [currentPage, setCurrentPage] = useState<PageView>("home");
+  const [catalogFiltersOpen, setCatalogFiltersOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -45,8 +47,10 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
     [cart],
   );
 
-  const handleQuickView = useCallback((product: Product) => {
+  const handleProductSelect = useCallback((product: Product) => {
     setSelectedProduct(product);
+    setCurrentPage("product");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleCheckout = () => {
@@ -56,6 +60,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
 
   const handleCategoryClick = useCallback((category: string) => {
     setSelectedCategory(category);
+    setSearchTerm("");
     setCurrentPage("catalog");
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -63,11 +68,14 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
 
   const handleShopNow = useCallback(() => {
     setCurrentPage("catalog");
+    setSelectedCategory("all");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const navigateToHome = useCallback(() => {
     setCurrentPage("home");
+    setSelectedCategory("all");
+    setSearchTerm("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
@@ -80,33 +88,63 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Get filtered products based on selected category
-  const filteredProducts =
-    selectedCategory === "all"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+  const handleSearchSubmit = useCallback((query: string, category: string) => {
+    setSearchTerm(query);
+    setSelectedCategory(category);
+    setCurrentPage("catalog");
+    setCatalogFiltersOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleSearchCategoryChange = useCallback((category: string) => {
+    setSelectedCategory(category);
+  }, []);
+
+  const relatedProducts = selectedProduct
+    ? products.filter(
+        (product) =>
+          product.id !== selectedProduct.id &&
+          (product.category === selectedProduct.category || product.featured),
+      )
+    : [];
+
+  const seoTitle =
+    currentPage === "home"
+      ? "Horumar - Your Business, Your Progress"
+      : currentPage === "catalog"
+        ? searchTerm.trim()
+          ? `Search results for ${searchTerm} - Horumar`
+          : "Shop All Products - Horumar"
+        : currentPage === "product" && selectedProduct
+          ? `${selectedProduct.name} - Horumar`
+          : "My Dashboard - Horumar";
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <SEO
-        title={
-          currentPage === "home"
-            ? "Horumar - Your Business, Your Progress"
-            : currentPage === "catalog"
-              ? "Shop All Products - Horumar"
-              : "My Dashboard - Horumar"
-        }
+        title={seoTitle}
         description="Premium educational materials, stationery, and electronics in Eastleigh, Nairobi. Quality products for students and professionals. Shop online with fast delivery."
         keywords="Horumar, bookstore, Kenya, Nairobi, Eastleigh, textbooks, stationery, electronics, school supplies, online shopping"
       />
 
       {/* Navigation */}
       <StorefrontNavbar
+        products={products}
+        searchValue={searchTerm}
+        selectedSearchCategory={selectedCategory}
         onCartClick={() => setShowCart(true)}
         onLoginClick={() => setShowAuth(true)}
         onLogoClick={navigateToHome}
         onTrackOrderClick={openOrderTracking}
         onDashboardClick={navigateToDashboard}
+        onSearchChange={handleSearchChange}
+        onSearchCategoryChange={handleSearchCategoryChange}
+        onSearchSubmit={handleSearchSubmit}
+        onProductSelect={handleProductSelect}
       />
 
       {/* Main Content */}
@@ -118,7 +156,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
             <FeaturedProducts
               products={products}
               onAddToCart={handleAddToCart}
-              onQuickView={handleQuickView}
+              onProductSelect={handleProductSelect}
               onViewAll={handleShopNow}
               isLoading={isLoading}
             />
@@ -127,10 +165,26 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
 
         {currentPage === "catalog" && (
           <ProductCatalog
-            products={filteredProducts}
+            products={products}
+            searchTerm={searchTerm}
+            selectedCategory={selectedCategory}
+            showFilters={catalogFiltersOpen}
+            onSearchTermChange={setSearchTerm}
+            onCategoryChange={setSelectedCategory}
+            onToggleFilters={() => setCatalogFiltersOpen((current) => !current)}
             onAddToCart={handleAddToCart}
-            onQuickView={handleQuickView}
+            onProductSelect={handleProductSelect}
             isLoading={isLoading}
+          />
+        )}
+
+        {currentPage === "product" && selectedProduct && (
+          <ProductDetailsPage
+            product={selectedProduct}
+            relatedProducts={relatedProducts}
+            onBack={() => setCurrentPage("catalog")}
+            onAddToCart={handleAddToCart}
+            onProductSelect={handleProductSelect}
           />
         )}
 
@@ -157,15 +211,6 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
         isOpen={showOrderTracking}
         onClose={() => setShowOrderTracking(false)}
       />
-
-      {selectedProduct && (
-        <ProductQuickView
-          product={selectedProduct}
-          isOpen={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onAddToCart={handleAddToCart}
-        />
-      )}
 
       {/* Toast Notifications */}
       <ToastContainer

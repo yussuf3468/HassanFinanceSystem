@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { Search, Filter, X, SlidersHorizontal } from "lucide-react";
 import { Product } from "../../types";
 import ProductCardEcommerce from "./ProductCard";
@@ -10,8 +10,15 @@ import { useDebounceValue } from "../../hooks/usePerformance";
 
 interface ProductCatalogProps {
   products: Product[];
+  searchTerm: string;
+  selectedCategory: string;
+  showFilters: boolean;
+  onSearchTermChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+  onToggleFilters: () => void;
   onAddToCart: (product: Product) => void;
   onQuickView?: (product: Product) => void;
+  onProductSelect?: (product: Product) => void;
   isLoading?: boolean;
 }
 
@@ -48,15 +55,19 @@ const sortOptions = [
 
 export default function ProductCatalog({
   products,
+  searchTerm,
+  selectedCategory,
+  showFilters,
+  onSearchTermChange,
+  onCategoryChange,
+  onToggleFilters,
   onAddToCart,
   onQuickView,
+  onProductSelect,
   isLoading = false,
 }: ProductCatalogProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
   const debouncedSearch = useDebounceValue(searchTerm, 300);
@@ -70,20 +81,14 @@ export default function ProductCatalog({
       filtered = filtered.filter(
         (product) =>
           product.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          product.category
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase()) ||
-          product.description
-            ?.toLowerCase()
-            .includes(debouncedSearch.toLowerCase()),
+          product.category.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          product.description?.toLowerCase().includes(debouncedSearch.toLowerCase()),
       );
     }
 
     // Category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (product) => product.category === selectedCategory,
-      );
+      filtered = filtered.filter((product) => product.category === selectedCategory);
     }
 
     // Price range filter
@@ -120,8 +125,7 @@ export default function ProductCatalog({
       case "newest":
       default:
         filtered.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         );
         break;
     }
@@ -137,12 +141,12 @@ export default function ProductCatalog({
   ]);
 
   const clearFilters = useCallback(() => {
-    setSearchTerm("");
-    setSelectedCategory("all");
+    onSearchTermChange("");
+    onCategoryChange("all");
     setSelectedPriceRange(0);
     setSortBy("newest");
     setShowInStockOnly(false);
-  }, []);
+  }, [onCategoryChange, onSearchTermChange]);
 
   const activeFiltersCount = [
     selectedCategory !== "all",
@@ -167,7 +171,7 @@ export default function ProductCatalog({
 
           {/* Mobile Filter Toggle - Larger button */}
           <Button
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={onToggleFilters}
             variant="outline"
             size="lg"
             className="sm:hidden !min-h-[48px] touch-manipulation font-semibold"
@@ -188,7 +192,7 @@ export default function ProductCatalog({
             type="search"
             placeholder="Search products..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => onSearchTermChange(e.target.value)}
             icon={Search}
             className="max-w-full sm:max-w-2xl text-base sm:text-sm h-12 sm:h-auto"
           />
@@ -222,7 +226,7 @@ export default function ProductCatalog({
                 {categories.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => onCategoryChange(category)}
                     className={`px-4 sm:px-4 py-2.5 sm:py-2 rounded-full text-sm sm:text-sm font-semibold transition-all duration-300 min-h-[44px] sm:min-h-[40px] touch-manipulation ${
                       selectedCategory === category
                         ? "bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg shadow-amber-500/50"
@@ -327,6 +331,7 @@ export default function ProductCatalog({
                 product={product}
                 onAddToCart={onAddToCart}
                 onQuickView={onQuickView}
+                onProductSelect={onProductSelect}
                 index={index}
               />
             ))}
