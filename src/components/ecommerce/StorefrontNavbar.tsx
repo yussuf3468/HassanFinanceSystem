@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
-import { ShoppingCart, User, Menu, X, Package, Search, Sun } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Package, Search, Sun, Moon } from "lucide-react";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -39,7 +39,7 @@ export default function StorefrontNavbar({
 }: StorefrontNavbarProps) {
   const { totalItems } = useCart();
   const { user, signOut } = useAuth();
-  const { toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -200,7 +200,7 @@ export default function StorefrontNavbar({
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-t border-amber-500/60 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-xl">
+    <nav className="sticky top-0 z-50 border-t border-amber-500/60 bg-gradient-to-r from-amber-50 via-white to-amber-50 text-slate-900 shadow-xl dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:text-white">
       <Container>
         <div className="flex items-center justify-between gap-4 py-3 sm:py-3.5">
           {/* Logo */}
@@ -208,7 +208,9 @@ export default function StorefrontNavbar({
             <h1 className="truncate text-lg font-black uppercase tracking-wide text-amber-500 sm:text-2xl">
               HASSAN BOOKS
             </h1>
-            <p className="text-xs text-slate-300 sm:text-sm">Your Trusted Bookstore.</p>
+            <p className="text-xs text-slate-600 sm:text-sm dark:text-slate-300">
+              Your Trusted Bookstore.
+            </p>
           </button>
 
           {/* Desktop Search */}
@@ -216,11 +218,11 @@ export default function StorefrontNavbar({
             ref={searchContainerRef}
             className="relative hidden flex-1 md:flex md:max-w-[680px]"
           >
-            <div className="flex w-full overflow-hidden rounded-2xl border border-slate-600 bg-slate-100 shadow-lg shadow-black/20">
+            <div className="flex w-full overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-lg shadow-amber-200/60 dark:border-slate-600 dark:bg-slate-100 dark:shadow-black/20">
               <select
                 value={selectedSearchCategory}
                 onChange={(event) => onSearchCategoryChange?.(event.target.value)}
-                className="max-w-[150px] border-r border-slate-300 bg-slate-200 px-3 text-sm font-semibold text-slate-700 outline-none"
+                className="max-w-[150px] border-r border-amber-200 bg-amber-50 px-3 text-sm font-semibold text-slate-700 outline-none dark:border-slate-300 dark:bg-slate-200"
               >
                 {searchCategories.map((category) => (
                   <option key={category} value={category}>
@@ -259,7 +261,7 @@ export default function StorefrontNavbar({
           <div className="hidden lg:flex items-center gap-4">
             <button
               onClick={onTrackOrderClick}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-600 px-4 py-2.5 text-sm font-semibold text-amber-300 transition hover:bg-amber-600/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-600 px-4 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-600/10"
             >
               <Package className="w-4 h-4" />
               Track Order
@@ -267,15 +269,19 @@ export default function StorefrontNavbar({
 
             <button
               onClick={toggleTheme}
-              className="p-2 text-slate-300 transition hover:text-white"
+              className="p-2 text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
               aria-label="Toggle theme"
             >
-              <Sun className="h-5 w-5" />
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
             </button>
 
             <button
               onClick={onCartClick}
-              className="relative p-2 text-slate-300 transition hover:text-white"
+              className="relative p-2 text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
               aria-label="Open cart"
             >
               <ShoppingCart className="h-6 w-6" />
@@ -289,7 +295,7 @@ export default function StorefrontNavbar({
             {user && (
               <button
                 onClick={onDashboardClick}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-700"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <User className="w-4 h-4" />
                 Dashboard
@@ -306,7 +312,7 @@ export default function StorefrontNavbar({
                     onClick={() => signOut()}
                     variant="ghost"
                     size="sm"
-                    className="!text-slate-200"
+                    className="!text-slate-700 dark:!text-slate-200"
                   >
                     Sign Out
                   </Button>
@@ -327,7 +333,7 @@ export default function StorefrontNavbar({
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-10 h-10 rounded-xl bg-slate-700/70 flex items-center justify-center text-slate-200"
+              className="lg:hidden w-10 h-10 rounded-xl bg-slate-200/80 flex items-center justify-center text-slate-700 dark:bg-slate-700/70 dark:text-slate-200"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -336,13 +342,13 @@ export default function StorefrontNavbar({
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-slate-700 space-y-2">
+          <div className="lg:hidden py-4 border-t border-amber-200 space-y-2 dark:border-slate-700">
             <div className="relative px-2 pb-2">
               <div className="space-y-2">
                 <select
                   value={selectedSearchCategory}
                   onChange={(event) => onSearchCategoryChange?.(event.target.value)}
-                  className="w-full rounded-xl border border-slate-600 bg-slate-700/60 px-3 py-2.5 text-sm font-semibold text-slate-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-100"
                 >
                   {searchCategories.map((category) => (
                     <option key={category} value={category}>
@@ -363,7 +369,7 @@ export default function StorefrontNavbar({
                     onFocus={() => setIsSearchOpen(true)}
                     onKeyDown={handleSearchKeyDown}
                     placeholder="Search products..."
-                    className="w-full rounded-xl border border-slate-600 bg-slate-700/60 py-2.5 pl-10 pr-14 text-slate-200 placeholder:text-slate-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-14 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-200"
                   />
                   <button
                     onClick={() => submitSearch(searchValue)}
@@ -381,7 +387,7 @@ export default function StorefrontNavbar({
                 onTrackOrderClick?.();
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-100 hover:bg-slate-700 font-semibold"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 font-semibold dark:text-slate-100 dark:hover:bg-slate-700"
             >
               <Package className="w-5 h-5" />
               Track Order
@@ -391,7 +397,7 @@ export default function StorefrontNavbar({
                 onCartClick?.();
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-100 hover:bg-slate-700 font-semibold"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 font-semibold dark:text-slate-100 dark:hover:bg-slate-700"
             >
               <ShoppingCart className="w-5 h-5" />
               Cart ({totalItems})
@@ -403,7 +409,7 @@ export default function StorefrontNavbar({
                     onDashboardClick?.();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-100 hover:bg-slate-700 font-semibold"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-100 font-semibold dark:text-slate-100 dark:hover:bg-slate-700"
                 >
                   <User className="w-5 h-5" />
                   My Dashboard
