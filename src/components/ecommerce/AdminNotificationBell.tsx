@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { Bell, Package, Check, Trash2 } from "lucide-react";
-import { supabase } from "../../lib/supabase";
+import {
+  deleteAdminNotification,
+  getAdminNotifications,
+  markAdminNotificationAsRead,
+  markAllAdminNotificationsAsRead,
+  subscribeToAdminNotifications,
+  unsubscribeChannel,
+} from "../../api";
 import compactToast from "../../utils/compactToast";
 import Badge from "./Badge";
 import Button from "./Button";
@@ -35,13 +42,7 @@ const AdminNotificationBell = memo(
     const fetchNotifications = async () => {
       try {
         setLoading(true);
-        const { data, error } = await (supabase as any)
-          .from("admin_notifications")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(20);
-
-        if (error) throw error;
+        const data = await getAdminNotifications(20);
         setNotifications((data || []) as AdminNotification[]);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -53,12 +54,7 @@ const AdminNotificationBell = memo(
     // Mark notification as read
     const markAsRead = async (id: string) => {
       try {
-        const { error } = await (supabase as any)
-          .from("admin_notifications")
-          .update({ is_read: true, read_at: new Date().toISOString() })
-          .eq("id", id);
-
-        if (error) throw error;
+        await markAdminNotificationAsRead(id);
 
         setNotifications((prev) =>
           prev.map((notif) =>
@@ -81,12 +77,7 @@ const AdminNotificationBell = memo(
           .map((n) => n.id);
         if (unreadIds.length === 0) return;
 
-        const { error } = await (supabase as any)
-          .from("admin_notifications")
-          .update({ is_read: true, read_at: new Date().toISOString() })
-          .in("id", unreadIds);
-
-        if (error) throw error;
+        await markAllAdminNotificationsAsRead(unreadIds);
 
         setNotifications((prev) =>
           prev.map((notif) => ({
@@ -106,12 +97,7 @@ const AdminNotificationBell = memo(
     // Delete notification
     const deleteNotification = async (id: string) => {
       try {
-        const { error } = await (supabase as any)
-          .from("admin_notifications")
-          .delete()
-          .eq("id", id);
-
-        if (error) throw error;
+        await deleteAdminNotification(id);
 
         setNotifications((prev) => prev.filter((notif) => notif.id !== id));
         compactToast.success("Notification deleted");
@@ -125,44 +111,27 @@ const AdminNotificationBell = memo(
     useEffect(() => {
       fetchNotifications();
 
-      const channel = supabase
-        .channel("admin-notifications")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "admin_notifications",
-          },
-          (payload) => {
-            const newNotification = payload.new as AdminNotification;
-            setNotifications((prev) => [newNotification, ...prev]);
+      const channel = subscribeToAdminNotifications((newNotification) => {
+        setNotifications((prev) => [newNotification, ...prev]);
 
-            // Play sound for high priority notifications
-            if (
-              newNotification.priority === "high" ||
-              newNotification.priority === "urgent"
-            ) {
-              audioRef.current?.play().catch(console.error);
-            }
+        if (
+          newNotification.priority === "high" ||
+          newNotification.priority === "urgent"
+        ) {
+          audioRef.current?.play().catch(console.error);
+        }
 
-            // Show browser notification if permission granted
-            if (
-              "Notification" in window &&
-              Notification.permission === "granted"
-            ) {
-              new Notification(newNotification.title, {
-                body: newNotification.message,
-                icon: "/favicon.ico",
-                tag: `admin-notif-${newNotification.id}`,
-              });
-            }
-          },
-        )
-        .subscribe();
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(newNotification.title, {
+            body: newNotification.message,
+            icon: "/favicon.ico",
+            tag: `admin-notif-${newNotification.id}`,
+          });
+        }
+      });
 
       return () => {
-        supabase.removeChannel(channel);
+        unsubscribeChannel(channel);
       };
     }, []);
 

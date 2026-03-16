@@ -1,8 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import "./index_new.css";
+import { queryClient } from "./config/queryClient";
+import { validateEnv } from "./config/env";
 
 // Import performance monitoring
 import "./utils/performance";
@@ -10,19 +12,7 @@ import "./utils/performance";
 // ❌ DISABLED: Cache manager conflicts with React Query infinite cache
 // import "./utils/cacheManager";
 
-// Create React Query client with MAXIMUM caching (reduce egress by 1000%)
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity, // Data NEVER goes stale - cache forever!
-      gcTime: Infinity, // NEVER garbage collect - keep in memory forever!
-      refetchOnWindowFocus: false, // Don't refetch on window focus
-      refetchOnMount: false, // Don't refetch on component mount
-      refetchOnReconnect: false, // Don't refetch on reconnect
-      retry: 0, // Don't retry failed requests (saves bandwidth)
-    },
-  },
-});
+validateEnv();
 
 // ❌ DISABLED: Service Worker was forcing EVERY image to fetch fresh (cache: "no-cache")
 // This caused 24,241 storage requests in 24 hours! (17 requests per minute!)

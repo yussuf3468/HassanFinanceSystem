@@ -12,7 +12,14 @@ import {
 } from "lucide-react";
 import { searchProducts } from "../utils/searchUtils";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import {
+  getSaleDrafts,
+  createSaleDraft,
+  deleteSaleDraft,
+  createSale,
+  processStockReceipt,
+} from "../api/salesApi";
+import { createProduct, updateProductStock } from "../api/productsApi";
 import type { Product } from "../types";
 import { invalidateAfterSale } from "../utils/cacheInvalidation";
 import { StockReceiveModal } from "./StockReceiveModal";
@@ -23,7 +30,7 @@ interface SaleFormProps {
   onSuccess: () => void;
 }
 
-type DiscountType = "none" | "percentage" | "amount";
+type DiscountType = "none" | "percentage" | "amount" | "fixed";
 
 interface LineItem {
   id: string;
@@ -270,12 +277,7 @@ export default function SaleForm({
   useEffect(() => {
     async function loadDrafts() {
       try {
-        const { data, error } = await supabase
-          .from("sale_drafts")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
+        const data = await getSaleDrafts();
 
         if (data) {
           setSavedDrafts(
@@ -309,25 +311,19 @@ export default function SaleForm({
     if (!draftName) return;
 
     try {
-      const { data, error } = await supabase
-        .from("sale_drafts")
-        .insert({
-          draft_name: draftName,
-          line_items: lineItems,
-          sold_by: soldBy,
-          payment_method: paymentMethod,
-          overall_discount_type: overallDiscountType,
-          overall_discount_value: overallDiscountValue
-            ? parseFloat(overallDiscountValue)
-            : null,
-          customer_name: customerName || null,
-          payment_status: paymentStatus,
-          amount_paid: amountPaid ? parseFloat(amountPaid) : null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data: any = await createSaleDraft({
+        draft_name: draftName,
+        line_items: lineItems,
+        sold_by: soldBy,
+        payment_method: paymentMethod,
+        overall_discount_type: overallDiscountType,
+        overall_discount_value: overallDiscountValue
+          ? parseFloat(overallDiscountValue)
+          : null,
+        customer_name: customerName || null,
+        payment_status: paymentStatus,
+        amount_paid: amountPaid ? parseFloat(amountPaid) : null,
+      });
 
       if (data) {
         const newDraft = {
@@ -371,12 +367,7 @@ export default function SaleForm({
 
   async function deleteDraft(draftId: string) {
     try {
-      const { error } = await supabase
-        .from("sale_drafts")
-        .delete()
-        .eq("id", draftId);
-
-      if (error) throw error;
+      await deleteSaleDraft(draftId);
 
       const updated = savedDrafts.filter((d) => d.id !== draftId);
       setSavedDrafts(updated);
@@ -517,30 +508,17 @@ export default function SaleForm({
       const newStock = item.product.quantity_in_stock + quantity;
 
       // Update product stock
-      const { error: stockError } = await supabase
-        .from("products")
-        .update({ quantity_in_stock: newStock })
-        .eq("id", item.product.id);
-
-      if (stockError) throw stockError;
+      await updateProductStock(item.product.id, newStock);
 
       // Record in stock receipts trail with source information
-      const { error: receiptError } = await (supabase as any).rpc(
-        "process_stock_receipt",
-        {
-          p_items: [
-            {
-              product_id: item.product.id,
-              quantity: quantity,
-              cost_per_unit: null,
-              received_by: soldBy,
-              notes: source, // Include source in notes
-            },
-          ],
-        },
-      );
-
-      if (receiptError) {
+      try {
+        await processStockReceipt({
+          product_id: item.product.id,
+          quantity,
+          received_by: soldBy,
+          notes: source,
+        });
+      } catch (receiptError) {
         console.error("Stock receipt trail error:", receiptError);
       }
 
@@ -687,7 +665,7 @@ export default function SaleForm({
         const lineFinalTotal = c.final_total - lineShareOfOverallDiscount;
         const lineFinalProfit = c.profit - lineShareOfOverallDiscount;
 
-        const { error: lineError } = await supabase.from("sales").insert({
+        await createSale({
           transaction_id: transactionId,
           product_id: c.product.id,
           quantity_sold: c.quantity,
@@ -706,14 +684,8 @@ export default function SaleForm({
           final_price: c.final_unit_price,
         });
 
-        if (lineError) throw lineError;
-
         const newStock = c.product.quantity_in_stock - c.quantity;
-        const { error: stockError } = await supabase
-          .from("products")
-          .update({ quantity_in_stock: newStock })
-          .eq("id", c.product.id);
-        if (stockError) throw stockError;
+        await updateProductStock(c.product.id, newStock);
       }
 
       const receiptData: ReceiptData = {
@@ -1153,22 +1125,17 @@ export default function SaleForm({
       // Generate a product ID
       const productId = `PROD-${Date.now()}`;
 
-      const { data, error } = await supabase
-        .from("products")
-        .insert({
-          product_id: productId,
-          name: quickProductName.trim(),
-          category: "Other",
-          buying_price: buyingPrice,
-          selling_price: sellingPrice,
-          quantity_in_stock: 0,
-          reorder_level: 5,
-          description: "Added during sale",
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await createProduct({
+        product_id: productId,
+        name: quickProductName.trim(),
+        category: "Other",
+        image_url: null,
+        buying_price: buyingPrice,
+        selling_price: sellingPrice,
+        quantity_in_stock: 0,
+        reorder_level: 5,
+        description: "Added during sale",
+      });
 
       if (data) {
         // Refresh products list

@@ -12,7 +12,7 @@ import Button from "./Button";
 import Badge from "./Badge";
 import compactToast from "../../utils/compactToast";
 import Input from "./Input";
-import { supabase } from "../../lib/supabase";
+import { submitPaymentConfirmation } from "../../api/paymentsApi";
 import { MPESA_CONFIG, PAYMENT_SECURITY } from "../../config/paymentConfig";
 
 interface OrderConfirmationDialogProps {
@@ -112,23 +112,15 @@ export default function OrderConfirmationDialog({
           throw new Error(payload.error || "Failed to submit receipt");
         }
       } else {
-        const { error } = await supabase.from("payment_confirmations").insert([
-          {
-            order_id: orderId,
-            order_number: orderNumber,
-            payment_reference: effectiveReference,
-            customer_phone: orderDetails.customer_phone,
-            amount: orderDetails.total_amount,
-            receipt_code: normalized,
-            status: "submitted",
-          },
-        ]);
-
-        if (error) {
-          console.error("Receipt submission error:", error);
-          compactToast.error("Failed to submit receipt. Try again.");
-          return;
-        }
+        await submitPaymentConfirmation({
+          order_id: orderId,
+          order_number: orderNumber,
+          payment_reference: effectiveReference,
+          customer_phone: orderDetails.customer_phone,
+          amount: orderDetails.total_amount,
+          receipt_code: normalized,
+          status: "submitted",
+        });
       }
 
       setReceiptSubmitted(true);

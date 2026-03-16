@@ -8,7 +8,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
-import { supabase } from "../../lib/supabase";
+import { getOrderByNumber, getOrders } from "../../api";
 import { useAuth } from "../../contexts/AuthContext";
 import Container from "./Container";
 import Card from "./Card";
@@ -82,12 +82,7 @@ export default function OrderTracking() {
   const fetchMyOrders = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
+      const data = await getOrders();
       setOrders(data || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -101,13 +96,8 @@ export default function OrderTracking() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("order_number", searchOrderNumber.toUpperCase())
-        .single();
-
-      if (error) {
+      const data = await getOrderByNumber(searchOrderNumber);
+      if (!data) {
         console.error("Order not found");
         setTrackingOrder(null);
       } else {

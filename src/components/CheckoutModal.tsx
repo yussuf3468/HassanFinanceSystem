@@ -9,7 +9,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import compactToast from "../utils/compactToast";
-import { supabase } from "../lib/supabase";
+import { createOrderWithItemsAndStock } from "../api";
 import { useCart } from "../contexts/CartContext";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
@@ -130,34 +130,30 @@ const CheckoutModal = memo(
         setIsSubmitting(true);
 
         try {
-          // Create the order
-          const orderData = {
-            customer_name: formData.customer_name,
-            customer_email: formData.email || null,
-            customer_phone: formData.phone_number,
-            delivery_address: formData.delivery_address,
-            delivery_fee: deliveryFee || 0,
-            subtotal: cart.totalPrice,
-            total_amount: cart.totalPrice + (deliveryFee || 0),
-            payment_method: paymentMethod,
-            payment_status: "pending" as const,
-            notes: formData.notes || null,
-          };
+          const { order, orderItems } = await createOrderWithItemsAndStock({
+            order: {
+              customer_name: formData.customer_name,
+              customer_email: formData.email || null,
+              customer_phone: formData.phone_number,
+              delivery_address: formData.delivery_address,
+              delivery_fee: deliveryFee || 0,
+              subtotal: cart.totalPrice,
+              total_amount: cart.totalPrice + (deliveryFee || 0),
+              payment_method: paymentMethod,
+              payment_status: "pending",
+              notes: formData.notes || null,
+            },
+            items: cart.items.map((item) => ({
+              product_id: item.product.id,
+              product_name: item.product.name,
+              quantity: item.quantity,
+              unit_price: item.product.selling_price,
+              total_price: item.product.selling_price * item.quantity,
+              quantity_in_stock: item.product.quantity_in_stock,
+            })),
+          });
 
-          const { data: order, error: orderError } = await supabase
-            .from("orders")
-            .insert([orderData])
-            .select()
-            .single();
-
-          if (orderError) {
-            console.error("Order creation error:", orderError);
-            throw new Error("Failed to create order");
-          }
-
-          // Create order items
-          const orderItems = cart.items.map((item) => ({
-            order_id: order.id,
+          const displayOrderItems = cart.items.map((item) => ({
             product_id: item.product.id,
             product_name: item.product.name,
             quantity: item.quantity,
@@ -165,35 +161,9 @@ const CheckoutModal = memo(
             total_price: item.product.selling_price * item.quantity,
           }));
 
-          const { error: itemsError } = await supabase
-            .from("order_items")
-            .insert(orderItems);
-
-          if (itemsError) {
-            console.error("Order items creation error:", itemsError);
-            throw new Error("Failed to create order items");
-          }
-
-          // Update product stock
-          for (const item of cart.items) {
-            const { error: stockError } = await supabase
-              .from("products")
-              .update({
-                quantity_in_stock:
-                  item.product.quantity_in_stock - item.quantity,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", item.product.id);
-
-            if (stockError) {
-              console.error("Stock update error:", stockError);
-              // Don't throw here - order is already created
-            }
-          }
-
           // Success! Show confirmation dialog
           setCompletedOrder(order);
-          setOrderItems(orderItems);
+          setOrderItems(displayOrderItems.length ? displayOrderItems : orderItems);
           setShowConfirmation(true);
 
           // Send admin notification
@@ -235,7 +205,7 @@ const CheckoutModal = memo(
         cart,
         validateForm,
         onOrderComplete,
-        onClose,
+        saveInfo,
       ],
     );
 

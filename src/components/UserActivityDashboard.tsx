@@ -7,7 +7,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { getUserProfilesForActivity } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import { formatDate } from "../utils/dateFormatter";
 
@@ -37,42 +37,14 @@ export default function UserActivityDashboard() {
       return;
     }
 
-    if (loading) {
-      console.log("Already loading, skipping fetch");
-      return;
-    }
-
     console.log("Starting to fetch user activities...");
 
     try {
       setLoading(true);
       setError(null);
 
-      // Test connection first
-      const { error: testError } = await supabase
-        .from("profiles")
-        .select("count", { count: "exact", head: true });
-
-      if (testError) {
-        console.error("Database connection test failed:", testError);
-        setError(`Database connection failed: ${testError.message}`);
-        return;
-      }
-
       console.log("Database connection successful, fetching profiles...");
-
-      // Simplified query with specific fields only
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("id, email, full_name, role, last_login, created_at")
-        .limit(10); // Limit to prevent large data loads
-
-      if (error) {
-        console.error("Error fetching profiles:", error);
-        setError(`Failed to fetch profiles: ${error.message}`);
-        setUserActivities([]);
-        return;
-      }
+      const profiles = await getUserProfilesForActivity(10);
 
       console.log(
         "Profiles fetched successfully:",

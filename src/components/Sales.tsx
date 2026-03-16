@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Plus, Trash2, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { deleteSaleById, getSaleForDelete, restoreProductStock } from "../api";
 import SaleForm from "./SaleForm";
 import { formatDate } from "../utils/dateFormatter";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
@@ -64,42 +64,17 @@ export default function Sales() {
     if (!confirm(deleteMessage)) return;
 
     try {
-      // ✅ First, get the sale details to restore stock
-      const { data: saleData, error: fetchError } = await supabase
-        .from("sales")
-        .select("product_id, quantity_sold")
-        .eq("id", saleId)
-        .single();
-
-      if (fetchError) {
-        console.error("Error fetching sale data:", fetchError);
-        alert("Failed to fetch sale details. Please try again.");
-        return;
-      }
-
-      // Delete the sale record
-      const { error: deleteError } = await supabase
-        .from("sales")
-        .delete()
-        .eq("id", saleId);
-
-      if (deleteError) {
-        console.error("Error deleting sale:", deleteError);
-        alert("Failed to delete sale record. Please try again.");
-        return;
-      }
+      const saleData = await getSaleForDelete(saleId);
+      await deleteSaleById(saleId);
 
       // ✅ Restore the product stock
       const product = getProductById(saleData.product_id);
       if (product) {
         const restoredStock =
           product.quantity_in_stock + saleData.quantity_sold;
-        const { error: stockError } = await supabase
-          .from("products")
-          .update({ quantity_in_stock: restoredStock })
-          .eq("id", saleData.product_id);
-
-        if (stockError) {
+        try {
+          await restoreProductStock(saleData.product_id, restoredStock);
+        } catch (stockError) {
           console.error("Error restoring stock:", stockError);
           alert(
             "⚠️ Sale deleted but failed to restore inventory. Please manually update stock for " +

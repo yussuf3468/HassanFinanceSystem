@@ -75,11 +75,11 @@ const FeaturedProducts = memo(
           await new Promise((resolve) => setTimeout(resolve, 250));
           handleAddToCart(product);
           setIsAddingToCart(false);
-        }, [product, handleAddToCart]);
+        }, [product]);
 
         const handleQuickViewClick = useCallback(() => {
           handleQuickView(product);
-        }, [product, handleQuickView]);
+        }, [product]);
 
         return (
           <div

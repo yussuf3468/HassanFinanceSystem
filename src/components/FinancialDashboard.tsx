@@ -28,7 +28,7 @@ import {
   useFinancialTotals,
 } from "../hooks/useSupabaseQuery";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { getCyberServices } from "../api";
 import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
@@ -104,13 +104,7 @@ export default function FinancialDashboard() {
   // Cyber services profit (all entries are pure profit)
   const { data: cyberServices = [] } = useQuery({
     queryKey: ["cyber_services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cyber_services" as any)
-        .select("*");
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: getCyberServices,
     staleTime: Infinity,
     gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,

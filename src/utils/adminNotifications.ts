@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { createAdminNotification } from "../api";
 
 /**
  * Send admin notification for new order
@@ -20,30 +20,22 @@ export async function notifyAdminNewOrder(order: any) {
     }
 
     // 2. Create admin notification record in database
-    const { error: notificationError } = await (supabase as any)
-      .from("admin_notifications")
-      .insert([
-        {
-          type: "new_order",
-          title: "New Order Received",
-          message: `Order #${order.order_number} from ${order.customer_name}`,
-          reference_id: order.id,
-          reference_type: "order",
-          data: {
-            order_number: order.order_number,
-            customer_name: order.customer_name,
-            customer_phone: order.customer_phone,
-            total_amount: order.total_amount,
-            payment_method: order.payment_method,
-          },
-          is_read: false,
-          priority: "high",
-        },
-      ]);
-
-    if (notificationError) {
-      console.error("Failed to create admin notification:", notificationError);
-    }
+    await createAdminNotification({
+      type: "new_order",
+      title: "New Order Received",
+      message: `Order #${order.order_number} from ${order.customer_name}`,
+      reference_id: order.id,
+      reference_type: "order",
+      data: {
+        order_number: order.order_number,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        total_amount: order.total_amount,
+        payment_method: order.payment_method,
+      },
+      is_read: false,
+      priority: "high",
+    });
 
     // 3. Send WhatsApp notification (if configured)
     await sendWhatsAppNotification(order);

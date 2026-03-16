@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Package, MapPin, LogOut, Edit } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { supabase } from "../../lib/supabase";
+import { getOrders, updateCurrentUserProfile } from "../../api";
 import Container from "./Container";
 import Card from "./Card";
 import Button from "./Button";
@@ -43,14 +43,8 @@ export default function CustomerDashboard() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setOrders(data || []);
+      const data = await getOrders();
+      setOrders((data || []).slice(0, 10));
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -60,14 +54,10 @@ export default function CustomerDashboard() {
 
   const handleUpdateProfile = async () => {
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          full_name: profile.full_name,
-          phone: profile.phone,
-        },
+      await updateCurrentUserProfile({
+        full_name: profile.full_name,
+        phone: profile.phone,
       });
-
-      if (error) throw error;
       setEditing(false);
       alert("Profile updated successfully!");
     } catch (error) {

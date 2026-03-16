@@ -34,13 +34,8 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
   ];
 
   useEffect(() => {
-    filterProducts();
-  }, [products, searchTerm, selectedCategory]);
-
-  function filterProducts() {
     let filtered = products;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(
         (product: Product) =>
@@ -49,7 +44,6 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
       );
     }
 
-    // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
         (product: Product) => product.category === selectedCategory,
@@ -57,7 +51,7 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
     }
 
     setFilteredProducts(filtered);
-  }
+  }, [products, searchTerm, selectedCategory]);
 
   const handleAddToCart = (product: Product) => {
     cart.addItem(product);

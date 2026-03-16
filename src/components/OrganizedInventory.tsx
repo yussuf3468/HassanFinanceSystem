@@ -16,7 +16,7 @@ import {
   Edit,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { getPublishedProducts } from "../api";
 import type { Product } from "../types";
 import ProductForm from "./ProductForm";
 
@@ -78,16 +78,7 @@ export default function OrganizedInventory() {
     refetch,
   } = useQuery<Product[]>({
     queryKey: ["products"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("published", true)
-        .order("name");
-
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: getPublishedProducts,
     staleTime: Infinity,
   });
 

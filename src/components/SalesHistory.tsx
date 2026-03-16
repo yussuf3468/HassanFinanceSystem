@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -190,6 +190,7 @@ export default function SalesHistory() {
     sellerFilter,
     dateFrom,
     dateTo,
+    getProductName,
   ]);
 
   // Global stats
@@ -257,10 +258,13 @@ export default function SalesHistory() {
     setCurrentPage(1);
   }, [query, paymentFilter, sellerFilter, dateFrom, dateTo]);
 
-  const getProductName = (productId: string) => {
-    const product = productMap.get(productId);
-    return (product && (product.name || (product as any).title)) || "Unknown";
-  };
+  const getProductName = useCallback(
+    (productId: string) => {
+      const product = productMap.get(productId);
+      return (product && (product.name || (product as any).title)) || "Unknown";
+    },
+    [productMap],
+  );
 
   const toggleExpand = (txId: string) => {
     setExpanded((prev) => {

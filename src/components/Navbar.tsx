@@ -5,7 +5,6 @@ import {
   User,
   Menu,
   X,
-  Settings,
   LogOut,
   Sun,
   Moon,
@@ -216,9 +215,6 @@ const Navbar = memo(
                             }}
                             className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center space-x-3 group"
                           >
-                            <div className="p-1 rounded-lg bg-amber-100 border-2 border-amber-300 group-hover:bg-amber-200 transition-colors">
-                              <Settings className="w-4 h-4 text-amber-600" />
-                            </div>
                             <div>
                               <span className="font-medium">Admin Panel</span>
                               <p className="text-xs text-slate-500">
@@ -355,7 +351,6 @@ const Navbar = memo(
                       }}
                       className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
-                      <Settings className="w-5 h-5 text-amber-600" />
                       <span className="font-medium text-slate-900 dark:text-white">
                         Admin Panel
                       </span>

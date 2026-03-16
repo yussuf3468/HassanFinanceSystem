@@ -16,7 +16,11 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { supabase } from "../lib/supabase";
+import {
+  createProfitTrackerHistory,
+  deleteProfitTrackerHistory,
+  getProfitTrackerHistory,
+} from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import { formatDate } from "../utils/dateFormatter";
 
@@ -89,13 +93,7 @@ export default function BusinessProfitTracker() {
 
   const loadHistory = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profit_tracker_history" as any)
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
+      const data = await getProfitTrackerHistory(50);
       setHistory((data as any) || []);
     } catch (error) {
       console.error("Error loading history:", error);
@@ -219,9 +217,7 @@ export default function BusinessProfitTracker() {
     if (!results) return;
 
     try {
-      const { error } = await supabase
-        .from("profit_tracker_history" as any)
-        .insert({
+      await createProfitTrackerHistory({
           initial_investment: parseFloat(formData.initialInvestment) || 0,
           current_stock: parseFloat(formData.currentStock) || 0,
           total_sales: 0,
@@ -238,8 +234,6 @@ export default function BusinessProfitTracker() {
           notes: formData.notes || null,
           created_by: user?.email || null,
         });
-
-      if (error) throw error;
       alert("Saved to cloud history successfully!");
       await loadHistory();
     } catch (error) {
@@ -252,12 +246,7 @@ export default function BusinessProfitTracker() {
     if (!confirm("Are you sure you want to delete this calculation?")) return;
 
     try {
-      const { error } = await supabase
-        .from("profit_tracker_history" as any)
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await deleteProfitTrackerHistory(id);
       await loadHistory();
     } catch (error) {
       console.error("Error deleting history entry:", error);

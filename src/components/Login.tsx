@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, BookOpen, Lock, User } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { signInWithPassword } from "../api";
 
 interface LoginProps {
   onLogin: (user: any) => void;
@@ -21,28 +21,26 @@ export default function Login({ onLogin }: LoginProps) {
     setError("");
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
-      });
-
-      if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          setError(
-            "Magaca isticmaalaha ama furaha sirta ah ayaa qaldan - Invalid email or password",
-          );
-        } else {
-          setError("Khalad ayaa dhacay - An error occurred: " + error.message);
-        }
-        return;
-      }
+      const data = await signInWithPassword(
+        credentials.email,
+        credentials.password,
+      );
 
       if (data.user) {
         onLogin(data.user);
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("Khalad ayaa dhacay - Network error occurred");
+    } catch (error: any) {
+      if (error?.message?.includes("Invalid login credentials")) {
+          setError(
+            "Magaca isticmaalaha ama furaha sirta ah ayaa qaldan - Invalid email or password",
+          );
+      } else {
+        console.error("Login error:", error);
+        setError(
+          "Khalad ayaa dhacay - An error occurred: " +
+            (error?.message || "Network error occurred"),
+        );
+      }
     } finally {
       setLoading(false);
     }

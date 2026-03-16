@@ -31,7 +31,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 import compactToast from "../utils/compactToast";
-import { supabase } from "../lib/supabase";
+import {
+  deleteOrderWithItems,
+  getOrders,
+  updateOrderPaymentDecision,
+  updateOrderStatusById,
+} from "../api";
 import type { Order } from "../types";
 import { toast } from "react-toastify";
 import { formatDate } from "../utils/dateFormatter";
@@ -52,30 +57,7 @@ const Orders = () => {
   const loadOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("orders")
-        .select(
-          `
-          *,
-          order_items (
-            id,
-            product_id,
-            product_name,
-            quantity,
-            unit_price,
-            total_price,
-            created_at
-          )
-        `,
-        )
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error loading orders:", error);
-        compactToast.error("Failed to load orders");
-        return;
-      }
-
+      const data = await getOrders();
       setOrders((data as unknown as Order[]) || []);
     } catch (error) {
       console.error("Error loading orders:", error);
@@ -93,17 +75,7 @@ const Orders = () => {
     async (orderId: string, approve: boolean) => {
       setVerifyingPayment(orderId);
       try {
-        // Update payment verification status
-        const { error } = await supabase
-          .from("orders")
-          .update({
-            payment_status: approve ? "paid" : "failed",
-            payment_verified_at: new Date().toISOString(),
-            status: approve ? "confirmed" : "pending",
-          })
-          .eq("id", orderId);
-
-        if (error) throw error;
+        await updateOrderPaymentDecision(orderId, approve);
 
         // Update local state
         setOrders((prev) =>
@@ -148,19 +120,7 @@ const Orders = () => {
   const updateOrderStatus = useCallback(
     async (orderId: string, newStatus: Order["status"]) => {
       try {
-        const { error } = await supabase
-          .from("orders")
-          .update({
-            status: newStatus as any,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", orderId);
-
-        if (error) {
-          console.error("Error updating order status:", error);
-          toast.error("Failed to update order status");
-          return;
-        }
+        await updateOrderStatusById(orderId, newStatus);
 
         // Update local state
         setOrders((prev) =>
@@ -199,29 +159,7 @@ const Orders = () => {
       if (!confirmDelete) return;
 
       try {
-        // First delete order items
-        const { error: itemsError } = await supabase
-          .from("order_items")
-          .delete()
-          .eq("order_id", orderId);
-
-        if (itemsError) {
-          console.error("Error deleting order items:", itemsError);
-          toast.error("Failed to delete order items");
-          return;
-        }
-
-        // Then delete the order
-        const { error: orderError } = await supabase
-          .from("orders")
-          .delete()
-          .eq("id", orderId);
-
-        if (orderError) {
-          console.error("Error deleting order:", orderError);
-          toast.error("Failed to delete order");
-          return;
-        }
+        await deleteOrderWithItems(orderId);
 
         // Update local state
         setOrders((prev) => prev.filter((order) => order.id !== orderId));

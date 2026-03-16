@@ -1,36 +1,50 @@
-import { useState, useEffect } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import Inventory from "./components/Inventory";
-import Sales from "./components/Sales";
-import SalesHistory from "./components/SalesHistory";
-import Returns from "./components/Returns";
-import Search from "./components/Search";
-import Reports from "./components/Reports";
-import UserActivityDashboard from "./components/UserActivityDashboard";
-import Orders from "./components/Orders";
-import CustomerBalances from "./components/CustomerBalances";
-import HorumarStorefront from "./components/HorumarStorefront";
 import { Store, Settings } from "lucide-react";
-import FinancialDashboard from "./components/FinancialDashboard";
-import ExpenseManagement from "./components/ExpenseManagement";
-import InitialInvestment from "./components/InitialInvestment";
-import DebtManagement from "./components/DebtManagement";
-import CustomerCredit from "./components/CustomerCredit";
-import CyberServices from "./components/CyberServices";
 import QueryDiagnostics from "./components/QueryDiagnostics";
-import StaffDashboard from "./components/StaffDashboard";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import OrganizedInventory from "./components/OrganizedInventory";
-import BusinessProfitTracker from "./components/BusinessProfitTracker";
+import StorefrontPage from "./pages/StorefrontPage";
+
+const Login = lazy(() => import("./components/Login"));
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const Inventory = lazy(() => import("./components/Inventory"));
+const Sales = lazy(() => import("./components/Sales"));
+const SalesHistory = lazy(() => import("./components/SalesHistory"));
+const Returns = lazy(() => import("./components/Returns"));
+const Search = lazy(() => import("./components/Search"));
+const Reports = lazy(() => import("./components/Reports"));
+const UserActivityDashboard = lazy(
+  () => import("./components/UserActivityDashboard"),
+);
+const Orders = lazy(() => import("./components/Orders"));
+const CustomerBalances = lazy(() => import("./components/CustomerBalances"));
+const FinancialDashboard = lazy(() => import("./components/FinancialDashboard"));
+const ExpenseManagement = lazy(() => import("./components/ExpenseManagement"));
+const InitialInvestment = lazy(() => import("./components/InitialInvestment"));
+const DebtManagement = lazy(() => import("./components/DebtManagement"));
+const CustomerCredit = lazy(() => import("./components/CustomerCredit"));
+const CyberServices = lazy(() => import("./components/CyberServices"));
+const StaffDashboard = lazy(() => import("./components/StaffDashboard"));
+const OrganizedInventory = lazy(() => import("./components/OrganizedInventory"));
+const BusinessProfitTracker = lazy(
+  () => import("./components/BusinessProfitTracker"),
+);
+
+function ViewFallback() {
+  return (
+    <div className="flex items-center justify-center py-16">
+      <div className="text-sm text-slate-600 dark:text-slate-300">Loading view...</div>
+    </div>
+  );
+}
 
 function AppContent() {
   const [viewMode, setViewMode] = useState<"admin" | "customer">("customer");
   const { user, loading } = useAuth();
+  const hadUserRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -48,6 +62,7 @@ function AppContent() {
   // ✅ Fixed logic: Only set default tab once when user logs in
   useEffect(() => {
     if (user) {
+      hadUserRef.current = true;
       setViewMode("admin");
 
       setActiveTab((prev) => {
@@ -60,6 +75,13 @@ function AppContent() {
         if (user.email) return "staff-dashboard";
         return "dashboard";
       });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user && hadUserRef.current) {
+      setViewMode("customer");
+      hadUserRef.current = false;
     }
   }, [user]);
 
@@ -77,7 +99,7 @@ function AppContent() {
 
   // Customer view (no authentication required)
   if (viewMode === "customer") {
-    return <HorumarStorefront onAdminClick={() => setViewMode("admin")} />;
+    return <StorefrontPage onAdminClick={() => setViewMode("admin")} />;
   }
 
   // Admin view (requires authentication)
@@ -95,7 +117,9 @@ function AppContent() {
 
         {/* Centered login container to match app layout */}
         <div className="w-full max-w-md mx-4">
-          <Login onLogin={() => {}} />
+          <Suspense fallback={<ViewFallback />}>
+            <Login onLogin={() => {}} />
+          </Suspense>
         </div>
       </div>
     );
@@ -104,25 +128,27 @@ function AppContent() {
   return (
     <div className="relative">
       <Layout activeTab={activeTab} onTabChange={setActiveTab}>
-        {activeTab === "dashboard" && <Dashboard />}
-        {activeTab === "staff-dashboard" && <StaffDashboard />}
-        {activeTab === "inventory" && <Inventory />}
-        {activeTab === "organized-inventory" && <OrganizedInventory />}
-        {activeTab === "sales" && <Sales />}
-        {activeTab === "sales-history" && <SalesHistory />}
-        {activeTab === "returns" && <Returns />}
-        {activeTab === "orders" && <Orders />}
-        {activeTab === "search" && <Search />}
-        {activeTab === "reports" && <Reports />}
-        {activeTab === "customer-balances" && <CustomerBalances />}
-        {activeTab === "user-activity" && <UserActivityDashboard />}
-        {activeTab === "financial-dashboard" && <FinancialDashboard />}
-        {activeTab === "expenses" && <ExpenseManagement />}
-        {activeTab === "investments" && <InitialInvestment />}
-        {activeTab === "debts" && <DebtManagement />}
-        {activeTab === "customer-credit" && <CustomerCredit />}
-        {activeTab === "cyber-services" && <CyberServices />}
-        {activeTab === "business-profit" && <BusinessProfitTracker />}
+        <Suspense fallback={<ViewFallback />}>
+          {activeTab === "dashboard" && <Dashboard />}
+          {activeTab === "staff-dashboard" && <StaffDashboard />}
+          {activeTab === "inventory" && <Inventory />}
+          {activeTab === "organized-inventory" && <OrganizedInventory />}
+          {activeTab === "sales" && <Sales />}
+          {activeTab === "sales-history" && <SalesHistory />}
+          {activeTab === "returns" && <Returns />}
+          {activeTab === "orders" && <Orders />}
+          {activeTab === "search" && <Search />}
+          {activeTab === "reports" && <Reports />}
+          {activeTab === "customer-balances" && <CustomerBalances />}
+          {activeTab === "user-activity" && <UserActivityDashboard />}
+          {activeTab === "financial-dashboard" && <FinancialDashboard />}
+          {activeTab === "expenses" && <ExpenseManagement />}
+          {activeTab === "investments" && <InitialInvestment />}
+          {activeTab === "debts" && <DebtManagement />}
+          {activeTab === "customer-credit" && <CustomerCredit />}
+          {activeTab === "cyber-services" && <CyberServices />}
+          {activeTab === "business-profit" && <BusinessProfitTracker />}
+        </Suspense>
       </Layout>
 
       {/* PWA Install Prompt for iOS and Android */}

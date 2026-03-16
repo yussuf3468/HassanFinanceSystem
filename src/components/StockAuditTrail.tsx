@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   X,
   Package,
@@ -10,7 +10,7 @@ import {
   Search,
   RefreshCw,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { getStockMovements } from "../api";
 import OptimizedImage from "./OptimizedImage";
 
 type StockMovement = {
@@ -39,27 +39,10 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
-  async function fetchMovements() {
+  const fetchMovements = useCallback(async () => {
     try {
       setRefreshing(true);
-      let query = (supabase as any)
-        .from("stock_movements")
-        .select(
-          `
-          *,
-          product:products(name, product_id, image_url)
-        `
-        )
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (filter !== "all") {
-        query = query.ilike("reason", `%${filter}%`);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
+      const data = await getStockMovements(filter);
       setMovements((data as any) || []);
     } catch (err) {
       console.error("Failed to fetch stock movements:", err);
@@ -68,11 +51,11 @@ export default function StockAuditTrail({ onClose }: { onClose: () => void }) {
       setLoading(false);
       setRefreshing(false);
     }
-  }
+  }, [filter]);
 
   useEffect(() => {
     fetchMovements();
-  }, [filter]);
+  }, [fetchMovements]);
 
   // Trap escape key for close
   useEffect(() => {
