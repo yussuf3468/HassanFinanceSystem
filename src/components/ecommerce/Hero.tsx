@@ -91,10 +91,7 @@ export default function Hero({
                 <div
                   className="relative mb-2 cursor-pointer group"
                   onClick={() => onViewFeatured?.(highlightProduct)}
-                  tabIndex={0}
-                  role="button"
                   aria-label="View featured product details"
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { onViewFeatured?.(highlightProduct); } }}
                 >
                   <div className="overflow-hidden rounded-xl bg-white/20 flex items-center justify-center mb-2">
                     <OptimizedImage
@@ -111,28 +108,28 @@ export default function Hero({
                       Featured
                     </Badge>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs uppercase tracking-wide text-amber-200">
-                    {highlightProduct.category}
-                  </span>
-                </div>
-                <h2 className="text-lg font-black text-white sm:text-2xl">
-                  {highlightProduct.name}
-                </h2>
-                <p className="mt-2 line-clamp-2 text-xs text-slate-200 sm:text-base">
-                  {highlightProduct.description ||
-                    "Quality stock selected for students, parents, and professionals."}
-                </p>
-                <div className="mt-3 flex items-center gap-3">
-                  <span className="text-xl font-black text-amber-300 sm:text-2xl">
-                    KES {highlightProduct.selling_price.toLocaleString()}
-                  </span>
-                  <span className="text-xs text-slate-300 sm:text-sm">
-                    {highlightProduct.quantity_in_stock > 0
-                      ? `${highlightProduct.quantity_in_stock} in stock`
-                      : "Out of stock"}
-                  </span>
+                  <div className="flex items-center gap-2 mb-2 mt-2">
+                    <span className="text-xs uppercase tracking-wide text-amber-200">
+                      {highlightProduct.category}
+                    </span>
+                  </div>
+                  <h2 className="text-lg font-black text-white sm:text-2xl">
+                    {highlightProduct.name}
+                  </h2>
+                  <p className="mt-2 line-clamp-2 text-xs text-slate-200 sm:text-base">
+                    {highlightProduct.description ||
+                      "Quality stock selected for students, parents, and professionals."}
+                  </p>
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-xl font-black text-amber-300 sm:text-2xl">
+                      KES {highlightProduct.selling_price.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-slate-300 sm:text-sm">
+                      {highlightProduct.quantity_in_stock > 0
+                        ? `${highlightProduct.quantity_in_stock} in stock`
+                        : "Out of stock"}
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : (
