@@ -25,9 +25,7 @@ interface HorumarStorefrontProps {
   onAdminClick?: () => void;
 }
 
-export default function HorumarStorefront({
-  onAdminClick,
-}: HorumarStorefrontProps) {
+export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontProps) {
   const { data: products = [], isLoading } = usePublicProducts();
   const cart = useCart();
 
@@ -95,10 +93,10 @@ export default function HorumarStorefront({
           currentPage === "home"
             ? "Horumar - Your Business, Your Progress"
             : currentPage === "catalog"
-            ? "Shop All Products - Horumar"
-            : currentPage === "orders"
-            ? "Track Your Order - Horumar"
-            : "My Dashboard - Horumar"
+              ? "Shop All Products - Horumar"
+              : currentPage === "orders"
+                ? "Track Your Order - Horumar"
+                : "My Dashboard - Horumar"
         }
         description="Premium educational materials, stationery, and electronics in Eastleigh, Nairobi. Quality products for students and professionals. Shop online with fast delivery."
         keywords="Horumar, bookstore, Kenya, Nairobi, Eastleigh, textbooks, stationery, electronics, school supplies, online shopping"
@@ -155,10 +153,7 @@ export default function HorumarStorefront({
 
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
-      <CheckoutModal
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-      />
+      <CheckoutModal isOpen={showCheckout} onClose={() => setShowCheckout(false)} />
 
       {selectedProduct && (
         <ProductQuickView
@@ -183,7 +178,6 @@ export default function HorumarStorefront({
         theme="light"
         toastClassName="!bg-white dark:!bg-slate-800 !rounded-xl !shadow-2xl"
       />
-
     </div>
   );
 }

@@ -72,13 +72,7 @@ export interface Order {
   delivery_fee: number;
   subtotal: number;
   total_amount: number;
-  status:
-    | "pending"
-    | "confirmed"
-    | "processing"
-    | "shipped"
-    | "delivered"
-    | "cancelled";
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   payment_method: "cash" | "mpesa" | "card" | "bank_transfer";
   payment_status: "pending" | "paid" | "failed" | "refunded";
   payment_reference?: string | null;
@@ -93,6 +87,21 @@ export interface Order {
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];
+}
+
+export type OrderStatus = Order["status"];
+
+export interface OrderHistoryEntry {
+  id: string;
+  order_id: string;
+  status: OrderStatus;
+  title: string;
+  note?: string | null;
+  actor_name?: string | null;
+  actor_email?: string | null;
+  visible_to_customer: boolean;
+  created_at: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface OrderItem {

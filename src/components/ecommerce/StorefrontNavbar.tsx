@@ -34,9 +34,7 @@ export default function StorefrontNavbar({
             className="flex items-center gap-2 sm:gap-3 group"
           >
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-600 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/50 group-hover:shadow-xl group-hover:shadow-amber-500/60 transition-shadow">
-              <span className="text-white font-black text-xl sm:text-2xl">
-                H
-              </span>
+              <span className="text-white font-black text-xl sm:text-2xl">H</span>
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
@@ -109,11 +107,7 @@ export default function StorefrontNavbar({
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300"
             >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>

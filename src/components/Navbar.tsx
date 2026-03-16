@@ -1,14 +1,5 @@
 import { useState, useCallback, memo } from "react";
-import {
-  Search,
-  ShoppingCart,
-  User,
-  Menu,
-  X,
-  LogOut,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, LogOut, Sun, Moon } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -66,9 +57,7 @@ const Navbar = memo(
     // Function to highlight product and scroll to it
     const highlightProduct = useCallback((productId: string) => {
       setTimeout(() => {
-        const productElement = document.querySelector(
-          `[data-product-id="${productId}"]`,
-        );
+        const productElement = document.querySelector(`[data-product-id="${productId}"]`);
         if (productElement) {
           productElement.scrollIntoView({
             behavior: "smooth",
@@ -128,9 +117,7 @@ const Navbar = memo(
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSearchSuggestions(true)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSearchSuggestions(false), 200)
-                  }
+                  onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
                   className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
                 />
 
@@ -217,9 +204,7 @@ const Navbar = memo(
                           >
                             <div>
                               <span className="font-medium">Admin Panel</span>
-                              <p className="text-xs text-slate-500">
-                                Manage store
-                              </p>
+                              <p className="text-xs text-slate-500">Manage store</p>
                             </div>
                           </button>
                         )}
@@ -233,9 +218,7 @@ const Navbar = memo(
                           </div>
                           <div>
                             <span className="font-medium">Sign Out</span>
-                            <p className="text-xs text-slate-500">
-                              Logout safely
-                            </p>
+                            <p className="text-xs text-slate-500">Logout safely</p>
                           </div>
                         </button>
                       </div>

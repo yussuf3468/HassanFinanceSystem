@@ -16,9 +16,7 @@ const SalesHistory = lazy(() => import("./components/SalesHistory"));
 const Returns = lazy(() => import("./components/Returns"));
 const Search = lazy(() => import("./components/Search"));
 const Reports = lazy(() => import("./components/Reports"));
-const UserActivityDashboard = lazy(
-  () => import("./components/UserActivityDashboard"),
-);
+const UserActivityDashboard = lazy(() => import("./components/UserActivityDashboard"));
 const Orders = lazy(() => import("./components/Orders"));
 const CustomerBalances = lazy(() => import("./components/CustomerBalances"));
 const FinancialDashboard = lazy(() => import("./components/FinancialDashboard"));
@@ -29,9 +27,7 @@ const CustomerCredit = lazy(() => import("./components/CustomerCredit"));
 const CyberServices = lazy(() => import("./components/CyberServices"));
 const StaffDashboard = lazy(() => import("./components/StaffDashboard"));
 const OrganizedInventory = lazy(() => import("./components/OrganizedInventory"));
-const BusinessProfitTracker = lazy(
-  () => import("./components/BusinessProfitTracker"),
-);
+const BusinessProfitTracker = lazy(() => import("./components/BusinessProfitTracker"));
 
 function ViewFallback() {
   return (
