@@ -1,12 +1,4 @@
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Mail,
-  Phone,
-  MapPin,
-  Heart,
-} from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Heart } from "lucide-react";
 import Container from "./Container";
 
 export default function StorefrontFooter() {
@@ -24,16 +16,13 @@ export default function StorefrontFooter() {
                 <span className="text-white font-black text-2xl">H</span>
               </div>
               <div>
-                <h3 className="text-2xl font-black">HORUMAR</h3>
-                <p className="text-xs text-amber-200">
-                  Your Business. Your Progress.
-                </p>
+                <h3 className="text-2xl font-black">HASSAN BOOKS</h3>
+                <p className="text-xs text-amber-200">Your Business. Your Progress.</p>
               </div>
             </div>
             <p className="text-sm text-amber-100">
-              Premium educational materials, stationery, and electronics in
-              Eastleigh, Nairobi. Quality products for students and
-              professionals.
+              Premium educational materials, stationery, and electronics in Eastleigh,
+              Nairobi. Quality products for students and professionals.
             </p>
             {/* Social Links */}
             <div className="flex gap-3">
@@ -60,47 +49,30 @@ export default function StorefrontFooter() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-amber-300">
-              Quick Links
-            </h4>
+            <h4 className="text-lg font-bold mb-4 text-amber-300">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   About Us
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Shop All Products
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Track Your Order
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Returns & Refunds
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   FAQ
                 </a>
               </li>
@@ -109,47 +81,30 @@ export default function StorefrontFooter() {
 
           {/* Categories */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-amber-300">
-              Categories
-            </h4>
+            <h4 className="text-lg font-bold mb-4 text-amber-300">Categories</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Books & Textbooks
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   School Supplies
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Electronics
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Backpacks & Bags
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-amber-100 hover:text-white transition-colors"
-                >
+                <a href="#" className="text-amber-100 hover:text-white transition-colors">
                   Stationery
                 </a>
               </li>
@@ -158,9 +113,7 @@ export default function StorefrontFooter() {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-bold mb-4 text-amber-300">
-              Contact Us
-            </h4>
+            <h4 className="text-lg font-bold mb-4 text-amber-300">Contact Us</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
@@ -189,9 +142,7 @@ export default function StorefrontFooter() {
               </li>
             </ul>
             <div className="mt-6 p-4 bg-white/10 backdrop-blur-sm rounded-xl">
-              <p className="text-xs font-semibold text-amber-300 mb-2">
-                Business Hours
-              </p>
+              <p className="text-xs font-semibold text-amber-300 mb-2">Business Hours</p>
               <p className="text-sm text-amber-100">
                 Mon - Sat: 8:00 AM - 11:00 PM
                 <br />
@@ -207,17 +158,17 @@ export default function StorefrontFooter() {
         <Container className="py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-quaternary">
             <p className="text-center sm:text-left">
-              © {currentYear} Horumar. All rights reserved.
+              © {currentYear} Hassan Books. All rights reserved.
             </p>
             <div className="flex items-center justify-center gap-1 text-sm text-amber-200/80">
               <span>Powered by</span>
               <a
-                href="https://horumarin.com"
+                href="https://lenzro.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold text-amber-400 hover:text-amber-300 transition-colors"
               >
-                Horumar
+                Lenzro
               </a>
               <span className="text-amber-300/60">- Your Progress Partner</span>
             </div>
