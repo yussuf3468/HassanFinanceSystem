@@ -8,7 +8,7 @@ import Hero from "./ecommerce/Hero";
 import CategoryGrid from "./ecommerce/CategoryGrid";
 import FeaturedProducts from "./ecommerce/FeaturedProducts";
 import ProductCatalog from "./ecommerce/ProductCatalog";
-import OrderTracking from "./ecommerce/OrderTracking";
+import OrderTrackingModal from "./OrderTrackingModal";
 import CustomerDashboard from "./ecommerce/CustomerDashboard";
 import StorefrontFooter from "./ecommerce/StorefrontFooter";
 import CartSidebar from "./CartSidebar";
@@ -19,7 +19,7 @@ import compactToast from "../utils/compactToast";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-type PageView = "home" | "catalog" | "orders" | "dashboard";
+type PageView = "home" | "catalog" | "dashboard";
 
 interface HorumarStorefrontProps {
   onAdminClick?: () => void;
@@ -33,6 +33,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showOrderTracking, setShowOrderTracking] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
@@ -70,9 +71,8 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const navigateToOrders = useCallback(() => {
-    setCurrentPage("orders");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const openOrderTracking = useCallback(() => {
+    setShowOrderTracking(true);
   }, []);
 
   const navigateToDashboard = useCallback(() => {
@@ -94,9 +94,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
             ? "Horumar - Your Business, Your Progress"
             : currentPage === "catalog"
               ? "Shop All Products - Horumar"
-              : currentPage === "orders"
-                ? "Track Your Order - Horumar"
-                : "My Dashboard - Horumar"
+              : "My Dashboard - Horumar"
         }
         description="Premium educational materials, stationery, and electronics in Eastleigh, Nairobi. Quality products for students and professionals. Shop online with fast delivery."
         keywords="Horumar, bookstore, Kenya, Nairobi, Eastleigh, textbooks, stationery, electronics, school supplies, online shopping"
@@ -107,7 +105,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
         onCartClick={() => setShowCart(true)}
         onLoginClick={() => setShowAuth(true)}
         onLogoClick={navigateToHome}
-        onTrackOrderClick={navigateToOrders}
+        onTrackOrderClick={openOrderTracking}
         onDashboardClick={navigateToDashboard}
       />
 
@@ -115,7 +113,7 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       <main>
         {currentPage === "home" && (
           <>
-            <Hero onShopNow={handleShopNow} onTrackOrder={navigateToOrders} />
+            <Hero onShopNow={handleShopNow} onTrackOrder={openOrderTracking} />
             <CategoryGrid onCategoryClick={handleCategoryClick} />
             <FeaturedProducts
               products={products}
@@ -136,8 +134,6 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
           />
         )}
 
-        {currentPage === "orders" && <OrderTracking />}
-
         {currentPage === "dashboard" && <CustomerDashboard />}
       </main>
 
@@ -154,6 +150,11 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       <CheckoutModal isOpen={showCheckout} onClose={() => setShowCheckout(false)} />
+
+      <OrderTrackingModal
+        isOpen={showOrderTracking}
+        onClose={() => setShowOrderTracking(false)}
+      />
 
       {selectedProduct && (
         <ProductQuickView
