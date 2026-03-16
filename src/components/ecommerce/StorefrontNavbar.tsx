@@ -32,10 +32,10 @@ export default function StorefrontNavbar({
         <div className="flex items-center justify-between gap-4 py-3 sm:py-3.5">
           {/* Logo */}
           <button onClick={onLogoClick} className="min-w-0 text-left">
-            <h1 className="truncate text-2xl font-black uppercase tracking-wide text-amber-500 sm:text-4xl">
-              AL KALAM BOOKS
+            <h1 className="truncate text-lg font-black uppercase tracking-wide text-amber-500 sm:text-2xl">
+              HASSAN BOOKS
             </h1>
-            <p className="text-sm text-slate-300">Your Business. Your Progress.</p>
+            <p className="text-xs text-slate-300 sm:text-sm">Your Business. Your Progress.</p>
           </button>
 
           {/* Desktop Search */}
@@ -54,7 +54,7 @@ export default function StorefrontNavbar({
           <div className="hidden lg:flex items-center gap-4">
             <button
               onClick={onTrackOrderClick}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-600 px-5 py-3 text-2xl font-semibold text-amber-300 transition hover:bg-amber-600/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-600 px-4 py-2.5 text-sm font-semibold text-amber-300 transition hover:bg-amber-600/10"
             >
               <Package className="w-4 h-4" />
               Track Order
@@ -111,7 +111,7 @@ export default function StorefrontNavbar({
                   onClick={onLoginClick}
                   variant="primary"
                   size="sm"
-                  className="!rounded-xl !bg-amber-500 !border !border-amber-300 !px-6 !py-2.5 !text-xl !font-semibold hover:!bg-amber-400"
+                  className="!rounded-xl !bg-amber-500 !border !border-amber-300 !px-5 !py-2 !text-sm !font-semibold hover:!bg-amber-400"
                 >
                   <User className="w-4 h-4" />
                   Sign In
