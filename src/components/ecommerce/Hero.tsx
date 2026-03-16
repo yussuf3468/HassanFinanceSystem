@@ -59,7 +59,7 @@ export default function Hero({
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 dark:from-slate-950 dark:via-slate-900 dark:to-black">
+    <section className="relative overflow-hidden select-none bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 dark:from-slate-950 dark:via-slate-900 dark:to-black">
       <div className="absolute inset-0 opacity-30">
         <div className="absolute -left-16 top-0 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
         <div className="absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-yellow-400/20 blur-3xl" />
@@ -88,48 +88,30 @@ export default function Hero({
 
             {highlightProduct ? (
               <div className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md sm:p-5">
-                <div
-                  className="relative mb-2 cursor-pointer group"
-                  onClick={() => onViewFeatured?.(highlightProduct)}
-                  aria-label="View featured product details"
-                >
-                  <div className="overflow-hidden rounded-xl bg-white/20 flex items-center justify-center mb-2">
-                    <OptimizedImage
-                      src={highlightProduct.image_url}
-                      alt={highlightProduct.name}
-                      className="object-contain w-32 h-32 sm:w-40 sm:h-40 mx-auto transition-transform duration-300 group-hover:scale-105"
-                      fallbackClassName="w-32 h-32 sm:w-40 sm:h-40"
-                      sizes="(max-width: 640px) 60vw, 200px"
-                      priority
-                    />
-                  </div>
-                  <div className="absolute top-2 left-2">
-                    <Badge variant="warning" size="sm">
-                      Featured
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2 mt-2">
-                    <span className="text-xs uppercase tracking-wide text-amber-200">
-                      {highlightProduct.category}
-                    </span>
-                  </div>
-                  <h2 className="text-lg font-black text-white sm:text-2xl">
-                    {highlightProduct.name}
-                  </h2>
-                  <p className="mt-2 line-clamp-2 text-xs text-slate-200 sm:text-base">
-                    {highlightProduct.description ||
-                      "Quality stock selected for students, parents, and professionals."}
-                  </p>
-                  <div className="mt-3 flex items-center gap-3">
-                    <span className="text-xl font-black text-amber-300 sm:text-2xl">
-                      KES {highlightProduct.selling_price.toLocaleString()}
-                    </span>
-                    <span className="text-xs text-slate-300 sm:text-sm">
-                      {highlightProduct.quantity_in_stock > 0
-                        ? `${highlightProduct.quantity_in_stock} in stock`
-                        : "Out of stock"}
-                    </span>
-                  </div>
+                <div className="mb-2 flex items-center gap-2">
+                  <Badge variant="warning" size="sm">
+                    Featured
+                  </Badge>
+                  <span className="text-xs uppercase tracking-wide text-amber-200">
+                    {highlightProduct.category}
+                  </span>
+                </div>
+                <h2 className="text-lg font-black text-white sm:text-2xl">
+                  {highlightProduct.name}
+                </h2>
+                <p className="mt-2 line-clamp-2 text-xs text-slate-200 sm:text-base">
+                  {highlightProduct.description ||
+                    "Quality stock selected for students, parents, and professionals."}
+                </p>
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-xl font-black text-amber-300 sm:text-2xl">
+                    KES {highlightProduct.selling_price.toLocaleString()}
+                  </span>
+                  <span className="text-xs text-slate-300 sm:text-sm">
+                    {highlightProduct.quantity_in_stock > 0
+                      ? `${highlightProduct.quantity_in_stock} in stock`
+                      : "Out of stock"}
+                  </span>
                 </div>
               </div>
             ) : (
@@ -198,12 +180,16 @@ export default function Hero({
 
           <div className="relative">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2.5 shadow-2xl shadow-black/40 backdrop-blur-md sm:rounded-3xl sm:p-4">
-              <div className="aspect-[5/4] overflow-hidden rounded-xl bg-slate-900/40 sm:aspect-[4/3] sm:rounded-2xl">
+              <div
+                className="aspect-[5/4] overflow-hidden rounded-xl bg-slate-900/40 sm:aspect-[4/3] sm:rounded-2xl cursor-pointer"
+                onClick={() => highlightProduct && onViewFeatured?.(highlightProduct)}
+                aria-label="View featured product details"
+              >
                 {highlightProduct ? (
                   <OptimizedImage
                     src={highlightProduct.image_url}
                     alt={highlightProduct.name}
-                    className="h-full w-full object-contain p-2"
+                    className="h-full w-full object-contain p-2 transition-transform duration-300 hover:scale-[1.02]"
                     fallbackClassName="flex h-full w-full items-center justify-center bg-slate-800"
                     sizes="(max-width: 1024px) 100vw, 45vw"
                     priority
