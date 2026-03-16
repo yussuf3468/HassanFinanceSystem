@@ -50,9 +50,7 @@ export default function Hero({
 
   const goToPrevious = () => {
     if (heroProducts.length <= 1) return;
-    setActiveIndex((current) =>
-      current === 0 ? heroProducts.length - 1 : current - 1,
-    );
+    setActiveIndex((current) => (current === 0 ? heroProducts.length - 1 : current - 1));
   };
 
   const goToNext = () => {

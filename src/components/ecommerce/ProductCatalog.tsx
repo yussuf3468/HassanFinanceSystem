@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Search, Filter, X, SlidersHorizontal } from "lucide-react";
 import { Product } from "../../types";
 import ProductCardEcommerce from "./ProductCard";

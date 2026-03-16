@@ -112,14 +112,37 @@ export default function HorumarStorefront({ onAdminClick }: HorumarStorefrontPro
       )
     : [];
 
-  const heroProducts = products
-    .filter((product) => product.quantity_in_stock > 0)
-    .sort((a, b) => {
-      const aScore = (a.featured ? 1000 : 0) + a.quantity_in_stock;
-      const bScore = (b.featured ? 1000 : 0) + b.quantity_in_stock;
-      return bScore - aScore;
-    })
-    .slice(0, 3);
+  const inStockProducts = products.filter((product) => product.quantity_in_stock > 0);
+
+  const pickPreferred = (matcher: (product: Product) => boolean) => {
+    return inStockProducts.find(matcher) || null;
+  };
+
+  const preferredDictionary = pickPreferred((product) =>
+    product.name.toLowerCase().includes("oxford advanced learner's dictionary"),
+  );
+
+  const preferredSpeakers = pickPreferred((product) => {
+    const name = product.name.toLowerCase();
+    return name.includes("speaker") || name.includes("speakers");
+  });
+
+  const preferredSets = pickPreferred((product) => {
+    const name = product.name.toLowerCase();
+    return name.includes("set") || name.includes("sets");
+  });
+
+  const preferredHeroProducts = [
+    preferredDictionary,
+    preferredSpeakers,
+    preferredSets,
+  ].filter((product): product is Product => !!product);
+
+  const fallbackProducts = inStockProducts.filter(
+    (product) => !preferredHeroProducts.some((selected) => selected.id === product.id),
+  );
+
+  const heroProducts = [...preferredHeroProducts, ...fallbackProducts].slice(0, 3);
 
   const seoTitle =
     currentPage === "home"
