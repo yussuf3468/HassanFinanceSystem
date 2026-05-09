@@ -1,5 +1,16 @@
-import { useState, useCallback, memo } from "react";
-import { Search, ShoppingCart, User, Menu, X, LogOut, Sun, Moon } from "lucide-react";
+﻿import { useState, useCallback, useRef, memo } from "react";
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Menu,
+  X,
+  LogOut,
+  Sun,
+  Moon,
+  LayoutDashboard,
+  BookOpen,
+} from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -29,6 +40,7 @@ const Navbar = memo(
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
     const cart = useCart();
     const { user, signOut } = useAuth();
     const { theme, toggleTheme } = useTheme();
@@ -37,43 +49,27 @@ const Navbar = memo(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         onSearchChange(value);
-
-        // If user is searching, automatically scroll to products section
         if (value.trim()) {
           setTimeout(() => {
-            const productsSection = document.getElementById("products-section");
-            if (productsSection) {
-              productsSection.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-            }
+            const el = document.getElementById("products-section");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
           }, 100);
         }
       },
       [onSearchChange],
     );
 
-    // Function to highlight product and scroll to it
     const highlightProduct = useCallback((productId: string) => {
       setTimeout(() => {
-        const productElement = document.querySelector(`[data-product-id="${productId}"]`);
-        if (productElement) {
-          productElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-
-          // Add highlight class
-          productElement.classList.add("ring-highlight");
-
-          // Remove highlight after 2 seconds
-          setTimeout(() => {
-            productElement.classList.remove("ring-highlight");
-          }, 2000);
+        const el = document.querySelector(`[data-product-id="${productId}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("ring-highlight");
+          setTimeout(() => el.classList.remove("ring-highlight"), 2000);
         }
       }, 300);
     }, []);
+
     const handleSignOut = useCallback(async () => {
       try {
         await signOut();
@@ -83,45 +79,49 @@ const Navbar = memo(
       }
     }, [signOut]);
 
-    const toggleMobileMenu = useCallback(() => {
-      setIsMobileMenuOpen((prev) => !prev);
-    }, []);
-
-    const toggleUserMenu = useCallback(() => {
-      setIsUserMenuOpen((prev) => !prev);
-    }, []);
+    const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen((p) => !p), []);
+    const toggleUserMenu = useCallback(() => setIsUserMenuOpen((p) => !p), []);
 
     return (
-      <header className="bg-white dark:bg-slate-800 shadow-lg border-b-2 border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+      <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border-b border-amber-200/60 dark:border-amber-700/30 shadow-sm shadow-amber-100/40 dark:shadow-black/20">
+        {/* Top amber accent line */}
+        <div className="h-0.5 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                  HORUMAR
-                </h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">
-                  Your trusted bookstore
+          <div className="flex items-center gap-3 sm:gap-6 h-16">
+
+            {/* ── Logo ── */}
+            <div className="flex-shrink-0 flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-400/30">
+                <BookOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+              </div>
+              <div className="hidden xs:block">
+                <p className="text-base sm:text-lg font-black bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 bg-clip-text text-transparent leading-none tracking-tight">
+                  HASSAN
+                </p>
+                <p className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-[0.18em] leading-none mt-0.5">
+                  Bookshop
                 </p>
               </div>
+              {/* Mobile-only compact logo */}
+              <p className="xs:hidden text-base font-black bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent leading-none">
+                HASSAN
+              </p>
             </div>
 
-            {/* Desktop Search */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
+            {/* ── Desktop Search ── */}
+            <div className="hidden md:flex flex-1 max-w-xl" ref={searchRef}>
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Search products... / Raadi alaabta..."
+                  placeholder="Search books, stationery, electronics…"
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSearchSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
-                  className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 dark:focus:ring-amber-500 dark:focus:border-amber-500 text-sm outline-none transition-all"
                 />
-
-                {/* Search Suggestions */}
                 <SearchSuggestions
                   searchTerm={searchTerm}
                   products={products}
@@ -140,228 +140,167 @@ const Navbar = memo(
               </div>
             </div>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Theme Toggle */}
+            {/* ── Desktop Actions ── */}
+            <div className="hidden md:flex items-center gap-2 ml-auto">
+              {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2 text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors"
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                 aria-label="Toggle theme"
               >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5" />
-                ) : (
-                  <Moon className="w-5 h-5" />
-                )}
+                {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
               </button>
 
               {/* Cart */}
               <button
                 onClick={onCartClick}
-                className="relative p-2 text-slate-600 hover:text-amber-600 transition-colors"
-                aria-label={`Shopping cart with ${cart.totalItems} items`}
+                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                aria-label={`Cart: ${cart.totalItems} items`}
               >
-                <ShoppingCart className="w-6 h-6" />
+                <ShoppingCart className="w-5 h-5" />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium shadow-lg">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-br from-amber-500 to-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-md shadow-amber-400/40">
                     {cart.totalItems > 99 ? "99+" : cart.totalItems}
                   </span>
                 )}
               </button>
 
-              {/* User Menu */}
-              <div className="relative">
-                {user ? (
-                  <>
-                    <button
-                      onClick={toggleUserMenu}
-                      className="flex items-center space-x-2 p-2 text-slate-600 hover:text-amber-600 transition-colors"
-                    >
-                      <User className="w-6 h-6" />
-                      <span className="text-sm font-medium">
-                        {user.email?.split("@")[0]}
-                      </span>
-                    </button>
-
-                    {isUserMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
-                        <div className="px-4 py-2 border-b-2 border-slate-100 dark:border-slate-700">
-                          <p className="text-sm font-medium text-slate-900 dark:text-white">
-                            Welcome back!
-                          </p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                            {user.email}
-                          </p>
-                        </div>
-
-                        {onAdminClick && (
-                          <button
-                            onClick={() => {
-                              onAdminClick();
-                              setIsUserMenuOpen(false);
-                            }}
-                            className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center space-x-3 group"
-                          >
-                            <div>
-                              <span className="font-medium">Admin Panel</span>
-                              <p className="text-xs text-slate-500">Manage store</p>
-                            </div>
-                          </button>
-                        )}
-
-                        <button
-                          onClick={handleSignOut}
-                          className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-all flex items-center space-x-3 group"
-                        >
-                          <div className="p-1 rounded-lg bg-red-50 border-2 border-red-300 group-hover:bg-red-100 transition-colors">
-                            <LogOut className="w-4 h-4 text-red-600" />
-                          </div>
-                          <div>
-                            <span className="font-medium">Sign Out</span>
-                            <p className="text-xs text-slate-500">Logout safely</p>
-                          </div>
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : (
+              {/* User */}
+              {user ? (
+                <div className="relative">
                   <button
-                    onClick={onAuthClick}
-                    className="bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-colors flex items-center space-x-2 shadow-lg"
+                    onClick={toggleUserMenu}
+                    className="flex items-center gap-2 pl-2.5 pr-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
                   >
-                    <User className="w-4 h-4" />
-                    <span>Sign In</span>
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                      <User className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-amber-800 dark:text-amber-300 max-w-[80px] truncate">
+                      {user.email?.split("@")[0]}
+                    </span>
                   </button>
-                )}
-              </div>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 py-2 z-50">
+                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Signed in as</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate mt-0.5">{user.email}</p>
+                      </div>
+                      {onAdminClick && (
+                        <button
+                          onClick={() => { onAdminClick(); setIsUserMenuOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          <span className="font-semibold">Admin Panel</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="font-semibold">Sign Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={onAuthClick}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold hover:from-amber-600 hover:to-orange-600 shadow-md shadow-amber-400/30 transition-all hover:shadow-lg hover:shadow-amber-400/40 active:scale-[0.97]"
+                >
+                  <User className="w-4 h-4" />
+                  Sign In
+                </button>
+              )}
             </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
+            {/* ── Mobile: Cart + Hamburger ── */}
+            <div className="md:hidden flex items-center gap-2 ml-auto">
+              <button
+                onClick={onCartClick}
+                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cart.totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-br from-amber-500 to-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
+                    {cart.totalItems > 99 ? "99+" : cart.totalItems}
+                  </span>
+                )}
+              </button>
               <button
                 onClick={toggleMobileMenu}
-                className="p-2 text-slate-600 hover:text-amber-600 transition-colors"
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 aria-label="Toggle mobile menu"
               >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
 
-          {/* Mobile Search */}
-          <div className="md:hidden pb-4">
+          {/* ── Mobile Search (always visible below header row) ── */}
+          <div className="md:hidden pb-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products…"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-sm outline-none transition-all"
               />
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* ── Mobile Menu ── */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white dark:bg-slate-800 border-t-2 border-slate-200 dark:border-slate-700">
-            <div className="px-4 py-4 space-y-4">
-              {/* Theme Toggle */}
+          <div className="md:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="px-4 py-4 space-y-2">
+              {/* Theme */}
               <button
-                onClick={() => {
-                  toggleTheme();
-                }}
-                className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               >
-                <div className="flex items-center space-x-3">
-                  {theme === "dark" ? (
-                    <>
-                      <Sun className="w-5 h-5 text-amber-500" />
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        Light Mode
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-5 h-5 text-slate-600" />
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        Dark Mode
-                      </span>
-                    </>
-                  )}
-                </div>
-              </button>
-
-              {/* Cart */}
-              <button
-                onClick={() => {
-                  onCartClick();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <ShoppingCart className="w-5 h-5 text-amber-600" />
-                  <span className="font-medium text-slate-900 dark:text-white">
-                    Shopping Cart
-                  </span>
-                </div>
-                {cart.totalItems > 0 && (
-                  <span className="bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium shadow-lg">
-                    {cart.totalItems}
-                  </span>
+                {theme === "dark" ? (
+                  <><Sun className="w-4 h-4 text-amber-500" /><span className="font-semibold text-slate-800 dark:text-white text-sm">Light Mode</span></>
+                ) : (
+                  <><Moon className="w-4 h-4 text-slate-600" /><span className="font-semibold text-slate-800 text-sm">Dark Mode</span></>
                 )}
               </button>
 
-              {/* Auth/User Actions */}
+              {/* Auth */}
               {user ? (
-                <div className="space-y-2">
-                  <div className="p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700 rounded-lg">
-                    <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                      Signed in as {user.email?.split("@")[0]}
-                    </p>
+                <>
+                  <div className="px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                    <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold">Signed in as</p>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-200 truncate">{user.email}</p>
                   </div>
                   {onAdminClick && (
                     <button
-                      onClick={() => {
-                        onAdminClick();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                      onClick={() => { onAdminClick(); setIsMobileMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                     >
-                      <span className="font-medium text-slate-900 dark:text-white">
-                        Admin Panel
-                      </span>
+                      <LayoutDashboard className="w-4 h-4 text-amber-600" />
+                      <span className="font-semibold text-slate-800 dark:text-white text-sm">Admin Panel</span>
                     </button>
                   )}
                   <button
-                    onClick={() => {
-                      handleSignOut();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center space-x-3 p-3 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"
                   >
-                    <LogOut className="w-5 h-5 text-red-600" />
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      Sign Out
-                    </span>
+                    <LogOut className="w-4 h-4 text-rose-500" />
+                    <span className="font-semibold text-rose-700 dark:text-rose-400 text-sm">Sign Out</span>
                   </button>
-                </div>
+                </>
               ) : (
                 <button
-                  onClick={() => {
-                    onAuthClick();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-400 text-white p-3 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-colors flex items-center justify-center space-x-2 shadow-lg"
+                  onClick={() => { onAuthClick(); setIsMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm shadow-md shadow-amber-400/30"
                 >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Sign In</span>
+                  <User className="w-4 h-4" />
+                  Sign In
                 </button>
               )}
             </div>
