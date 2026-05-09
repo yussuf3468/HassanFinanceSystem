@@ -27,6 +27,13 @@ import OptimizedImage from "./OptimizedImage";
 import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
 
+/** Converts whole-number prices to the .99 psychological pricing format (500 → 499.99) */
+const formatPrice = (p: number): string => {
+  const adjusted = Number.isInteger(p) ? p - 0.01 : p;
+  const [whole, dec] = adjusted.toFixed(2).split(".");
+  return `${Number(whole).toLocaleString()}.${dec}`;
+};
+
 interface CustomerStoreProps {
   onCheckout?: () => void;
   onAdminClick?: () => void;
@@ -62,18 +69,22 @@ const ProductCard = memo(
       setTimeout(() => setJustAdded(false), 1800);
     }, [product, onAddToCart]);
 
-    const toggleLike = useCallback((e: React.MouseEvent) => {
-      e.stopPropagation();
-      setIsLiked((prev) => !prev);
-      if (!isLiked) compactToast.addToWishlist();
-    }, [isLiked]);
+    const toggleLike = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsLiked((prev) => !prev);
+        if (!isLiked) compactToast.addToWishlist();
+      },
+      [isLiked],
+    );
 
     const handleQuickView = useCallback(() => {
       onQuickView?.(product);
     }, [onQuickView, product]);
 
     const isOutOfStock = product.quantity_in_stock === 0;
-    const isLowStock = !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
+    const isLowStock =
+      !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
     const isTrending = index < 4 && product.featured;
 
     return (
@@ -103,7 +114,10 @@ const ProductCard = memo(
           {/* Quick View pill — slides up from bottom */}
           <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
             <button
-              onClick={(e) => { e.stopPropagation(); handleQuickView(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleQuickView();
+              }}
               className="bg-white/95 backdrop-blur-sm text-slate-900 px-4 py-2 rounded-full font-bold text-xs shadow-xl hover:bg-amber-400 hover:text-white transition-colors duration-200 flex items-center gap-1.5 border border-white/50"
             >
               <Sparkles className="w-3 h-3" />
@@ -165,7 +179,9 @@ const ProductCard = memo(
                 <Star
                   key={i}
                   className={`w-2.5 h-2.5 ${
-                    i < starRating ? "text-amber-400 fill-amber-400" : "text-slate-200 dark:text-slate-600"
+                    i < starRating
+                      ? "text-amber-400 fill-amber-400"
+                      : "text-slate-200 dark:text-slate-600"
                   }`}
                 />
               ))}
@@ -178,21 +194,32 @@ const ProductCard = memo(
           </h3>
 
           {/* Price block */}
-          <div className="mt-auto mb-3 flex items-end justify-between">
-            <div>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Price</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">KES</span>
-                <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 leading-none tabular-nums">
-                  {product.selling_price.toLocaleString()}
-                </span>
+          <div className="mt-auto mb-3">
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-[10px] text-slate-400 line-through font-medium tabular-nums">
+                    KES {formatPrice(Math.ceil(product.selling_price * 1.18))}
+                  </span>
+                  <span className="text-[9px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                    SALE
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[10px] text-amber-600/70 dark:text-amber-500/70 font-bold">
+                    KES
+                  </span>
+                  <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 leading-none tabular-nums">
+                    {formatPrice(product.selling_price)}
+                  </span>
+                </div>
               </div>
+              {!isOutOfStock && (
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full font-medium">
+                  {product.quantity_in_stock} left
+                </span>
+              )}
             </div>
-            {!isOutOfStock && (
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full font-medium">
-                {product.quantity_in_stock} left
-              </span>
-            )}
           </div>
 
           {/* Add to Cart CTA */}
@@ -210,13 +237,22 @@ const ProductCard = memo(
             }`}
           >
             {justAdded ? (
-              <><span className="text-base">✓</span><span>Added to Cart</span></>
+              <>
+                <span className="text-base">✓</span>
+                <span>Added to Cart</span>
+              </>
             ) : isAddingToCart ? (
-              <><ShoppingCart className="w-4 h-4 animate-bounce" /><span>Adding…</span></>
+              <>
+                <ShoppingCart className="w-4 h-4 animate-bounce" />
+                <span>Adding…</span>
+              </>
             ) : isOutOfStock ? (
               <span>Not Available</span>
             ) : (
-              <><ShoppingCart className="w-4 h-4" /><span>Add to Cart</span></>
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                <span>Add to Cart</span>
+              </>
             )}
           </button>
         </div>
@@ -668,7 +704,7 @@ export default function CustomerStore({ onCheckout, onAdminClick }: CustomerStor
                 <p className="text-slate-400 text-sm leading-relaxed">
                   📍 Global Apartments, Eastleigh Section 1,
                   <br />
-                   Nairobi
+                  Nairobi
                 </p>
                 <p className="text-slate-500 text-xs font-somali mt-2">
                   Sharq Lee, Nairobi

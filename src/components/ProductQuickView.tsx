@@ -16,6 +16,13 @@ import {
 import type { Product } from "../types";
 import compactToast from "../utils/compactToast";
 
+/** Converts whole-number prices to the .99 psychological pricing format (500 → 499.99) */
+const formatPrice = (p: number): string => {
+  const adjusted = Number.isInteger(p) ? p - 0.01 : p;
+  const [whole, dec] = adjusted.toFixed(2).split(".");
+  return `${Number(whole).toLocaleString()}.${dec}`;
+};
+
 interface ProductQuickViewProps {
   product: Product | null;
   isOpen: boolean;
@@ -27,7 +34,9 @@ const ProductQuickView = memo(
   ({ product, isOpen, onClose, onAddToCart }: ProductQuickViewProps) => {
     const [isLiked, setIsLiked] = useState(false);
     const [quantity, setQuantity] = useState(1);
-    const [activeTab, setActiveTab] = useState<"details" | "shipping" | "returns">("details");
+    const [activeTab, setActiveTab] = useState<"details" | "shipping" | "returns">(
+      "details",
+    );
     const [justAdded, setJustAdded] = useState(false);
 
     const starRating = useMemo(() => {
@@ -64,8 +73,9 @@ const ProductQuickView = memo(
     if (!isOpen || !product) return null;
 
     const isOutOfStock = product.quantity_in_stock === 0;
-    const isLowStock = !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
-    const totalPrice = (product.selling_price * quantity).toLocaleString();
+    const isLowStock =
+      !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
+    const totalPrice = formatPrice(product.selling_price * quantity);
 
     return (
       <div
@@ -150,25 +160,48 @@ const ProductQuickView = memo(
                       <Star
                         key={i}
                         className={`w-3.5 h-3.5 ${
-                          i < starRating ? "text-amber-400 fill-amber-400" : "text-slate-200 dark:text-slate-600"
+                          i < starRating
+                            ? "text-amber-400 fill-amber-400"
+                            : "text-slate-200 dark:text-slate-600"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{starRating}.0 · Verified</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    {starRating}.0 · Verified
+                  </span>
                   <BadgeCheck className="w-3.5 h-3.5 text-amber-500" />
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 border border-amber-200 dark:border-amber-700/40 rounded-2xl p-4">
-                <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold uppercase tracking-wider mb-1">Price</p>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-sm text-amber-600/70 dark:text-amber-500/70 font-bold">KES</span>
-                  <span className="text-3xl font-black text-amber-600 dark:text-amber-400 tabular-nums leading-none">
-                    {product.selling_price.toLocaleString()}
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold uppercase tracking-wider">
+                    Price
+                  </p>
+                  <span className="text-[10px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    SALE
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Free delivery on orders over KES 2,000</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm text-slate-400 line-through font-medium tabular-nums">
+                    KES {formatPrice(Math.ceil(product.selling_price * 1.18))}
+                  </span>
+                  <span className="text-xs font-bold text-rose-500">
+                    Save KES {formatPrice(Math.ceil(product.selling_price * 0.18))}
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-sm text-amber-600/70 dark:text-amber-500/70 font-bold">
+                    KES
+                  </span>
+                  <span className="text-3xl font-black text-amber-600 dark:text-amber-400 tabular-nums leading-none">
+                    {formatPrice(product.selling_price)}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Free delivery on orders over KES 2,000
+                </p>
               </div>
 
               {isOutOfStock ? (
@@ -177,13 +210,16 @@ const ProductQuickView = memo(
                 </div>
               ) : (
                 <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl px-4 py-2.5 text-sm font-semibold">
-                  <Zap className="w-4 h-4" /> In Stock · {product.quantity_in_stock} units available
+                  <Zap className="w-4 h-4" /> In Stock · {product.quantity_in_stock} units
+                  available
                 </div>
               )}
 
               {!isOutOfStock && (
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Qty</span>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                    Qty
+                  </span>
                   <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -191,16 +227,22 @@ const ProductQuickView = memo(
                     >
                       <Minus className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                     </button>
-                    <span className="w-12 text-center font-black text-slate-900 dark:text-white text-lg">{quantity}</span>
+                    <span className="w-12 text-center font-black text-slate-900 dark:text-white text-lg">
+                      {quantity}
+                    </span>
                     <button
-                      onClick={() => setQuantity(Math.min(product.quantity_in_stock, quantity + 1))}
+                      onClick={() =>
+                        setQuantity(Math.min(product.quantity_in_stock, quantity + 1))
+                      }
                       disabled={quantity >= product.quantity_in_stock}
                       className="w-10 h-10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-40"
                     >
                       <Plus className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                     </button>
                   </div>
-                  <span className="text-xs text-slate-400">Max {product.quantity_in_stock}</span>
+                  <span className="text-xs text-slate-400">
+                    Max {product.quantity_in_stock}
+                  </span>
                 </div>
               )}
 
@@ -216,9 +258,17 @@ const ProductQuickView = memo(
                 }`}
               >
                 {justAdded ? (
-                  <><span className="text-xl">✓</span><span>Added to Cart!</span></>
+                  <>
+                    <span className="text-xl">✓</span>
+                    <span>Added to Cart!</span>
+                  </>
                 ) : (
-                  <><ShoppingCart className="w-5 h-5" /><span>Add to Cart · <span className="opacity-80">KES {totalPrice}</span></span></>
+                  <>
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>
+                      Add to Cart · <span className="opacity-80">KES {totalPrice}</span>
+                    </span>
+                  </>
                 )}
               </button>
 
@@ -241,15 +291,25 @@ const ProductQuickView = memo(
 
                 {activeTab === "details" && (
                   <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                    {product.description && <p className="leading-relaxed">{product.description}</p>}
+                    {product.description && (
+                      <p className="leading-relaxed">{product.description}</p>
+                    )}
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-                        <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-0.5">Category</p>
-                        <p className="font-bold text-slate-800 dark:text-white text-xs">{product.category}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-0.5">
+                          Category
+                        </p>
+                        <p className="font-bold text-slate-800 dark:text-white text-xs">
+                          {product.category}
+                        </p>
                       </div>
                       <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-                        <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-0.5">SKU</p>
-                        <p className="font-bold text-slate-800 dark:text-white text-xs">{product.product_id}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-0.5">
+                          SKU
+                        </p>
+                        <p className="font-bold text-slate-800 dark:text-white text-xs">
+                          {product.product_id}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -260,15 +320,23 @@ const ProductQuickView = memo(
                     <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                       <Truck className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="font-bold text-slate-800 dark:text-white text-xs">Same-day dispatch</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">Orders placed before 3 PM</p>
+                        <p className="font-bold text-slate-800 dark:text-white text-xs">
+                          Same-day dispatch
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Orders placed before 3 PM
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                       <Package className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="font-bold text-slate-800 dark:text-white text-xs">Free delivery</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">On orders over KES 2,000</p>
+                        <p className="font-bold text-slate-800 dark:text-white text-xs">
+                          Free delivery
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          On orders over KES 2,000
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -278,8 +346,12 @@ const ProductQuickView = memo(
                   <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
                     <Shield className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-bold text-slate-800 dark:text-white text-xs">7-day returns</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">Unused items in original packaging</p>
+                      <p className="font-bold text-slate-800 dark:text-white text-xs">
+                        7-day returns
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Unused items in original packaging
+                      </p>
                     </div>
                   </div>
                 )}
