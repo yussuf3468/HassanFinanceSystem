@@ -48,24 +48,22 @@ const ProductCard = memo(
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [justAdded, setJustAdded] = useState(false);
 
-    /* Deterministic "rating" from product id for visual richness */
     const starRating = useMemo(() => {
-      const hash = (product.id ?? "")
-        .split("")
-        .reduce((a, c) => a + c.charCodeAt(0), 0);
-      return 4 + (hash % 10 < 7 ? 1 : 0); // always 4 or 5 stars
+      const hash = (product.id ?? "").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+      return 4 + (hash % 10 < 7 ? 1 : 0);
     }, [product.id]);
 
     const handleAddToCart = useCallback(async () => {
       setIsAddingToCart(true);
-      await new Promise((resolve) => setTimeout(resolve, 280));
+      await new Promise((r) => setTimeout(r, 280));
       onAddToCart(product);
       setIsAddingToCart(false);
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 1800);
     }, [product, onAddToCart]);
 
-    const toggleLike = useCallback(() => {
+    const toggleLike = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
       setIsLiked((prev) => !prev);
       if (!isLiked) compactToast.addToWishlist();
     }, [isLiked]);
@@ -75,163 +73,150 @@ const ProductCard = memo(
     }, [onQuickView, product]);
 
     const isOutOfStock = product.quantity_in_stock === 0;
-    const isLowStock =
-      !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
+    const isLowStock = !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
     const isTrending = index < 4 && product.featured;
 
     return (
       <div
         data-product-id={product.id}
-        className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-slate-100 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-500 flex flex-col h-full hover:-translate-y-1"
+        className="group relative bg-white dark:bg-slate-800/90 rounded-2xl overflow-hidden flex flex-col h-full transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_-10px_rgba(245,158,11,0.25)] shadow-sm border border-slate-100 dark:border-slate-700/60"
       >
-        {/* ── Image ── */}
+        {/* ── Image container ── */}
         <div
-          className="relative overflow-hidden cursor-pointer bg-slate-50 dark:bg-slate-700 aspect-square"
+          className="relative overflow-hidden cursor-pointer bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800"
+          style={{ aspectRatio: "1 / 1" }}
           onClick={handleQuickView}
         >
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             fallbackClassName="w-full h-full"
-            onClick={handleQuickView}
             priority={index < 3}
             preload={index < 6}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Quick View overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          {/* Quick View pill — slides up from bottom */}
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleQuickView();
-              }}
-              className="bg-white text-slate-900 px-4 py-2 rounded-full font-bold text-xs sm:text-sm shadow-xl hover:bg-amber-400 hover:text-white transition-colors duration-200 flex items-center gap-1.5"
+              onClick={(e) => { e.stopPropagation(); handleQuickView(); }}
+              className="bg-white/95 backdrop-blur-sm text-slate-900 px-4 py-2 rounded-full font-bold text-xs shadow-xl hover:bg-amber-400 hover:text-white transition-colors duration-200 flex items-center gap-1.5 border border-white/50"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3 h-3" />
               Quick View
             </button>
           </div>
 
-          {/* Wishlist */}
+          {/* Wishlist heart — top right */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleLike();
-            }}
-            className={`absolute top-2 right-2 w-8 h-8 rounded-full transition-all duration-300 flex items-center justify-center shadow-md z-10 ${
+            onClick={toggleLike}
+            className={`absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 ${
               isLiked
                 ? "bg-rose-500 text-white scale-110"
-                : "bg-white/90 dark:bg-slate-800/90 text-slate-400 hover:bg-rose-500 hover:text-white"
+                : "bg-white/90 dark:bg-slate-900/80 text-slate-400 hover:bg-rose-500 hover:text-white hover:scale-110"
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-current" : ""}`} />
           </button>
 
-          {/* Top-left badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {/* Badges — top left stack */}
+          <div className="absolute top-2 left-2 z-20 flex flex-col gap-1">
             {product.featured && (
-              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md">
-                <Star className="w-2.5 h-2.5 fill-current" />
-                TOP PICK
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide shadow-md">
+                ★ TOP PICK
               </span>
             )}
             {isTrending && (
-              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md">
+              <span className="bg-gradient-to-r from-violet-600 to-pink-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black shadow-md flex items-center gap-1">
                 <TrendingUp className="w-2.5 h-2.5" />
                 HOT
               </span>
             )}
             {isLowStock && (
-              <span className="bg-rose-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black shadow-md">
-                Only {product.quantity_in_stock} left!
+              <span className="bg-rose-600 text-white px-2 py-0.5 rounded-full text-[10px] font-black shadow-md">
+                {product.quantity_in_stock} left!
               </span>
             )}
           </div>
 
-          {/* Out of Stock */}
+          {/* Out of stock veil */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
-              <span className="bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+              <span className="bg-white/10 border border-white/30 text-white px-4 py-1.5 rounded-full font-bold text-sm backdrop-blur-sm">
                 Out of Stock
               </span>
             </div>
           )}
         </div>
 
-        {/* ── Info ── */}
-        <div className="p-3 sm:p-4 flex flex-col flex-grow">
-          {/* Category + stars */}
+        {/* ── Content ── */}
+        <div className="flex flex-col flex-grow p-3 sm:p-4">
+          {/* Category + stars row */}
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+            <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">
               {product.category}
             </span>
-            <div className="flex items-center gap-0.5">
+            <div className="flex gap-px">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
-                    i < starRating
-                      ? "text-amber-400 fill-amber-400"
-                      : "text-slate-200 dark:text-slate-600"
+                  className={`w-2.5 h-2.5 ${
+                    i < starRating ? "text-amber-400 fill-amber-400" : "text-slate-200 dark:text-slate-600"
                   }`}
                 />
               ))}
             </div>
           </div>
 
-          {/* Name */}
-          <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mb-2 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug">
+          {/* Product name */}
+          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm leading-snug line-clamp-2 mb-3 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
             {product.name}
           </h3>
 
-          {/* Price */}
-          <div className="mt-auto pt-2 mb-3">
-            <div className="flex items-baseline gap-1">
-              <span className="text-xs text-slate-400 font-medium">KES</span>
-              <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 leading-none">
-                {product.selling_price.toLocaleString()}
-              </span>
+          {/* Price block */}
+          <div className="mt-auto mb-3 flex items-end justify-between">
+            <div>
+              <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Price</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">KES</span>
+                <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 leading-none tabular-nums">
+                  {product.selling_price.toLocaleString()}
+                </span>
+              </div>
             </div>
             {!isOutOfStock && (
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
-                {product.quantity_in_stock} in stock
-              </p>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full font-medium">
+                {product.quantity_in_stock} left
+              </span>
             )}
           </div>
 
-          {/* Add to Cart */}
+          {/* Add to Cart CTA */}
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAddingToCart}
-            className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all duration-250 flex items-center justify-center gap-2 select-none ${
               isOutOfStock
-                ? "bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500"
+                ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed"
                 : justAdded
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-[0.98]"
                 : isAddingToCart
-                ? "bg-amber-400 text-white"
-                : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 active:scale-[0.97] shadow-md hover:shadow-lg hover:shadow-amber-500/25"
+                ? "bg-amber-400 text-white scale-[0.97]"
+                : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-500/30 active:scale-[0.97]"
             }`}
           >
             {justAdded ? (
-              <>
-                <span>✓</span>
-                <span>Added!</span>
-              </>
+              <><span className="text-base">✓</span><span>Added to Cart</span></>
             ) : isAddingToCart ? (
-              <>
-                <ShoppingCart className="w-4 h-4 animate-bounce" />
-                <span>Adding…</span>
-              </>
+              <><ShoppingCart className="w-4 h-4 animate-bounce" /><span>Adding…</span></>
             ) : isOutOfStock ? (
-              <span>Unavailable</span>
+              <span>Not Available</span>
             ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" />
-                <span>Add to Cart</span>
-              </>
+              <><ShoppingCart className="w-4 h-4" /><span>Add to Cart</span></>
             )}
           </button>
         </div>
@@ -261,10 +246,7 @@ const FilterDrawer = memo(
       <>
         {/* Backdrop */}
         {isOpen && (
-          <div
-            className="fixed inset-0 bg-black/40 z-30 sm:hidden"
-            onClick={onClose}
-          />
+          <div className="fixed inset-0 bg-black/40 z-30 sm:hidden" onClick={onClose} />
         )}
 
         {/* Drawer */}
@@ -313,10 +295,7 @@ const FilterDrawer = memo(
 
 FilterDrawer.displayName = "FilterDrawer";
 
-export default function CustomerStore({
-  onCheckout,
-  onAdminClick,
-}: CustomerStoreProps) {
+export default function CustomerStore({ onCheckout, onAdminClick }: CustomerStoreProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -325,9 +304,7 @@ export default function CustomerStore({
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
-    null,
-  );
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
 
   const PRODUCTS_PER_PAGE = 12;
@@ -375,19 +352,13 @@ export default function CustomerStore({
     if (debouncedSearchTerm) {
       filtered = filtered.filter(
         (product) =>
-          product.name
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()) ||
-          product.category
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()),
+          product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          product.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
       );
     }
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (product) => product.category === selectedCategory,
-      );
+      filtered = filtered.filter((product) => product.category === selectedCategory);
     }
 
     return filtered;
@@ -450,8 +421,7 @@ export default function CustomerStore({
           <div
             className="absolute inset-0 opacity-10"
             style={{
-              backgroundImage:
-                "radial-gradient(circle,#f59e0b 1px,transparent 1px)",
+              backgroundImage: "radial-gradient(circle,#f59e0b 1px,transparent 1px)",
               backgroundSize: "30px 30px",
             }}
           />
@@ -614,9 +584,7 @@ export default function CustomerStore({
                 </span>
 
                 <button
-                  onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
-                  }
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-semibold text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -665,8 +633,8 @@ export default function CustomerStore({
                   HASSAN BOOKSHOP
                 </h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                  Your trusted partner for books, stationery, electronics and
-                  more. Serving students across Nairobi since 2010.
+                  Your trusted partner for books, stationery, electronics and more.
+                  Serving students across Nairobi since 2010.
                 </p>
                 <p className="text-slate-500 text-xs font-somali mt-2">
                   Dukaanka Buugaagta ee la isku halleeyo
@@ -698,9 +666,9 @@ export default function CustomerStore({
               <div>
                 <h4 className="font-bold mb-4 text-slate-200">Location</h4>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                  📍 Juja B Tower, Muratina Street
+                  📍 Global Apartments, Eastleigh Section 1,
                   <br />
-                  Eastleigh Section 1, Nairobi
+                   Nairobi
                 </p>
                 <p className="text-slate-500 text-xs font-somali mt-2">
                   Sharq Lee, Nairobi
@@ -714,9 +682,7 @@ export default function CustomerStore({
                   <p>Sunday: 9:00 AM – 6:00 PM</p>
                 </div>
                 <div className="mt-3">
-                  <h4 className="font-bold mb-2 text-slate-200 text-sm">
-                    Powered by
-                  </h4>
+                  <h4 className="font-bold mb-2 text-slate-200 text-sm">Powered by</h4>
                   <a
                     href="https://lenzro.com"
                     target="_blank"
@@ -731,8 +697,7 @@ export default function CustomerStore({
 
             <div className="border-t border-slate-800 pt-6 text-center text-slate-500 text-sm">
               <p>
-                &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights reserved.
               </p>
             </div>
           </div>

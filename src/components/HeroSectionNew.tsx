@@ -170,9 +170,7 @@ const HeroSection = memo(
 
     const handleShopNow = useCallback(() => onShopNowClick(), [onShopNowClick]);
     const scrollToDeals = useCallback(() => {
-      document
-        .getElementById("products-section")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
     }, []);
 
     return (
@@ -218,8 +216,7 @@ const HeroSection = memo(
         <section
           className="relative min-h-screen overflow-hidden flex items-center"
           style={{
-            background:
-              "linear-gradient(145deg,#0a0a0a 0%,#140c00 45%,#1e1200 100%)",
+            background: "linear-gradient(145deg,#0a0a0a 0%,#140c00 45%,#1e1200 100%)",
           }}
         >
           {/* Ambient glow blobs */}
@@ -227,24 +224,21 @@ const HeroSection = memo(
             <div
               className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-[0.12]"
               style={{
-                background:
-                  "radial-gradient(circle,#f59e0b 0%,transparent 70%)",
+                background: "radial-gradient(circle,#f59e0b 0%,transparent 70%)",
                 animation: "heroFloat 9s ease-in-out infinite",
               }}
             />
             <div
               className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.08]"
               style={{
-                background:
-                  "radial-gradient(circle,#f97316 0%,transparent 70%)",
+                background: "radial-gradient(circle,#f97316 0%,transparent 70%)",
                 animation: "heroFloat 12s ease-in-out infinite reverse",
               }}
             />
             <div
               className="absolute -top-20 right-0 w-[350px] h-[350px] rounded-full opacity-[0.06]"
               style={{
-                background:
-                  "radial-gradient(circle,#fbbf24 0%,transparent 70%)",
+                background: "radial-gradient(circle,#fbbf24 0%,transparent 70%)",
                 animation: "heroFloat 7s ease-in-out infinite 3s",
               }}
             />
@@ -254,8 +248,7 @@ const HeroSection = memo(
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none"
             style={{
-              backgroundImage:
-                "radial-gradient(circle,#f59e0b 1px,transparent 1px)",
+              backgroundImage: "radial-gradient(circle,#f59e0b 1px,transparent 1px)",
               backgroundSize: "40px 40px",
             }}
           />
@@ -284,7 +277,7 @@ const HeroSection = memo(
                 <div>
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.92] tracking-tight">
                     <span className="block text-white">Everything</span>
-                    <span className="block shimmer-text">You Need</span>
+                    <span className="block bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">You Need</span>
                     <span className="block text-white/90">to Succeed.</span>
                   </h1>
                 </div>
@@ -292,11 +285,9 @@ const HeroSection = memo(
                 {/* body */}
                 <p className="text-slate-300 text-lg leading-relaxed max-w-xl">
                   From{" "}
-                  <span className="text-amber-400 font-semibold">
-                    KCSE textbooks
-                  </span>{" "}
-                  to the latest electronics — Nairobi's most trusted educational
-                  store, serving students since 2010.
+                  <span className="text-amber-400 font-semibold">KCSE textbooks</span> to
+                  the latest electronics — Nairobi's most trusted educational store,
+                  serving students since 2010.
                   <span className="block mt-2 text-amber-400/70 text-base font-somali font-normal">
                     Wax walba oo aad u baahantahay waxbarashadaada
                   </span>
@@ -306,16 +297,11 @@ const HeroSection = memo(
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className="flex -space-x-0.5">
                     {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-5 h-5 text-amber-400 fill-amber-400"
-                      />
+                      <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
                     ))}
                   </div>
                   <span className="text-white font-bold">5.0</span>
-                  <span className="text-slate-400 text-sm">
-                    · 5,000+ happy students
-                  </span>
+                  <span className="text-slate-400 text-sm">· 5,000+ happy students</span>
                   <span className="hidden sm:inline text-slate-600">|</span>
                   <span className="hidden sm:flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
                     <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
@@ -376,9 +362,7 @@ const HeroSection = memo(
                   {/* card header */}
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-white font-black text-xl">
-                        Shop by Category
-                      </h3>
+                      <h3 className="text-white font-black text-xl">Shop by Category</h3>
                       <p className="text-slate-500 text-sm font-somali mt-0.5">
                         Xulo Nooca Alaabta
                       </p>
@@ -414,9 +398,7 @@ const HeroSection = memo(
                         <div className="text-2xl mb-1.5 group-hover:scale-110 transition-transform duration-300">
                           {cat.icon}
                         </div>
-                        <div className="text-white text-xs font-bold">
-                          {cat.label}
-                        </div>
+                        <div className="text-white text-xs font-bold">{cat.label}</div>
                         <div
                           className="text-[10px] mt-0.5 font-medium"
                           style={{ color: cat.from }}
@@ -451,9 +433,7 @@ const HeroSection = memo(
                 >
                   <BadgeCheck className="w-4 h-4" />
                   <div>
-                    <div className="text-xs font-bold leading-tight">
-                      Trusted Store
-                    </div>
+                    <div className="text-xs font-bold leading-tight">Trusted Store</div>
                     <div className="text-[9px] opacity-80">Since 2010</div>
                   </div>
                 </div>
@@ -466,9 +446,7 @@ const HeroSection = memo(
                 >
                   <Gift className="w-4 h-4" />
                   <div>
-                    <div className="text-xs font-bold leading-tight">
-                      Deals Every Day
-                    </div>
+                    <div className="text-xs font-bold leading-tight">Deals Every Day</div>
                     <div className="text-[9px] opacity-80 font-somali">
                       Qiimo Wanaagsan
                     </div>
@@ -478,10 +456,7 @@ const HeroSection = memo(
             </div>
 
             {/* ── STATS ROW ── */}
-            <div
-              ref={statsRef}
-              className="mt-20 grid grid-cols-3 gap-4 sm:gap-6"
-            >
+            <div ref={statsRef} className="mt-20 grid grid-cols-3 gap-4 sm:gap-6">
               {[
                 {
                   value: `${bookCount.toLocaleString()}+`,
@@ -665,10 +640,7 @@ const HeroSection = memo(
           className="bg-gradient-to-br from-stone-50 to-amber-50 dark:from-slate-900 dark:to-slate-800"
         >
           <div className="mt-8 sm:mt-16 lg:mt-20">
-            <FeaturedProducts
-              onAddToCart={onAddToCart}
-              onQuickView={onQuickView}
-            />
+            <FeaturedProducts onAddToCart={onAddToCart} onQuickView={onQuickView} />
           </div>
         </div>
       </>
