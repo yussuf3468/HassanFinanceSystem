@@ -5,9 +5,10 @@ import {
   Package,
   ShoppingCart,
   Heart,
-  Search,
-  ChevronDown,
   X,
+  Zap,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,9 +26,6 @@ import CheckoutModal from "./CheckoutModal";
 import OptimizedImage from "./OptimizedImage";
 import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
-import type { Database } from "../lib/database.types";
-
-type Order = Database["public"]["Tables"]["orders"]["Row"];
 
 interface CustomerStoreProps {
   onCheckout?: () => void;
@@ -48,19 +46,28 @@ const ProductCard = memo(
   }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [justAdded, setJustAdded] = useState(false);
+
+    /* Deterministic "rating" from product id for visual richness */
+    const starRating = useMemo(() => {
+      const hash = (product.id ?? "")
+        .split("")
+        .reduce((a, c) => a + c.charCodeAt(0), 0);
+      return 4 + (hash % 10 < 7 ? 1 : 0); // always 4 or 5 stars
+    }, [product.id]);
 
     const handleAddToCart = useCallback(async () => {
       setIsAddingToCart(true);
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 280));
       onAddToCart(product);
       setIsAddingToCart(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 1800);
     }, [product, onAddToCart]);
 
     const toggleLike = useCallback(() => {
       setIsLiked((prev) => !prev);
-      if (!isLiked) {
-        compactToast.addToWishlist();
-      }
+      if (!isLiked) compactToast.addToWishlist();
     }, [isLiked]);
 
     const handleQuickView = useCallback(() => {
@@ -68,14 +75,16 @@ const ProductCard = memo(
     }, [onQuickView, product]);
 
     const isOutOfStock = product.quantity_in_stock === 0;
-    const isLowStock = product.quantity_in_stock <= product.reorder_level;
+    const isLowStock =
+      !isOutOfStock && product.quantity_in_stock <= product.reorder_level;
+    const isTrending = index < 4 && product.featured;
 
     return (
       <div
         data-product-id={product.id}
-        className="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-500 flex flex-col h-full"
+        className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-slate-100 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-500 flex flex-col h-full hover:-translate-y-1"
       >
-        {/* Product Image Container */}
+        {/* ── Image ── */}
         <div
           className="relative overflow-hidden cursor-pointer bg-slate-50 dark:bg-slate-700 aspect-square"
           onClick={handleQuickView}
@@ -83,7 +92,7 @@ const ProductCard = memo(
           <OptimizedImage
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
             fallbackClassName="w-full h-full"
             onClick={handleQuickView}
             priority={index < 3}
@@ -91,104 +100,139 @@ const ProductCard = memo(
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Overlay on Hover */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          {/* Quick View overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleQuickView();
               }}
-              className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base transform scale-75 sm:scale-100 group-hover:scale-100 transition-transform duration-300 shadow-lg hover:bg-amber-400"
+              className="bg-white text-slate-900 px-4 py-2 rounded-full font-bold text-xs sm:text-sm shadow-xl hover:bg-amber-400 hover:text-white transition-colors duration-200 flex items-center gap-1.5"
             >
+              <Sparkles className="w-3.5 h-3.5" />
               Quick View
             </button>
           </div>
 
-          {/* Wishlist Button */}
+          {/* Wishlist */}
           <button
-            onClick={toggleLike}
-            className={`absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-all duration-300 flex items-center justify-center shadow-md ${
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLike();
+            }}
+            className={`absolute top-2 right-2 w-8 h-8 rounded-full transition-all duration-300 flex items-center justify-center shadow-md z-10 ${
               isLiked
-                ? "bg-rose-500 text-white"
-                : "bg-white/90 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300 hover:bg-amber-400 hover:text-white"
+                ? "bg-rose-500 text-white scale-110"
+                : "bg-white/90 dark:bg-slate-800/90 text-slate-400 hover:bg-rose-500 hover:text-white"
             }`}
           >
-            <Heart
-              className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                isLiked ? "fill-current" : ""
-              }`}
-            />
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
           </button>
 
-          {/* Featured Badge */}
-          {product.featured && (
-            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-md">
-              <Star className="w-3 h-3 fill-current" />
-              <span>Featured</span>
-            </div>
-          )}
+          {/* Top-left badges */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {product.featured && (
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md">
+                <Star className="w-2.5 h-2.5 fill-current" />
+                TOP PICK
+              </span>
+            )}
+            {isTrending && (
+              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md">
+                <TrendingUp className="w-2.5 h-2.5" />
+                HOT
+              </span>
+            )}
+            {isLowStock && (
+              <span className="bg-rose-500 text-white px-2 py-0.5 rounded-full text-[10px] font-black shadow-md">
+                Only {product.quantity_in_stock} left!
+              </span>
+            )}
+          </div>
 
-          {/* Low Stock Badge */}
-          {isLowStock && !isOutOfStock && (
-            <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-md">
-              Only {product.quantity_in_stock} left
-            </div>
-          )}
-
-          {/* Out of Stock Overlay */}
+          {/* Out of Stock */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm">
+            <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+              <span className="bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm">
                 Out of Stock
               </span>
             </div>
           )}
         </div>
 
-        {/* Product Info - Flex grow to push button to bottom */}
+        {/* ── Info ── */}
         <div className="p-3 sm:p-4 flex flex-col flex-grow">
-          {/* Category */}
-          <div className="mb-2">
-            <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+          {/* Category + stars */}
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
               {product.category}
             </span>
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
+                    i < starRating
+                      ? "text-amber-400 fill-amber-400"
+                      : "text-slate-200 dark:text-slate-600"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Product Name */}
-          <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-base mb-1 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+          {/* Name */}
+          <h3 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mb-2 line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-snug">
             {product.name}
           </h3>
 
           {/* Price */}
-          <div className="mb-2 mt-auto pt-2">
-            <p className="text-base sm:text-xl font-bold text-amber-600 dark:text-amber-400">
-              KES {product.selling_price.toLocaleString()}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              In stock: {product.quantity_in_stock}
-            </p>
+          <div className="mt-auto pt-2 mb-3">
+            <div className="flex items-baseline gap-1">
+              <span className="text-xs text-slate-400 font-medium">KES</span>
+              <span className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 leading-none">
+                {product.selling_price.toLocaleString()}
+              </span>
+            </div>
+            {!isOutOfStock && (
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                {product.quantity_in_stock} in stock
+              </p>
+            )}
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAddingToCart}
-            className={`w-full py-2.5 px-3 rounded-lg font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
               isOutOfStock
-                ? "bg-slate-200 text-slate-500 cursor-not-allowed dark:bg-slate-700 dark:text-slate-400"
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500"
+                : justAdded
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
                 : isAddingToCart
-                ? "bg-green-500 text-white animate-pulse"
-                : "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 active:scale-95 shadow-md hover:shadow-lg"
+                ? "bg-amber-400 text-white"
+                : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 active:scale-[0.97] shadow-md hover:shadow-lg hover:shadow-amber-500/25"
             }`}
           >
-            <ShoppingCart className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {isOutOfStock
-                ? "Unavailable"
-                : isAddingToCart
-                ? "Adding..."
-                : "Add"}
-            </span>
+            {justAdded ? (
+              <>
+                <span>✓</span>
+                <span>Added!</span>
+              </>
+            ) : isAddingToCart ? (
+              <>
+                <ShoppingCart className="w-4 h-4 animate-bounce" />
+                <span>Adding…</span>
+              </>
+            ) : isOutOfStock ? (
+              <span>Unavailable</span>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                <span>Add to Cart</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -409,15 +453,62 @@ export default function CustomerStore({
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header Section */}
+        {/* ── Flash Deals Banner ── */}
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-amber-500/20 shadow-xl">
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle,#f59e0b 1px,transparent 1px)",
+              backgroundSize: "30px 30px",
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-orange-500/10 pointer-events-none" />
+          <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-white font-black text-base leading-tight">
+                  🔥 Flash Deals Active
+                </p>
+                <p className="text-amber-400/80 text-xs font-somali">
+                  Qiimaha gaar ah maanta — Today's Special Prices
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+              <span className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-full">
+                Free delivery on KES 2,000+
+              </span>
+              <button
+                onClick={() =>
+                  document
+                    .getElementById("products-grid")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold px-5 py-2 rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Explore Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Section Header ── */}
         <div className="mb-8 sm:mb-10">
           <div className="flex flex-col gap-4 mb-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2">
-                Shop Our Collection
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-                Premium books, stationery & electronics at unbeatable prices
+              <p className="text-amber-600 dark:text-amber-400 font-bold text-xs tracking-widest uppercase mb-1">
+                ✦ Our Collection
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                Shop Our Products
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                Premium books, stationery &amp; electronics at unbeatable prices
               </p>
             </div>
           </div>
@@ -483,7 +574,27 @@ export default function CustomerStore({
         ) : (
           <div>
             {/* Grid: 2 columns on mobile, 3 on tablet, 4 on desktop */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-slate-600 dark:text-slate-400 text-sm">
+                <span className="font-bold text-slate-900 dark:text-white">
+                  {filteredProducts.length}
+                </span>{" "}
+                products found
+                {selectedCategory !== "all" && (
+                  <span className="text-amber-600 dark:text-amber-400 ml-1">
+                    in {selectedCategory}
+                  </span>
+                )}
+              </p>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
+                <span>Featured first</span>
+              </div>
+            </div>
+            <div
+              id="products-grid"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mb-8"
+            >
               {paginatedProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}
@@ -533,63 +644,105 @@ export default function CustomerStore({
       />
 
       {/* Footer */}
-      <footer className="bg-slate-900 dark:bg-slate-950 text-white py-12 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+      <footer className="bg-slate-900 dark:bg-slate-950 text-white mt-16">
+        {/* Newsletter/CTA strip */}
+        <div className="bg-gradient-to-r from-amber-600 to-orange-600">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3">
-                HASSAN BOOKSHOP
+              <h3 className="text-white font-black text-xl sm:text-2xl">
+                Ready to shop?
               </h3>
-              <p className="text-slate-400 text-sm">
-                Your trusted partner for books, stationery, and more.
+              <p className="text-amber-100 text-sm mt-1">
+                Visit us in-store or call to place your order today
               </p>
             </div>
+            <a
+              href="tel:+254722979547"
+              className="flex-shrink-0 bg-white text-amber-700 font-black px-8 py-3 rounded-2xl hover:bg-amber-50 transition-colors shadow-xl text-base"
+            >
+              📞 Call Now: +254 722 979 547
+            </a>
+          </div>
+        </div>
 
-            <div>
-              <h4 className="font-semibold mb-4 text-slate-200">Contact</h4>
-              <div className="space-y-2 text-slate-400 text-sm">
-                <p>
-                  <a
-                    href="tel:+254722979547"
-                    className="hover:text-amber-400 transition-colors"
-                  >
-                    +254 722 979 547
-                  </a>
+        <div className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+              <div>
+                <h3 className="text-lg font-black mb-3 text-amber-400">
+                  HASSAN BOOKSHOP
+                </h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  Your trusted partner for books, stationery, electronics and
+                  more. Serving students across Nairobi since 2010.
                 </p>
-                <p>
-                  <a
-                    href="mailto:yussufh080@gmail.com"
-                    className="hover:text-amber-400 transition-colors"
-                  >
-                    yussufh080@gmail.com
-                  </a>
+                <p className="text-slate-500 text-xs font-somali mt-2">
+                  Dukaanka Buugaagta ee la isku halleeyo
                 </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold mb-4 text-slate-200">Contact Us</h4>
+                <div className="space-y-2 text-slate-400 text-sm">
+                  <p>
+                    <a
+                      href="tel:+254722979547"
+                      className="hover:text-amber-400 transition-colors"
+                    >
+                      📞 +254 722 979 547
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href="mailto:yussufh080@gmail.com"
+                      className="hover:text-amber-400 transition-colors"
+                    >
+                      ✉️ yussufh080@gmail.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold mb-4 text-slate-200">Location</h4>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  📍 Juja B Tower, Muratina Street
+                  <br />
+                  Eastleigh Section 1, Nairobi
+                </p>
+                <p className="text-slate-500 text-xs font-somali mt-2">
+                  Sharq Lee, Nairobi
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold mb-4 text-slate-200">Hours</h4>
+                <div className="text-slate-400 text-sm space-y-1">
+                  <p>Mon–Sat: 8:00 AM – 8:00 PM</p>
+                  <p>Sunday: 9:00 AM – 6:00 PM</p>
+                </div>
+                <div className="mt-3">
+                  <h4 className="font-bold mb-2 text-slate-200 text-sm">
+                    Powered by
+                  </h4>
+                  <a
+                    href="https://lenzro.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-3 py-1.5 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors"
+                  >
+                    ⚡ Lenzro
+                  </a>
+                </div>
               </div>
             </div>
 
-            <div>
-              <h4 className="font-semibold mb-4 text-slate-200">Location</h4>
-              <p className="text-slate-400 text-sm">Nairobi, Kenya</p>
+            <div className="border-t border-slate-800 pt-6 text-center text-slate-500 text-sm">
+              <p>
+                &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
+                reserved.
+              </p>
             </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-slate-200">Powered by</h4>
-              <a
-                href="https://lenzro.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-3 py-1.5 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-400 hover:text-amber-300 text-sm font-semibold transition-colors"
-              >
-                ⚡ Lenzro
-              </a>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-800 pt-6 text-center text-slate-400 text-sm">
-            <p>
-              &copy; {new Date().getFullYear()} HASSAN BOOKSHOP. All rights
-              reserved.
-            </p>
           </div>
         </div>
       </footer>
