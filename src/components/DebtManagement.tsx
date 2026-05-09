@@ -13,7 +13,15 @@ import {
   HandCoins,
 } from "lucide-react";
 import { useDebts } from "../hooks/useSupabaseQuery";
-import { supabase } from "../lib/supabase";
+import {
+  verifyDebtTables,
+  createDebt,
+  updateDebt,
+  createDebtPayment,
+  getDebtPaymentsTotal,
+  updateDebtStatus,
+  deleteDebt,
+} from "../api/debtsApi";
 // Multitenancy removed
 import ModalPortal from "./ModalPortal.tsx";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
@@ -104,8 +112,7 @@ export default function DebtManagement() {
   async function createTablesIfNotExist() {
     try {
       // Check if tables exist, if not create them
-      await supabase.from("debts").select("id").limit(1);
-      await supabase.from("debt_payments").select("id").limit(1);
+      await verifyDebtTables();
     } catch (error) {
       console.log("Creating debt management tables...");
     }
@@ -127,16 +134,9 @@ export default function DebtManagement() {
       };
 
       if (editingDebt) {
-        const { error } = await supabase
-          .from("debts")
-          .update(payload)
-          .eq("id", editingDebt.id);
-
-        if (error) throw error;
+        await updateDebt(editingDebt.id, payload);
       } else {
-        const { error } = await supabase.from("debts").insert([payload]);
-
-        if (error) throw error;
+        await createDebt(payload);
       }
 
       setShowDebtForm(false);
@@ -156,46 +156,24 @@ export default function DebtManagement() {
 
     try {
       // Insert payment (DB columns: debt_id, amount, paid_on, notes)
-      const { error: paymentError } = await supabase
-        .from("debt_payments")
-        .insert([
-          {
-            debt_id: paymentForm.debt_id,
-            amount: paymentForm.payment_amount,
-            paid_on: paymentForm.payment_date,
-            notes: paymentForm.notes || null,
-          },
-        ]);
-
-      if (paymentError) throw paymentError;
+      await createDebtPayment({
+        debt_id: paymentForm.debt_id,
+        amount: paymentForm.payment_amount,
+        paid_on: paymentForm.payment_date,
+        notes: paymentForm.notes || null,
+      });
 
       // Recompute total paid for this debt and update debt status accordingly
       const debt = debts.find((d) => d.id === paymentForm.debt_id);
 
       // fetch all payments for this debt to compute remaining balance
-      const { data: paymentsData, error: paymentsFetchError } = await supabase
-        .from("debt_payments")
-        .select("amount")
-        .eq("debt_id", paymentForm.debt_id);
-
-      if (paymentsFetchError) throw paymentsFetchError;
-
-      const totalPaid =
-        (paymentsData as any[] | null)?.reduce(
-          (sum, p) => sum + Number(p?.amount ?? 0),
-          0
-        ) ?? 0;
+      const totalPaid = await getDebtPaymentsTotal(paymentForm.debt_id);
 
       const principalAmount = Number(debt?.principal ?? 0);
       const newBalance = Math.max(0, principalAmount - totalPaid);
       const newStatusDb = newBalance <= 0 ? "closed" : "active";
 
-      const { error: updateError } = await supabase
-        .from("debts")
-        .update({ status: newStatusDb })
-        .eq("id", paymentForm.debt_id);
-
-      if (updateError) throw updateError;
+      await updateDebtStatus(paymentForm.debt_id, newStatusDb);
 
       setShowPaymentForm(false);
       resetPaymentForm();
@@ -217,9 +195,7 @@ export default function DebtManagement() {
       return;
 
     try {
-      const { error } = await supabase.from("debts").delete().eq("id", id);
-
-      if (error) throw error;
+      await deleteDebt(id);
 
       // Invalidate cache to refetch data
       queryClient.invalidateQueries({ queryKey: ["debts"] });

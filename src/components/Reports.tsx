@@ -98,19 +98,19 @@ export default function Reports() {
     switch (dateRange) {
       case "today":
         return returns.filter(
-          (r: any) => new Date(r.return_date || r.created_at) >= today
+          (r: any) => new Date(r.return_date || r.created_at) >= today,
         );
       case "week":
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
         return returns.filter(
-          (r: any) => new Date(r.return_date || r.created_at) >= weekAgo
+          (r: any) => new Date(r.return_date || r.created_at) >= weekAgo,
         );
       case "month":
         const monthAgo = new Date(today);
         monthAgo.setMonth(monthAgo.getMonth() - 1);
         return returns.filter(
-          (r: any) => new Date(r.return_date || r.created_at) >= monthAgo
+          (r: any) => new Date(r.return_date || r.created_at) >= monthAgo,
         );
       case "year":
         // Fiscal year: Feb 1 - Jan 31
@@ -124,7 +124,7 @@ export default function Reports() {
           yearStart = new Date(now.getFullYear() - 1, 1, 1); // February 1st of previous year
         }
         return returns.filter(
-          (r: any) => new Date(r.return_date || r.created_at) >= yearStart
+          (r: any) => new Date(r.return_date || r.created_at) >= yearStart,
         );
       case "custom":
         if (!customStartDate && !customEndDate) return returns;
@@ -153,7 +153,7 @@ export default function Reports() {
 
     // Sort products alphabetically by name (A-Z)
     const sortedProducts = [...products].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     );
 
     // Header
@@ -163,7 +163,7 @@ export default function Reports() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont("helvetica", "bold");
-    doc.text("HASSAN BOOKSHOP", 105, 15, { align: "center" });
+    doc.text("HORUMAR", 105, 15, { align: "center" });
 
     doc.setFontSize(16);
     doc.text("Inventory Report", 105, 25, { align: "center" });
@@ -183,11 +183,11 @@ export default function Reports() {
     const totalProducts = products.length;
     const totalInventoryValue = products.reduce(
       (sum, p) => sum + p.buying_price * p.quantity_in_stock,
-      0
+      0,
     );
     const totalPotentialRevenue = products.reduce(
       (sum, p) => sum + p.selling_price * p.quantity_in_stock,
-      0
+      0,
     );
     const inStock = products.filter((p) => p.quantity_in_stock > 0).length;
     const outOfStock = products.filter((p) => p.quantity_in_stock === 0).length;
@@ -198,12 +198,12 @@ export default function Reports() {
     doc.text(
       `Total Inventory Value: KES ${totalInventoryValue.toLocaleString()}`,
       105,
-      58
+      58,
     );
     doc.text(
       `Potential Revenue: KES ${totalPotentialRevenue.toLocaleString()}`,
       105,
-      64
+      64,
     );
 
     // Product table
@@ -269,19 +269,19 @@ export default function Reports() {
         doc.text(
           `Page ${data.pageNumber} of ${pageCount}`,
           data.settings.margin.left,
-          pageHeight - 10
+          pageHeight - 10,
         );
         doc.text(
-          "Hassan Bookshop - Confidential",
+          "Horumar - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
-          { align: "center" }
+          { align: "center" },
         );
       },
     });
 
     // Save the PDF
-    const filename = `Hassan_Bookshop_Inventory_Report_${
+    const filename = `Horumar_Inventory_Report_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -299,7 +299,9 @@ export default function Reports() {
 
     // Sort products alphabetically by name (A-Z)
     const sortedProducts = [...products].sort((a, b) =>
-      (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" })
+      (a.name || "").localeCompare(b.name || "", undefined, {
+        sensitivity: "base",
+      }),
     );
 
     // Header (compact)
@@ -309,7 +311,7 @@ export default function Reports() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("HASSAN BOOKSHOP", 105, 11, { align: "center" });
+    doc.text("HORUMAR", 105, 11, { align: "center" });
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
@@ -366,13 +368,13 @@ export default function Reports() {
         doc.text(
           `Page ${data.pageNumber} of ${pageCount}`,
           data.settings.margin.left,
-          pageHeight - 10
+          pageHeight - 10,
         );
         doc.text(
           "Hassan Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
-          { align: "center" }
+          { align: "center" },
         );
       },
     });
@@ -381,7 +383,7 @@ export default function Reports() {
     const totalBuyingPrice = sortedProducts.reduce(
       (sum, p) =>
         sum + Number(p.buying_price ?? 0) * Number(p.quantity_in_stock ?? 0),
-      0
+      0,
     );
 
     // Get last table position from autotable; fall back to startY if unavailable
@@ -407,11 +409,11 @@ export default function Reports() {
       `Total Buying Price: KES ${totalBuyingPrice.toLocaleString()}`,
       pageWidth - 14,
       yPos,
-      { align: "right" }
+      { align: "right" },
     );
     // ----------------------------------------------------
 
-    const filename = `Hassan_Bookshop_Inventory_Print_${
+    const filename = `Horumar_Inventory_Print_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -446,8 +448,6 @@ export default function Reports() {
       rangeLabel = `Year_${currentYear}`;
       periodText = `Year ${currentYear} (Jan 1 - Dec 31)`;
     } else if (dateRange === "custom") {
-      const start = customStartDate || "Beginning";
-      const end = customEndDate || "Today";
       rangeLabel = "Custom_Range";
       periodText = `${
         customStartDate
@@ -478,7 +478,7 @@ export default function Reports() {
     const totalProfit = filtered.reduce((sum, s) => sum + s.profit, 0);
     const totalDiscounts = filtered.reduce(
       (sum, s) => sum + (s.discount_amount || 0),
-      0
+      0,
     );
     const profitMargin =
       totalRevenue > 0
@@ -536,7 +536,7 @@ export default function Reports() {
     doc.text(
       `Average Profit: KES ${Number(avgProfit).toLocaleString()}`,
       14,
-      76
+      76,
     );
 
     // Right column
@@ -546,7 +546,7 @@ export default function Reports() {
     doc.text(
       `Total Discounts: KES ${totalDiscounts.toLocaleString()}`,
       105,
-      76
+      76,
     );
 
     // Payment method breakdown
@@ -565,15 +565,15 @@ export default function Reports() {
             data.count
           } transactions (KES ${data.total.toLocaleString()})`,
           14,
-          yPos
+          yPos,
         );
-      }
+      },
     );
 
     // Sales table - sorted by date (newest first)
     const sortedSales = [...filtered].sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
 
     const tableData = sortedSales.map((s, index) => {
@@ -648,19 +648,19 @@ export default function Reports() {
         doc.text(
           `Page ${data.pageNumber} of ${pageCount}`,
           data.settings.margin.left,
-          pageHeight - 10
+          pageHeight - 10,
         );
         doc.text(
-          "Hassan Bookshop - Confidential",
+          "Horumar - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
-          { align: "center" }
+          { align: "center" },
         );
       },
     });
 
     // Save the PDF
-    const filename = `Hassan_Bookshop_Sales_Report_${rangeLabel}_${
+    const filename = `Horumar_Sales_Report_${rangeLabel}_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -673,7 +673,7 @@ export default function Reports() {
     if (type === "inventory") {
       // Sort products alphabetically by name for CSV too
       const sortedProducts = [...products].sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
       );
       csv =
         "Product ID,Name,Category,Buying Price,Selling Price,Stock,Total Value\n";
@@ -742,10 +742,10 @@ export default function Reports() {
 
   const totalRefunded = filteredReturns.reduce(
     (sum: number, r: any) => sum + (Number(r.total_refund) || 0),
-    0
+    0,
   );
   const lowStockProducts = products.filter(
-    (p) => p.quantity_in_stock <= p.reorder_level
+    (p) => p.quantity_in_stock <= p.reorder_level,
   );
 
   if (loading) {
@@ -948,7 +948,7 @@ export default function Reports() {
               value={`KES ${products
                 .reduce(
                   (sum, p) => sum + p.buying_price * p.quantity_in_stock,
-                  0
+                  0,
                 )
                 .toLocaleString()}`}
             />
@@ -957,7 +957,7 @@ export default function Reports() {
               value={`KES ${products
                 .reduce(
                   (sum, p) => sum + p.selling_price * p.quantity_in_stock,
-                  0
+                  0,
                 )
                 .toLocaleString()}`}
             />
@@ -1082,7 +1082,7 @@ export default function Reports() {
               value={filteredReturns
                 .reduce(
                   (sum: number, r: any) => sum + (r.quantity_returned || 0),
-                  0
+                  0,
                 )
                 .toString()}
             />

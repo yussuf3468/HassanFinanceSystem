@@ -1,5 +1,10 @@
-import { X, Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
+import Drawer from "./ecommerce/Drawer";
+import Button from "./ecommerce/Button";
+import Badge from "./ecommerce/Badge";
+import Tooltip from "./ecommerce/Tooltip";
+import Alert from "./ecommerce/Alert";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -14,203 +19,201 @@ export default function CartSidebar({
 }: CartSidebarProps) {
   const cart = useCart();
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50">
-      <div className="absolute right-0 top-0 h-full w-full sm:w-96 bg-gradient-to-br from-white via-amber-50/20 to-white dark:from-slate-800 dark:via-amber-900/10 dark:to-slate-800 backdrop-blur-xl shadow-xl border-l border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm">
-        {/* Header */}
-        <div className="p-4 border-b border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
+    <Drawer isOpen={isOpen} onClose={onClose} title="Shopping Cart" size="md">
+      <div className="flex flex-col h-full">
+        {/* Cart Items Count Badge */}
+        <div className="px-4 py-3 bg-violet-50 dark:bg-violet-900/20 border-b border-violet-100 dark:border-violet-900">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <ShoppingBag className="w-6 h-6 text-white" />
-              <h2 className="text-lg font-semibold text-white">
-                Shopping Cart
-              </h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-1 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-700 dark:hover:to-slate-600 rounded transition-colors"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              {cart.totalItems} item{cart.totalItems !== 1 ? "s" : ""} in cart
+            </span>
+            <Badge variant="purple" size="sm">
+              KES {cart.totalPrice.toLocaleString()}
+            </Badge>
           </div>
-          <p className="text-blue-100 dark:text-blue-200 text-sm mt-1">
-            {cart.totalItems} item{cart.totalItems !== 1 ? "s" : ""} in cart
-          </p>
         </div>
 
-        {/* Cart Content */}
-        <div className="flex flex-col h-full">
-          {/* Items List */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {cart.items.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingBag className="w-16 h-16 text-slate-700 dark:text-slate-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                  Your cart is empty
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">
-                  Gaarigaagu waa madhan - Add some products to get started
-                </p>
+        {/* Items List */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {cart.items.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/20 dark:to-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShoppingBag className="w-12 h-12 text-violet-600 dark:text-violet-400" />
               </div>
-            ) : (
-              <div className="space-y-4">
-                {cart.items.map((item) => (
-                  <div
-                    key={item.product.id}
-                    className="bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-700 dark:to-slate-600/50 backdrop-blur-xl rounded-xl p-3 border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm"
-                  >
-                    <div className="flex items-start space-x-3">
-                      {/* Product Image */}
-                      <div className="w-16 h-16 bg-gradient-to-br from-white/10 to-white/20 dark:from-slate-600/50 dark:to-slate-500/50 rounded-xl flex items-center justify-center flex-shrink-0 p-1 border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm">
-                        {item.product.image_url ? (
-                          <img
-                            src={item.product.image_url}
-                            alt={item.product.name}
-                            className="w-full h-full object-contain rounded-lg"
-                          />
-                        ) : (
-                          <ShoppingBag className="w-6 h-6 text-slate-700 dark:text-slate-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                Your cart is empty
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                Add some products to get started
+              </p>
+              <Button onClick={onClose} variant="primary" size="md">
+                Continue Shopping
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cart.items.map((item) => (
+                <div
+                  key={item.product.id}
+                  className="group bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700 transition-all hover:shadow-lg"
+                >
+                  <div className="flex gap-4">
+                    {/* Product Image */}
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {item.product.image_url ? (
+                        <img
+                          src={item.product.image_url}
+                          alt={item.product.name}
+                          className="w-full h-full object-contain p-2"
+                        />
+                      ) : (
+                        <ShoppingBag className="w-8 h-8 text-slate-400" />
+                      )}
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-1 line-clamp-2">
+                        {item.product.name}
+                      </h4>
+                      <div className="flex items-center gap-2 mb-3">
+                        <p className="text-lg font-bold text-violet-600">
+                          KES {item.product.selling_price.toLocaleString()}
+                        </p>
+                        {item.product.quantity_in_stock < 10 && (
+                          <Badge variant="warning" size="sm">
+                            Low Stock
+                          </Badge>
                         )}
                       </div>
 
-                      {/* Product Info */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-slate-900 dark:text-slate-200 text-sm line-clamp-2">
-                          {item.product.name}
-                        </h4>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-                          {item.product.category}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            {/* Quantity Controls */}
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Tooltip content="Decrease quantity" position="top">
                             <button
                               onClick={() =>
                                 cart.updateQuantity(
                                   item.product.id,
-                                  item.quantity - 1
+                                  Math.max(0, item.quantity - 1),
                                 )
                               }
-                              className="w-7 h-7 rounded-full bg-white/90 dark:bg-slate-600 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-500 dark:hover:to-slate-400 flex items-center justify-center transition-colors text-white border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm"
-                              disabled={item.quantity <= 1}
+                              className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 hover:bg-violet-100 dark:hover:bg-violet-900 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
                             >
-                              <Minus className="w-3 h-3" />
+                              <Minus className="w-4 h-4" />
                             </button>
+                          </Tooltip>
 
-                            <span className="w-8 text-center text-sm font-medium text-white dark:text-slate-200">
-                              {item.quantity}
-                            </span>
+                          <span className="w-12 text-center font-semibold text-slate-900 dark:text-white">
+                            {item.quantity}
+                          </span>
 
+                          <Tooltip content="Increase quantity" position="top">
                             <button
                               onClick={() =>
                                 cart.updateQuantity(
                                   item.product.id,
-                                  item.quantity + 1
+                                  item.quantity + 1,
                                 )
                               }
-                              className="w-7 h-7 rounded-full bg-white/90 dark:bg-slate-600 hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-500 dark:hover:to-slate-400 flex items-center justify-center transition-colors text-white border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm"
                               disabled={
                                 item.quantity >= item.product.quantity_in_stock
                               }
+                              className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-700 hover:bg-violet-100 dark:hover:bg-violet-900 text-slate-700 dark:text-slate-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-4 h-4" />
                             </button>
-                          </div>
+                          </Tooltip>
+                        </div>
 
-                          {/* Remove Button */}
+                        <Tooltip content="Remove from cart" position="top">
                           <button
                             onClick={() => cart.removeItem(item.product.id)}
-                            className="p-1 text-red-400 hover:bg-red-500/20 rounded transition-colors"
+                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </div>
+                        </Tooltip>
+                      </div>
 
-                        {/* Price */}
-                        <div className="mt-2 flex items-center justify-between">
-                          <p className="text-xs text-slate-700 dark:text-slate-400">
-                            KES {item.product.selling_price.toLocaleString()}{" "}
-                            each
-                          </p>
-                          <p className="font-semibold text-blue-400 dark:text-blue-300">
-                            KES{" "}
+                      {/* Subtotal */}
+                      <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600 dark:text-slate-400">
+                            Subtotal:
+                          </span>
+                          <span className="font-semibold text-slate-900 dark:text-white">
+                            $
                             {(
                               item.product.selling_price * item.quantity
-                            ).toLocaleString()}
-                          </p>
+                            ).toFixed(2)}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Footer - Total and Checkout */}
-          {cart.items.length > 0 && (
-            <div className="border-t border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-800 dark:to-slate-700/50 backdrop-blur-xl p-4 space-y-4">
-              {/* Subtotal */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-700 dark:text-slate-400">
-                    Subtotal ({cart.totalItems} items)
-                  </span>
-                  <span className="font-medium text-white dark:text-slate-200">
-                    KES {cart.totalPrice.toLocaleString()}
-                  </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-700 dark:text-slate-400">
-                    Delivery
-                  </span>
-                  <span className="font-medium text-green-400 dark:text-green-300">
-                    FREE
-                  </span>
-                </div>
-                <div className="border-t border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm pt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-lg text-white dark:text-slate-200">
-                      Total
-                    </span>
-                    <span className="font-bold text-xl text-blue-400 dark:text-blue-300">
-                      KES {cart.totalPrice.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                <button
-                  onClick={onCheckout}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white py-3 px-4 rounded-xl hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-800 dark:hover:to-blue-900 transition-all font-medium shadow-lg shadow-amber-300/10"
-                >
-                  Proceed to Checkout
-                </button>
-
-                <button
-                  onClick={onClose}
-                  className="w-full bg-white/90 dark:bg-slate-700 text-slate-600 dark:text-slate-300 py-2 px-4 rounded-xl hover:bg-gradient-to-br hover:from-amber-50 hover:to-white dark:hover:from-slate-600 dark:hover:to-slate-500 transition-colors text-sm border border-amber-300/70 dark:border-amber-700/50 shadow-amber-100/50/60 shadow-sm"
-                >
-                  Continue Shopping
-                </button>
-
-                {/* Clear Cart */}
-                <button
-                  onClick={cart.clearCart}
-                  className="w-full text-red-400 dark:text-red-300 hover:text-red-300 dark:hover:text-red-200 transition-colors text-sm py-1"
-                >
-                  Clear Cart
-                </button>
-              </div>
+              ))}
             </div>
           )}
         </div>
+
+        {/* Footer with Total & Checkout */}
+        {cart.items.length > 0 && (
+          <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800/50">
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-400">
+                  Subtotal
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  KES {cart.totalPrice.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-400">
+                  Shipping
+                </span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  Calculated at checkout
+                </span>
+              </div>
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between">
+                  <span className="text-lg font-bold text-slate-900 dark:text-white">
+                    Total
+                  </span>
+                  <span className="text-lg font-bold text-violet-600">
+                    KES {cart.totalPrice.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Alert variant="info" icon={true}>
+              Free shipping on orders over KES 2,000!
+            </Alert>
+
+            <div className="mt-4 space-y-2">
+              <Button
+                onClick={() => {
+                  onClose();
+                  onCheckout?.();
+                }}
+                variant="primary"
+                size="lg"
+                fullWidth
+              >
+                Proceed to Checkout
+              </Button>
+              <Button onClick={onClose} variant="outline" size="md" fullWidth>
+                Continue Shopping
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </Drawer>
   );
 }

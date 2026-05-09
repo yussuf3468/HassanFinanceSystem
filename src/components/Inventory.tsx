@@ -15,7 +15,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useProducts } from "../hooks/useSupabaseQuery";
-import { supabase } from "../lib/supabase";
+import { deleteProductWithRelations } from "../api";
 import type { Product } from "../types";
 import ProductForm from "./ProductForm";
 import ReceiveStockModal from "./ReceiveStockModal";
@@ -79,41 +79,7 @@ export default function Inventory() {
     if (!confirm(deleteMessage)) return;
 
     try {
-      // First delete all sales records for this product
-      const { error: salesError } = await supabase
-        .from("sales")
-        .delete()
-        .eq("product_id", id);
-
-      if (salesError) {
-        console.error("Error deleting sales:", salesError);
-        alert("Failed to delete sales records. Please try again.");
-        return;
-      }
-
-      // Then delete all order items for this product
-      const { error: orderItemsError } = await supabase
-        .from("order_items")
-        .delete()
-        .eq("product_id", id);
-
-      if (orderItemsError) {
-        console.error("Error deleting order items:", orderItemsError);
-        alert("Failed to delete order items. Please try again.");
-        return;
-      }
-
-      // Finally delete the product
-      const { error: productError } = await supabase
-        .from("products")
-        .delete()
-        .eq("id", id);
-
-      if (productError) {
-        console.error("Error deleting product:", productError);
-        alert("Failed to delete product. Please try again.");
-        return;
-      }
+      await deleteProductWithRelations(id);
 
       alert(
         `✅ Successfully deleted "${product.name}" and all related records!`

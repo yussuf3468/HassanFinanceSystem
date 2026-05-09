@@ -10,7 +10,7 @@ import {
   Check,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { createOrderWithItemsAndStock } from "../api";
 import { useCart } from "../contexts/CartContext";
 import { invalidateProductCaches } from "../utils/cacheInvalidation";
 import DeliveryAddressSelector from "./DeliveryAddressSelector";
@@ -80,10 +80,8 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
     setLoading(true);
 
     try {
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
+      const { order } = await createOrderWithItemsAndStock({
+        order: {
           customer_name: formData.customer_name,
           customer_email: formData.email || null,
           customer_phone: formData.phone_number,
@@ -93,39 +91,16 @@ export default function Checkout({ onBack, onSuccess }: CheckoutProps) {
           total_amount: cart.totalPrice + deliveryFee,
           status: "pending",
           notes: formData.notes || null,
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = cart.items.map((item) => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        unit_price: item.product.selling_price,
-        total_price: item.product.selling_price * item.quantity,
-        product_name: item.product.name,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Update product stock
-      for (const item of cart.items) {
-        const { error: stockError } = await supabase
-          .from("products")
-          .update({
-            quantity_in_stock: item.product.quantity_in_stock - item.quantity,
-          })
-          .eq("id", item.product.id);
-
-        if (stockError) throw stockError;
-      }
+        },
+        items: cart.items.map((item) => ({
+          product_id: item.product.id,
+          product_name: item.product.name,
+          quantity: item.quantity,
+          unit_price: item.product.selling_price,
+          total_price: item.product.selling_price * item.quantity,
+          quantity_in_stock: item.product.quantity_in_stock,
+        })),
+      });
 
       // ✅ Invalidate product caches to update stock levels
       await invalidateProductCaches(queryClient);

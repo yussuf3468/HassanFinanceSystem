@@ -12,7 +12,12 @@ import {
   Calculator,
   PiggyBank,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import {
+  getInitialInvestments,
+  createInitialInvestment,
+  updateInitialInvestment,
+  deleteInitialInvestment,
+} from "../api/investmentsApi";
 import ModalPortal from "./ModalPortal.tsx";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
@@ -69,21 +74,7 @@ export default function InitialInvestment() {
   async function loadInvestments() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("initial_investments")
-        .select("*")
-        .order("invested_on", { ascending: false });
-
-      if (error) {
-        if (error.code === "42P01") {
-          console.log(
-            "Initial investments table not found. Please run the database setup from FINANCIAL_SETUP.md"
-          );
-          setInvestments([]);
-          return;
-        }
-        throw error;
-      }
+      const data = await getInitialInvestments();
 
       const processed: Investment[] = (data || []).map((row: any) => ({
         id: row.id,
@@ -106,26 +97,19 @@ export default function InitialInvestment() {
     e.preventDefault();
     try {
       if (editingInvestment) {
-        const { error } = await supabase
-          .from("initial_investments")
-          .update({
-            source: formData.source,
-            amount: formData.amount,
-            invested_on: formData.invested_on,
-            notes: formData.notes || null,
-          })
-          .eq("id", editingInvestment.id);
-        if (error) throw error;
+        await updateInitialInvestment(editingInvestment.id, {
+          source: formData.source,
+          amount: formData.amount,
+          invested_on: formData.invested_on,
+          notes: formData.notes || null,
+        });
       } else {
-        const { error } = await supabase.from("initial_investments").insert([
-          {
-            source: formData.source,
-            amount: formData.amount,
-            invested_on: formData.invested_on,
-            notes: formData.notes || null,
-          },
-        ]);
-        if (error) throw error;
+        await createInitialInvestment({
+          source: formData.source,
+          amount: formData.amount,
+          invested_on: formData.invested_on,
+          notes: formData.notes || null,
+        });
       }
 
       setShowForm(false);
@@ -142,11 +126,7 @@ export default function InitialInvestment() {
     if (!confirm("Are you sure you want to delete this investment record?"))
       return;
     try {
-      const { error } = await supabase
-        .from("initial_investments")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
+      await deleteInitialInvestment(id);
       await loadInvestments();
     } catch (err) {
       console.error("Error deleting investment:", err);

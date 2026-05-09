@@ -8,8 +8,15 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { useExpenses } from "../hooks/useSupabaseQuery";
-import { supabase } from "../lib/supabase";
 import type { Database } from "../lib/database.types";
+import {
+  getExpenseCategories,
+  getExpenses,
+  seedExpenseCategories,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+} from "../api/expensesApi";
 import DatabaseSetupNotice from "./DatabaseSetupNotice.tsx";
 import ModalPortal from "./ModalPortal.tsx";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
@@ -93,23 +100,15 @@ export default function ExpenseManagement() {
 
   async function loadCategoriesAndExpenses() {
     try {
-      const [{ data: cats, error: catErr }, { data, error }] =
-        await Promise.all([
-          supabase
-            .from("expense_categories")
-            .select("id, name, description, created_at")
-            .order("name", { ascending: true }),
-          supabase
-            .from("expenses")
-            .select("*")
-            .order("incurred_on", { ascending: false }),
-        ]);
+      const [cats, data] = await Promise.all([
+        getExpenseCategories(),
+        getExpenses(),
+      ]);
 
-      if (catErr) throw catErr;
-      setCategories(cats || []);
+      setCategories((cats as DbCategory[]) || []);
 
-      if (error) {
-        if ((error as any).code === "42P01") {
+      if (!data) {
+        if ((data as any)?.code === "42P01") {
           console.log(
             "Expenses table not found. Please run the database setup from FINANCIAL_SETUP.md",
           );
@@ -117,12 +116,12 @@ export default function ExpenseManagement() {
           setExpenses([]);
           return;
         }
-        throw error;
+        throw new Error("Failed to load expenses");
       }
 
       // Use the freshly fetched categories to map category_id -> name immediately
       const localIdToName = new Map<string, string>();
-      (cats || []).forEach((c) => {
+      cats.forEach((c: any) => {
         if (c && c.id) localIdToName.set(c.id, c.name || "");
       });
 
@@ -149,7 +148,6 @@ export default function ExpenseManagement() {
   // This ensures categories are available before the UI mapping runs.
   useEffect(() => {
     loadCategoriesAndExpenses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function seedDefaultCategories() {
@@ -168,11 +166,7 @@ export default function ExpenseManagement() {
         "Miscellaneous",
       ].map((name) => ({ name, description: null as string | null }));
 
-      // Upsert by unique name to avoid duplicates if re-run
-      const { error } = await supabase
-        .from("expense_categories")
-        .upsert(defaults, { onConflict: "name" });
-      if (error) throw error;
+      await seedExpenseCategories(defaults.map((item) => item.name));
 
       await loadCategoriesAndExpenses();
     } catch (err) {
@@ -199,28 +193,21 @@ export default function ExpenseManagement() {
       };
 
       if (editingExpense) {
-        const { error } = await supabase
-          .from("expenses")
-          .update({
-            category_id: payload.category_id,
-            title: payload.title,
-            amount: payload.amount,
-            incurred_on: payload.incurred_on,
-            notes: payload.notes,
-          })
-          .eq("id", editingExpense.id);
-        if (error) throw error;
+        await updateExpense(editingExpense.id, {
+          category_id: payload.category_id,
+          title: payload.title,
+          amount: payload.amount,
+          incurred_on: String(payload.incurred_on),
+          notes: payload.notes,
+        });
       } else {
-        const { error } = await supabase.from("expenses").insert([
-          {
-            category_id: payload.category_id,
-            title: payload.title,
-            amount: payload.amount,
-            incurred_on: payload.incurred_on,
-            notes: payload.notes,
-          },
-        ]);
-        if (error) throw error;
+        await createExpense({
+          category_id: payload.category_id,
+          title: payload.title,
+          amount: payload.amount,
+          incurred_on: String(payload.incurred_on),
+          notes: payload.notes,
+        });
       }
 
       setShowForm(false);
@@ -236,8 +223,7 @@ export default function ExpenseManagement() {
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this expense?")) return;
     try {
-      const { error } = await supabase.from("expenses").delete().eq("id", id);
-      if (error) throw error;
+      await deleteExpense(id);
       await loadCategoriesAndExpenses();
     } catch (error) {
       console.error("Error deleting expense:", error);

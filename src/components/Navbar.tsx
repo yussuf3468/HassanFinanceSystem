@@ -1,15 +1,5 @@
 import { useState, useCallback, memo } from "react";
-import {
-  Search,
-  ShoppingCart,
-  User,
-  Menu,
-  X,
-  Settings,
-  LogOut,
-  Sun,
-  Moon,
-} from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, LogOut, Sun, Moon } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -61,15 +51,13 @@ const Navbar = memo(
           }, 100);
         }
       },
-      [onSearchChange]
+      [onSearchChange],
     );
 
     // Function to highlight product and scroll to it
     const highlightProduct = useCallback((productId: string) => {
       setTimeout(() => {
-        const productElement = document.querySelector(
-          `[data-product-id="${productId}"]`
-        );
+        const productElement = document.querySelector(`[data-product-id="${productId}"]`);
         if (productElement) {
           productElement.scrollIntoView({
             behavior: "smooth",
@@ -110,8 +98,8 @@ const Navbar = memo(
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text text-transparent">
-                  HASSAN BOOKSHOP
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                  HORUMAR
                 </h1>
                 <p className="text-xs text-slate-600 dark:text-slate-400 hidden sm:block">
                   Your trusted bookstore
@@ -129,9 +117,7 @@ const Navbar = memo(
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSearchSuggestions(true)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSearchSuggestions(false), 200)
-                  }
+                  onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
                   className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-sm"
                 />
 
@@ -216,14 +202,9 @@ const Navbar = memo(
                             }}
                             className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center space-x-3 group"
                           >
-                            <div className="p-1 rounded-lg bg-amber-100 border-2 border-amber-300 group-hover:bg-amber-200 transition-colors">
-                              <Settings className="w-4 h-4 text-amber-600" />
-                            </div>
                             <div>
                               <span className="font-medium">Admin Panel</span>
-                              <p className="text-xs text-slate-500">
-                                Manage store
-                              </p>
+                              <p className="text-xs text-slate-500">Manage store</p>
                             </div>
                           </button>
                         )}
@@ -237,9 +218,7 @@ const Navbar = memo(
                           </div>
                           <div>
                             <span className="font-medium">Sign Out</span>
-                            <p className="text-xs text-slate-500">
-                              Logout safely
-                            </p>
+                            <p className="text-xs text-slate-500">Logout safely</p>
                           </div>
                         </button>
                       </div>
@@ -355,7 +334,6 @@ const Navbar = memo(
                       }}
                       className="w-full flex items-center space-x-3 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
-                      <Settings className="w-5 h-5 text-amber-600" />
                       <span className="font-medium text-slate-900 dark:text-white">
                         Admin Panel
                       </span>
@@ -391,7 +369,7 @@ const Navbar = memo(
         )}
       </header>
     );
-  }
+  },
 );
 
 Navbar.displayName = "Navbar";

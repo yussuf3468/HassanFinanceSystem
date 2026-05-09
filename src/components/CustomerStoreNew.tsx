@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { supabase } from "../lib/supabase";
+import { getPublishedProductsInStock } from "../api";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
 import { ProductSkeleton } from "./LoadingSkeletons";
@@ -356,15 +356,7 @@ export default function CustomerStore({
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("published", true)
-        .gt("quantity_in_stock", 0)
-        .order("featured", { ascending: false })
-        .order("name");
-
-      if (error) throw error;
+      const data = await getPublishedProductsInStock();
       setProducts(data || []);
     } catch (error) {
       console.error("Error loading products:", error);

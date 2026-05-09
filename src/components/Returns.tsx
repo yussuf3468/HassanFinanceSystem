@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
 import { formatDate } from "../utils/dateFormatter";
 import { useProducts, useReturns } from "../hooks/useSupabaseQuery";
 import { invalidateAfterReturn } from "../utils/cacheInvalidation";
+import { getReturnById, deleteReturn } from "../api/returnsApi";
+import { updateProductStock } from "../api/productsApi";
+import { createSale } from "../api/salesApi";
 import ReturnForm from "./ReturnForm";
 
 export default function Returns() {
@@ -52,18 +54,12 @@ export default function Returns() {
 
     try {
       // Get return details before deleting
-      const { data: returnData } = await supabase
-        .from("returns")
-        .select("*")
-        .eq("id", returnId)
-        .single();
+      const returnData: any = await getReturnById(returnId);
 
       // Delete return record
-      const { error } = await supabase
-        .from("returns")
-        .delete()
-        .eq("id", returnId);
-      if (error) {
+      try {
+        await deleteReturn(returnId);
+      } catch (error) {
         console.error("Error deleting return:", error);
         alert("Failed to delete return record.");
         return;
@@ -73,12 +69,9 @@ export default function Returns() {
       const prod = getProductById(productId);
       if (prod) {
         const newStock = Math.max(prod.quantity_in_stock - qty, 0);
-        const { error: updateError } = await supabase
-          .from("products")
-          .update({ quantity_in_stock: newStock })
-          .eq("id", productId);
-
-        if (updateError) {
+        try {
+          await updateProductStock(productId, newStock);
+        } catch (updateError) {
           console.error("Error updating inventory:", updateError);
           alert(
             "Return deleted but failed to update inventory. Please update stock manually."
@@ -87,23 +80,23 @@ export default function Returns() {
 
         // Reverse the negative sale entry: Add back positive sale to restore revenue
         if (returnData) {
-          const { error: saleError } = await supabase.from("sales").insert({
-            product_id: productId,
-            quantity_sold: qty, // Positive quantity
-            selling_price: returnData.unit_price || prod.selling_price,
-            buying_price: prod.buying_price,
-            total_sale: returnData.total_refund || returnData.unit_price * qty, // Positive total
-            profit: (returnData.unit_price - prod.buying_price) * qty, // Positive profit
-            payment_method: returnData.payment_method || "Cash",
-            sold_by: returnData.processed_by,
-            sale_date: new Date().toISOString(),
-            original_price: returnData.unit_price || prod.selling_price,
-            final_price: returnData.unit_price || prod.selling_price,
-            discount_percentage: 0,
-            discount_amount: 0,
-          });
-
-          if (saleError) {
+          try {
+            await createSale({
+              product_id: productId,
+              quantity_sold: qty,
+              selling_price: returnData.unit_price || prod.selling_price,
+              buying_price: prod.buying_price,
+              total_sale: returnData.total_refund || returnData.unit_price * qty,
+              profit: (returnData.unit_price - prod.buying_price) * qty,
+              payment_method: returnData.payment_method || "Cash",
+              sold_by: returnData.processed_by,
+              sale_date: new Date().toISOString(),
+              original_price: returnData.unit_price || prod.selling_price,
+              final_price: returnData.unit_price || prod.selling_price,
+              discount_percentage: 0,
+              discount_amount: 0,
+            });
+          } catch (saleError) {
             console.error("Error reversing refund in sales:", saleError);
             alert(
               "Return deleted but failed to reverse sales entry. Revenue may be incorrect."

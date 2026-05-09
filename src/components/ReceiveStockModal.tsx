@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { processStockReceiptItems } from "../api";
 import { useProducts } from "../hooks/useSupabaseQuery";
 import type { Product } from "../types";
 import { invalidateProductCaches } from "../utils/cacheInvalidation";
@@ -86,14 +86,8 @@ export default function ReceiveStockModal({
 
     try {
       setSubmitting(true);
-      const { data, error } = await (supabase as any).rpc(
-        "process_stock_receipt",
-        {
-          p_items: normalized,
-        }
-      );
-      if (error) throw error;
-      setSuccessId(data as string);
+      const data = await processStockReceiptItems(normalized as any);
+      setSuccessId(data);
 
       // ✅ Invalidate product caches to update stock levels
       await invalidateProductCaches(queryClient);

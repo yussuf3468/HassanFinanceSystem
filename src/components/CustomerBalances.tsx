@@ -14,7 +14,7 @@ import {
 import { useSales } from "../hooks/useSupabaseQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateSalesCaches } from "../utils/cacheInvalidation";
-import { supabase } from "../lib/supabase";
+import { deleteSalesByCustomerName } from "../api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -58,12 +58,7 @@ export default function CustomerBalances() {
     }
 
     try {
-      const { error } = await supabase
-        .from("sales")
-        .delete()
-        .eq("customer_name", customerName);
-
-      if (error) throw error;
+      await deleteSalesByCustomerName(customerName);
 
       // Invalidate caches to refresh data
       await invalidateSalesCaches(queryClient);
@@ -128,7 +123,7 @@ export default function CustomerBalances() {
 
   // Filter and sort customers
   const filteredCustomers = useMemo(() => {
-    let filtered = customerBalances.filter((customer) =>
+    const filtered = customerBalances.filter((customer) =>
       customer.customer_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

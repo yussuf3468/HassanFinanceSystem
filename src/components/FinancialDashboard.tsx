@@ -28,7 +28,7 @@ import {
   useFinancialTotals,
 } from "../hooks/useSupabaseQuery";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import { getCyberServices } from "../api";
 import { formatDate } from "../utils/dateFormatter";
 
 interface FinancialStats {
@@ -88,7 +88,7 @@ export default function FinancialDashboard() {
   });
   // ...existing code...
   const [expenseBreakdown, setExpenseBreakdown] = useState<ExpenseByCategory[]>(
-    []
+    [],
   );
   const [investorDividends, setInvestorDividends] = useState<
     InvestorDividend[]
@@ -104,13 +104,7 @@ export default function FinancialDashboard() {
   // Cyber services profit (all entries are pure profit)
   const { data: cyberServices = [] } = useQuery({
     queryKey: ["cyber_services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cyber_services" as any)
-        .select("*");
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: getCyberServices,
     staleTime: Infinity,
     gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -120,7 +114,7 @@ export default function FinancialDashboard() {
   // Track total cyber profit separately (after cyberServices is initialized)
   const cyberProfit = cyberServices.reduce(
     (sum: number, service: any) => sum + (service.amount || 0),
-    0
+    0,
   );
 
   useEffect(() => {
@@ -143,7 +137,7 @@ export default function FinancialDashboard() {
     const reportData = {
       generatedAt: today.toISOString(),
       reportDate: formatDate(today),
-      businessName: "Hassan Bookshop",
+      businessName: "Horumar",
 
       // Executive Summary
       executiveSummary: {
@@ -215,7 +209,7 @@ export default function FinancialDashboard() {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `Financial_Report_${today.toISOString().split("T")[0]}.csv`
+      `Financial_Report_${today.toISOString().split("T")[0]}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -251,8 +245,8 @@ export default function FinancialDashboard() {
         100;
       insights.push(
         `📈 Daily profit increased by ${growth.toFixed(
-          1
-        )}% compared to yesterday`
+          1,
+        )}% compared to yesterday`,
       );
     } else if (stats.dailyProfit < stats.yesterdayProfit) {
       const decline =
@@ -260,21 +254,21 @@ export default function FinancialDashboard() {
         100;
       insights.push(
         `📉 Daily profit decreased by ${decline.toFixed(
-          1
-        )}% compared to yesterday`
+          1,
+        )}% compared to yesterday`,
       );
     }
 
     // Cash flow insights
     if (stats.monthlyProfit > 0) {
       insights.push(
-        `💰 Positive monthly cash flow of KES ${stats.monthlyProfit.toLocaleString()}`
+        `💰 Positive monthly cash flow of KES ${stats.monthlyProfit.toLocaleString()}`,
       );
     } else {
       insights.push(
         `⚠️ Negative monthly cash flow of KES ${Math.abs(
-          stats.monthlyProfit
-        ).toLocaleString()}`
+          stats.monthlyProfit,
+        ).toLocaleString()}`,
       );
     }
 
@@ -284,7 +278,7 @@ export default function FinancialDashboard() {
       insights.push(
         `🏷️ Highest expense category: ${
           topExpenseCategory.category
-        } (${topExpenseCategory.percentage.toFixed(1)}%)`
+        } (${topExpenseCategory.percentage.toFixed(1)}%)`,
       );
     }
 
@@ -296,7 +290,7 @@ export default function FinancialDashboard() {
           : 0;
       if (debtToWorthRatio > 50) {
         insights.push(
-          `🚨 High debt-to-net-worth ratio: ${debtToWorthRatio.toFixed(1)}%`
+          `🚨 High debt-to-net-worth ratio: ${debtToWorthRatio.toFixed(1)}%`,
         );
       }
     }
@@ -308,13 +302,13 @@ export default function FinancialDashboard() {
         : 0;
     if (roi > 20) {
       insights.push(
-        `🎯 Excellent ROI of ${roi.toFixed(1)}% on initial investment`
+        `🎯 Excellent ROI of ${roi.toFixed(1)}% on initial investment`,
       );
     } else if (roi > 10) {
       insights.push(`👍 Good ROI of ${roi.toFixed(1)}% on initial investment`);
     } else if (roi > 0) {
       insights.push(
-        `📊 Moderate ROI of ${roi.toFixed(1)}% on initial investment`
+        `📊 Moderate ROI of ${roi.toFixed(1)}% on initial investment`,
       );
     }
 
@@ -323,7 +317,7 @@ export default function FinancialDashboard() {
 
   const generateCSVReport = (data: any) => {
     const lines = [
-      `Hassan Bookshop - Financial Report`,
+      `Horumar - Financial Report`,
       `Generated: ${data.reportDate}`,
       ``,
       `EXECUTIVE SUMMARY`,
@@ -331,7 +325,7 @@ export default function FinancialDashboard() {
       `Monthly Profit,KES ${data.executiveSummary.monthlyProfit.toLocaleString()}`,
       `Daily Profit,KES ${data.executiveSummary.dailyProfit.toLocaleString()}`,
       `Profit Growth,${data.executiveSummary.profitGrowthPercentage.toFixed(
-        2
+        2,
       )}%`,
       `Financial Health Score,${data.executiveSummary.financialHealthScore}/100`,
       ``,
@@ -346,7 +340,7 @@ export default function FinancialDashboard() {
         (exp: any) =>
           `${
             exp.category
-          },KES ${exp.amount.toLocaleString()},${exp.percentage.toFixed(1)}%`
+          },KES ${exp.amount.toLocaleString()},${exp.percentage.toFixed(1)}%`,
       ),
       ``,
       `KEY INSIGHTS`,
@@ -384,11 +378,11 @@ export default function FinancialDashboard() {
       // Calculate financial metrics
       const totalExpenses = expensesData.reduce(
         (sum, expense) => sum + (expense.amount || 0),
-        0
+        0,
       );
       const totalInvestment = investmentsData.reduce(
         (sum, investment) => sum + (investment.amount || 0),
-        0
+        0,
       );
 
       // === START UPDATED DEBT LOGIC ===
@@ -436,7 +430,7 @@ export default function FinancialDashboard() {
 
       const totalDebt = debtsData.reduce(
         (sum, debt) => sum + getDebtBalance(debt),
-        0
+        0,
       );
       const activeDebts = debtsData.filter((d) => isDebtActive(d)).length;
       // === END UPDATED DEBT LOGIC ===
@@ -459,7 +453,7 @@ export default function FinancialDashboard() {
       // All sales/profit metrics now come from server-side aggregation (already calculated above)
 
       const investmentCategories = new Set(
-        investmentsData.map((inv: any) => inv.category).filter(Boolean)
+        investmentsData.map((inv: any) => inv.category).filter(Boolean),
       ).size;
 
       // Calculate net worth (assets - liabilities)
@@ -511,7 +505,7 @@ export default function FinancialDashboard() {
   function calculateInvestorDividends(
     investments: any[],
     totalProfit: number,
-    totalInvestmentAmount: number
+    totalInvestmentAmount: number,
   ) {
     const today = new Date();
     const dividendData: InvestorDividend[] = [];
@@ -534,7 +528,7 @@ export default function FinancialDashboard() {
 
       const monthsSinceInvestment = Math.floor(
         (today.getTime() - investmentDate.getTime()) /
-          (1000 * 60 * 60 * 24 * 30)
+          (1000 * 60 * 60 * 24 * 30),
       );
 
       // Calculate ownership percentage
@@ -1182,7 +1176,7 @@ export default function FinancialDashboard() {
                             undefined,
                             {
                               maximumFractionDigits: 2,
-                            }
+                            },
                           )}
                         </span>
                       </div>
@@ -1255,7 +1249,7 @@ export default function FinancialDashboard() {
                   ? (
                       investorDividends.reduce(
                         (sum, inv) => sum + inv.ownership_percentage,
-                        0
+                        0,
                       ) / investorDividends.length
                     ).toFixed(2)
                   : 0}

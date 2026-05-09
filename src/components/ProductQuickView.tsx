@@ -1,15 +1,25 @@
 import { memo, useCallback, useState } from "react";
 import {
-  X,
   Star,
   ShoppingCart,
   Heart,
   Share2,
   ZoomIn,
   Package,
+  Truck,
+  Shield,
+  RotateCcw,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import type { Product } from "../types";
+import Dialog from "./ecommerce/Dialog";
+import Button from "./ecommerce/Button";
+import Badge from "./ecommerce/Badge";
+import Tooltip from "./ecommerce/Tooltip";
+import Alert from "./ecommerce/Alert";
+import Tabs, { Tab } from "./ecommerce/Tabs";
 
 interface ProductQuickViewProps {
   product: Product | null;
@@ -23,6 +33,7 @@ const ProductQuickView = memo(
     const [isLiked, setIsLiked] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [imageZoomed, setImageZoomed] = useState(false);
+    const [activeTab, setActiveTab] = useState("details");
 
     const handleAddToCart = useCallback(() => {
       if (!product) return;
@@ -45,7 +56,7 @@ const ProductQuickView = memo(
       if (navigator.share) {
         navigator.share({
           title: product.name,
-          text: `Check out ${product.name} at Hassan Muse BookShop`,
+          text: `Check out ${product.name} at Horumar`,
           url: window.location.href,
         });
       } else {
@@ -57,257 +68,329 @@ const ProductQuickView = memo(
     const toggleLike = useCallback(() => {
       setIsLiked((prev) => !prev);
       toast.success(
-        isLiked ? "Removed from wishlist" : "Added to wishlist! ❤️"
+        isLiked ? "Removed from wishlist" : "Added to wishlist! ❤️",
       );
     }, [isLiked]);
 
     if (!isOpen || !product) return null;
 
-    return (
-      <div className="fixed inset-0 bg-slate-900/70 z-50 flex items-center justify-center p-4">
-        <div className="bg-white border border-slate-200 shadow-xl rounded-2xl dark:bg-slate-800 dark:border-slate-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-600 bg-gradient-to-br from-amber-50 to-white dark:from-slate-700 dark:to-slate-800">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Quick View
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-amber-100 dark:hover:bg-slate-600 rounded-full transition-colors text-slate-700 dark:text-slate-300"
-            >
-              <X className="w-6 h-6" />
-            </button>
+    const tabs: Tab[] = [
+      {
+        id: "details",
+        label: "Details",
+        content: (
+          <div className="space-y-3 text-sm">
+            {product.description && (
+              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                {product.description}
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="flex flex-col">
+                <span className="text-slate-600 dark:text-slate-400 text-xs">
+                  Category
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  {product.category}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-slate-600 dark:text-slate-400 text-xs">
+                  Product ID
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  {product.product_id}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-slate-600 dark:text-slate-400 text-xs">
+                  Stock
+                </span>
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  {product.quantity_in_stock} units
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-slate-600 dark:text-slate-400 text-xs">
+                  Status
+                </span>
+                <Badge
+                  variant={product.quantity_in_stock > 0 ? "success" : "danger"}
+                  size="sm"
+                >
+                  {product.quantity_in_stock > 0 ? "In Stock" : "Out of Stock"}
+                </Badge>
+              </div>
+            </div>
           </div>
+        ),
+      },
+      {
+        id: "shipping",
+        label: "Shipping",
+        icon: <Truck className="w-4 h-4" />,
+        content: (
+          <div className="space-y-3">
+            <Alert variant="info">
+              <strong>Free shipping</strong> on orders over $50
+            </Alert>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-violet-600" />
+                <span className="text-slate-700 dark:text-slate-300">
+                  Standard delivery: 3-5 business days
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-violet-600" />
+                <span className="text-slate-700 dark:text-slate-300">
+                  Express delivery available at checkout
+                </span>
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: "returns",
+        label: "Returns",
+        icon: <RotateCcw className="w-4 h-4" />,
+        content: (
+          <div className="space-y-3">
+            <div className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-600" />
+                <span>30-day return policy</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <RotateCcw className="w-4 h-4 text-emerald-600" />
+                <span>Free returns on eligible items</span>
+              </div>
+              <p className="mt-3 pl-6">
+                Items must be unused and in original packaging. Return shipping
+                costs may apply.
+              </p>
+            </div>
+          </div>
+        ),
+      },
+    ];
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
-            {/* Product Image */}
-            <div className="space-y-4">
-              <div className="relative">
-                {product.image_url ? (
-                  <div
-                    className={`relative overflow-hidden rounded-2xl cursor-zoom-in bg-slate-50/30 ${
-                      imageZoomed ? "transform scale-150" : ""
-                    } transition-transform duration-300`}
-                    onClick={() => setImageZoomed(!imageZoomed)}
-                  >
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-64 sm:h-72 md:h-80 object-contain p-3"
-                    />
-                    <div className="absolute top-3 right-3 bg-white/90 dark:bg-slate-700/90 border border-slate-200 dark:border-slate-600 rounded-full p-2 shadow-sm">
+    return (
+      <Dialog
+        isOpen={isOpen}
+        onClose={onClose}
+        size="xl"
+        showCloseButton={true}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+          {/* Left Column - Product Image */}
+          <div className="space-y-3 sm:space-y-4">
+            <div className="relative group">
+              {product.image_url ? (
+                <div
+                  className={`relative overflow-hidden rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800 cursor-zoom-in transition-all touch-manipulation ${
+                    imageZoomed ? "transform scale-105" : ""
+                  }`}
+                  onClick={() => setImageZoomed(!imageZoomed)}
+                >
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-64 sm:h-80 md:h-96 object-contain p-4 sm:p-6"
+                  />
+                  <Tooltip content="Click to zoom" position="bottom">
+                    <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-700/90 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       <ZoomIn className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                     </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-64 sm:h-72 md:h-80 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center border border-slate-200">
-                    <Package className="w-16 h-16 text-slate-400" />
-                  </div>
-                )}
+                  </Tooltip>
+                </div>
+              ) : (
+                <div className="w-full h-96 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center">
+                  <Package className="w-20 h-20 text-slate-400" />
+                </div>
+              )}
 
-                {/* Featured Badge */}
+              {/* Badges */}
+              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1.5 sm:gap-2">
                 {product.featured && (
-                  <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
-                    <Star className="w-3 h-3 fill-current" />
-                    <span>FEATURED</span>
-                  </div>
+                  <Badge variant="warning" size="md" className="shadow-lg">
+                    <Star className="w-3 h-3 fill-current mr-1" />
+                    Featured
+                  </Badge>
                 )}
-              </div>
-
-              {/* Product Gallery Thumbnails */}
-              <div className="flex space-x-2">
-                {[1, 2, 3].map((index) => (
-                  <div
-                    key={index}
-                    className="w-16 h-16 bg-white dark:bg-slate-700 rounded-xl border-2 border-slate-200 dark:border-slate-600 hover:border-amber-400 cursor-pointer transition-colors"
-                  >
-                    <div className="w-full h-full bg-slate-50/30 dark:bg-slate-600/30 rounded-md"></div>
-                  </div>
-                ))}
+                {product.quantity_in_stock > 0 &&
+                  product.quantity_in_stock <= 5 && (
+                    <Badge variant="danger" size="sm">
+                      Only {product.quantity_in_stock} left
+                    </Badge>
+                  )}
               </div>
             </div>
 
-            {/* Product Details */}
-            <div className="space-y-6">
-              <div>
-                <span className="text-sm font-semibold text-amber-700 dark:text-amber-300 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/30 dark:to-amber-900/20 border border-amber-300 dark:border-amber-700 px-2 py-1 rounded-full">
-                  {product.category}
-                </span>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-2">
-                  {product.name}
-                </h1>
-
-                {/* Description */}
-                {product.description && (
-                  <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mb-4 bg-white dark:bg-slate-700 p-3 rounded-xl border-l-4 border-amber-500 dark:border-amber-600">
-                    {product.description}
-                  </p>
-                )}
-
-                {/* Rating */}
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    (4.8) • 142 reviews
-                  </span>
-                </div>
-              </div>
-
-              {/* Price */}
-              <div className="space-y-2">
-                <div className="flex items-baseline space-x-3">
-                  <span className="text-3xl font-black text-transparent bg-gradient-to-r from-amber-600 to-amber-700 bg-clip-text">
-                    KES {product.selling_price.toLocaleString()}
-                  </span>
-                  <span className="text-lg text-slate-500 dark:text-slate-400 line-through">
-                    KES {(product.selling_price * 1.2).toLocaleString()}
-                  </span>
-                  <span className="bg-red-50 border border-red-300 text-red-700 px-2 py-1 rounded-full text-sm font-bold">
-                    Save 20%
-                  </span>
-                </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Including all taxes • Free shipping over KES 2,000
-                </p>
-              </div>
-
-              {/* Stock Status */}
-              <div className="flex items-center space-x-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    product.quantity_in_stock > 10
-                      ? "bg-green-500"
-                      : product.quantity_in_stock > 0
-                      ? "bg-amber-500"
-                      : "bg-red-500"
+            {/* Action Icons - Larger touch targets for mobile */}
+            <div className="flex gap-2">
+              <Tooltip
+                content={isLiked ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <button
+                  onClick={toggleLike}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 sm:py-3 px-3 sm:px-4 rounded-xl font-medium transition-all min-h-[48px] touch-manipulation ${
+                    isLiked
+                      ? "bg-red-50 dark:bg-red-900/20 text-red-600 border-2 border-red-200 dark:border-red-800"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-800 active:bg-slate-200 dark:active:bg-slate-700"
                   }`}
-                ></div>
-                <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {product.quantity_in_stock > 10
-                    ? "In Stock"
-                    : product.quantity_in_stock > 0
-                    ? `Only ${product.quantity_in_stock} left`
-                    : "Out of Stock"}
+                >
+                  <Heart
+                    className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`}
+                  />
+                  <span className="text-sm font-semibold">Wishlist</span>
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Share product">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 sm:py-3 px-3 sm:px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 active:bg-violet-100 dark:active:bg-violet-900/30 transition-all font-medium border-2 border-slate-200 dark:border-slate-700 hover:border-violet-200 dark:hover:border-violet-800 min-h-[48px] touch-manipulation"
+                >
+                  <Share2 className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Share</span>
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* Right Column - Product Details */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Header */}
+            <div>
+              <Badge variant="purple" size="sm" className="mb-2 sm:mb-3">
+                {product.category}
+              </Badge>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2 leading-tight">
+                {product.name}
+              </h1>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className="w-4 h-4 fill-amber-400 text-amber-400"
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  4.8 (142 reviews)
                 </span>
               </div>
+            </div>
 
-              {/* Quantity Selector */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Quantity
-                </label>
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg">
+            {/* Price */}
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 sm:p-4 rounded-xl border border-amber-200 dark:border-amber-800">
+              <div className="flex items-baseline gap-2 sm:gap-3">
+                <span className="text-3xl sm:text-4xl font-bold text-amber-600 dark:text-amber-400">
+                  KES {product.selling_price.toLocaleString()}
+                </span>
+                {product.buying_price && (
+                  <>
+                    <span className="text-lg text-slate-500 line-through">
+                      KES {(product.selling_price * 1.3).toLocaleString()}
+                    </span>
+                    <Badge variant="danger" size="sm">
+                      Save 30%
+                    </Badge>
+                  </>
+                )}
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Tax included • Free shipping over KES 2,000
+              </p>
+            </div>
+
+            {/* Stock Status */}
+            {product.quantity_in_stock > 0 ? (
+              <Alert variant="success">
+                <div className="flex items-center justify-between">
+                  <span>
+                    <strong>In Stock</strong> - {product.quantity_in_stock}{" "}
+                    units available
+                  </span>
+                </div>
+              </Alert>
+            ) : (
+              <Alert variant="error">
+                <strong>Out of Stock</strong> - Get notified when available
+              </Alert>
+            )}
+
+            {/* Quantity Selector - Larger for mobile */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                Quantity
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl">
+                  <Tooltip content="Decrease">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="p-2 hover:bg-amber-50 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-slate-300"
+                      className="p-3 sm:p-3 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 dark:active:bg-slate-600 transition-colors min-w-[48px] min-h-[48px] touch-manipulation"
                     >
-                      -
+                      <Minus className="w-5 h-5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-300" />
                     </button>
-                    <span className="px-4 py-2 font-medium text-slate-900 dark:text-white">
-                      {quantity}
-                    </span>
+                  </Tooltip>
+                  <span className="px-4 sm:px-6 py-2 font-bold text-xl sm:text-lg text-slate-900 dark:text-white min-w-[60px] text-center">
+                    {quantity}
+                  </span>
+                  <Tooltip content="Increase">
                     <button
                       onClick={() =>
                         setQuantity(
-                          Math.min(product.quantity_in_stock, quantity + 1)
+                          Math.min(product.quantity_in_stock, quantity + 1),
                         )
                       }
-                      className="p-2 hover:bg-amber-50 dark:hover:bg-slate-600 transition-colors text-slate-700 dark:text-slate-300"
+                      disabled={quantity >= product.quantity_in_stock}
+                      className="p-3 sm:p-3 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 dark:active:bg-slate-600 transition-colors disabled:opacity-50 min-w-[48px] min-h-[48px] touch-manipulation"
                     >
-                      +
+                      <Plus className="w-5 h-5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-300" />
                     </button>
-                  </div>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    {product.quantity_in_stock} available
-                  </span>
+                  </Tooltip>
                 </div>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  Max: {product.quantity_in_stock}
+                </span>
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.quantity_in_stock === 0}
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-6 rounded-2xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg shadow-amber-300"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span>
-                    Add to Cart • KES{" "}
-                    {(product.selling_price * quantity).toLocaleString()}
-                  </span>
-                </button>
+            {/* Add to Cart Button - Larger for mobile */}
+            <Button
+              onClick={handleAddToCart}
+              disabled={product.quantity_in_stock === 0}
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="!py-4 !text-base sm:!text-lg !min-h-[56px] touch-manipulation font-bold"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              Add to Cart • KES{" "}
+              {(product.selling_price * quantity).toLocaleString()}
+            </Button>
 
-                <div className="flex space-x-3">
-                  <button
-                    onClick={toggleLike}
-                    className={`flex-1 py-3 px-4 rounded-2xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
-                      isLiked
-                        ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-2 border-red-300 dark:border-red-700"
-                        : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-700 dark:hover:text-red-300 hover:border-red-300 dark:hover:border-red-700"
-                    }`}
-                  >
-                    <Heart
-                      className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`}
-                    />
-                    <span>{isLiked ? "Loved" : "Add to Wishlist"}</span>
-                  </button>
-
-                  <button
-                    onClick={handleShare}
-                    className="flex-1 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 py-3 px-4 rounded-2xl hover:bg-amber-50 dark:hover:bg-slate-600 transition-all duration-300 font-medium flex items-center justify-center space-x-2 border-2 border-slate-200 dark:border-slate-600 hover:border-amber-300 dark:hover:border-amber-600"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>Share</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-600">
-                <h3 className="font-bold text-slate-900 dark:text-white">
-                  Product Details
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Category:
-                    </span>
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      {product.category}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Product ID:
-                    </span>
-                    <span className="font-medium text-slate-900 dark:text-white">
-                      {product.product_id}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Availability:
-                    </span>
-                    <span className="font-medium text-green-600 dark:text-green-400">
-                      In Stock
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Tabs for Additional Info - Better spacing on mobile */}
+            <div className="pt-2 sm:pt-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                variant="underline"
+              />
             </div>
           </div>
         </div>
-      </div>
+      </Dialog>
     );
-  }
+  },
 );
 
 ProductQuickView.displayName = "ProductQuickView";

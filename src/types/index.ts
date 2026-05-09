@@ -63,28 +63,45 @@ export interface Customer {
 
 export interface Order {
   id: string;
-  customer_id?: string;
+  customer_id?: string | null;
   order_number: string;
   customer_name: string;
-  customer_email?: string;
+  customer_email?: string | null;
   customer_phone: string;
   delivery_address: string;
   delivery_fee: number;
   subtotal: number;
   total_amount: number;
-  status:
-    | "pending"
-    | "confirmed"
-    | "processing"
-    | "shipped"
-    | "delivered"
-    | "cancelled";
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   payment_method: "cash" | "mpesa" | "card" | "bank_transfer";
   payment_status: "pending" | "paid" | "failed" | "refunded";
-  notes?: string;
+  payment_reference?: string | null;
+  payment_channel?: string | null;
+  payment_phone?: string | null;
+  payment_amount?: number | null;
+  payment_receipt_code?: string | null;
+  payment_proof_url?: string | null;
+  payment_submitted_at?: string | null;
+  payment_verified_at?: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];
+}
+
+export type OrderStatus = Order["status"];
+
+export interface OrderHistoryEntry {
+  id: string;
+  order_id: string;
+  status: OrderStatus;
+  title: string;
+  note?: string | null;
+  actor_name?: string | null;
+  actor_email?: string | null;
+  visible_to_customer: boolean;
+  created_at: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface OrderItem {

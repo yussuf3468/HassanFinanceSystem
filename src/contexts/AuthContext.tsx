@@ -1,6 +1,13 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import {
+  getAuthSession,
+  onAuthStateChange,
+  signInWithPassword,
+  signOutUser,
+  signUpWithPassword,
+} from "../api";
 
 interface AuthContextType {
   user: User | null;
@@ -32,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const {
           data: { session },
           error,
-        } = await supabase.auth.getSession();
+        } = await getAuthSession();
 
         clearTimeout(timeoutId);
 
@@ -58,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const setupAuthListener = () => {
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (_, session) => {
+      } = onAuthStateChange(async (_, session) => {
         if (!mounted) return;
 
         try {
@@ -86,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOutUser();
     } catch (error) {
       console.error("Error signing out:", error);
       throw error;
@@ -95,12 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
+      await signInWithPassword(email, password);
 
       // Profiles last_login update skipped in this build
     } catch (error) {
@@ -111,17 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (error) throw error;
+      await signUpWithPassword(email, password, fullName);
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;

@@ -1,6 +1,17 @@
 import { useState, useCallback, memo } from "react";
 import { MapPin, Truck, Calculator, Clock } from "lucide-react";
 
+const DELIVERY_LOCATIONS = [
+  { name: "Nairobi CBD", fee: 200, time: "1-2 hours" },
+  { name: "Westlands", fee: 250, time: "2-3 hours" },
+  { name: "Karen", fee: 300, time: "2-4 hours" },
+  { name: "Kasarani", fee: 350, time: "3-4 hours" },
+  { name: "Kiambu", fee: 400, time: "4-5 hours" },
+  { name: "Thika", fee: 500, time: "5-6 hours" },
+  { name: "Machakos", fee: 600, time: "6-8 hours" },
+  { name: "Other Nairobi Areas", fee: 300, time: "2-4 hours" },
+];
+
 interface DeliveryCalculatorProps {
   cartTotal: number;
   onDeliveryChange: (fee: number) => void;
@@ -12,20 +23,9 @@ const DeliveryCalculator = memo(
     const [deliveryFee, setDeliveryFee] = useState(0);
     const [estimatedTime, setEstimatedTime] = useState("");
 
-    const locations = [
-      { name: "Nairobi CBD", fee: 200, time: "1-2 hours" },
-      { name: "Westlands", fee: 250, time: "2-3 hours" },
-      { name: "Karen", fee: 300, time: "2-4 hours" },
-      { name: "Kasarani", fee: 350, time: "3-4 hours" },
-      { name: "Kiambu", fee: 400, time: "4-5 hours" },
-      { name: "Thika", fee: 500, time: "5-6 hours" },
-      { name: "Machakos", fee: 600, time: "6-8 hours" },
-      { name: "Other Nairobi Areas", fee: 300, time: "2-4 hours" },
-    ];
-
     const calculateDelivery = useCallback(
       (location: string) => {
-        const selected = locations.find((loc) => loc.name === location);
+        const selected = DELIVERY_LOCATIONS.find((loc) => loc.name === location);
         if (!selected) return;
 
         let finalFee = selected.fee;
@@ -40,7 +40,7 @@ const DeliveryCalculator = memo(
         setEstimatedTime(selected.time);
         onDeliveryChange(finalFee);
       },
-      [cartTotal, onDeliveryChange]
+      [cartTotal, onDeliveryChange],
     );
 
     return (
@@ -64,7 +64,7 @@ const DeliveryCalculator = memo(
               className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Choose location...</option>
-              {locations.map((location) => (
+              {DELIVERY_LOCATIONS.map((location) => (
                 <option key={location.name} value={location.name}>
                   {location.name} - KES {location.fee}
                 </option>

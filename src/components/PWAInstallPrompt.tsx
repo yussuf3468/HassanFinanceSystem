@@ -16,7 +16,7 @@ export default function PWAInstallPrompt() {
     // Check if user has dismissed the prompt before
     const dismissedIOS = localStorage.getItem("pwa-ios-prompt-dismissed");
     const dismissedAndroid = localStorage.getItem(
-      "pwa-android-prompt-dismissed"
+      "pwa-android-prompt-dismissed",
     );
     const lastDismissedTime = localStorage.getItem("pwa-prompt-dismissed-time");
 
@@ -69,7 +69,7 @@ export default function PWAInstallPrompt() {
     return () => {
       window.removeEventListener(
         "beforeinstallprompt",
-        handleBeforeInstallPrompt
+        handleBeforeInstallPrompt,
       );
     };
   }, []);
@@ -112,7 +112,7 @@ export default function PWAInstallPrompt() {
   if (showIOSPrompt) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[100] animate-slideUp">
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 shadow-2xl border-t-4 border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 shadow-2xl border-t-4 border-amber-300/70">
           <div className="max-w-screen-xl mx-auto flex items-start gap-4">
             {/* Icon */}
             <div className="flex-shrink-0 bg-white/20 p-3 rounded-xl">
@@ -130,7 +130,7 @@ export default function PWAInstallPrompt() {
               </p>
 
               {/* Instructions */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 mb-3 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 mb-3 border border-amber-300/70 shadow-sm">
                 <div className="flex items-center gap-2 text-sm">
                   <span className="font-semibold">1.</span>
                   <span>Tap the</span>
@@ -171,7 +171,7 @@ export default function PWAInstallPrompt() {
   if (showAndroidPrompt && deferredPrompt) {
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[100] animate-slideUp">
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-emerald-400/30 p-4 shadow-2xl border-t-4 border-amber-300/70 shadow-amber-100/50/60 shadow-sm">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-emerald-400/30 p-4 shadow-2xl border-t-4 border-amber-300/70">
           <div className="max-w-screen-xl mx-auto flex items-start gap-4">
             {/* Icon */}
             <div className="flex-shrink-0 bg-white/20 p-3 rounded-xl">
@@ -180,9 +180,7 @@ export default function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg mb-1">
-                Install Hassan Bookshop App
-              </h3>
+              <h3 className="font-bold text-lg mb-1">Install Horumar App</h3>
               <p className="text-sm text-green-100 mb-3">
                 Install our app for quick access, offline support, and a better
                 experience!

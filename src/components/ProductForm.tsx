@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { X, Upload } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
+import {
+  uploadProductImage,
+  createProduct,
+  updateProduct,
+} from "../api/productsApi";
 import type { Product } from "../types";
 import { invalidateProductCaches } from "../utils/cacheInvalidation";
 
@@ -86,24 +90,7 @@ export default function ProductForm({
   async function uploadImage(file: File): Promise<string | null> {
     try {
       setUploading(true);
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2)}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(fileName, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data } = supabase.storage
-        .from("product-images")
-        .getPublicUrl(fileName);
-
-      return data.publicUrl;
+      return await uploadProductImage(file);
     } catch (error) {
       console.error("Error uploading image:", error);
       alert("Failed to upload image");
@@ -141,14 +128,9 @@ export default function ProductForm({
       };
 
       if (product) {
-        const { error } = await supabase
-          .from("products")
-          .update(data)
-          .eq("id", product.id);
-        if (error) throw error;
+        await updateProduct(product.id, data);
       } else {
-        const { error } = await supabase.from("products").insert(data);
-        if (error) throw error;
+        await createProduct(data);
       }
 
       // ✅ Invalidate product caches to update inventory lists

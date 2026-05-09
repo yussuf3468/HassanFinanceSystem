@@ -1,4 +1,4 @@
-# Hassan Bookshop - Robots.txt
+# Hassan Bookshop by Horumar - Robots.txt
 User-agent: *
 Allow: /
 Allow: /shop
@@ -11,7 +11,7 @@ Disallow: /api/
 Disallow: /private/
 
 # Sitemap
-Sitemap: https://hassan.lenzro.com/sitemap.xml
+Sitemap: https://hassan.horumarin.com/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

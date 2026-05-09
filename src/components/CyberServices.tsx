@@ -12,7 +12,12 @@ import {
   Wifi,
   Download,
 } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import {
+  getCyberServices,
+  createCyberService,
+  updateCyberService,
+  deleteCyberService,
+} from "../api/cyberServicesApi";
 import ModalPortal from "./ModalPortal";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
@@ -93,14 +98,7 @@ export default function CyberServices() {
   async function loadServices() {
     try {
       setLoading(true);
-
-      const { data, error } = await supabase
-        .from("cyber_services" as any)
-        .select("*")
-        .order("date", { ascending: false });
-
-      if (error) throw error;
-
+      const data = await getCyberServices();
       setServices((data as unknown as CyberService[]) || []);
     } catch (error) {
       console.error("Error loading cyber services:", error);
@@ -114,30 +112,19 @@ export default function CyberServices() {
 
     try {
       if (editingService) {
-        // Update existing service
-        const { error } = await supabase
-          .from("cyber_services" as any)
-          .update({
-            service_name: formData.service_name,
-            amount: formData.amount,
-            date: formData.date,
-            notes: formData.notes,
-          })
-          .eq("id", editingService.id);
-
-        if (error) throw error;
+        await updateCyberService(editingService.id, {
+          service_name: formData.service_name,
+          amount: formData.amount,
+          date: formData.date,
+          notes: formData.notes,
+        });
       } else {
-        // Create new service
-        const { error } = await supabase.from("cyber_services" as any).insert([
-          {
-            service_name: formData.service_name,
-            amount: formData.amount,
-            date: formData.date,
-            notes: formData.notes,
-          },
-        ]);
-
-        if (error) throw error;
+        await createCyberService({
+          service_name: formData.service_name,
+          amount: formData.amount,
+          date: formData.date,
+          notes: formData.notes,
+        });
       }
 
       await loadServices();
@@ -152,12 +139,7 @@ export default function CyberServices() {
     if (!confirm("Are you sure you want to delete this service entry?")) return;
 
     try {
-      const { error } = await supabase
-        .from("cyber_services" as any)
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await deleteCyberService(id);
 
       await loadServices();
     } catch (error) {

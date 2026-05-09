@@ -20,7 +20,14 @@ import {
   useCustomerCredits,
   useCreditPayments,
 } from "../hooks/useSupabaseQuery";
-import { supabase } from "../lib/supabase";
+import {
+  addCreditPayment,
+  checkCustomerCreditTables,
+  createCustomerCredit,
+  deleteCustomerCreditWithPayments,
+  updateCustomerCredit,
+  updateCustomerCreditStatus,
+} from "../api";
 import ModalPortal from "./ModalPortal.tsx";
 import { formatDate, getCurrentDateForInput } from "../utils/dateFormatter";
 
@@ -147,14 +154,7 @@ export default function CustomerCredit() {
 
   async function createTableIfNotExist() {
     try {
-      await supabase
-        .from("customer_credits" as any)
-        .select("id")
-        .limit(1);
-      await supabase
-        .from("credit_payments" as any)
-        .select("id")
-        .limit(1);
+      await checkCustomerCreditTables();
     } catch (error) {
       console.log(
         "Customer credit tables need to be created. Please run database migrations."
@@ -177,17 +177,9 @@ export default function CustomerCredit() {
       };
 
       if (editingCredit) {
-        const { error } = await supabase
-          .from("customer_credits" as any)
-          .update(payload)
-          .eq("id", editingCredit.id);
-
-        if (error) throw error;
+        await updateCustomerCredit(editingCredit.id, payload);
       } else {
-        const { error } = await supabase
-          .from("customer_credits" as any)
-          .insert([payload]);
-        if (error) throw error;
+        await createCustomerCredit(payload);
       }
 
       setShowCreditForm(false);
@@ -206,19 +198,13 @@ export default function CustomerCredit() {
     e.preventDefault();
 
     try {
-      const { error: paymentError } = await supabase
-        .from("credit_payments" as any)
-        .insert([
-          {
-            credit_id: paymentForm.credit_id,
-            payment_amount: paymentForm.payment_amount,
-            payment_date: paymentForm.payment_date,
-            payment_method: paymentForm.payment_method,
-            notes: paymentForm.notes || null,
-          },
-        ]);
-
-      if (paymentError) throw paymentError;
+      await addCreditPayment({
+        credit_id: paymentForm.credit_id,
+        payment_amount: paymentForm.payment_amount,
+        payment_date: paymentForm.payment_date,
+        payment_method: paymentForm.payment_method,
+        notes: paymentForm.notes || null,
+      });
 
       // Update credit status
       const credit = credits.find((c: any) => c.id === paymentForm.credit_id);
@@ -234,12 +220,7 @@ export default function CustomerCredit() {
             ? "partial"
             : "active";
 
-        const { error: updateError } = await supabase
-          .from("customer_credits" as any)
-          .update({ status: newStatus } as any)
-          .eq("id", paymentForm.credit_id);
-
-        if (updateError) throw updateError;
+        await updateCustomerCreditStatus(paymentForm.credit_id, newStatus);
       }
 
       setShowPaymentForm(false);
@@ -264,18 +245,7 @@ export default function CustomerCredit() {
     }
 
     try {
-      // Delete associated payments first
-      await supabase
-        .from("credit_payments" as any)
-        .delete()
-        .eq("credit_id", id);
-
-      // Then delete the credit
-      const { error } = await supabase
-        .from("customer_credits" as any)
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
+      await deleteCustomerCreditWithPayments(id);
 
       // Invalidate cache to refetch data
       queryClient.invalidateQueries({ queryKey: ["customer-credits"] });
