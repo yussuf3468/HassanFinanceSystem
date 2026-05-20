@@ -1,5 +1,23 @@
-import { useEffect, useState, useMemo } from "react";
-import { Banknote, TrendingUp, Package, Receipt } from "lucide-react";
+import { useMemo } from "react";
+import {
+  Banknote,
+  TrendingUp,
+  Package,
+  ShoppingCart,
+  AlertTriangle,
+  ArrowUpRight,
+  Receipt,
+  Boxes,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   useProducts,
   useRecentSales,
@@ -9,446 +27,664 @@ import type { Product, Sale } from "../types";
 import { formatDate } from "../utils/dateFormatter";
 import OptimizedImage from "./OptimizedImage";
 
-interface DashboardStats {
-  totalSales: number;
-  totalProfit: number;
-  lowStockCount: number;
-  totalProducts: number;
-  dailySales: number;
-  dailyProfit: number;
-  yearSales: number;
-  yearProfit: number;
-}
-
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-KE", {
     style: "currency",
     currency: "KES",
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
-export default function Dashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalSales: 0,
-    totalProfit: 0,
-    lowStockCount: 0,
-    totalProducts: 0,
-    dailySales: 0,
-    dailyProfit: 0,
-    yearSales: 0,
-    yearProfit: 0,
-  });
-  const [topProducts, setTopProducts] = useState<
-    Array<{ product: Product; total: number }>
-  >([]);
-  const [recentSales, setRecentSales] = useState<Sale[]>([]);
+function formatCompactCurrency(value: number) {
+  if (value >= 1_000_000) return `KES ${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `KES ${(value / 1_000).toFixed(1)}K`;
+  return `KES ${value}`;
+}
 
-  // ✅ Use accurate totals from database aggregation + recent sales for list/top products
+function startOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function startOfWeek(d: Date) {
+  const r = startOfDay(d);
+  r.setDate(r.getDate() - r.getDay());
+  return r;
+}
+function startOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+export default function Dashboard() {
   const { data: products = [], isLoading: productsLoading } = useProducts();
-  const { data: sales = [], isLoading: salesLoading } = useRecentSales(500); // Last 500 for top products
-  const { data: salesTotals, isLoading: totalsLoading } = useSalesTotals(); // Accurate totals
+  const { data: recentSales = [], isLoading: salesLoading } =
+    useRecentSales(500);
+  const { data: salesTotals, isLoading: totalsLoading } = useSalesTotals();
 
   const loading = productsLoading || salesLoading || totalsLoading;
 
-  // Memoize expensive calculations
-  const dashboardData = useMemo(() => {
-    if (products.length === 0 || sales.length === 0 || !salesTotals)
-      return null;
-    return calculateDashboardData(sales, products, salesTotals);
-  }, [products, sales, salesTotals]);
+  const view = useMemo(() => {
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const weekStart = startOfWeek(now);
+    const monthStart = startOfMonth(now);
 
-  useEffect(() => {
-    if (dashboardData) {
-      setStats(dashboardData.stats);
-      setTopProducts(dashboardData.topProducts);
-      setRecentSales(dashboardData.recentSales);
+    // Period totals from recent sales (for week/month). All-time + today come from RPC.
+    let weekSales = 0,
+      weekProfit = 0,
+      monthSales = 0,
+      monthProfit = 0;
+    const todaysTxnIds = new Set<string>();
+    const todaysSales: Sale[] = [];
+
+    for (const s of recentSales) {
+      const ts = new Date(s.created_at).getTime();
+      if (ts >= weekStart.getTime()) {
+        weekSales += s.total_sale || 0;
+        weekProfit += s.profit || 0;
+      }
+      if (ts >= monthStart.getTime()) {
+        monthSales += s.total_sale || 0;
+        monthProfit += s.profit || 0;
+      }
+      if (ts >= todayStart.getTime()) {
+        todaysSales.push(s);
+        const anyTxn = (s as any).transaction_id;
+        if (anyTxn) todaysTxnIds.add(String(anyTxn));
+      }
     }
-  }, [dashboardData]);
 
-  function calculateDashboardData(
-    sales: Sale[],
-    products: Product[],
-    salesTotals: {
-      total_sales: number;
-      total_profit: number;
-      today_sales: number;
-      today_profit: number;
-      year_sales: number;
-      year_profit: number;
-    },
-  ) {
-    try {
-      // Use all-time totals from database (not fiscal year)
-      const totalSales = salesTotals.total_sales; // All-time total sales
-      const totalProfit = salesTotals.total_profit; // All-time total profit
-      const dailySales = salesTotals.today_sales;
-      const dailyProfit = salesTotals.today_profit;
+    // Today's metrics
+    const todayRevenue = salesTotals?.today_sales ?? 0;
+    const todayProfit = salesTotals?.today_profit ?? 0;
+    const todayCount = todaysTxnIds.size || todaysSales.length;
+    const avgTicket = todayCount > 0 ? todayRevenue / todayCount : 0;
 
-      const lowStockCount = products.filter(
-        (p) => p.quantity_in_stock <= p.reorder_level,
-      ).length;
-
-      const stats = {
-        totalSales,
-        totalProfit,
-        lowStockCount,
-        totalProducts: products.length,
-        dailySales,
-        dailyProfit,
-        yearSales: salesTotals.year_sales,
-        yearProfit: salesTotals.year_profit,
+    // Top products from last 500 sales
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const productAgg = new Map<
+      string,
+      { revenue: number; qty: number; profit: number }
+    >();
+    for (const s of recentSales) {
+      const a = productAgg.get(s.product_id) || {
+        revenue: 0,
+        qty: 0,
+        profit: 0,
       };
+      a.revenue += s.total_sale || 0;
+      a.qty += s.quantity_sold || 0;
+      a.profit += s.profit || 0;
+      productAgg.set(s.product_id, a);
+    }
+    const topProducts = Array.from(productAgg.entries())
+      .map(([pid, agg]) => ({
+        product: productMap.get(pid),
+        ...agg,
+      }))
+      .filter((x): x is { product: Product; revenue: number; qty: number; profit: number } => !!x.product)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
 
-      // Use Map for O(1) lookups instead of Array.find
-      const productMap = new Map(products.map((p) => [p.id, p]));
-      const productSales = new Map<string, number>();
-
-      sales.forEach((sale) => {
-        const current = productSales.get(sale.product_id) || 0;
-        productSales.set(sale.product_id, current + (sale.total_sale || 0));
+    // Daily series for last 7 days (chart)
+    const daySeries: Array<{
+      day: string;
+      label: string;
+      revenue: number;
+      profit: number;
+    }> = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(todayStart);
+      d.setDate(d.getDate() - i);
+      const nextDay = new Date(d);
+      nextDay.setDate(d.getDate() + 1);
+      let rev = 0,
+        pft = 0;
+      for (const s of recentSales) {
+        const ts = new Date(s.created_at).getTime();
+        if (ts >= d.getTime() && ts < nextDay.getTime()) {
+          rev += s.total_sale || 0;
+          pft += s.profit || 0;
+        }
+      }
+      daySeries.push({
+        day: d.toISOString().slice(0, 10),
+        label: d.toLocaleDateString("en-KE", { weekday: "short" }),
+        revenue: rev,
+        profit: pft,
       });
-
-      const topProducts = Array.from(productSales.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([productId, total]) => ({
-          product: productMap.get(productId)!,
-          total,
-        }))
-        .filter((item) => item.product);
-
-      const recentSales = sales.slice(0, 5); // Already sorted by date DESC
-
-      return { stats, topProducts, recentSales };
-    } catch (error) {
-      console.error("Error calculating dashboard:", error);
-      // Return empty state on error
-      return {
-        stats: {
-          totalSales: 0,
-          totalProfit: 0,
-          lowStockCount: 0,
-          totalProducts: 0,
-          dailySales: 0,
-          dailyProfit: 0,
-          yearSales: 0,
-          yearProfit: 0,
-        },
-        topProducts: [],
-        recentSales: [],
-      };
     }
-  }
+
+    // Low stock list
+    const lowStock = products
+      .filter((p) => p.quantity_in_stock <= (p.reorder_level || 5))
+      .sort((a, b) => a.quantity_in_stock - b.quantity_in_stock)
+      .slice(0, 6);
+
+    const totalStock = products.reduce(
+      (sum, p) => sum + (p.quantity_in_stock || 0),
+      0,
+    );
+
+    return {
+      now,
+      todayRevenue,
+      todayProfit,
+      todayCount,
+      avgTicket,
+      weekSales,
+      weekProfit,
+      monthSales,
+      monthProfit,
+      allTimeSales: salesTotals?.total_sales ?? 0,
+      allTimeProfit: salesTotals?.total_profit ?? 0,
+      topProducts,
+      recentSales: recentSales.slice(0, 8),
+      daySeries,
+      lowStock,
+      totalStock,
+      totalProducts: products.length,
+    };
+  }, [recentSales, products, salesTotals]);
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-slate-900 dark:text-white">
-        Loading dashboard...
+      <div className="space-y-4">
+        <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-24 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
       </div>
     );
   }
 
+  const today = view.now.toLocaleDateString("en-KE", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
-    <div className="space-y-4 md:space-y-6 animate-fadeIn">
-      {/* Hero Section - Premium */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-white via-amber-50/30 to-white dark:from-slate-800 dark:via-slate-800/50 dark:to-slate-900 backdrop-blur-2xl border border-amber-300/70 dark:border-slate-700 rounded-3xl p-4 md:p-6 shadow-2xl shadow-amber-500/10 dark:shadow-slate-900/50 transition-colors duration-200">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-100/20 to-stone-100/20 dark:from-slate-700/20 dark:to-slate-900/20"></div>
-        <div className="relative">
-          <div className="text-center space-y-2">
-            <div className="inline-block">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-purple-600">
-                HORUMAR
-              </h1>
-            </div>
-            <p className="text-xs md:text-sm text-slate-700 dark:text-slate-300 font-medium max-w-3xl mx-auto">
-              ✨ Ku soo dhowow Dashboard-ka HORUMAR — Halka aad ku maamusho
-              alaabta, iibka, iyo shaqaalaha. La soco xogta waqtiga-dhabta ah si
-              aad ganacsigaaga hore ugu waddo!
-            </p>
-
-            <div className="flex items-center justify-center space-x-2 text-emerald-400 dark:text-emerald-500">
-              <div className="w-2 h-2 bg-emerald-400 dark:bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-semibold">Live System Active</span>
-            </div>
-          </div>
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            {today}
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-0.5">
+            Overview
+          </h1>
         </div>
       </div>
 
-      {/* Stats Grid - Premium with High Contrast */}
-      <div>
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-1 h-6 bg-gradient-to-b from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 rounded-full"></div>
-          <h2 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white">
-            Business Overview
+      {/* ============ TODAY METRICS ============ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <MetricCard
+          label="Today's revenue"
+          value={formatCurrency(view.todayRevenue)}
+          icon={Banknote}
+          accent="emerald"
+        />
+        <MetricCard
+          label="Today's profit"
+          value={formatCurrency(view.todayProfit)}
+          icon={TrendingUp}
+          accent="sky"
+        />
+        <MetricCard
+          label="Transactions"
+          value={String(view.todayCount)}
+          subvalue={
+            view.avgTicket > 0
+              ? `Avg ${formatCurrency(view.avgTicket)}`
+              : undefined
+          }
+          icon={ShoppingCart}
+          accent="indigo"
+        />
+        <MetricCard
+          label="Items in stock"
+          value={view.totalStock.toLocaleString()}
+          subvalue={`${view.totalProducts} products`}
+          icon={Boxes}
+          accent="amber"
+        />
+      </div>
+
+      {/* ============ CHART + PERIOD TOTALS ============ */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
+        {/* Chart */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              Last 7 days
+            </h2>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+              Revenue · Profit
+            </span>
+          </div>
+          <div className="h-56 -ml-3 -mr-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={view.daySeries}
+                margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#059669" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#059669" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="currentColor"
+                  className="text-slate-200 dark:text-slate-800"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "currentColor" }}
+                  className="text-slate-500 dark:text-slate-400"
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "currentColor" }}
+                  className="text-slate-500 dark:text-slate-400"
+                  tickFormatter={(v) => formatCompactCurrency(v).replace("KES ", "")}
+                  width={45}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "rgb(15 23 42)",
+                    border: "1px solid rgb(51 65 85)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  itemStyle={{ color: "#fff" }}
+                  labelStyle={{ color: "#cbd5e1", fontWeight: 600 }}
+                  formatter={(v: any, name: any) => [
+                    formatCurrency(Number(v)),
+                    name === "revenue" ? "Revenue" : "Profit",
+                  ]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#059669"
+                  strokeWidth={2.2}
+                  fill="url(#revGradient)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  stroke="#0ea5e9"
+                  strokeWidth={2.2}
+                  fill="url(#profitGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Period totals */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-3">
+            Period totals
           </h2>
-        </div>
-
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <div
-            className="group animate-slideInLeft"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <StatCard
-              title="Iibka Guud - Total Sales"
-              value={formatCurrency(stats.totalSales)}
-              icon={Banknote}
-              color="blue"
+          <div className="space-y-3">
+            <PeriodRow
+              label="Today"
+              revenue={view.todayRevenue}
+              profit={view.todayProfit}
             />
-          </div>
-          <div
-            className="group animate-slideInLeft"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <StatCard
-              title="Faa'iidada - Total Profit"
-              value={formatCurrency(stats.totalProfit)}
-              icon={TrendingUp}
-              color="green"
+            <PeriodRow
+              label="This week"
+              revenue={view.weekSales}
+              profit={view.weekProfit}
             />
-          </div>
-          <div
-            className="group animate-slideInLeft"
-            style={{ animationDelay: "0.4s" }}
-          >
-            <StatCard
-              title="Iibka Maanta - Today's Sales"
-              value={formatCurrency(stats.dailySales)}
-              icon={TrendingUp}
-              color="orange"
-              subtitle={`Profit: ${formatCurrency(stats.dailyProfit)}`}
+            <PeriodRow
+              label="This month"
+              revenue={view.monthSales}
+              profit={view.monthProfit}
             />
-          </div>
-          <div
-            className="group animate-slideInLeft"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <StatCard
-              title="Alaabta Guud - Total Products"
-              value={stats.totalProducts.toString()}
-              icon={Package}
-              color="purple"
-            />
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+              <PeriodRow
+                label="All time"
+                revenue={view.allTimeSales}
+                profit={view.allTimeProfit}
+                emphasis
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Content Grid - Ultra Premium Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-        {/* Top Products Card - Golden Premium */}
-        <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-900 backdrop-blur-xl border-2 border-amber-200/60 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-2xl shadow-amber-500/10 dark:shadow-slate-900/50 hover:shadow-2xl hover:shadow-amber-400/20 dark:hover:shadow-amber-500/10 hover:border-amber-300/70 dark:hover:border-amber-500/30 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-          {/* Premium shine effect */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 dark:via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-          <div className="relative flex items-center space-x-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 rounded-2xl shadow-xl shadow-amber-400/30 dark:shadow-amber-600/30">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
-              🏆 Top Products
-            </h3>
-          </div>
-          <div className="relative space-y-3">
-            {topProducts.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-700 dark:to-slate-800 rounded-full flex items-center justify-center border-2 border-amber-300/70 dark:border-slate-600 shadow-amber-100/50 shadow-lg">
-                  <Package className="w-6 h-6 text-amber-700 dark:text-amber-500" />
-                </div>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  No sales data yet
-                </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                  Start making sales to see analytics here
-                </p>
-              </div>
-            ) : (
-              topProducts.map((item, index) => (
-                <div
-                  key={item.product.id}
-                  className="group/item bg-gradient-to-br from-amber-50/40 to-white dark:from-slate-700/40 dark:to-slate-800/60 hover:from-amber-100/50 hover:to-amber-50/30 dark:hover:from-slate-600/50 dark:hover:to-slate-700/70 backdrop-blur-sm border border-amber-200/60 dark:border-slate-600 shadow-sm hover:border-amber-300/70 dark:hover:border-slate-500 hover:shadow-md hover:shadow-amber-200/30 dark:hover:shadow-slate-900/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
+      {/* ============ THREE COLUMNS: TOP / RECENT / LOW STOCK ============ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Top products */}
+        <Panel
+          title="Top selling products"
+          subtitle={`Based on last ${recentSales.length} sales`}
+          icon={TrendingUp}
+        >
+          {view.topProducts.length === 0 ? (
+            <EmptyState
+              icon={Package}
+              title="No sales yet"
+              hint="Top products will appear here once you record sales."
+            />
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+              {view.topProducts.map((p, idx) => (
+                <li
+                  key={p.product.id}
+                  className="py-2.5 flex items-center gap-3"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-lg transition-transform group-hover/item:scale-110 ${
-                        index === 0
-                          ? "bg-gradient-to-br from-yellow-400 to-orange-600 shadow-yellow-400/50"
-                          : index === 1
-                          ? "bg-gradient-to-br from-slate-400 to-slate-600 shadow-slate-400/50"
-                          : index === 2
-                          ? "bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-400/50"
-                          : "bg-gradient-to-br from-amber-500 to-amber-600 shadow-amber-400/50"
-                      }`}
-                    >
-                      {index === 0
-                        ? "🥇"
-                        : index === 1
-                        ? "🥈"
-                        : index === 2
-                        ? "🥉"
-                        : index + 1}
+                  <span
+                    className={`w-6 h-6 rounded-md text-[11px] font-black flex items-center justify-center flex-shrink-0 ${
+                      idx === 0
+                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                    }`}
+                  >
+                    {idx + 1}
+                  </span>
+                  {p.product.image_url ? (
+                    <OptimizedImage
+                      src={p.product.image_url}
+                      alt={p.product.name}
+                      className="w-9 h-9 object-cover rounded-md border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                      preset="thumbnail"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-4 h-4 text-slate-400" />
                     </div>
-                    {item.product.image_url && (
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                      {p.product.name}
+                    </p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {p.qty} sold
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {formatCurrency(p.revenue)}
+                    </p>
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      +{formatCurrency(p.profit)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+
+        {/* Recent sales */}
+        <Panel
+          title="Recent sales"
+          subtitle="Latest transactions"
+          icon={Receipt}
+        >
+          {view.recentSales.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title="No sales recorded"
+              hint="Recent transactions will show here."
+            />
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+              {view.recentSales.map((s) => {
+                const product = products.find((p) => p.id === s.product_id);
+                return (
+                  <li
+                    key={s.id}
+                    className="py-2.5 flex items-center gap-3"
+                  >
+                    <div className="w-9 h-9 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <Receipt className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                        {product?.name || "Product"}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        {s.sold_by} · {formatDate(s.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {formatCurrency(s.total_sale)}
+                      </p>
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                        +{formatCurrency(s.profit)}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
+
+        {/* Low stock */}
+        <Panel
+          title="Low stock"
+          subtitle={
+            view.lowStock.length > 0
+              ? `${view.lowStock.length} item${view.lowStock.length === 1 ? "" : "s"} need attention`
+              : "All good"
+          }
+          icon={AlertTriangle}
+          accentClass={
+            view.lowStock.length > 0
+              ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+              : undefined
+          }
+        >
+          {view.lowStock.length === 0 ? (
+            <EmptyState
+              icon={Package}
+              title="Stock levels look healthy"
+              hint="Products under their reorder level will appear here."
+            />
+          ) : (
+            <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+              {view.lowStock.map((p) => {
+                const oos = p.quantity_in_stock <= 0;
+                return (
+                  <li key={p.id} className="py-2.5 flex items-center gap-3">
+                    {p.image_url ? (
                       <OptimizedImage
-                        src={item.product.image_url}
-                        alt={item.product.name}
-                        className="w-10 h-10 object-cover rounded-xl border-2 border-amber-200/60 shadow-md group-hover/item:border-amber-300/70"
+                        src={p.image_url}
+                        alt={p.name}
+                        className="w-9 h-9 object-cover rounded-md border border-slate-200 dark:border-slate-700 flex-shrink-0"
                         preset="thumbnail"
                       />
+                    ) : (
+                      <div className="w-9 h-9 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                        <Package className="w-4 h-4 text-slate-400" />
+                      </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-slate-900 dark:text-white truncate text-sm group-hover/item:text-amber-900 dark:group-hover/item:text-amber-400 transition-colors">
-                        {item.product.name}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                        {p.name}
                       </p>
-                      <p className="text-xs text-slate-700 dark:text-slate-400 font-medium">
-                        {item.product.category}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-black text-slate-900 dark:text-white text-sm md:text-base">
-                        {formatCurrency(item.total)}
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Reorder at {p.reorder_level || 5}
                       </p>
                     </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                    <span
+                      className={`text-[11px] font-bold px-2 py-1 rounded-md flex-shrink-0 ${
+                        oos
+                          ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
+                          : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                      }`}
+                    >
+                      {oos ? "Out" : `${p.quantity_in_stock} left`}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SUBCOMPONENTS
+// ============================================================
+
+interface MetricCardProps {
+  label: string;
+  value: string;
+  subvalue?: string;
+  icon: React.ElementType;
+  accent: "emerald" | "sky" | "indigo" | "amber";
+}
+
+function MetricCard({ label, value, subvalue, icon: Icon, accent }: MetricCardProps) {
+  const accentClasses: Record<MetricCardProps["accent"], string> = {
+    emerald: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    sky: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
+    indigo: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+    amber: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  };
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            {label}
+          </p>
+          <p className="text-xl lg:text-2xl font-black text-slate-900 dark:text-white mt-1 truncate">
+            {value}
+          </p>
+          {subvalue && (
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              {subvalue}
+            </p>
+          )}
         </div>
-
-        {/* Recent Sales Card - Emerald Premium */}
-        <div className="group relative bg-gradient-to-br from-white via-emerald-50/20 to-white dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-900 backdrop-blur-xl border-2 border-emerald-200/60 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-2xl shadow-emerald-500/10 dark:shadow-slate-900/50 hover:shadow-2xl hover:shadow-emerald-400/20 dark:hover:shadow-emerald-500/10 hover:border-emerald-300/70 dark:hover:border-emerald-500/30 transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-          {/* Premium shine effect */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 dark:via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-          <div className="relative flex items-center space-x-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-emerald-600 to-teal-600 dark:from-emerald-700 dark:to-teal-700 rounded-2xl shadow-xl shadow-emerald-400/30 dark:shadow-emerald-600/30">
-              <Receipt className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white">
-              📊 Recent Sales
-            </h3>
-          </div>
-          <div className="relative space-y-3">
-            {recentSales.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-800 rounded-full flex items-center justify-center border-2 border-emerald-300/70 dark:border-slate-600 shadow-emerald-100/50 shadow-lg">
-                  <Receipt className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
-                </div>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  No sales recorded yet
-                </p>
-              </div>
-            ) : (
-              recentSales.map((sale) => (
-                <div
-                  key={sale.id}
-                  className="group/sale bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-slate-700/50 dark:to-slate-800/60 hover:from-emerald-100/60 hover:to-teal-50/50 dark:hover:from-slate-600/60 dark:hover:to-slate-700/70 backdrop-blur-sm border border-emerald-200/60 dark:border-slate-600 shadow-sm hover:border-emerald-300/70 dark:hover:border-slate-500 hover:shadow-md hover:shadow-emerald-200/30 dark:hover:shadow-slate-900/30 rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-slate-900 dark:text-white text-xs md:text-sm group-hover/sale:text-emerald-900 dark:group-hover/sale:text-emerald-400 transition-colors">
-                        {formatDate(sale.created_at)}
-                      </p>
-                      <p className="text-xs text-slate-700 dark:text-slate-400 font-medium truncate">
-                        {sale.sold_by}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-black text-slate-900 dark:text-white text-sm md:text-base">
-                        {formatCurrency(sale.total_sale)}
-                      </p>
-                      <p className="text-xs text-emerald-800 dark:text-emerald-400 font-bold">
-                        +{formatCurrency(sale.profit)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${accentClasses[accent]}`}>
+          <Icon className="w-5 h-5" strokeWidth={2.2} />
         </div>
       </div>
     </div>
   );
 }
 
-interface StatCardProps {
-  title: string;
-  value: string;
-  icon: React.ElementType;
-  color: "blue" | "green" | "purple" | "orange" | "red";
-  subtitle?: string;
+interface PeriodRowProps {
+  label: string;
+  revenue: number;
+  profit: number;
+  emphasis?: boolean;
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  color,
-  subtitle,
-}: StatCardProps) {
-  const colorClasses = {
-    blue: {
-      gradient: "from-amber-500 to-amber-600",
-      glow: "shadow-amber-300",
-      text: "text-blue-400",
-    },
-    green: {
-      gradient: "from-green-600 to-emerald-600",
-      glow: "shadow-emerald-500/50",
-      text: "text-emerald-400",
-    },
-    purple: {
-      gradient: "from-amber-500 to-rose-500",
-      glow: "shadow-amber-300",
-      text: "text-amber-700 ",
-    },
-    orange: {
-      gradient: "from-orange-600 to-amber-600",
-      glow: "shadow-orange-500/50",
-      text: "text-orange-400",
-    },
-    red: {
-      gradient: "from-red-600 to-rose-600",
-      glow: "shadow-rose-500/50",
-      text: "text-rose-400",
-    },
-  };
-
-  const colors = colorClasses[color];
-
+function PeriodRow({ label, revenue, profit, emphasis }: PeriodRowProps) {
   return (
-    <div className="group relative bg-gradient-to-br from-white via-amber-50/30 to-white dark:from-slate-800 dark:via-slate-800/50 dark:to-slate-900 backdrop-blur-xl border-2 border-amber-200/60 dark:border-slate-700 rounded-2xl p-4 md:p-5 shadow-2xl shadow-amber-500/10 dark:shadow-slate-900/50 hover:shadow-2xl hover:shadow-amber-400/20 dark:hover:shadow-slate-800/50 hover:border-amber-300/70 dark:hover:border-slate-600 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] cursor-pointer will-change-transform overflow-hidden">
-      {/* Premium gradient background on hover */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-15 dark:group-hover:opacity-25 transition-opacity duration-500 rounded-2xl`}
-      ></div>
-      {/* Subtle shine effect */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 dark:via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+    <div className="flex items-baseline justify-between gap-2">
+      <span
+        className={`text-xs ${
+          emphasis
+            ? "font-bold text-slate-900 dark:text-white"
+            : "text-slate-500 dark:text-slate-400 font-medium"
+        }`}
+      >
+        {label}
+      </span>
+      <div className="text-right">
+        <p
+          className={`${
+            emphasis ? "text-base font-black" : "text-sm font-bold"
+          } text-slate-900 dark:text-white`}
+        >
+          {formatCurrency(revenue)}
+        </p>
+        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center justify-end gap-0.5">
+          <ArrowUpRight className="w-3 h-3" />
+          {formatCurrency(profit)}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-      <div className="relative flex items-center justify-between">
-        <div className="flex-1 min-w-0 pr-2">
-          <p
-            className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${colors.text}`}
-          >
+interface PanelProps {
+  title: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  accentClass?: string;
+  children: React.ReactNode;
+}
+
+function Panel({ title, subtitle, icon: Icon, accentClass, children }: PanelProps) {
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5">
+      <div className="flex items-center gap-2.5 mb-3">
+        <div
+          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+            accentClass ||
+            "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300"
+          }`}
+        >
+          <Icon className="w-4 h-4" strokeWidth={2.2} />
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
             {title}
-          </p>
-          <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight whitespace-nowrap">
-            {value}
-          </p>
+          </h3>
           {subtitle && (
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium whitespace-nowrap">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
               {subtitle}
             </p>
           )}
         </div>
-        <div className="flex-shrink-0">
-          <div
-            className={`bg-gradient-to-br ${colors.gradient} p-2 md:p-2.5 rounded-2xl shadow-2xl ${colors.glow} group-hover:scale-110 transition-transform duration-300`}
-          >
-            <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
-          </div>
-        </div>
       </div>
+      {children}
+    </div>
+  );
+}
+
+function EmptyState({
+  icon: Icon,
+  title,
+  hint,
+}: {
+  icon: React.ElementType;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <div className="text-center py-8 px-2">
+      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <Icon className="w-5 h-5 text-slate-400" />
+      </div>
+      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+        {title}
+      </p>
+      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+        {hint}
+      </p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -14,9 +14,7 @@ import {
   DollarSign,
   PiggyBank,
   Banknote,
-  ChevronRight,
   Monitor,
-  ChevronLeft,
   CreditCard,
   TrendingUp,
   RotateCcw,
@@ -25,7 +23,11 @@ import {
   Moon,
   Sun,
   Calculator,
+  MoreHorizontal,
+  ChevronDown,
+  Store,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { usePendingOrdersCount } from "../hooks/useSupabaseQuery";
@@ -36,6 +38,175 @@ interface LayoutProps {
   onTabChange: (tab: string) => void;
 }
 
+type BadgeKey = "pendingOrders";
+
+interface NavItem {
+  id: string;
+  label: string;
+  sublabel?: string; // Somali label shown smaller
+  icon: LucideIcon;
+  badge?: BadgeKey;
+  adminOnly?: boolean;
+  staffOnly?: boolean;
+  mobilePrimary?: boolean; // Show in mobile bottom nav
+}
+
+interface NavGroup {
+  label: string;
+  adminOnly?: boolean;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Operations",
+    items: [
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        sublabel: "Guddi guud",
+        icon: LayoutDashboard,
+        adminOnly: true,
+        mobilePrimary: true,
+      },
+      {
+        id: "staff-dashboard",
+        label: "My Sales",
+        sublabel: "Iibkayga",
+        icon: TrendingUp,
+        staffOnly: true,
+        mobilePrimary: true,
+      },
+      {
+        id: "sales",
+        label: "New Sale",
+        sublabel: "Iibka",
+        icon: ShoppingCart,
+        mobilePrimary: true,
+      },
+      {
+        id: "sales-history",
+        label: "Sales History",
+        sublabel: "Diiwaanka iibka",
+        icon: Receipt,
+      },
+      {
+        id: "returns",
+        label: "Returns",
+        sublabel: "Soo celinta",
+        icon: RotateCcw,
+      },
+    ],
+  },
+  {
+    label: "Inventory",
+    items: [
+      {
+        id: "inventory",
+        label: "Products",
+        sublabel: "Alaabta",
+        icon: Package,
+      },
+      {
+        id: "organized-inventory",
+        label: "Browse Products",
+        sublabel: "Daawo alaabta",
+        icon: Layers,
+      },
+      {
+        id: "search",
+        label: "Search Products",
+        sublabel: "Raadi alaabta",
+        icon: Search,
+      },
+    ],
+  },
+  {
+    label: "Customers",
+    items: [
+      {
+        id: "orders",
+        label: "Online Orders",
+        sublabel: "Dalabyada",
+        icon: ClipboardList,
+        badge: "pendingOrders",
+        mobilePrimary: true,
+      },
+      {
+        id: "customer-balances",
+        label: "Customer Balances",
+        sublabel: "Baaqiyada macaamiisha",
+        icon: Users,
+      },
+      {
+        id: "customer-credit",
+        label: "Customer Credit",
+        sublabel: "Deynta macaamiisha",
+        icon: CreditCard,
+      },
+    ],
+  },
+  {
+    label: "Finance",
+    adminOnly: true,
+    items: [
+      {
+        id: "financial-dashboard",
+        label: "Financial Dashboard",
+        sublabel: "Guddi maaliyadeed",
+        icon: LayoutDashboard,
+      },
+      {
+        id: "business-profit",
+        label: "Profit Tracker",
+        sublabel: "Faaiidada",
+        icon: Calculator,
+      },
+      {
+        id: "expenses",
+        label: "Expenses",
+        sublabel: "Kharashyada",
+        icon: DollarSign,
+      },
+      {
+        id: "investments",
+        label: "Investments",
+        sublabel: "Maalgelinta",
+        icon: PiggyBank,
+      },
+      {
+        id: "debts",
+        label: "Debts",
+        sublabel: "Deymaha",
+        icon: Banknote,
+      },
+    ],
+  },
+  {
+    label: "More",
+    items: [
+      {
+        id: "cyber-services",
+        label: "Cyber Services",
+        sublabel: "Adeegyada cyber-ka",
+        icon: Monitor,
+      },
+      {
+        id: "reports",
+        label: "Reports",
+        sublabel: "Warbixinnada",
+        icon: FileText,
+        adminOnly: true,
+      },
+    ],
+  },
+];
+
+const BRAND = {
+  name: "Hassan Bookshop",
+  tagline: "Point of Sale & Inventory",
+};
+
 export default function Layout({
   children,
   activeTab,
@@ -43,569 +214,503 @@ export default function Layout({
 }: LayoutProps) {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] =
-    useState(true);
-
-  // ✅ Use cached query for pending orders count (reduces egress costs)
   const { data: pendingOrdersCount = 0 } = usePendingOrdersCount();
 
-  // Check if current user is admin or staff (mutually exclusive)
+  // Role detection (unchanged from before)
   const isAdmin = user?.email === "admin@bookshop.ke";
   const isStaff = user?.email === "khalid123@gmail.com";
 
-  // Dynamic tabs based on user role
-  const baseTabs = [
-    // Only show one dashboard tab per role
-    ...(isAdmin
-      ? [
-          {
-            id: "dashboard",
-            label: "Dashboard",
-            icon: LayoutDashboard,
-            color: "from-amber-500 to-rose-500",
-          },
-        ]
-      : []),
-    ...(isStaff
-      ? [
-          {
-            id: "staff-dashboard",
-            label: "My Sales",
-            icon: TrendingUp,
-            color: "from-emerald-600 to-cyan-600",
-          },
-        ]
-      : []),
-    {
-      id: "inventory",
-      label: "Inventory",
-      icon: Package,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "organized-inventory",
-      label: "Browse Products",
-      icon: Layers,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "cyber-services",
-      label: "Adeegyada Cyber-ka",
-      icon: Monitor,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "sales",
-      label: "Iibka",
-      icon: ShoppingCart,
-      color: "from-emerald-600 to-teal-600",
-    },
-    {
-      id: "sales-history",
-      label: "Sales Transaction Log",
-      icon: Receipt,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "customer-balances",
-      label: "Baaqiyada Macaamiisha",
-      icon: Users,
-      color: "from-red-600 to-orange-600",
-    },
-    {
-      id: "returns",
-      label: "Soo Celinta",
-      icon: RotateCcw,
-      color: "from-rose-600 to-red-600",
-    },
-    {
-      id: "search",
-      label: "Raadi Alaabta",
-      icon: Search,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "customer-credit",
-      label: "Deynta Macaamiisha",
-      icon: CreditCard,
-      color: "from-teal-600 to-cyan-600",
-    },
-  ];
+  // UI state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const adminTabs = [
-    {
-      id: "financial-dashboard",
-      label: "Guddi Maaliyadeed",
-      icon: LayoutDashboard,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "expenses",
-      label: "Kharashyada",
-      icon: DollarSign,
-      color: "from-red-600 to-rose-600",
-    },
-    {
-      id: "investments",
-      label: "Maalgelinta Hore",
-      icon: PiggyBank,
-      color: "from-green-600 to-emerald-600",
-    },
-    {
-      id: "debts",
-      label: "Deymaha",
-      icon: Banknote,
-      color: "from-amber-600 to-yellow-600",
-    },
-    {
-      id: "reports",
-      label: "Warbixinnada",
-      icon: FileText,
-      color: "from-amber-500 to-amber-600",
-    },
-    {
-      id: "business-profit",
-      label: "Business Profit Tracker",
-      icon: Calculator,
-      color: "from-emerald-600 to-teal-600",
-    },
-    {
-      id: "orders",
-      label: "Dalabyada",
-      icon: ClipboardList,
-      color: "from-orange-600 to-amber-600",
-    },
+  // Close user menu on outside click
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", onClickOutside);
+      return () => document.removeEventListener("mousedown", onClickOutside);
+    }
+  }, [userMenuOpen]);
 
-    // {
-    //   id: "user-activity",
-    //   label: "Staff Activity",
-    //   icon: Activity,
-    //   color: "from-rose-600 to-orange-600",
-    // },
-  ];
+  // Close mobile sheets when tab changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMoreSheetOpen(false);
+  }, [activeTab]);
 
-  const tabs = isAdmin ? [...baseTabs, ...adminTabs] : baseTabs;
+  // Lock body scroll when a mobile overlay is open
+  useEffect(() => {
+    const lock = mobileMenuOpen || moreSheetOpen;
+    if (lock) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [mobileMenuOpen, moreSheetOpen]);
 
-  // ✅ Real-time subscription is handled inside usePendingOrdersCount hook
-  // No need for manual fetching - React Query auto-refetches every 2 minutes
+  function getBadge(key?: BadgeKey): number {
+    if (key === "pendingOrders") return pendingOrdersCount;
+    return 0;
+  }
 
-  const getStaffName = (email: string) => {
+  function isItemVisible(item: NavItem): boolean {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.staffOnly && !isStaff) return false;
+    return true;
+  }
+
+  function isGroupVisible(group: NavGroup): boolean {
+    if (group.adminOnly && !isAdmin) return false;
+    return group.items.some(isItemVisible);
+  }
+
+  const visibleGroups = NAV_GROUPS.filter(isGroupVisible).map((g) => ({
+    ...g,
+    items: g.items.filter(isItemVisible),
+  }));
+
+  // Mobile bottom nav: 4 primary items + More
+  const mobilePrimaryItems = visibleGroups
+    .flatMap((g) => g.items)
+    .filter((i) => i.mobilePrimary)
+    .slice(0, 4);
+
+  // Staff display name
+  const staffName = (() => {
+    const email = user?.email || "";
     if (email.includes("galiyowabi") || email.includes("admin"))
-      return "Yussuf Muse (Admin)";
-    if (email.includes("khaled")) return "Khaled";
-    return email.split("@")[0];
-  };
+      return "Yussuf Muse";
+    if (email.includes("khaled") || email.includes("khalid")) return "Khalid";
+    return email.split("@")[0] || "Staff";
+  })();
 
-  const handleLogout = async () => {
-    if (
-      confirm("Ma hubtaa inaad ka baxayso? - Are you sure you want to log out?")
-    ) {
+  async function handleLogout() {
+    if (confirm("Log out of Hassan Bookshop?")) {
       await signOut();
     }
-  };
+  }
 
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-50/60 via-orange-50/30 to-amber-50/40 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-200">
-      {/* Subtle Background Pattern */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
-        <div
-          className="absolute top-0 left-0 w-full h-full"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(251 191 36 / 0.2) 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
-          }}
-        ></div>
-      </div>
-
-      {/* Desktop Sidebar - Clean Modern Design */}
-      <aside
-        className={`hidden lg:block fixed left-0 top-0 bottom-0 z-40 transition-all duration-300 ${
-          isDesktopSidebarCollapsed ? "w-20" : "w-72 xl:w-80"
+  // Render helpers
+  function NavButton({
+    item,
+    compact = false,
+    onClick,
+  }: {
+    item: NavItem;
+    compact?: boolean;
+    onClick: () => void;
+  }) {
+    const Icon = item.icon;
+    const active = activeTab === item.id;
+    const badge = getBadge(item.badge);
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`group relative w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+          active
+            ? "bg-emerald-600 text-white shadow-sm"
+            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
         }`}
       >
-        <div className="h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 shadow-sm overflow-y-auto scrollbar-hide transition-colors duration-200">
-          {/* Collapse Toggle Button */}
+        <span className="relative flex-shrink-0">
+          <Icon className="w-5 h-5" />
+          {badge > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+              {badge > 9 ? "9+" : badge}
+            </span>
+          )}
+        </span>
+        {!compact && (
+          <span className="flex-1 text-left min-w-0">
+            <span className="block truncate leading-tight">{item.label}</span>
+            {item.sublabel && (
+              <span
+                className={`block text-[11px] truncate leading-tight ${
+                  active ? "text-emerald-50" : "text-slate-400 dark:text-slate-500"
+                }`}
+              >
+                {item.sublabel}
+              </span>
+            )}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      {/* =========================================================
+          TOP BAR (all screens)
+      ========================================================= */}
+      <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 sm:px-4 lg:pl-64 lg:pr-6">
+        {/* Mobile/tablet: hamburger + brand */}
+        <div className="flex items-center gap-2 min-w-0 lg:hidden">
           <button
-            onClick={() =>
-              setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)
-            }
-            className="fixed bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 p-2 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 z-50"
-            style={{
-              top: isDesktopSidebarCollapsed ? "50%" : "24px",
-              left: isDesktopSidebarCollapsed ? "68px" : "calc(18rem - 12px)",
-              transform: isDesktopSidebarCollapsed
-                ? "translateY(-50%)"
-                : "none",
-            }}
-            aria-label={
-              isDesktopSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
-            }
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+            className="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center"
           >
-            {isDesktopSidebarCollapsed ? (
-              <ChevronRight className="w-4 h-4 text-white" />
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+              <Store className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight truncate">
+                {BRAND.name}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop: page title area (kept clean) */}
+        <div className="hidden lg:flex items-center min-w-0">
+          <h1 className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+            {currentPageLabel(activeTab) || BRAND.tagline}
+          </h1>
+        </div>
+
+        {/* Right side: theme, user menu */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300"
+            title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+          >
+            {theme === "dark" ? (
+              <Sun className="w-5 h-5" />
             ) : (
-              <ChevronLeft className="w-4 h-4 text-white" />
+              <Moon className="w-5 h-5" />
             )}
           </button>
 
-          {/* Brand Header - Clean */}
-          <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-            {!isDesktopSidebarCollapsed ? (
-              <>
-                <div className="hidden lg:flex items-center space-x-3 mb-4">
-                  <div className="bg-amber-500 dark:bg-amber-600 p-3 rounded-xl">
-                    <Package className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                      HORUMAR
-                    </h1>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      Your Business, Your Progress
-                    </p>
-                  </div>
-                </div>
+          {pendingOrdersCount > 0 && (
+            <button
+              type="button"
+              onClick={() => onTabChange("orders")}
+              className="relative h-9 px-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center gap-1.5 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+              title="Pending orders"
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span>{pendingOrdersCount}</span>
+            </button>
+          )}
 
-                {/* Dark Mode Toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className="w-full mb-3 flex items-center justify-center space-x-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-2 transition-all duration-200"
-                  aria-label="Toggle dark mode"
-                >
-                  {theme === "dark" ? (
-                    <>
-                      <Sun className="w-4 h-4 text-amber-500" />
-                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                        Light Mode
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                        Dark Mode
-                      </span>
-                    </>
-                  )}
-                </button>
-
-                {/* User Info Card - Clean */}
-                {user && (
-                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-emerald-500 dark:bg-emerald-600 p-2 rounded-lg">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                          {getStaffName(user.email || "")}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                          {isAdmin ? "Administrator" : "Staff"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="flex flex-col items-center space-y-3">
-                <div className="relative bg-gradient-to-br from-amber-500 to-amber-600 p-3 rounded-2xl shadow-xl shadow-amber-400/10">
-                  <Package className="w-6 h-6 text-white" />
+          {/* User menu */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="h-9 px-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            >
+              <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center">
+                {staffName.charAt(0).toUpperCase()}
+              </div>
+              <span className="hidden sm:inline text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[120px] truncate">
+                {staffName}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+            </button>
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+                  <p className="text-sm font-semibold truncate">{staffName}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {user?.email}
+                  </p>
+                  <span className="inline-block mt-1 text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded font-bold">
+                    {isAdmin ? "Administrator" : isStaff ? "Staff" : "Member"}
+                  </span>
                 </div>
-                {/* Dark Mode Toggle - Collapsed */}
                 <button
-                  onClick={toggleTheme}
-                  className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1.5 transition-all duration-200"
-                  aria-label="Toggle dark mode"
+                  type="button"
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 flex items-center gap-2 font-medium"
                 >
-                  {theme === "dark" ? (
-                    <Sun className="w-4 h-4 text-amber-500" />
-                  ) : (
-                    <Moon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                  )}
+                  <LogOut className="w-4 h-4" />
+                  Sign out
                 </button>
               </div>
             )}
           </div>
+        </div>
+      </header>
 
-          {/* Navigation Menu */}
-          <div className="p-4 space-y-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const showBadge = tab.id === "orders" && pendingOrdersCount > 0;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={`
-                    group w-full flex items-center ${
-                      isDesktopSidebarCollapsed
-                        ? "justify-center"
-                        : "justify-between"
-                    } px-4 py-3 rounded-lg font-medium text-sm
-                    transition-all duration-200 relative
-                    ${
-                      isActive
-                        ? "bg-amber-500 dark:bg-amber-600 text-white shadow-md"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                    }
-                  `}
-                  title={isDesktopSidebarCollapsed ? tab.label : undefined}
-                >
-                  {/* Content */}
-                  <div
-                    className={`flex items-center ${
-                      isDesktopSidebarCollapsed ? "" : "space-x-3"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 ${
-                        isActive
-                          ? "text-white"
-                          : "text-slate-600 dark:text-slate-400"
-                      }`}
-                    />
-                    {/* Notification Badge */}
-                    {showBadge && (
-                      <span className="absolute top-2 left-7 bg-rose-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-                        {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
-                      </span>
-                    )}
-                    {!isDesktopSidebarCollapsed && <span>{tab.label}</span>}
-                  </div>
-
-                  {/* Badge for expanded sidebar */}
-                  {!isDesktopSidebarCollapsed && showBadge && (
-                    <span className="bg-rose-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-md">
-                      {pendingOrdersCount}
-                    </span>
-                  )}
-
-                  {/* Arrow Indicator */}
-                  {isActive && !isDesktopSidebarCollapsed && (
-                    <ChevronRight className="relative w-4 h-4 animate-pulse" />
-                  )}
-                </button>
-              );
-            })}
+      {/* =========================================================
+          DESKTOP SIDEBAR (lg+)
+      ========================================================= */}
+      <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col">
+        {/* Brand */}
+        <div className="h-14 px-4 flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+          <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+            <Store className="w-5 h-5" />
           </div>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-slate-200 dark:border-slate-700 mt-auto">
-            <button
-              onClick={handleLogout}
-              className={`w-full bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 dark:from-rose-600 dark:to-red-600 dark:hover:from-rose-700 dark:hover:to-red-700 text-white px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:shadow-lg flex items-center ${
-                isDesktopSidebarCollapsed
-                  ? "justify-center"
-                  : "justify-center space-x-2"
-              }`}
-              title={isDesktopSidebarCollapsed ? "Logout" : undefined}
-            >
-              <LogOut className="w-4 h-4" />
-              {!isDesktopSidebarCollapsed && <span>Logout</span>}
-            </button>
+          <div className="min-w-0">
+            <p className="text-sm font-bold leading-tight truncate">
+              {BRAND.name}
+            </p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate">
+              {BRAND.tagline}
+            </p>
           </div>
+        </div>
+
+        {/* Nav groups */}
+        <nav className="flex-1 overflow-y-auto scrollbar-hide py-3 px-3 space-y-4">
+          {visibleGroups.map((group) => (
+            <div key={group.label}>
+              <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavButton
+                    key={item.id}
+                    item={item}
+                    onClick={() => onTabChange(item.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer credit */}
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0 text-[10px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
+          <span>© {new Date().getFullYear()} {BRAND.name}</span>
+          <a
+            href="https://horumarin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-600 dark:text-amber-400 hover:underline font-medium"
+          >
+            Horumar
+          </a>
         </div>
       </aside>
 
-      {/* Mobile Top Navbar */}
-      <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm transition-colors duration-200">
-        <div className="px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo & Brand */}
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-lg transition-all duration-200"
-              >
-                {isSidebarOpen ? (
-                  <X className="w-5 h-5 text-slate-900 dark:text-white" />
-                ) : (
-                  <Menu className="w-5 h-5 text-slate-900 dark:text-white" />
-                )}
-              </button>
-
-              <div className="flex items-center space-x-2 min-w-0">
-                <div className="bg-amber-500 dark:bg-amber-600 p-2 rounded-xl">
-                  <Package className="w-4 h-4 text-white" />
+      {/* =========================================================
+          MOBILE DRAWER MENU
+      ========================================================= */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <aside className="fixed top-0 left-0 bottom-0 z-50 w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col lg:hidden animate-slide-in-left">
+            <div className="h-14 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                  <Store className="w-5 h-5" />
                 </div>
-                <div className="hidden sm:block min-w-0">
-                  <h1 className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[160px]">
-                    HORUMAR
-                  </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    ERP System
+                <div>
+                  <p className="text-sm font-bold leading-tight">{BRAND.name}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                    {BRAND.tagline}
                   </p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* User Section */}
-            <div className="flex items-center space-x-2">
-              {user && (
-                <>
-                  {/* Order Notification Badge - Mobile Navbar */}
-                  {pendingOrdersCount > 0 && (
-                    <div className="relative">
-                      <button
-                        onClick={() => onTabChange("orders")}
-                        className="relative bg-amber-500 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-700 p-2 rounded-lg transition-all duration-200"
-                      >
-                        <ClipboardList className="w-4 h-4 text-white" />
-                        <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse">
-                          {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
-                        </span>
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="bg-emerald-500 dark:bg-emerald-600 p-2 rounded-full">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 dark:from-rose-600 dark:to-red-600 dark:hover:from-rose-700 dark:hover:to-red-700 text-white px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-200"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Sidebar - Glassmorphic */}
-      <div
-        className={`
-          fixed top-16 bottom-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out lg:hidden
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
-      >
-        {/* Backdrop */}
-        {isSidebarOpen && (
-          <div
-            className="fixed top-16 left-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setIsSidebarOpen(false)}
-          ></div>
-        )}
-
-        {/* Sidebar Content */}
-        <div className="relative h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 shadow-lg overflow-y-auto scrollbar-hide transition-colors duration-200">
-          <div className="p-6 space-y-6">
-            {/* User Info in Sidebar */}
+            {/* User chip */}
             {user && (
-              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-emerald-500 dark:bg-emerald-600 p-3 rounded-lg">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">
-                      {getStaffName(user.email || "")}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      {isAdmin ? "Administrator" : "Staff"}
-                    </p>
-                  </div>
+              <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold flex items-center justify-center">
+                  {staffName.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate">{staffName}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                    {isAdmin ? "Administrator" : isStaff ? "Staff" : "Member"}
+                  </p>
                 </div>
               </div>
             )}
 
-            {/* Navigation Links */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-3">
-                Navigation
-              </p>
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                const showBadge = tab.id === "orders" && pendingOrdersCount > 0;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      onTabChange(tab.id);
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`
-                      w-full flex items-center justify-between px-4 py-3 rounded-lg font-medium text-sm
-                      transition-all duration-200 relative
-                      ${
-                        isActive
-                          ? "bg-amber-500 dark:bg-amber-600 text-white shadow-md"
-                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                      }
-                    `}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <Icon className="w-5 h-5" />
-                        {/* Notification Badge for mobile */}
-                        {showBadge && (
-                          <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-md animate-pulse">
-                            {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
-                          </span>
-                        )}
-                      </div>
-                      <span>{tab.label}</span>
-                      {showBadge && (
-                        <span className="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md animate-pulse ml-auto">
-                          {pendingOrdersCount}
-                        </span>
-                      )}
-                    </div>
-                    {isActive && <ChevronRight className="w-4 h-4" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <main
-        className={`relative pt-16 lg:pt-0 transition-all duration-300 bg-transparent ${
-          isDesktopSidebarCollapsed ? "lg:ml-20" : "lg:ml-72 xl:ml-80"
-        }`}
-      >
-        <div className="min-h-screen flex flex-col bg-transparent">
-          <div className="flex-1 px-3 sm:px-4 lg:px-6 py-3 md:py-4 lg:py-6 max-w-[1600px] mx-auto w-full">
-            {children}
-          </div>
-
-          {/* Professional Footer Credit */}
-          <footer className="mt-auto py-4 border-t border-amber-100/50 dark:border-slate-700 backdrop-blur-xl bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-900 dark:to-slate-800/50 transition-colors duration-200">
-            <div className="px-3 sm:px-4 lg:px-6 max-w-[1600px] mx-auto">
-              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-400">
-                <p className="text-center sm:text-left">
-                  © {new Date().getFullYear()} Al-Qalam Bookshop. All rights
-                  reserved.
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400 dark:text-slate-500">
-                    Powered by
-                  </span>
-                  <a
-                    href="https://horumarin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 dark:from-amber-500/10 dark:to-amber-600/10 dark:hover:from-amber-500/20 dark:hover:to-amber-600/20 border border-amber-500/30 hover:border-amber-500/50 dark:border-amber-500/20 dark:hover:border-amber-500/40 rounded-xl transition-all hover:scale-105 font-semibold text-amber-800 dark:text-amber-500 hover:text-amber-800 dark:hover:text-amber-400 shadow-lg shadow-amber-300/10 dark:shadow-amber-500/5"
-                  >
-                    <span className="text-lg">⚡</span>
-                    <span>Horumar</span>
-                  </a>
+            <nav className="flex-1 overflow-y-auto scrollbar-hide py-3 px-3 space-y-4">
+              {visibleGroups.map((group) => (
+                <div key={group.label}>
+                  <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {group.label}
+                  </p>
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <NavButton
+                        key={item.id}
+                        item={item}
+                        onClick={() => onTabChange(item.id)}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ))}
+            </nav>
+
+            <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full h-10 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-sm font-bold flex items-center justify-center gap-2 hover:bg-rose-100 dark:hover:bg-rose-900/30"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign out
+              </button>
             </div>
-          </footer>
+          </aside>
+        </>
+      )}
+
+      {/* =========================================================
+          MOBILE "MORE" SHEET (extra nav items)
+      ========================================================= */}
+      {moreSheetOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+            onClick={() => setMoreSheetOpen(false)}
+          />
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col lg:hidden animate-fade-in">
+            <div className="relative px-4 pt-4 pb-2 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
+              <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <h2 className="text-base font-bold">All sections</h2>
+              <button
+                type="button"
+                onClick={() => setMoreSheetOpen(false)}
+                aria-label="Close"
+                className="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto scrollbar-hide p-3 space-y-4">
+              {visibleGroups.map((group) => (
+                <div key={group.label}>
+                  <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {group.label}
+                  </p>
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <NavButton
+                        key={item.id}
+                        item={item}
+                        onClick={() => onTabChange(item.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          </div>
+        </>
+      )}
+
+      {/* =========================================================
+          MAIN CONTENT
+      ========================================================= */}
+      <main className="lg:pl-64 pt-14 pb-20 lg:pb-0 min-h-screen">
+        <div className="px-3 sm:px-5 lg:px-6 py-4 lg:py-6 max-w-[1600px] mx-auto w-full">
+          {children}
         </div>
+
+        {/* Desktop footer */}
+        <footer className="hidden lg:block border-t border-slate-200 dark:border-slate-800 py-3 px-6 text-xs text-slate-500 dark:text-slate-400 text-center">
+          © {new Date().getFullYear()} {BRAND.name} ·{" "}
+          <a
+            href="https://horumarin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-600 dark:text-amber-400 hover:underline font-medium"
+          >
+            Powered by Horumar
+          </a>
+        </footer>
       </main>
+
+      {/* =========================================================
+          MOBILE BOTTOM NAV
+      ========================================================= */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-stretch justify-around"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {mobilePrimaryItems.map((item) => {
+          const Icon = item.icon;
+          const active = activeTab === item.id;
+          const badge = getBadge(item.badge);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onTabChange(item.id)}
+              className={`relative flex-1 py-2 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${
+                active
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-slate-500 dark:text-slate-400"
+              }`}
+            >
+              <span className="relative">
+                <Icon className="w-5 h-5" />
+                {badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+                    {badge > 9 ? "9+" : badge}
+                  </span>
+                )}
+              </span>
+              <span className="truncate max-w-[64px]">{item.label}</span>
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-emerald-600 dark:bg-emerald-400 rounded-b" />
+              )}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setMoreSheetOpen(true)}
+          className="relative flex-1 py-2 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400"
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span>More</span>
+        </button>
+      </nav>
     </div>
   );
+}
+
+// Resolve current page label for desktop header
+function currentPageLabel(tabId: string): string {
+  for (const g of NAV_GROUPS) {
+    const found = g.items.find((i) => i.id === tabId);
+    if (found) return found.label;
+  }
+  return "";
 }
