@@ -277,7 +277,9 @@ const HeroSection = memo(
                 <div>
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.92] tracking-tight">
                     <span className="block text-white">Everything</span>
-                    <span className="block bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">You Need</span>
+                    <span className="block bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                      You Need
+                    </span>
                     <span className="block text-white/90">to Succeed.</span>
                   </h1>
                 </div>

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Plus, Trash2, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteSaleById, getSaleForDelete, restoreProductStock } from "../api";
-import SaleForm from "./SaleForm";
+import POSSaleForm from "./POSSaleForm";
 import { formatDate } from "../utils/dateFormatter";
 import { useProducts, useSales } from "../hooks/useSupabaseQuery";
 import { invalidateAfterSale } from "../utils/cacheInvalidation";
@@ -336,7 +336,7 @@ export default function Sales() {
       )}
 
       {showForm && (
-        <SaleForm
+        <POSSaleForm
           products={products}
           onClose={handleCloseForm}
           onSuccess={handleFormSuccess}
