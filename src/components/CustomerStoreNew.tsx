@@ -7,7 +7,6 @@ import {
   memo,
 } from "react";
 import {
-  Package,
   ShoppingCart,
   Search,
   ArrowRight,
@@ -54,6 +53,55 @@ const SORT_OPTIONS: Array<{ key: SortKey; label: string }> = [
 
 const PAGE_SIZE = 12;
 const FREE_DELIVERY_THRESHOLD = 2000;
+
+// Hardcoded category image (used when no product in that category has an image_url)
+function getCategoryImage(category: string): { image: string } {
+  const c = category.toLowerCase();
+  if (c.includes("book") && !c.includes("note"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("note"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("electron") || c.includes("gadget") || c.includes("tech"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("pen") || c.includes("pencil") || c.includes("station"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("bag") || c.includes("pack"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("calc") || c.includes("math"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("art") || c.includes("paint") || c.includes("color"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80&auto=format&fit=crop",
+    };
+  if (c.includes("school") || c.includes("study"))
+    return {
+      image:
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80&auto=format&fit=crop",
+    };
+  return {
+    image:
+      "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=800&q=80&auto=format&fit=crop",
+  };
+}
 
 // ============================================================
 // PRODUCT CARD (clean, no fake stars/SALE)
@@ -515,7 +563,7 @@ export default function CustomerStore({
                 {[
                   { icon: Truck, label: "Fast delivery", sub: "Across Nairobi" },
                   { icon: ShieldCheck, label: "Verified", sub: "Genuine items" },
-                  { icon: Clock, label: "Open daily", sub: "8am – 8pm" },
+                  { icon: Clock, label: "Open daily", sub: "8am – 11pm" },
                 ].map((v) => (
                   <div
                     key={v.label}
@@ -536,39 +584,37 @@ export default function CustomerStore({
             {/* Category tiles (right side / below on mobile) */}
             {featuredCategories.length > 0 && (
               <div className="grid grid-cols-2 gap-3">
-                {featuredCategories.map((cat) => (
-                  <button
-                    key={cat.category}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(cat.category);
-                      scrollToProducts();
-                    }}
-                    className="group relative aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-600 shadow-sm hover:shadow-xl transition-all active:scale-95"
-                  >
-                    {cat.image ? (
+                {featuredCategories.map((cat) => {
+                  const fallback = getCategoryImage(cat.category);
+                  const imageSrc = cat.image || fallback.image;
+                  return (
+                    <button
+                      key={cat.category}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(cat.category);
+                        scrollToProducts();
+                      }}
+                      className="group relative aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-600 shadow-sm hover:shadow-xl transition-all active:scale-95"
+                    >
                       <OptimizedImage
-                        src={cat.image}
+                        src={imageSrc}
                         alt={cat.category}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         fallbackClassName="w-full h-full"
                       />
-                    ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
-                        <Package className="w-10 h-10 text-amber-500/60" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
+                        <p className="text-white font-black text-sm sm:text-base leading-tight truncate drop-shadow">
+                          {cat.category}
+                        </p>
+                        <p className="text-amber-200 text-[11px] font-semibold drop-shadow">
+                          {cat.count} item{cat.count !== 1 ? "s" : ""}
+                        </p>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
-                      <p className="text-white font-black text-sm sm:text-base leading-tight truncate">
-                        {cat.category}
-                      </p>
-                      <p className="text-amber-200 text-[11px] font-semibold">
-                        {cat.count} item{cat.count !== 1 ? "s" : ""}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -838,12 +884,12 @@ export default function CustomerStore({
         <div className="border-t border-slate-800 py-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Hassan Bookshop. All rights reserved.</p>
           <a
-            href="https://horumarin.com"
+            href="https://lenzro.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-amber-500 hover:text-amber-400 font-semibold"
           >
-            Powered by Horumar
+            Powered by Lenzro
           </a>
         </div>
       </footer>
