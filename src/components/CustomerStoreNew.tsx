@@ -483,12 +483,7 @@ export default function CustomerStore({
     return Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
-      .map(([category, count]) => {
-        const sample = products.find(
-          (p) => p.category === category && p.image_url,
-        );
-        return { category, count, image: sample?.image_url || null };
-      });
+      .map(([category, count]) => ({ category, count }));
   }, [products]);
 
   // Free-delivery progress (cart-aware)
@@ -585,8 +580,7 @@ export default function CustomerStore({
             {featuredCategories.length > 0 && (
               <div className="grid grid-cols-2 gap-3">
                 {featuredCategories.map((cat) => {
-                  const fallback = getCategoryImage(cat.category);
-                  const imageSrc = cat.image || fallback.image;
+                  const imageSrc = getCategoryImage(cat.category).image;
                   return (
                     <button
                       key={cat.category}
@@ -595,13 +589,21 @@ export default function CustomerStore({
                         setSelectedCategory(cat.category);
                         scrollToProducts();
                       }}
-                      className="group relative aspect-square bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-600 shadow-sm hover:shadow-xl transition-all active:scale-95"
+                      className="group relative aspect-square bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-600 shadow-sm hover:shadow-xl transition-all active:scale-95"
                     >
-                      <OptimizedImage
+                      <img
                         src={imageSrc}
                         alt={cat.category}
+                        loading="lazy"
+                        decoding="async"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        fallbackClassName="w-full h-full"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (img.dataset.fallback !== "1") {
+                            img.dataset.fallback = "1";
+                            img.src = getCategoryImage("other").image;
+                          }
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
