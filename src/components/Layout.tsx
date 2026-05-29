@@ -477,7 +477,7 @@ export default function Layout({
         </div>
 
         {/* Nav groups */}
-        <nav className="flex-1 overflow-y-auto scrollbar-hide py-3 px-3 space-y-4">
+        <nav className="flex-1 overflow-y-auto scrollbar-hide py-4 px-4 space-y-4">
           {visibleGroups.map((group) => (
             <div key={group.label}>
               <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -500,12 +500,12 @@ export default function Layout({
         <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0 text-[10px] text-slate-400 dark:text-slate-500 flex items-center justify-between">
           <span>© {new Date().getFullYear()} {BRAND.name}</span>
           <a
-            href="https://horumarin.com"
+            href="https://lenzro.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-amber-600 dark:text-amber-400 hover:underline font-medium"
           >
-            Horumar
+            Powered by Lenzro
           </a>
         </div>
       </aside>
@@ -557,7 +557,7 @@ export default function Layout({
               </div>
             )}
 
-            <nav className="flex-1 overflow-y-auto scrollbar-hide py-3 px-3 space-y-4">
+            <nav className="flex-1 overflow-y-auto scrollbar-hide py-4 px-4 space-y-4">
               {visibleGroups.map((group) => (
                 <div key={group.label}>
                   <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -646,12 +646,12 @@ export default function Layout({
         <footer className="hidden lg:block border-t border-slate-200 dark:border-slate-800 py-3 px-6 text-xs text-slate-500 dark:text-slate-400 text-center">
           © {new Date().getFullYear()} {BRAND.name} ·{" "}
           <a
-            href="https://horumarin.com"
+            href="https://lenzro.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-amber-600 dark:text-amber-400 hover:underline font-medium"
           >
-            Powered by Horumar
+            Powered by Lenzro
           </a>
         </footer>
       </main>

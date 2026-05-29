@@ -675,7 +675,7 @@ export default function POSSaleForm({
                 Point of Sale
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-                HORUMAR · {totalItems} item{totalItems !== 1 ? "s" : ""} in cart
+                Hassan Bookshop · {totalItems} item{totalItems !== 1 ? "s" : ""} in cart
               </p>
             </div>
           </div>

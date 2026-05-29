@@ -160,6 +160,6 @@ export function getCustomerWhatsAppMessage(order: any) {
     `Payment: ${order.payment_method.toUpperCase()}\n\n` +
     `We'll contact you shortly to confirm your order.\n\n` +
     `Best regards,\n` +
-    `Horumar Team 🛍️`
+    `Hassan Bookshop Team 🛍️`
   );
 }

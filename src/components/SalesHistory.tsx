@@ -15,6 +15,11 @@ import {
   XCircle,
   X,
   Eye,
+  TrendingUp,
+  TrendingDown,
+  Star,
+  Crown,
+  ShoppingBag,
 } from "lucide-react";
 import {
   useSales,
@@ -253,6 +258,113 @@ export default function SalesHistory() {
     groupedTransactions,
   ]);
 
+  // ===== Smart insights for repeat-customer focus =====
+  const insights = useMemo(() => {
+    const startOfDay = (d: Date) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const yesterdayStart = todayStart - 86400000;
+    const weekStart = todayStart - 6 * 86400000;
+
+    let todayRevenue = 0;
+    let todayTx = 0;
+    let yesterdayRevenue = 0;
+    let weekRevenue = 0;
+    const customerCounts = new Map<string, { count: number; total: number }>();
+
+    groupedTransactions.forEach((tx) => {
+      const t = new Date(tx.created_at).getTime();
+      if (t >= todayStart) {
+        todayRevenue += tx.total_amount;
+        todayTx += 1;
+      } else if (t >= yesterdayStart && t < todayStart) {
+        yesterdayRevenue += tx.total_amount;
+      }
+      if (t >= weekStart) weekRevenue += tx.total_amount;
+
+      const name = (tx.customer_name || "Walk-in Customer").trim();
+      const existing = customerCounts.get(name) || { count: 0, total: 0 };
+      existing.count += 1;
+      existing.total += tx.total_amount;
+      customerCounts.set(name, existing);
+    });
+
+    // Find top customer (excluding generic walk-ins)
+    let topCustomer: { name: string; count: number; total: number } | null = null;
+    customerCounts.forEach((stats, name) => {
+      if (name.toLowerCase().includes("walk")) return;
+      if (!topCustomer || stats.total > topCustomer.total) {
+        topCustomer = { name, count: stats.count, total: stats.total };
+      }
+    });
+
+    const revenueDelta =
+      yesterdayRevenue === 0
+        ? null
+        : ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+
+    const avgTx =
+      groupedTransactions.length > 0
+        ? groupedTransactions.reduce((s, t) => s + t.total_amount, 0) /
+          groupedTransactions.length
+        : 0;
+
+    return {
+      todayRevenue,
+      todayTx,
+      yesterdayRevenue,
+      weekRevenue,
+      revenueDelta,
+      avgTx,
+      customerCounts,
+      topCustomer,
+      totalCustomers: customerCounts.size,
+    };
+  }, [groupedTransactions]);
+
+  // Date preset helper
+  const applyDatePreset = (preset: "today" | "week" | "month" | "all") => {
+    const now = new Date();
+    const iso = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate(),
+      ).padStart(2, "0")}`;
+    if (preset === "today") {
+      setDateFrom(iso(now));
+      setDateTo(iso(now));
+    } else if (preset === "week") {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 6);
+      setDateFrom(iso(start));
+      setDateTo(iso(now));
+    } else if (preset === "month") {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      setDateFrom(iso(start));
+      setDateTo(iso(now));
+    } else {
+      setDateFrom("");
+      setDateTo("");
+    }
+  };
+
+  const activePreset: "today" | "week" | "month" | "all" | "custom" =
+    useMemo(() => {
+      if (!dateFrom && !dateTo) return "all";
+      const now = new Date();
+      const iso = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+          d.getDate(),
+        ).padStart(2, "0")}`;
+      if (dateFrom === iso(now) && dateTo === iso(now)) return "today";
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - 6);
+      if (dateFrom === iso(weekStart) && dateTo === iso(now)) return "week";
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      if (dateFrom === iso(monthStart) && dateTo === iso(now)) return "month";
+      return "custom";
+    }, [dateFrom, dateTo]);
+
   // Pagination logic
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const paginatedTransactions = useMemo(() => {
@@ -298,65 +410,66 @@ export default function SalesHistory() {
     }
   };
 
-  // Direct print without popup - uses iframe for better compatibility
+  // Direct print without popup - uses iframe with real dimensions so the browser
+  // actually performs layout before print() is called (a 0x0 iframe prints blank).
   const printReceipt = (transaction: GroupedTransaction) => {
     try {
       const html = createPrintHtml(transaction);
 
-      // Create hidden iframe for printing
       const iframe = document.createElement("iframe");
       iframe.setAttribute("aria-hidden", "true");
+      // Real A4 footprint, but pushed offscreen and made invisible. Browsers
+      // require non-zero rendered size to lay out content for printing.
       iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
+      iframe.style.top = "0";
+      iframe.style.left = "0";
+      iframe.style.width = "210mm";
+      iframe.style.height = "297mm";
+      iframe.style.opacity = "0";
+      iframe.style.pointerEvents = "none";
       iframe.style.border = "0";
+      iframe.style.zIndex = "-1";
+      iframe.srcdoc = html;
 
       let printed = false;
+      const cleanup = () => {
+        setTimeout(() => {
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }, 1500);
+      };
       const doPrint = () => {
         if (printed) return;
         printed = true;
-        try {
-          const win = iframe.contentWindow;
-          if (!win) throw new Error("No iframe window");
-          win.focus();
-          win.print();
-        } catch (err) {
-          console.error("Print error", err);
-          alert(
-            "Unable to print. Please use the PDF download option instead.",
-          );
-        } finally {
-          // Give the print dialog time to open before removing the iframe
-          setTimeout(() => {
-            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-          }, 1500);
-        }
+        // Give the browser two animation frames to ensure paint is complete.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            try {
+              const win = iframe.contentWindow;
+              if (!win) throw new Error("No iframe window");
+              win.focus();
+              win.print();
+            } catch (err) {
+              console.error("Print error", err);
+              alert(
+                "Unable to print. Please use the PDF download option instead.",
+              );
+            } finally {
+              cleanup();
+            }
+          });
+        });
       };
 
-      // Register handlers BEFORE attaching/writing so we don't miss the load event.
       iframe.onload = doPrint;
-      // Fallback in case onload doesn't fire (some browsers when using document.write)
-      const fallback = window.setTimeout(doPrint, 800);
-      iframe.addEventListener("load", () => window.clearTimeout(fallback), {
-        once: true,
-      });
+      // Fallback in case onload doesn't fire (rare with srcdoc, but safe).
+      const fallback = window.setTimeout(doPrint, 1200);
+      iframe.addEventListener(
+        "load",
+        () => window.clearTimeout(fallback),
+        { once: true },
+      );
 
       document.body.appendChild(iframe);
-
-      const iframeDoc =
-        iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        window.clearTimeout(fallback);
-        alert("Unable to print. Please use the PDF option instead.");
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        return;
-      }
-
-      iframeDoc.open();
-      iframeDoc.write(html);
-      iframeDoc.close();
     } catch (e) {
       console.error(e);
       alert(
@@ -382,26 +495,33 @@ export default function SalesHistory() {
   // create HTML used for printing (clean, professional Hassan Bookshop receipt)
   function createPrintHtml(transaction: GroupedTransaction) {
     const rows = transaction.items
-      .map(
-        (item, idx) => `
+      .map((item, idx) => {
+        const lineGross = item.selling_price * item.quantity_sold;
+        const lineDiscount = Math.max(
+          item.discount_amount || 0,
+          lineGross - (item.total_sale || 0),
+        );
+        return `
           <tr>
             <td class="idx">${idx + 1}</td>
             <td>${escapeHtml(getProductName(item.product_id))}</td>
             <td class="num">${item.quantity_sold}</td>
             <td class="num">${item.selling_price.toLocaleString()}</td>
             <td class="num disc">${
-              item.discount_amount && item.discount_amount > 0
-                ? "−" + item.discount_amount.toLocaleString()
-                : "—"
+              lineDiscount > 0 ? "−" + lineDiscount.toLocaleString() : "—"
             }</td>
             <td class="num bold">${item.total_sale.toLocaleString()}</td>
-          </tr>`,
-      )
+          </tr>`;
+      })
       .join("");
 
     const subtotal = transaction.items.reduce(
       (sum, item) => sum + item.selling_price * item.quantity_sold,
       0,
+    );
+    const totalDiscount = Math.max(
+      transaction.total_discount || 0,
+      subtotal - transaction.total_amount,
     );
 
     const paymentStatus = (transaction.payment_status || "paid")
@@ -416,7 +536,7 @@ export default function SalesHistory() {
 <title>Receipt ${escapeHtml(transaction.transaction_id.slice(0, 8))} — Hassan Bookshop</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-  @page { size: A4; margin: 12mm; }
+  @page { size: A4; margin: 18mm 14mm; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: #fff; }
   body {
@@ -424,8 +544,12 @@ export default function SalesHistory() {
     color: #0f172a;
     font-size: 12px;
     line-height: 1.5;
+    padding: 32px 16px;
   }
   .receipt { max-width: 780px; margin: 0 auto; padding: 0 4px; }
+  @media print {
+    body { padding: 0; }
+  }
 
   /* ===== Brand header ===== */
   .brand-bar {
@@ -520,25 +644,26 @@ export default function SalesHistory() {
     margin-bottom: 14px;
   }
   table.items thead th {
-    background: #0f172a;
-    color: #fff;
-    font-weight: 600;
+    background: #fffbeb;
+    color: #92400e;
+    font-weight: 700;
     font-size: 10px;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.7px;
     text-transform: uppercase;
-    padding: 9px 10px;
+    padding: 10px 10px;
     text-align: left;
+    border-bottom: 2px solid #f59e0b;
   }
   table.items thead th.num { text-align: right; }
   table.items tbody td {
-    padding: 9px 10px;
+    padding: 10px 10px;
     border-bottom: 1px solid #f1f5f9;
     color: #0f172a;
   }
-  table.items tbody tr:nth-child(even) td { background: #fafaf9; }
+  table.items tbody tr:last-child td { border-bottom: none; }
   table.items .idx { width: 28px; color: #94a3b8; font-weight: 600; }
   table.items .num { text-align: right; font-variant-numeric: tabular-nums; }
-  table.items .disc { color: #b91c1c; }
+  table.items .disc { color: #b91c1c; font-weight: 600; }
   table.items .bold { font-weight: 700; }
 
   /* ===== Totals ===== */
@@ -552,25 +677,27 @@ export default function SalesHistory() {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     overflow: hidden;
+    background: #fff;
   }
   .totals .row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 14px;
+    padding: 9px 14px;
     font-size: 12px;
   }
   .totals .row + .row { border-top: 1px solid #f1f5f9; }
   .totals .row .l { color: #475569; }
-  .totals .row .v { color: #0f172a; font-variant-numeric: tabular-nums; }
+  .totals .row .v { color: #0f172a; font-variant-numeric: tabular-nums; font-weight: 600; }
   .totals .row.disc .v { color: #b91c1c; }
   .totals .row.grand {
-    background: #0f172a;
-    color: #fff;
-    font-weight: 700;
+    background: #fffbeb;
+    border-top: 2px solid #f59e0b;
+    font-weight: 800;
     font-size: 14px;
-    padding: 11px 14px;
+    padding: 12px 14px;
   }
-  .totals .row.grand .l, .totals .row.grand .v { color: #fff; }
+  .totals .row.grand .l { color: #92400e; }
+  .totals .row.grand .v { color: #92400e; }
 
   /* ===== Footer ===== */
   .footer {
@@ -588,6 +715,16 @@ export default function SalesHistory() {
     color: #d97706;
     margin-bottom: 4px;
   }
+  .powered {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+    font-size: 10px;
+    color: #94a3b8;
+    letter-spacing: 0.3px;
+  }
+  .powered a { color: #d97706; text-decoration: none; font-weight: 600; }
 
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -600,7 +737,7 @@ export default function SalesHistory() {
     <div class="brand-bar">
       <div>
         <h1 class="brand-name">Hassan <span class="accent">Bookshop</span></h1>
-        <div class="brand-tag">Books · Stationery · Electronics — since 2010</div>
+        <div class="brand-tag">Books · Stationery · Electronics — since 2025</div>
       </div>
       <div class="brand-meta">
         <strong>Global Apartments, Eastleigh Section 1</strong><br />
@@ -668,10 +805,10 @@ export default function SalesHistory() {
           <span class="v">KES ${subtotal.toLocaleString()}</span>
         </div>
         ${
-          transaction.total_discount > 0
+          totalDiscount > 0
             ? `<div class="row disc">
               <span class="l">Discount</span>
-              <span class="v">− KES ${transaction.total_discount.toLocaleString()}</span>
+              <span class="v">− KES ${totalDiscount.toLocaleString()}</span>
             </div>`
             : ""
         }
@@ -686,6 +823,10 @@ export default function SalesHistory() {
       <div class="thanks">Thank you for shopping with Hassan Bookshop!</div>
       Please keep this receipt for returns or exchanges within <strong>7 days</strong>.<br />
       Visit us in Eastleigh · Mon–Sat 8am–8pm · Sun 9am–6pm
+    </div>
+
+    <div class="powered">
+      Powered by <a href="https://lenzro.com" target="_blank" rel="noopener noreferrer">Lenzro</a> · lenzro.com
     </div>
   </div>
 </body>
@@ -702,14 +843,14 @@ export default function SalesHistory() {
 
   // Simple skeleton card for loading UI
   const SkeletonCard = () => (
-    <div className="animate-pulse bg-gradient-to-r from-white/3 to-white/2 rounded-2xl p-4">
-      <div className="h-4 w-1/3 bg-white/6 rounded mb-3" />
-      <div className="h-3 w-1/4 bg-white/6 rounded mb-6" />
+    <div className="animate-pulse bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+      <div className="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded mb-3" />
+      <div className="h-3 w-1/4 bg-slate-200 dark:bg-slate-700 rounded mb-6" />
       <div className="flex gap-3">
-        <div className="h-10 w-10 bg-white/6 rounded" />
+        <div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded" />
         <div className="flex-1 space-y-2">
-          <div className="h-3 bg-white/6 rounded w-3/5" />
-          <div className="h-3 bg-white/6 rounded w-1/2" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/5" />
+          <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
         </div>
       </div>
     </div>
@@ -754,55 +895,157 @@ export default function SalesHistory() {
     );
   };
 
+  const hasActiveFilters =
+    query.trim() !== "" ||
+    paymentFilter !== "all" ||
+    sellerFilter !== "all" ||
+    dateFrom !== "" ||
+    dateTo !== "";
+
+  const inputClass =
+    "w-full py-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-colors";
+
+  const presetTabs: Array<{
+    key: "today" | "week" | "month" | "all";
+    label: string;
+  }> = [
+    { key: "today", label: "Today" },
+    { key: "week", label: "Past 7 days" },
+    { key: "month", label: "This month" },
+    { key: "all", label: "All time" },
+  ];
+
+  const topCustomer = insights.topCustomer as
+    | { name: string; count: number; total: number }
+    | null;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-5">
+      {/* ===================== Header ===================== */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-            Sales Transaction Log
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Sales History
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-xl">
-            Look up transactions, preview sold items, and reprint receipts with
-            a smooth and responsive interface.
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+            Today: <span className="font-semibold text-slate-900 dark:text-white tabular-nums">KES {insights.todayRevenue.toLocaleString()}</span>
+            {insights.revenueDelta !== null && (
+              <span
+                className={`ml-2 inline-flex items-center gap-1 text-xs font-semibold ${
+                  insights.revenueDelta >= 0
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-rose-600 dark:text-rose-400"
+                }`}
+              >
+                {insights.revenueDelta >= 0 ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : (
+                  <TrendingDown className="w-3 h-3" />
+                )}
+                {Math.abs(insights.revenueDelta).toFixed(0)}% vs yesterday
+              </span>
+            )}
+            {" · "}
+            <span className="text-slate-500 dark:text-slate-400">
+              {insights.todayTx} tx today
+            </span>
+            {topCustomer && (
+              <>
+                {" · "}
+                <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold">
+                  <Crown className="w-3 h-3" />
+                  Top: {topCustomer.name}
+                </span>
+              </>
+            )}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => refetchSales()}
-            disabled={isRefetching}
-            title="Refresh sales data"
-            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg hover:scale-105 transform transition-all disabled:opacity-60 border-2 border-amber-400"
-            aria-busy={isRefetching}
-          >
-            <RefreshCw
-              className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-            />
-            <span className="hidden sm:inline font-semibold text-sm">
-              Refresh
-            </span>
-          </button>
-        </div>
+        <button
+          onClick={() => refetchSales()}
+          disabled={isRefetching}
+          title="Refresh sales data"
+          className="inline-flex items-center justify-center gap-2 px-4 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 transition-colors"
+          aria-busy={isRefetching}
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+          />
+          Refresh
+        </button>
       </div>
 
-      {/* Filters + Stats Panel */}
-      <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 dark:text-slate-400" />
+      {/* ===================== KPI cards (totals reflect current filter) ===================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <StatCard
+          label="Transactions"
+          value={totals.transactions.toLocaleString()}
+          hint={`${totals.items.toLocaleString()} items sold`}
+          icon={Receipt}
+          accent="amber"
+        />
+        <StatCard
+          label="Revenue"
+          value={`KES ${totals.revenue.toLocaleString()}`}
+          hint={`Discounts KES ${totals.discounts.toLocaleString()}`}
+          icon={DollarSign}
+          accent="emerald"
+        />
+        <StatCard
+          label="Profit"
+          value={`KES ${totals.profit.toLocaleString()}`}
+          hint={`${
+            totals.revenue > 0
+              ? Math.round((totals.profit / totals.revenue) * 100)
+              : 0
+          }% margin`}
+          icon={CreditCard}
+          accent="blue"
+        />
+      </div>
+
+      {/* ===================== Date preset chips ===================== */}
+      <div className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-2">
+        {presetTabs.map((p) => {
+          const isActive = activePreset === p.key;
+          return (
+            <button
+              key={p.key}
+              onClick={() => applyDatePreset(p.key)}
+              className={`flex-1 sm:flex-none h-9 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                isActive
+                  ? "bg-amber-500 text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+        {activePreset === "custom" && (
+          <span className="ml-auto text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 px-2">
+            Custom range
+          </span>
+        )}
+      </div>
+
+      {/* ===================== Filters ===================== */}
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
+          <div className="md:col-span-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by product, transaction id or seller..."
-              className="pl-10 pr-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 w-full rounded-xl placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
+              placeholder="Search by customer, product, or ID…"
+              className={`${inputClass} pl-9`}
               aria-label="Search transactions"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
                 title="Clear"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white"
               >
                 <XCircle className="w-4 h-4" />
               </button>
@@ -812,22 +1055,13 @@ export default function SalesHistory() {
           <select
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
+            className={`${inputClass} md:col-span-2`}
             title="Filter by payment method"
             aria-label="Payment method filter"
           >
-            <option
-              value="all"
-              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            >
-              All Payments
-            </option>
+            <option value="all">All Payments</option>
             {availablePayments.map((p) => (
-              <option
-                key={p}
-                value={p}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
+              <option key={p} value={p}>
                 {p}
               </option>
             ))}
@@ -836,114 +1070,73 @@ export default function SalesHistory() {
           <select
             value={sellerFilter}
             onChange={(e) => setSellerFilter(e.target.value)}
-            className="w-full sm:w-auto py-2 px-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
+            className={`${inputClass} md:col-span-2`}
             title="Filter by seller"
             aria-label="Seller filter"
           >
-            <option
-              value="all"
-              className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-            >
-              All Sellers
-            </option>
+            <option value="all">All Sellers</option>
             {availableSellers.map((s) => (
-              <option
-                key={s}
-                value={s}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
+              <option key={s} value={s}>
                 {s}
               </option>
             ))}
           </select>
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="py-2 px-3 rounded-xl bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
-            placeholder="dd/mm/yyyy"
+            className={`${inputClass} md:col-span-2`}
             title="From date"
           />
-          <span className="text-slate-600 dark:text-slate-400 hidden sm:inline">
-            —
-          </span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="py-2 px-3 rounded-xl bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
-            placeholder="dd/mm/yyyy"
+            className={`${inputClass} md:col-span-2`}
             title="To date"
           />
-          <div className="ml-0 sm:ml-3 hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-            <div className="text-xs text-slate-600 dark:text-slate-400">
-              Revenue
-            </div>
-            <div className="text-sm font-bold text-slate-900 dark:text-white">
-              KES {totals.revenue.toLocaleString()}
-            </div>
-          </div>
         </div>
+
+        {hasActiveFilters && (
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-xs">
+            <span className="text-slate-500 dark:text-slate-400">
+              Showing{" "}
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {filteredTransactions.length.toLocaleString()}
+              </span>{" "}
+              filtered transactions
+            </span>
+            <button
+              onClick={() => {
+                setQuery("");
+                setPaymentFilter("all");
+                setSellerFilter("all");
+                setDateFrom("");
+                setDateTo("");
+              }}
+              className="font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Overview / quick stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg p-4 text-white border-2 border-amber-400">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs uppercase opacity-90 font-semibold">
-                Transactions
-              </div>
-              <div className="text-xl sm:text-2xl font-extrabold">
-                {totals.transactions}
-              </div>
-              <div className="text-xs opacity-90 mt-1">
-                Items: {totals.items}
-              </div>
-            </div>
-            <div className="bg-white/20 p-2 shadow-lg sm:p-3 rounded-full border border-white/30">
-              <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-          </div>
+      {/* ===================== Section title ===================== */}
+      <div className="flex items-end justify-between pt-1">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            Recent transactions
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Tap a row to see items · click{" "}
+            <Printer className="w-3 h-3 inline mb-0.5 text-amber-500" /> to
+            reprint a receipt
+          </p>
         </div>
-
-        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-4 text-white border-2 border-emerald-400">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs uppercase opacity-90 font-semibold">
-                Revenue
-              </div>
-              <div className="text-xl sm:text-2xl font-extrabold">
-                KES {totals.revenue.toLocaleString()}
-              </div>
-              <div className="text-xs opacity-90 mt-1">
-                Discounts: KES {totals.discounts.toLocaleString()}
-              </div>
-            </div>
-            <div className="bg-white/20 p-2 shadow-lg sm:p-3 rounded-full border border-white/30">
-              <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 text-white border-2 border-blue-400">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs uppercase opacity-90 font-semibold">
-                Profit
-              </div>
-              <div className="text-xl sm:text-2xl font-extrabold">
-                KES {totals.profit.toLocaleString()}
-              </div>
-              <div className="text-xs opacity-90 mt-1">Net</div>
-            </div>
-            <div className="bg-white/20 p-2 shadow-lg sm:p-3 rounded-full border border-white/30">
-              <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-          </div>
+        <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+          {filteredTransactions.length.toLocaleString()} results
         </div>
       </div>
 
@@ -957,12 +1150,14 @@ export default function SalesHistory() {
               <SkeletonCard />
             </div>
           ) : (
-            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-6 md:p-10 text-center shadow-sm">
-              <Receipt className="w-10 h-10 md:w-14 md:h-14 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
-              <h3 className="text-base md:text-lg font-bold mb-2 text-slate-900 dark:text-white">
-                No Sales Found
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-10 text-center">
+              <div className="w-14 h-14 mx-auto rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mb-4">
+                <Receipt className="w-7 h-7 text-slate-400" />
+              </div>
+              <h3 className="text-base font-bold mb-1 text-slate-900 dark:text-white">
+                No sales found
               </h3>
-              <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Try adjusting filters, or refresh to load the latest
                 transactions.
               </p>
@@ -972,22 +1167,49 @@ export default function SalesHistory() {
       )}
 
       {/* Transactions List */}
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {paginatedTransactions.map((transaction) => {
           const isOpen = expanded.has(transaction.transaction_id);
           const preview = transaction.items
             .map(
-              (it) => `${getProductName(it.product_id)} (${it.quantity_sold})`,
+              (it) => `${getProductName(it.product_id)} ×${it.quantity_sold}`,
             )
-            .slice(0, 4)
-            .join(", ");
+            .slice(0, 3)
+            .join(" · ");
+          const customerName =
+            transaction.customer_name || "Walk-in Customer";
+          const isWalkIn = customerName.toLowerCase().includes("walk");
+          const customerStats =
+            insights.customerCounts.get(customerName.trim());
+          const visitCount = customerStats?.count || 1;
+          const isRepeat = !isWalkIn && visitCount > 1;
+          const isVip = !isWalkIn && visitCount >= 5;
+          const status = (
+            transaction.payment_status || "paid"
+          ).toLowerCase();
+          const initials = customerName
+            .split(/\s+/)
+            .map((w) => w[0])
+            .filter(Boolean)
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
           return (
             <div
               key={transaction.transaction_id}
-              className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden"
+              className={`group relative bg-white dark:bg-slate-800 border rounded-2xl overflow-hidden transition-all ${
+                isOpen
+                  ? "border-amber-300 dark:border-amber-700 shadow-md ring-1 ring-amber-200/40"
+                  : "border-slate-200 dark:border-slate-700 hover:border-amber-200 dark:hover:border-amber-800 hover:shadow-sm"
+              }`}
             >
+              {/* Left vertical accent stripe for repeat customers */}
+              {isVip && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 to-orange-500" />
+              )}
+
               <div
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 p-3 md:p-4 cursor-pointer hover:bg-amber-50 dark:hover:bg-slate-700 transition-colors"
+                className="flex items-start gap-3 p-4 cursor-pointer"
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleExpand(transaction.transaction_id)}
@@ -998,231 +1220,265 @@ export default function SalesHistory() {
                 aria-expanded={isOpen}
                 aria-controls={`tx-${transaction.transaction_id}`}
               >
-                <div className="flex-shrink-0 mt-0.5 transform transition-transform duration-300">
-                  <div
-                    className={`p-1.5 md:p-2 rounded-xl border-2 ${
-                      isOpen
-                        ? "bg-amber-50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700"
-                        : "bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600"
-                    }`}
-                  >
-                    {isOpen ? (
-                      <ChevronDown className="w-5 h-5 text-amber-700 dark:text-amber-500" />
-                    ) : (
-                      <ChevronRight className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                    )}
-                  </div>
+                {/* Customer avatar */}
+                <div
+                  className={`flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shadow-sm ${
+                    isWalkIn
+                      ? "bg-slate-100 dark:bg-slate-700 text-slate-500"
+                      : isVip
+                        ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white"
+                        : isRepeat
+                          ? "bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 text-amber-700 dark:text-amber-300"
+                          : "bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300"
+                  }`}
+                  title={customerName}
+                >
+                  {isWalkIn ? <User className="w-5 h-5" /> : initials || "?"}
                 </div>
 
+                {/* Main info */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 md:px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold rounded-xl text-xs border border-amber-200">
-                          {transaction.item_count}{" "}
-                          {transaction.item_count === 1 ? "Item" : "Items"}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      {/* Customer name + badges */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-base font-bold text-slate-900 dark:text-white truncate max-w-[200px]">
+                          {customerName}
                         </span>
+                        {isVip && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm">
+                            <Crown className="w-2.5 h-2.5" />
+                            VIP
+                          </span>
+                        )}
+                        {isRepeat && !isVip && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                            <Star className="w-2.5 h-2.5 fill-current" />
+                            Repeat · {visitCount} visits
+                          </span>
+                        )}
+                        <StatusPill status={status} />
+                      </div>
 
-                        <div className="text-xs font-mono truncate text-slate-600 dark:text-slate-400">
-                          ID: {transaction.transaction_id.slice(0, 8)}...
-                        </div>
-
+                      {/* Meta line */}
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2.5 flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {formatDate(transaction.created_at)}
+                        </span>
+                        <span className="text-slate-300 dark:text-slate-600">
+                          ·
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <CreditCard className="w-3 h-3" />
+                          {transaction.payment_method}
+                        </span>
+                        <span className="text-slate-300 dark:text-slate-600">
+                          ·
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {transaction.sold_by}
+                        </span>
+                        <span className="text-slate-300 dark:text-slate-600">
+                          ·
+                        </span>
+                        <span className="font-mono text-[10px] text-slate-400">
+                          #{transaction.transaction_id.slice(0, 8)}
+                        </span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             copyToClipboard(transaction.transaction_id);
                           }}
                           title="Copy transaction id"
-                          className="ml-2 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="p-0.5 rounded text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
                         >
-                          <Copy className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                          <Copy className="w-3 h-3" />
                         </button>
                         {copiedTx === transaction.transaction_id && (
-                          <span className="ml-2 text-xs text-emerald-600">
-                            Copied
+                          <span className="text-[10px] font-bold text-emerald-600">
+                            Copied!
                           </span>
                         )}
                       </div>
 
-                      <div className="text-xs text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-3 flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(transaction.created_at)}
+                      {/* Items preview */}
+                      <div className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 truncate flex items-center gap-1.5">
+                        <ShoppingBag className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          {transaction.item_count}{" "}
+                          {transaction.item_count === 1 ? "item" : "items"}:
                         </span>
-                        <span className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          {transaction.sold_by}
+                        <span className="truncate">
+                          {preview}
+                          {transaction.items.length > 3 &&
+                            ` +${transaction.items.length - 3} more`}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <CreditCard className="w-3 h-3" />
-                          {transaction.payment_method}
-                        </span>
-                      </div>
-
-                      {/* preview */}
-                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 truncate">
-                        {preview}
                       </div>
                     </div>
 
-                    <div className="text-left sm:text-right ml-0 sm:ml-4 mt-2 sm:mt-0">
-                      <div className="text-base md:text-lg font-extrabold text-slate-900 dark:text-white">
+                    <div className="text-left sm:text-right sm:ml-4 flex-shrink-0">
+                      <div className="text-xl font-black text-slate-900 dark:text-white tabular-nums">
                         KES {transaction.total_amount.toLocaleString()}
                       </div>
-                      {transaction.total_discount > 0 && (
-                        <div className="text-xs text-red-600">
-                          Discount: KES{" "}
-                          {transaction.total_discount.toLocaleString()}
-                        </div>
-                      )}
-                      <div className="text-xs text-emerald-600">
-                        Profit: KES {transaction.total_profit.toLocaleString()}
+                      <div className="flex sm:justify-end items-center gap-2 mt-0.5">
+                        {transaction.total_discount > 0 && (
+                          <span className="text-[11px] text-red-600 dark:text-red-400 font-semibold">
+                            −{transaction.total_discount.toLocaleString()} disc
+                          </span>
+                        )}
+                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                          +{transaction.total_profit.toLocaleString()} profit
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-shrink-0 flex items-center gap-2 mt-2 sm:mt-0">
+                {/* Actions */}
+                <div className="flex-shrink-0 flex items-center gap-1.5">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       openReceiptModal(transaction);
                     }}
-                    className="p-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 transition"
+                    className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center transition-colors"
                     title="View receipt"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
-
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       printReceipt(transaction);
                     }}
-                    className="p-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:scale-105 transition-transform shadow border-2 border-emerald-400"
+                    className="w-9 h-9 rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-sm flex items-center justify-center transition-colors"
                     title="Print receipt"
                   >
                     <Printer className="w-4 h-4" />
                   </button>
+                  <div
+                    className={`hidden sm:flex w-7 h-7 rounded-lg items-center justify-center transition-colors ${
+                      isOpen
+                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {isOpen ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </div>
                 </div>
               </div>
 
               <Collapsible isOpen={isOpen}>
                 <div
                   id={`tx-${transaction.transaction_id}`}
-                  className="border-t-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 p-3 md:p-4"
+                  className="border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4"
                 >
                   {/* Mobile stacked view */}
                   <div className="lg:hidden space-y-2">
-                    {transaction.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-2.5 md:p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="font-medium truncate text-slate-900 dark:text-white">
-                              {getProductName(item.product_id)}
+                    {transaction.items.map((item) => {
+                      const lineGross =
+                        item.selling_price * item.quantity_sold;
+                      const lineDiscount = Math.max(
+                        item.discount_amount || 0,
+                        lineGross - (item.total_sale || 0),
+                      );
+                      return (
+                        <div
+                          key={item.id}
+                          className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-sm truncate text-slate-900 dark:text-white">
+                                {getProductName(item.product_id)}
+                              </div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {item.quantity_sold} ×{" "}
+                                {item.selling_price.toLocaleString()}
+                                {lineDiscount > 0 && (
+                                  <span className="text-red-600 dark:text-red-400 ml-2">
+                                    − {lineDiscount.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                              {(item.original_price &&
-                                `Was KES ${item.original_price.toLocaleString()}`) ||
-                                ""}
+                            <div className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+                              {item.total_sale.toLocaleString()}
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                              KES {item.total_sale.toLocaleString()}
-                            </div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">
-                              Qty: {item.quantity_sold}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
-                          <div>
-                            Unit: KES {item.selling_price.toLocaleString()}
-                          </div>
-                          <div>
-                            {item.discount_amount && item.discount_amount > 0
-                              ? `Disc: -KES ${item.discount_amount.toLocaleString()}`
-                              : ""}
                           </div>
                         </div>
-                      </div>
-                    ))}
-
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-right">
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        Total
-                      </div>
-                      <div className="text-xl font-extrabold text-slate-900 dark:text-white">
-                        KES {transaction.total_amount.toLocaleString()}
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
 
                   {/* Desktop table view */}
-                  <div className="hidden lg:block overflow-x-auto">
+                  <div className="hidden lg:block">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="text-slate-600 dark:text-slate-400">
+                        <tr className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
                           <th className="text-left py-2 px-3">Product</th>
-                          <th className="text-right py-2 px-3">Qty</th>
-                          <th className="text-right py-2 px-3">Price</th>
-                          <th className="text-right py-2 px-3 hidden sm:table-cell">
+                          <th className="text-right py-2 px-3 w-20">Qty</th>
+                          <th className="text-right py-2 px-3 w-28">Unit</th>
+                          <th className="text-right py-2 px-3 w-28">
                             Discount
                           </th>
-                          <th className="text-right py-2 px-3">Total</th>
+                          <th className="text-right py-2 px-3 w-32">Total</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                        {transaction.items.map((item) => (
-                          <tr
-                            key={item.id}
-                            className="text-slate-900 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors"
-                          >
-                            <td className="py-3 px-3">
-                              <div className="flex items-center gap-2">
-                                <Package className="w-4 h-4 text-amber-600" />
-                                <div className="min-w-0">
-                                  <div className="font-medium truncate">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                        {transaction.items.map((item) => {
+                          const lineGross =
+                            item.selling_price * item.quantity_sold;
+                          const lineDiscount = Math.max(
+                            item.discount_amount || 0,
+                            lineGross - (item.total_sale || 0),
+                          );
+                          return (
+                            <tr
+                              key={item.id}
+                              className="text-slate-900 dark:text-white"
+                            >
+                              <td className="py-2.5 px-3">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Package className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                                  <span className="font-medium truncate">
                                     {getProductName(item.product_id)}
-                                  </div>
-                                  <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
-                                    {(item.original_price &&
-                                      `Was KES ${item.original_price.toLocaleString()}`) ||
-                                      ""}
-                                  </div>
+                                  </span>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 text-right">
-                              {item.quantity_sold}
-                            </td>
-                            <td className="py-3 px-3 text-right">
-                              KES {item.selling_price.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-right text-red-600 hidden sm:table-cell">
-                              {item.discount_amount && item.discount_amount > 0
-                                ? `-KES ${item.discount_amount.toLocaleString()}`
-                                : "-"}
-                            </td>
-                            <td className="py-3 px-3 text-right font-semibold">
-                              KES {item.total_sale.toLocaleString()}
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td className="py-2.5 px-3 text-right tabular-nums">
+                                {item.quantity_sold}
+                              </td>
+                              <td className="py-2.5 px-3 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                                {item.selling_price.toLocaleString()}
+                              </td>
+                              <td className="py-2.5 px-3 text-right tabular-nums text-red-600 dark:text-red-400">
+                                {lineDiscount > 0
+                                  ? `−${lineDiscount.toLocaleString()}`
+                                  : "—"}
+                              </td>
+                              <td className="py-2.5 px-3 text-right tabular-nums font-semibold">
+                                {item.total_sale.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
-                      <tfoot className="border-t-2 border-slate-200 dark:border-slate-700">
-                        <tr>
+                      <tfoot>
+                        <tr className="border-t border-slate-200 dark:border-slate-700">
                           <td
                             colSpan={4}
-                            className="py-3 px-3 text-right text-slate-600 dark:text-slate-400 font-semibold"
+                            className="pt-3 px-3 text-right text-slate-500 dark:text-slate-400 font-medium text-xs uppercase tracking-wider"
                           >
                             Total
                           </td>
-                          <td className="py-3 px-3 text-right font-extrabold text-lg text-slate-900 dark:text-white">
+                          <td className="pt-3 px-3 text-right font-bold text-base text-slate-900 dark:text-white tabular-nums">
                             KES {transaction.total_amount.toLocaleString()}
                           </td>
                         </tr>
@@ -1238,59 +1494,48 @@ export default function SalesHistory() {
 
       {/* Pagination Controls */}
       {filteredTransactions.length > 0 && (
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl">
-          <div className="text-sm text-slate-600 dark:text-slate-400">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, filteredTransactions.length)}{" "}
-            of {filteredTransactions.length} transactions
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            Showing{" "}
+            <span className="font-semibold text-slate-900 dark:text-white">
+              {(currentPage - 1) * itemsPerPage + 1}
+            </span>
+            {" – "}
+            <span className="font-semibold text-slate-900 dark:text-white">
+              {Math.min(currentPage * itemsPerPage, filteredTransactions.length)}
+            </span>
+            {" of "}
+            <span className="font-semibold text-slate-900 dark:text-white">
+              {filteredTransactions.length.toLocaleString()}
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <select
               value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600"
+              className="px-3 h-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
             >
-              <option
-                value={10}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
-                10 per page
-              </option>
-              <option
-                value={20}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
-                20 per page
-              </option>
-              <option
-                value={50}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
-                50 per page
-              </option>
-              <option
-                value={100}
-                className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-              >
-                100 per page
-              </option>
+              <option value={10}>10 / page</option>
+              <option value={20}>20 / page</option>
+              <option value={50}>50 / page</option>
+              <option value={100}>100 / page</option>
             </select>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 h-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
 
-              <span className="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-semibold">
-                Page {currentPage} of {totalPages}
+              <span className="px-3 h-9 inline-flex items-center text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                {currentPage} / {totalPages}
               </span>
 
               <button
@@ -1298,7 +1543,7 @@ export default function SalesHistory() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3 h-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -1334,10 +1579,8 @@ export default function SalesHistory() {
 
                 <div className="hidden md:flex items-center gap-2">
                   <button
-                    onClick={() => {
-                      printReceipt(selectedTransaction);
-                    }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-2 rounded-lg shadow border-2 border-emerald-400"
+                    onClick={() => printReceipt(selectedTransaction)}
+                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-3 h-9 rounded-lg text-sm font-medium transition-colors"
                   >
                     <Printer className="w-4 h-4" />
                     Print
@@ -1359,7 +1602,7 @@ export default function SalesHistory() {
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
                     }}
-                    className="flex items-center gap-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600"
+                    className="inline-flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 px-3 h-9 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
                     title="Download receipt (open the file and use browser's Print to PDF)"
                   >
                     <Eye className="w-4 h-4" />
@@ -1368,7 +1611,8 @@ export default function SalesHistory() {
 
                   <button
                     onClick={closeReceiptModal}
-                    className="p-2 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="w-9 h-9 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition-colors"
+                    aria-label="Close"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1389,7 +1633,7 @@ export default function SalesHistory() {
                           </span>
                         </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          Books · Stationery · Electronics — since 2010
+                          Books · Stationery · Electronics — since 2025
                         </p>
                       </div>
                       <div className="md:text-right text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1465,98 +1709,111 @@ export default function SalesHistory() {
                   <div className="px-5 md:px-8 pb-2 overflow-x-auto">
                     <table className="w-full border-collapse text-sm">
                       <thead>
-                        <tr className="bg-slate-900 dark:bg-slate-700 text-white">
-                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold w-10">
+                        <tr className="bg-amber-50 dark:bg-amber-900/20 border-b-2 border-amber-500">
+                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300 w-10">
                             #
                           </th>
-                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300">
                             Product
                           </th>
-                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300">
                             Qty
                           </th>
-                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300">
                             Unit
                           </th>
-                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300">
                             Discount
                           </th>
-                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-bold text-amber-800 dark:text-amber-300">
                             Total
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedTransaction.items.map((item, idx) => (
-                          <tr
-                            key={item.id}
-                            className="border-b border-slate-100 dark:border-slate-700 even:bg-slate-50/60 dark:even:bg-slate-900/40"
-                          >
-                            <td className="py-3 px-3 text-slate-400 font-semibold">
-                              {idx + 1}
-                            </td>
-                            <td className="py-3 px-3 text-slate-900 dark:text-white">
-                              {getProductName(item.product_id)}
-                            </td>
-                            <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
-                              {item.quantity_sold}
-                            </td>
-                            <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
-                              {item.selling_price.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-3 text-right tabular-nums text-red-600 dark:text-red-400">
-                              {item.discount_amount &&
-                              item.discount_amount > 0
-                                ? `−${item.discount_amount.toLocaleString()}`
-                                : "—"}
-                            </td>
-                            <td className="py-3 px-3 text-right tabular-nums font-bold text-slate-900 dark:text-white">
-                              {item.total_sale.toLocaleString()}
-                            </td>
-                          </tr>
-                        ))}
+                        {selectedTransaction.items.map((item, idx) => {
+                          const lineGross =
+                            item.selling_price * item.quantity_sold;
+                          const lineDiscount = Math.max(
+                            item.discount_amount || 0,
+                            lineGross - (item.total_sale || 0),
+                          );
+                          return (
+                            <tr
+                              key={item.id}
+                              className="border-b border-slate-100 dark:border-slate-700 last:border-b-0"
+                            >
+                              <td className="py-3 px-3 text-slate-400 font-semibold">
+                                {idx + 1}
+                              </td>
+                              <td className="py-3 px-3 text-slate-900 dark:text-white">
+                                {getProductName(item.product_id)}
+                              </td>
+                              <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                                {item.quantity_sold}
+                              </td>
+                              <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                                {item.selling_price.toLocaleString()}
+                              </td>
+                              <td className="py-3 px-3 text-right tabular-nums text-red-600 dark:text-red-400 font-semibold">
+                                {lineDiscount > 0
+                                  ? `−${lineDiscount.toLocaleString()}`
+                                  : "—"}
+                              </td>
+                              <td className="py-3 px-3 text-right tabular-nums font-bold text-slate-900 dark:text-white">
+                                {item.total_sale.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
 
                   {/* Totals */}
-                  <div className="px-5 md:px-8 pb-5 pt-2 flex justify-end">
-                    <div className="w-full sm:w-80 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-                      <div className="flex justify-between px-4 py-2.5 text-sm">
-                        <span className="text-slate-500 dark:text-slate-400">
-                          Subtotal
-                        </span>
-                        <span className="tabular-nums text-slate-900 dark:text-white font-medium">
-                          KES{" "}
-                          {selectedTransaction.items
-                            .reduce(
-                              (s, i) =>
-                                s + i.selling_price * i.quantity_sold,
-                              0,
-                            )
-                            .toLocaleString()}
-                        </span>
-                      </div>
-                      {selectedTransaction.total_discount > 0 && (
-                        <div className="flex justify-between px-4 py-2.5 text-sm border-t border-slate-100 dark:border-slate-700">
-                          <span className="text-slate-500 dark:text-slate-400">
-                            Discount
-                          </span>
-                          <span className="tabular-nums text-red-600 dark:text-red-400 font-medium">
-                            − KES{" "}
-                            {selectedTransaction.total_discount.toLocaleString()}
-                          </span>
+                  {(() => {
+                    const subtotal = selectedTransaction.items.reduce(
+                      (s, i) => s + i.selling_price * i.quantity_sold,
+                      0,
+                    );
+                    const discount = Math.max(
+                      selectedTransaction.total_discount || 0,
+                      subtotal - selectedTransaction.total_amount,
+                    );
+                    return (
+                      <div className="px-5 md:px-8 pb-5 pt-2 flex justify-end">
+                        <div className="w-full sm:w-80 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+                          <div className="flex justify-between px-4 py-2.5 text-sm">
+                            <span className="text-slate-500 dark:text-slate-400">
+                              Subtotal
+                            </span>
+                            <span className="tabular-nums text-slate-900 dark:text-white font-semibold">
+                              KES {subtotal.toLocaleString()}
+                            </span>
+                          </div>
+                          {discount > 0 && (
+                            <div className="flex justify-between px-4 py-2.5 text-sm border-t border-slate-100 dark:border-slate-700">
+                              <span className="text-slate-500 dark:text-slate-400">
+                                Discount
+                              </span>
+                              <span className="tabular-nums text-red-600 dark:text-red-400 font-semibold">
+                                − KES {discount.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex justify-between px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-t-2 border-amber-500 font-extrabold">
+                            <span className="text-amber-800 dark:text-amber-300">
+                              Total
+                            </span>
+                            <span className="tabular-nums text-base text-amber-800 dark:text-amber-300">
+                              KES{" "}
+                              {selectedTransaction.total_amount.toLocaleString()}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      <div className="flex justify-between px-4 py-3 bg-slate-900 dark:bg-amber-600 text-white font-bold">
-                        <span>Total</span>
-                        <span className="tabular-nums text-base">
-                          KES{" "}
-                          {selectedTransaction.total_amount.toLocaleString()}
-                        </span>
                       </div>
-                    </div>
-                  </div>
+                    );
+                  })()}
 
                   {/* Footer */}
                   <div className="px-5 md:px-8 py-5 border-t border-dashed border-slate-300 dark:border-slate-700 text-center">
@@ -1573,16 +1830,28 @@ export default function SalesHistory() {
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                       Visit us in Eastleigh · Mon–Sat 8am–8pm · Sun 9am–6pm
                     </p>
+                    <p className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-400 dark:text-slate-500 tracking-wide">
+                      Powered by{" "}
+                      <a
+                        href="https://lenzro.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-amber-600 dark:text-amber-400 hover:underline"
+                      >
+                        Lenzro
+                      </a>{" "}
+                      · lenzro.com
+                    </p>
                   </div>
                 </div>
               </div>
               {/* end receipt content */}
 
-              {/* Mobile footer actions - sticky at bottom for small screens */}
-              <div className="md:hidden sticky bottom-0 left-0 right-0 p-3 bg-white dark:bg-slate-800 border-t dark:border-slate-700 flex gap-2 justify-end">
+              {/* Mobile footer actions */}
+              <div className="md:hidden sticky bottom-0 left-0 right-0 p-3 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex gap-2">
                 <button
                   onClick={() => printReceipt(selectedTransaction)}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-3 py-2 rounded-lg shadow border-2 border-emerald-400"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white h-10 rounded-lg text-sm font-medium transition-colors"
                 >
                   <Printer className="w-4 h-4" />
                   Print
@@ -1604,8 +1873,8 @@ export default function SalesHistory() {
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                   }}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white px-3 py-2 rounded-lg hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-amber-600"
-                  title="Download receipt (open the file and use browser's Print to PDF)"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 h-10 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                  title="Download receipt"
                 >
                   <Eye className="w-4 h-4" />
                   PDF
@@ -1613,7 +1882,8 @@ export default function SalesHistory() {
 
                 <button
                   onClick={closeReceiptModal}
-                  className="p-2 rounded-full text-slate-700 dark:text-slate-300 border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"
+                  className="w-10 h-10 rounded-lg text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center transition-colors"
+                  aria-label="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1622,6 +1892,47 @@ export default function SalesHistory() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  icon: React.ElementType;
+  accent: "amber" | "emerald" | "blue";
+}) {
+  const tones = {
+    amber: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400",
+    emerald:
+      "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+    blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
+  } as const;
+  return (
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
+          {label}
+        </div>
+        <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-0.5 tabular-nums truncate">
+          {value}
+        </div>
+        <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+          {hint}
+        </div>
+      </div>
+      <div
+        className={`flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ${tones[accent]}`}
+      >
+        <Icon className="w-5 h-5" />
+      </div>
     </div>
   );
 }

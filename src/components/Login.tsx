@@ -78,11 +78,11 @@ export default function Login({ onLogin }: LoginProps) {
                 <BookOpen className="w-12 h-12 text-white mx-auto" />
               </div>
             </div>
-            <h1 className="text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-              HORUMAR
+            <h1 className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-amber-600 bg-clip-text text-transparent">
+              Hassan Bookshop
             </h1>
             <p className="text-slate-600 dark:text-slate-400 font-medium mt-2">
-              Gal Nidaamka - Staff Login System
+              Staff Login
             </p>
           </div>
 
@@ -193,13 +193,13 @@ export default function Login({ onLogin }: LoginProps) {
           <div className="flex items-center justify-center gap-2 text-xs text-slate-600 dark:text-slate-400">
             <span>Powered by</span>
             <a
-              href="https://horumarin.com"
+              href="https://lenzro.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-100 to-stone-100 dark:from-amber-900/30 dark:to-stone-900/30 hover:from-amber-200 hover:to-stone-200 dark:hover:from-amber-900/50 dark:hover:to-stone-900/50 border border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-600 rounded-md transition-all hover:scale-105 font-bold text-amber-800 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400"
             >
               <span>⚡</span>
-              <span>Horumar</span>
+              <span>Lenzro</span>
             </a>
           </div>
         </div>

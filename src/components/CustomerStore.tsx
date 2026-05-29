@@ -80,11 +80,9 @@ export default function CustomerStore({ onCheckout }: CustomerStoreProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-800 to-amber-600 bg-clip-text text-transparent">
-                HORUMAR
+                Hassan Bookshop
               </h1>
-              <p className="text-slate-600 mt-1">
-                Dukaan Online - Online Store
-              </p>
+              <p className="text-slate-600 mt-1">Online Store</p>
             </div>
 
             {/* Cart Button */}

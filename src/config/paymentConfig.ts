@@ -1,7 +1,7 @@
 export const MPESA_CONFIG = {
   paybillNumber: "REPLACE_WITH_PAYBILL",
   tillNumber: "REPLACE_WITH_TILL",
-  businessName: "Horumar",
+  businessName: "Hassan Bookshop",
   supportPhone: "+254 722 979 547",
   accountLabel: "Order Reference",
 } as const;

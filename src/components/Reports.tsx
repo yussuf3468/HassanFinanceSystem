@@ -163,7 +163,7 @@ export default function Reports() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont("helvetica", "bold");
-    doc.text("HORUMAR", 105, 15, { align: "center" });
+    doc.text("Hassan Bookshop", 105, 15, { align: "center" });
 
     doc.setFontSize(16);
     doc.text("Inventory Report", 105, 25, { align: "center" });
@@ -272,7 +272,7 @@ export default function Reports() {
           pageHeight - 10,
         );
         doc.text(
-          "Horumar - Confidential",
+          "Hassan Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
           { align: "center" },
@@ -281,7 +281,7 @@ export default function Reports() {
     });
 
     // Save the PDF
-    const filename = `Horumar_Inventory_Report_${
+    const filename = `HassanBookshop_Inventory_Report_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -311,7 +311,7 @@ export default function Reports() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("HORUMAR", 105, 11, { align: "center" });
+    doc.text("Hassan Bookshop", 105, 11, { align: "center" });
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
@@ -413,7 +413,7 @@ export default function Reports() {
     );
     // ----------------------------------------------------
 
-    const filename = `Horumar_Inventory_Print_${
+    const filename = `HassanBookshop_Inventory_Print_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
@@ -651,7 +651,7 @@ export default function Reports() {
           pageHeight - 10,
         );
         doc.text(
-          "Horumar - Confidential",
+          "Hassan Bookshop - Confidential",
           pageSize.width / 2,
           pageHeight - 10,
           { align: "center" },
@@ -660,7 +660,7 @@ export default function Reports() {
     });
 
     // Save the PDF
-    const filename = `Horumar_Sales_Report_${rangeLabel}_${
+    const filename = `HassanBookshop_Sales_Report_${rangeLabel}_${
       new Date().toISOString().split("T")[0]
     }.pdf`;
     doc.save(filename);
