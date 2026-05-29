@@ -89,6 +89,14 @@ export default function SalesHistory() {
     return map;
   }, [products]);
 
+  const getProductName = useCallback(
+    (productId: string) => {
+      const product = productMap.get(productId);
+      return (product && (product.name || (product as any).title)) || "Unknown";
+    },
+    [productMap],
+  );
+
   // Group sales by transaction
   const groupedTransactions = useMemo(() => {
     const groups = new Map<string, GroupedTransaction>();
@@ -258,14 +266,6 @@ export default function SalesHistory() {
     setCurrentPage(1);
   }, [query, paymentFilter, sellerFilter, dateFrom, dateTo]);
 
-  const getProductName = useCallback(
-    (productId: string) => {
-      const product = productMap.get(productId);
-      return (product && (product.name || (product as any).title)) || "Unknown";
-    },
-    [productMap],
-  );
-
   const toggleExpand = (txId: string) => {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -305,40 +305,58 @@ export default function SalesHistory() {
 
       // Create hidden iframe for printing
       const iframe = document.createElement("iframe");
-      iframe.style.position = "absolute";
+      iframe.setAttribute("aria-hidden", "true");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
       iframe.style.width = "0";
       iframe.style.height = "0";
-      iframe.style.border = "none";
+      iframe.style.border = "0";
+
+      let printed = false;
+      const doPrint = () => {
+        if (printed) return;
+        printed = true;
+        try {
+          const win = iframe.contentWindow;
+          if (!win) throw new Error("No iframe window");
+          win.focus();
+          win.print();
+        } catch (err) {
+          console.error("Print error", err);
+          alert(
+            "Unable to print. Please use the PDF download option instead.",
+          );
+        } finally {
+          // Give the print dialog time to open before removing the iframe
+          setTimeout(() => {
+            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+          }, 1500);
+        }
+      };
+
+      // Register handlers BEFORE attaching/writing so we don't miss the load event.
+      iframe.onload = doPrint;
+      // Fallback in case onload doesn't fire (some browsers when using document.write)
+      const fallback = window.setTimeout(doPrint, 800);
+      iframe.addEventListener("load", () => window.clearTimeout(fallback), {
+        once: true,
+      });
 
       document.body.appendChild(iframe);
 
-      const iframeDoc = iframe.contentWindow?.document;
+      const iframeDoc =
+        iframe.contentDocument || iframe.contentWindow?.document;
       if (!iframeDoc) {
+        window.clearTimeout(fallback);
         alert("Unable to print. Please use the PDF option instead.");
-        document.body.removeChild(iframe);
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
         return;
       }
 
       iframeDoc.open();
       iframeDoc.write(html);
       iframeDoc.close();
-
-      // Wait for content to load then print
-      iframe.onload = () => {
-        try {
-          iframe.contentWindow?.focus();
-          iframe.contentWindow?.print();
-
-          // Clean up after print dialog closes
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-          }, 1000);
-        } catch (e) {
-          console.error("Print error", e);
-          alert("Unable to print. Please use the PDF download option instead.");
-          document.body.removeChild(iframe);
-        }
-      };
     } catch (e) {
       console.error(e);
       alert(
