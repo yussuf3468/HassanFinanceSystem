@@ -748,7 +748,7 @@ export default function SalesHistory() {
 
     <div class="doc-title-row">
       <div class="doc-title">Sales Receipt</div>
-      <div class="doc-id">No. <strong>${escapeHtml(transaction.transaction_id)}</strong></div>
+      <div class="doc-id">Receipt <strong>#${escapeHtml(transaction.transaction_id.slice(0, 8).toUpperCase())}</strong></div>
     </div>
 
     <div class="meta-grid">
@@ -1652,10 +1652,13 @@ export default function SalesHistory() {
                     <div className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                       Sales Receipt
                     </div>
-                    <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                      No.{" "}
-                      <span className="font-bold text-slate-900 dark:text-white">
-                        {selectedTransaction.transaction_id}
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      Receipt{" "}
+                      <span className="font-mono font-bold text-slate-900 dark:text-white">
+                        #
+                        {selectedTransaction.transaction_id
+                          .slice(0, 8)
+                          .toUpperCase()}
                       </span>
                     </div>
                   </div>
