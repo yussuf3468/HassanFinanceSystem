@@ -379,21 +379,22 @@ export default function SalesHistory() {
     document.body.style.overflow = "";
   };
 
-  // create HTML used for printing (white, high contrast)
+  // create HTML used for printing (clean, professional Hassan Bookshop receipt)
   function createPrintHtml(transaction: GroupedTransaction) {
     const rows = transaction.items
       .map(
-        (item) => `
+        (item, idx) => `
           <tr>
+            <td class="idx">${idx + 1}</td>
             <td>${escapeHtml(getProductName(item.product_id))}</td>
             <td class="num">${item.quantity_sold}</td>
-            <td class="num">KES ${item.selling_price.toLocaleString()}</td>
-            <td class="num">${
+            <td class="num">${item.selling_price.toLocaleString()}</td>
+            <td class="num disc">${
               item.discount_amount && item.discount_amount > 0
-                ? "-KES " + item.discount_amount.toLocaleString()
-                : "-"
+                ? "−" + item.discount_amount.toLocaleString()
+                : "—"
             }</td>
-            <td class="num">KES ${item.total_sale.toLocaleString()}</td>
+            <td class="num bold">${item.total_sale.toLocaleString()}</td>
           </tr>`,
       )
       .join("");
@@ -403,110 +404,289 @@ export default function SalesHistory() {
       0,
     );
 
+    const paymentStatus = (transaction.payment_status || "paid")
+      .replace("_", " ")
+      .toUpperCase();
+    const isPaid = paymentStatus === "PAID";
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Receipt - HORUMAR</title>
+<title>Receipt ${escapeHtml(transaction.transaction_id.slice(0, 8))} — Hassan Bookshop</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-  @page { size: A4; margin: 10mm; }
-  html, body { height: 100%; margin:0; padding:0; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; color:#111; background:#fff; font-size:13px; line-height:1.4; padding:18px; }
-  .wrap { max-width:720px; margin:0 auto; }
-  .header { text-align:center; margin-bottom:8px; }
-  .header h1 { font-size:20px; margin:0; letter-spacing:0.6px; }
-  .sub { color:#555; font-size:12px; margin-top:2px }
-  table { width:100%; border-collapse:collapse; margin-top:8px; }
-  td, th { padding:6px 8px; border: 1px solid #222; }
-  thead th { background:#f6f6f6; font-weight:700; }
-  .num { text-align:right; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; }
-  .foot { margin-top:12px; text-align:center; color:#444; font-size:12px; }
-  .sig { display:flex; justify-content:space-between; gap:12px; margin-top:12px}
-  .sig > div { border-top:1px solid #000; padding-top:6px; text-align:center; width:45%; font-size:12px; }
+  @page { size: A4; margin: 12mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #0f172a;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .receipt { max-width: 780px; margin: 0 auto; padding: 0 4px; }
+
+  /* ===== Brand header ===== */
+  .brand-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f59e0b;
+  }
+  .brand-name {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #0f172a;
+    margin: 0;
+  }
+  .brand-name .accent { color: #d97706; }
+  .brand-tag {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .brand-meta {
+    text-align: right;
+    font-size: 10.5px;
+    color: #475569;
+    line-height: 1.6;
+  }
+  .brand-meta strong { color: #0f172a; }
+
+  /* ===== Doc title row ===== */
+  .doc-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 18px 0 14px;
+  }
+  .doc-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .doc-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: #475569;
+  }
+  .doc-id strong { color: #0f172a; }
+
+  /* ===== Meta grid ===== */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    background: #fafaf9;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .meta-item .label {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .meta-item .value {
+    font-size: 12px;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  .status-pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .status-paid { background: #d1fae5; color: #065f46; }
+  .status-other { background: #fef3c7; color: #92400e; }
+
+  /* ===== Items table ===== */
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+  }
+  table.items thead th {
+    background: #0f172a;
+    color: #fff;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 9px 10px;
+    text-align: left;
+  }
+  table.items thead th.num { text-align: right; }
+  table.items tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #0f172a;
+  }
+  table.items tbody tr:nth-child(even) td { background: #fafaf9; }
+  table.items .idx { width: 28px; color: #94a3b8; font-weight: 600; }
+  table.items .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.items .disc { color: #b91c1c; }
+  table.items .bold { font-weight: 700; }
+
+  /* ===== Totals ===== */
+  .totals-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 22px;
+  }
+  .totals {
+    min-width: 280px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .totals .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  .totals .row + .row { border-top: 1px solid #f1f5f9; }
+  .totals .row .l { color: #475569; }
+  .totals .row .v { color: #0f172a; font-variant-numeric: tabular-nums; }
+  .totals .row.disc .v { color: #b91c1c; }
+  .totals .row.grand {
+    background: #0f172a;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+  .totals .row.grand .l, .totals .row.grand .v { color: #fff; }
+
+  /* ===== Footer ===== */
+  .footer {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px dashed #cbd5e1;
+    text-align: center;
+    color: #64748b;
+    font-size: 11px;
+  }
+  .footer strong { color: #0f172a; }
+  .footer .thanks {
+    font-size: 13px;
+    font-weight: 700;
+    color: #d97706;
+    margin-bottom: 4px;
+  }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="header">
-      <h1>HORUMAR</h1>
-      <div class="sub">Quality Educational Materials & Supplies</div>
-      <div class="sub">Tel: +254 722 979 547 • Email: yussufh080@gmail.com</div>
-      <div style="margin-top:10px;font-weight:700;">Sales Receipt</div>
+  <div class="receipt">
+
+    <div class="brand-bar">
+      <div>
+        <h1 class="brand-name">Hassan <span class="accent">Bookshop</span></h1>
+        <div class="brand-tag">Books · Stationery · Electronics — since 2010</div>
+      </div>
+      <div class="brand-meta">
+        <strong>Global Apartments, Eastleigh Section 1</strong><br />
+        Nairobi, Kenya<br />
+        +254 722 979 547 · yussufh080@gmail.com
+      </div>
     </div>
 
-    <table>
-      <tr>
-        <td><strong>Transaction:</strong> ${transaction.transaction_id}</td>
-        <td class="mono"><strong>Date:</strong> ${new Date(
-          transaction.created_at,
-        ).toLocaleString()}</td>
-      </tr>
-      <tr>
-        <td><strong>Customer:</strong> ${escapeHtml(
-          transaction.customer_name || "Walk-in Customer",
-        )}</td>
-        <td><strong>Payment:</strong> ${escapeHtml(
-          transaction.payment_method,
-        )}</td>
-      </tr>
-      <tr>
-        <td><strong>Sold By:</strong> ${escapeHtml(transaction.sold_by)}</td>
-        <td><strong>Payment Status:</strong> ${escapeHtml(
-          (transaction.payment_status || "paid")
-            .replace("_", " ")
-            .toUpperCase(),
-        )}</td>
-      </tr>
+    <div class="doc-title-row">
+      <div class="doc-title">Sales Receipt</div>
+      <div class="doc-id">No. <strong>${escapeHtml(transaction.transaction_id)}</strong></div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="label">Date</div>
+        <div class="value">${new Date(transaction.created_at).toLocaleString()}</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Customer</div>
+        <div class="value">${escapeHtml(transaction.customer_name || "Walk-in Customer")}</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Sold By</div>
+        <div class="value">${escapeHtml(transaction.sold_by)}</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Payment Method</div>
+        <div class="value">${escapeHtml(transaction.payment_method)}</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Status</div>
+        <div class="value"><span class="status-pill ${isPaid ? "status-paid" : "status-other"}">${escapeHtml(paymentStatus)}</span></div>
+      </div>
       ${
         transaction.amount_paid
-          ? `<tr>
-        <td colspan="2"><strong>Amount Paid:</strong> KES ${transaction.amount_paid.toLocaleString()}</td>
-      </tr>`
+          ? `<div class="meta-item">
+        <div class="label">Amount Paid</div>
+        <div class="value">KES ${transaction.amount_paid.toLocaleString()}</div>
+      </div>`
           : ""
       }
-    </table>
+    </div>
 
-    <table>
+    <table class="items">
       <thead>
         <tr>
-          <th style="text-align:left">Product</th>
+          <th class="idx">#</th>
+          <th>Product</th>
           <th class="num">Qty</th>
-          <th class="num">Unit</th>
-          <th class="num">Disc</th>
-          <th class="num">Line</th>
+          <th class="num">Unit (KES)</th>
+          <th class="num">Discount</th>
+          <th class="num">Total (KES)</th>
         </tr>
       </thead>
       <tbody>
         ${rows}
       </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="4" style="text-align:right">Subtotal</td>
-          <td class="num">KES ${subtotal.toLocaleString()}</td>
-        </tr>
-        ${
-          transaction.total_discount > 0
-            ? `<tr>
-            <td colspan="4" style="text-align:right">Discount</td>
-            <td class="num">-KES ${transaction.total_discount.toLocaleString()}</td>
-          </tr>`
-            : ""
-        }
-        <tr>
-          <td colspan="4" style="text-align:right">Total</td>
-          <td class="num">KES ${transaction.total_amount.toLocaleString()}</td>
-        </tr>
-      </tfoot>
     </table>
 
-    <div class="sig">
-      <div>Customer Signature</div>
-      <div>Staff Signature</div>
+    <div class="totals-wrap">
+      <div class="totals">
+        <div class="row">
+          <span class="l">Subtotal</span>
+          <span class="v">KES ${subtotal.toLocaleString()}</span>
+        </div>
+        ${
+          transaction.total_discount > 0
+            ? `<div class="row disc">
+              <span class="l">Discount</span>
+              <span class="v">− KES ${transaction.total_discount.toLocaleString()}</span>
+            </div>`
+            : ""
+        }
+        <div class="row grand">
+          <span class="l">Total</span>
+          <span class="v">KES ${transaction.total_amount.toLocaleString()}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="foot">Thank you for your purchase. Please keep this receipt for your records.</div>
+    <div class="footer">
+      <div class="thanks">Thank you for shopping with Hassan Bookshop!</div>
+      Please keep this receipt for returns or exchanges within <strong>7 days</strong>.<br />
+      Visit us in Eastleigh · Mon–Sat 8am–8pm · Sun 9am–6pm
+    </div>
   </div>
 </body>
 </html>`;
@@ -1195,165 +1375,204 @@ export default function SalesHistory() {
                 </div>
               </div>
 
-              {/* Receipt content - emphasized, white card with dark text */}
-              <div className="p-4 md:p-6 overflow-auto flex-1">
-                <div className="max-w-[820px] mx-auto">
-                  <div className="text-center mb-4">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                      HORUMAR
-                    </h3>
-                    <div className="text-sm text-slate-700 dark:text-slate-400">
-                      Quality Educational Materials & Supplies
-                    </div>
-                    <div className="text-sm text-slate-700 dark:text-slate-400">
-                      Tel: +254 722 979 547 • yussufh080@gmail.com
+              {/* Receipt content — clean modal preview */}
+              <div className="p-4 md:p-6 overflow-auto flex-1 bg-slate-50 dark:bg-slate-900">
+                <div className="max-w-[820px] mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  {/* Brand header */}
+                  <div className="px-5 md:px-8 pt-6 pb-5 border-b-2 border-amber-500">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                      <div>
+                        <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                          Hassan{" "}
+                          <span className="text-amber-600 dark:text-amber-400">
+                            Bookshop
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Books · Stationery · Electronics — since 2010
+                        </p>
+                      </div>
+                      <div className="md:text-right text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        <div className="font-semibold text-slate-800 dark:text-slate-200">
+                          Global Apartments, Eastleigh Section 1
+                        </div>
+                        <div>Nairobi, Kenya</div>
+                        <div>+254 722 979 547</div>
+                        <div className="break-all">yussufh080@gmail.com</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Transaction
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {selectedTransaction.transaction_id}
-                      </div>
+                  {/* Doc title row */}
+                  <div className="px-5 md:px-8 pt-5 pb-3 flex items-end justify-between gap-3 flex-wrap">
+                    <div className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Sales Receipt
                     </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Date
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {new Date(
+                    <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                      No.{" "}
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {selectedTransaction.transaction_id}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Meta grid */}
+                  <div className="px-5 md:px-8 pb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                      <MetaItem
+                        label="Date"
+                        value={new Date(
                           selectedTransaction.created_at,
                         ).toLocaleString()}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Customer
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {selectedTransaction.customer_name ||
-                          "Walk-in Customer"}
-                      </div>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Payment
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {selectedTransaction.payment_method}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Sold By
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {selectedTransaction.sold_by}
-                      </div>
-                    </div>
-                    <div className="text-left sm:text-right">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Payment Status
-                      </div>
-                      <div className="font-medium text-slate-900 dark:text-white">
-                        {(selectedTransaction.payment_status || "paid")
-                          .replace("_", " ")
-                          .toUpperCase()}
-                      </div>
-                    </div>
-                    {selectedTransaction.amount_paid && (
-                      <div className="sm:col-span-2">
-                        <div className="text-xs text-slate-700 dark:text-slate-400">
-                          Amount Paid
+                      />
+                      <MetaItem
+                        label="Customer"
+                        value={
+                          selectedTransaction.customer_name ||
+                          "Walk-in Customer"
+                        }
+                      />
+                      <MetaItem
+                        label="Sold By"
+                        value={selectedTransaction.sold_by}
+                      />
+                      <MetaItem
+                        label="Payment Method"
+                        value={selectedTransaction.payment_method}
+                      />
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                          Status
                         </div>
-                        <div className="font-medium text-slate-900 dark:text-white">
-                          KES {selectedTransaction.amount_paid.toLocaleString()}
+                        <div className="mt-1">
+                          <StatusPill
+                            status={
+                              selectedTransaction.payment_status || "paid"
+                            }
+                          />
                         </div>
                       </div>
-                    )}
+                      {selectedTransaction.amount_paid && (
+                        <MetaItem
+                          label="Amount Paid"
+                          value={`KES ${selectedTransaction.amount_paid.toLocaleString()}`}
+                        />
+                      )}
+                    </div>
                   </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                  {/* Items table */}
+                  <div className="px-5 md:px-8 pb-2 overflow-x-auto">
+                    <table className="w-full border-collapse text-sm">
                       <thead>
-                        <tr className="text-sm text-slate-700 dark:text-slate-400 border-b dark:border-slate-700">
-                          <th className="text-left py-2">Product</th>
-                          <th className="text-right py-2">Qty</th>
-                          <th className="text-right py-2">Unit</th>
-                          <th className="text-right py-2">Discount</th>
-                          <th className="text-right py-2">Line</th>
+                        <tr className="bg-slate-900 dark:bg-slate-700 text-white">
+                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold w-10">
+                            #
+                          </th>
+                          <th className="text-left py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                            Product
+                          </th>
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                            Qty
+                          </th>
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                            Unit
+                          </th>
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                            Discount
+                          </th>
+                          <th className="text-right py-2.5 px-3 text-[10px] uppercase tracking-wider font-semibold">
+                            Total
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedTransaction.items.map((item) => (
+                        {selectedTransaction.items.map((item, idx) => (
                           <tr
                             key={item.id}
-                            className="text-sm text-slate-900 dark:text-white"
+                            className="border-b border-slate-100 dark:border-slate-700 even:bg-slate-50/60 dark:even:bg-slate-900/40"
                           >
-                            <td className="py-3">
+                            <td className="py-3 px-3 text-slate-400 font-semibold">
+                              {idx + 1}
+                            </td>
+                            <td className="py-3 px-3 text-slate-900 dark:text-white">
                               {getProductName(item.product_id)}
                             </td>
-                            <td className="py-3 text-right">
+                            <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
                               {item.quantity_sold}
                             </td>
-                            <td className="py-3 text-right">
-                              KES {item.selling_price.toLocaleString()}
+                            <td className="py-3 px-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                              {item.selling_price.toLocaleString()}
                             </td>
-                            <td className="py-3 text-right">
-                              {item.discount_amount && item.discount_amount > 0
-                                ? `-KES ${item.discount_amount.toLocaleString()}`
-                                : "-"}
+                            <td className="py-3 px-3 text-right tabular-nums text-red-600 dark:text-red-400">
+                              {item.discount_amount &&
+                              item.discount_amount > 0
+                                ? `−${item.discount_amount.toLocaleString()}`
+                                : "—"}
                             </td>
-                            <td className="py-3 text-right font-semibold">
-                              KES {item.total_sale.toLocaleString()}
+                            <td className="py-3 px-3 text-right tabular-nums font-bold text-slate-900 dark:text-white">
+                              {item.total_sale.toLocaleString()}
                             </td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot>
-                        <tr className="border-t dark:border-slate-700">
-                          <td
-                            colSpan={4}
-                            className="py-3 text-right text-slate-700 dark:text-slate-400 font-medium"
-                          >
-                            Total
-                          </td>
-                          <td className="py-3 text-right font-extrabold text-slate-900 dark:text-white">
-                            KES{" "}
-                            {selectedTransaction.total_amount.toLocaleString()}
-                          </td>
-                        </tr>
-                      </tfoot>
                     </table>
                   </div>
 
-                  <div className="mt-6 flex gap-6 items-center">
-                    <div className="flex-1">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Notes
+                  {/* Totals */}
+                  <div className="px-5 md:px-8 pb-5 pt-2 flex justify-end">
+                    <div className="w-full sm:w-80 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                      <div className="flex justify-between px-4 py-2.5 text-sm">
+                        <span className="text-slate-500 dark:text-slate-400">
+                          Subtotal
+                        </span>
+                        <span className="tabular-nums text-slate-900 dark:text-white font-medium">
+                          KES{" "}
+                          {selectedTransaction.items
+                            .reduce(
+                              (s, i) =>
+                                s + i.selling_price * i.quantity_sold,
+                              0,
+                            )
+                            .toLocaleString()}
+                        </span>
                       </div>
-                      <div className="text-sm text-slate-700 dark:text-slate-400">
-                        Thank you for your purchase. Keep this receipt for
-                        returns.
+                      {selectedTransaction.total_discount > 0 && (
+                        <div className="flex justify-between px-4 py-2.5 text-sm border-t border-slate-100 dark:border-slate-700">
+                          <span className="text-slate-500 dark:text-slate-400">
+                            Discount
+                          </span>
+                          <span className="tabular-nums text-red-600 dark:text-red-400 font-medium">
+                            − KES{" "}
+                            {selectedTransaction.total_discount.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between px-4 py-3 bg-slate-900 dark:bg-amber-600 text-white font-bold">
+                        <span>Total</span>
+                        <span className="tabular-nums text-base">
+                          KES{" "}
+                          {selectedTransaction.total_amount.toLocaleString()}
+                        </span>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="w-48">
-                      <div className="text-xs text-slate-700 dark:text-slate-400">
-                        Signatures
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        <div className="flex-1 border-t dark:border-slate-700 pt-2 text-center text-xs text-slate-700 dark:text-slate-400">
-                          Customer
-                        </div>
-                        <div className="flex-1 border-t pt-2 text-center text-xs">
-                          Staff
-                        </div>
-                      </div>
-                    </div>
+                  {/* Footer */}
+                  <div className="px-5 md:px-8 py-5 border-t border-dashed border-slate-300 dark:border-slate-700 text-center">
+                    <p className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                      Thank you for shopping with Hassan Bookshop!
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Please keep this receipt for returns or exchanges within{" "}
+                      <strong className="text-slate-700 dark:text-slate-300">
+                        7 days
+                      </strong>
+                      .
+                    </p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      Visit us in Eastleigh · Mon–Sat 8am–8pm · Sun 9am–6pm
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1404,5 +1623,34 @@ export default function SalesHistory() {
         </div>
       )}
     </div>
+  );
+}
+
+function MetaItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+        {label}
+      </div>
+      <div className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5 truncate">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  const normalized = status.replace("_", " ").toUpperCase();
+  const isPaid = normalized === "PAID";
+  return (
+    <span
+      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide ${
+        isPaid
+          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+          : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+      }`}
+    >
+      {normalized}
+    </span>
   );
 }
