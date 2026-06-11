@@ -16,10 +16,7 @@ import DeliveryAddressSelector from "./DeliveryAddressSelector";
 import type { CheckoutForm } from "../types";
 import type { Database } from "../lib/database.types";
 import Dialog from "./ecommerce/Dialog";
-import Button from "./ecommerce/Button";
 import Input from "./ecommerce/Input";
-import Badge from "./ecommerce/Badge";
-import Alert from "./ecommerce/Alert";
 import OrderConfirmationDialog from "./ecommerce/OrderConfirmationDialog";
 import {
   notifyAdminNewOrder,
@@ -321,43 +318,44 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
 
   return (
     <>
-      <Dialog isOpen={isOpen} onClose={onClose} title="Complete Your Order" size="lg">
-        <div className="space-y-4 sm:space-y-6">
+      <Dialog isOpen={isOpen} onClose={onClose} title="Checkout" size="lg">
+        <div className="space-y-6">
           {/* Order Summary */}
-          <div className="p-3 sm:p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl border border-violet-200 dark:border-violet-800">
-            <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-violet-600" />
-              Order Summary
+          <div className="p-4 sm:p-5 bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-2xl">
+            <h3 className="font-semibold text-[15px] text-[#1d1d1f] dark:text-white mb-3 flex items-center gap-2">
+              <CheckCircle className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+              Order summary
             </h3>
             <div className="space-y-2">
               {cart.items.map((item) => (
-                <div key={item.product.id} className="flex justify-between text-sm">
-                  <span className="text-slate-700 dark:text-slate-300">
-                    {item.product.name} x {item.quantity}
+                <div key={item.product.id} className="flex justify-between text-[14px] gap-3">
+                  <span className="text-[#6e6e73] dark:text-[#a1a1a6] min-w-0">
+                    {item.product.name}{" "}
+                    <span className="text-[#86868b]">× {item.quantity}</span>
                   </span>
-                  <span className="font-semibold text-slate-900 dark:text-white whitespace-nowrap text-xs sm:text-sm">
+                  <span className="font-medium text-[#1d1d1f] dark:text-white whitespace-nowrap tabular-nums">
                     {currencyCode}{" "}
                     {(item.product.selling_price * item.quantity).toLocaleString()}
                   </span>
                 </div>
               ))}
-              <div className="pt-2 sm:pt-3 mt-2 border-t border-violet-200 dark:border-violet-800 flex justify-between">
-                <span className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              <div className="pt-3 mt-1 border-t border-black/8 dark:border-white/10 flex justify-between items-baseline">
+                <span className="font-semibold text-[15px] text-[#1d1d1f] dark:text-white">
                   Total
                 </span>
-                <span className="font-bold text-sm sm:text-base text-violet-600 dark:text-violet-400">
+                <span className="font-semibold text-[17px] text-[#1d1d1f] dark:text-white tabular-nums">
                   {currencyCode} {total.toLocaleString()}
                 </span>
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Customer Information */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <User className="w-5 h-5 text-violet-600" />
-                Customer Information
+              <h3 className="font-semibold text-[17px] text-[#1d1d1f] dark:text-white flex items-center gap-2">
+                <User className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+                Your details
               </h3>
 
               <Input
@@ -394,15 +392,15 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
 
             {/* Delivery Information */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <Truck className="w-5 h-5 text-violet-600" />
-                Delivery Information
+              <h3 className="font-semibold text-[17px] text-[#1d1d1f] dark:text-white flex items-center gap-2">
+                <Truck className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+                Delivery
               </h3>
 
               {savedAddresses.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    Saved Addresses
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-[#86868b]">
+                    Saved addresses
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {savedAddresses.map((address) => {
@@ -414,17 +412,17 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
                           key={address.id}
                           type="button"
                           onClick={() => applySavedAddress(address)}
-                          className={`rounded-xl border px-3 py-2 text-left transition ${
+                          className={`rounded-2xl border-2 px-3.5 py-2.5 text-left transition-colors ${
                             isSelected
-                              ? "border-violet-500 bg-violet-50 dark:bg-violet-900/20"
-                              : "border-slate-200 bg-white hover:border-violet-300 dark:border-slate-700 dark:bg-slate-900"
+                              ? "border-[#1d1d1f] dark:border-white bg-[#1d1d1f]/[0.04] dark:bg-white/[0.06]"
+                              : "border-black/8 bg-white hover:border-black/20 dark:border-white/10 dark:bg-[#2c2c2e] dark:hover:border-white/25"
                           }`}
                         >
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          <p className="text-[14px] font-semibold text-[#1d1d1f] dark:text-white">
                             {address.label}
-                            {address.isDefault ? " • Default" : ""}
+                            {address.isDefault ? " · Default" : ""}
                           </p>
-                          <p className="max-w-[220px] text-xs text-slate-500 dark:text-slate-400">
+                          <p className="max-w-[220px] text-[12px] text-[#86868b]">
                             {formattedAddress}
                           </p>
                         </button>
@@ -452,12 +450,12 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
 
             {/* Payment Method */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-violet-600" />
-                Payment Method
+              <h3 className="font-semibold text-[17px] text-[#1d1d1f] dark:text-white flex items-center gap-2">
+                <CreditCard className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+                Payment
               </h3>
 
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {[
                   { value: "mpesa", label: "M-Pesa", icon: "📱" },
                   { value: "cash", label: "Cash on Delivery", icon: "💵" },
@@ -467,78 +465,74 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
                     label: "Bank Transfer",
                     icon: "🏦",
                   },
-                ].map((method) => (
-                  <button
-                    key={method.value}
-                    type="button"
-                    onClick={() => setPaymentMethod(method.value as any)}
-                    className={`p-3 sm:p-4 rounded-xl border-2 transition-all touch-manipulation active:scale-95 ${
-                      paymentMethod === method.value
-                        ? "border-violet-600 bg-violet-50 dark:bg-violet-900/20"
-                        : "border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700"
-                    }`}
-                  >
-                    <div className="text-xl sm:text-2xl mb-1">{method.icon}</div>
-                    <div className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white line-clamp-2">
-                      {method.label}
-                    </div>
-                    {paymentMethod === method.value && (
-                      <Badge variant="success" size="sm" className="mt-2">
-                        Selected
-                      </Badge>
-                    )}
-                  </button>
-                ))}
+                ].map((method) => {
+                  const selected = paymentMethod === method.value;
+                  return (
+                    <button
+                      key={method.value}
+                      type="button"
+                      onClick={() => setPaymentMethod(method.value as any)}
+                      className={`relative p-4 rounded-2xl border-2 text-left transition-colors touch-manipulation ${
+                        selected
+                          ? "border-[#1d1d1f] dark:border-white bg-[#1d1d1f]/[0.04] dark:bg-white/[0.06]"
+                          : "border-black/8 dark:border-white/10 hover:border-black/20 dark:hover:border-white/25"
+                      }`}
+                    >
+                      <div className="text-2xl mb-1.5">{method.icon}</div>
+                      <div className="text-[14px] font-medium text-[#1d1d1f] dark:text-white line-clamp-2">
+                        {method.label}
+                      </div>
+                      {selected && (
+                        <CheckCircle className="absolute top-3 right-3 w-5 h-5 text-[#1d1d1f] dark:text-white" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="pt-2 sm:pt-4 space-y-2 sm:space-y-3">
+            <div className="pt-2 space-y-3">
               {/* Save Info Checkbox */}
-              <label className="flex items-start sm:items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 transition-colors touch-manipulation">
+              <label className="flex items-center gap-3 p-3.5 bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-2xl cursor-pointer transition-colors touch-manipulation">
                 <input
                   type="checkbox"
                   checked={saveInfo}
                   onChange={(e) => setSaveInfo(e.target.checked)}
-                  className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 sm:mt-0 rounded border-slate-300 text-violet-600 focus:ring-violet-500 focus:ring-offset-0 cursor-pointer"
+                  className="w-5 h-5 rounded-md border-black/20 text-[#1d1d1f] dark:text-white focus:ring-[#1d1d1f]/20 focus:ring-offset-0 cursor-pointer"
                 />
                 <div className="flex-1">
-                  <span className="text-xs sm:text-sm font-medium text-slate-900 dark:text-white">
+                  <span className="text-[14px] font-medium text-[#1d1d1f] dark:text-white">
                     Remember my information
                   </span>
-                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-[12px] text-[#86868b] mt-0.5">
                     Save my details for faster checkout next time
                   </p>
                 </div>
               </label>
 
-              <Alert variant="info">
-                <strong>Secure Checkout:</strong> Your information is encrypted and secure
-              </Alert>
+              <p className="text-[12px] text-[#86868b] text-center px-2">
+                🔒 Your information is encrypted and secure.
+              </p>
 
-              <Button
+              <button
                 type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                isLoading={isSubmitting}
                 disabled={isSubmitting}
+                className="w-full h-12 flex items-center justify-center bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] disabled:opacity-60 text-white dark:text-[#1d1d1f] text-[15px] font-medium rounded-full transition-colors"
               >
                 {isSubmitting
-                  ? "Processing Order..."
-                  : `Place Order • ${currencyCode} ${total.toLocaleString()}`}
-              </Button>
+                  ? "Processing…"
+                  : `Place order · ${currencyCode} ${total.toLocaleString()}`}
+              </button>
 
-              <Button
+              <button
                 type="button"
                 onClick={onClose}
-                variant="outline"
-                size="md"
-                fullWidth
                 disabled={isSubmitting}
+                className="w-full h-11 flex items-center justify-center text-[#1d1d1f] dark:text-white text-[15px] font-medium rounded-full hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c2e] disabled:opacity-60 transition-colors"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </form>
         </div>

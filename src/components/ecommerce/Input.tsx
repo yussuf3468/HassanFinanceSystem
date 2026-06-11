@@ -24,48 +24,44 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 sm:mb-2">
+          <label className="block text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] mb-1.5">
             {label}
           </label>
         )}
         <div className="relative">
           {Icon && (
-            <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400">
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]">
+              <Icon className="w-[18px] h-[18px]" />
             </div>
           )}
           <input
             ref={ref}
             type={type}
             className={`
-              w-full rounded-xl border-2 bg-white dark:bg-slate-900 
-              text-sm sm:text-base text-slate-900 dark:text-white
-              transition-all duration-300
-              ${
-                Icon ? "pl-10 sm:pl-12 pr-3 sm:pr-4" : "px-3 sm:px-4"
-              } py-2.5 sm:py-3
+              w-full rounded-xl border bg-white dark:bg-[#2c2c2e]
+              text-[15px] text-[#1d1d1f] dark:text-white
+              transition-all
+              ${Icon ? "pl-11 pr-4" : "px-4"} h-11
               ${
                 error
-                  ? "border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/20"
-                  : "border-slate-200 dark:border-slate-700 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20"
+                  ? "border-[#ff3b30] focus:border-[#ff3b30] focus:ring-2 focus:ring-[#ff3b30]/20"
+                  : "border-black/10 dark:border-white/10 focus:border-[#1d1d1f] dark:focus:border-white focus:ring-2 focus:ring-[#1d1d1f]/15 dark:focus:ring-white/20"
               }
-              placeholder:text-slate-400 dark:placeholder:text-slate-500
+              placeholder:text-[#86868b]
               disabled:opacity-50 disabled:cursor-not-allowed
-              touch-manipulation
+              outline-none touch-manipulation
               ${className}
             `}
             {...props}
           />
         </div>
         {error && (
-          <p className="mt-1.5 text-sm font-medium text-red-600 dark:text-red-400">
+          <p className="mt-1.5 text-[13px] font-medium text-[#ff3b30]">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-            {helperText}
-          </p>
+          <p className="mt-1.5 text-[13px] text-[#86868b]">{helperText}</p>
         )}
       </div>
     );

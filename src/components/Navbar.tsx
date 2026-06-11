@@ -83,44 +83,40 @@ const Navbar = memo(
     const toggleUserMenu = useCallback(() => setIsUserMenuOpen((p) => !p), []);
 
     return (
-      <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md border-b border-amber-200/60 dark:border-amber-700/30 shadow-sm shadow-amber-100/40 dark:shadow-black/20">
-        {/* Top amber accent line */}
-        <div className="h-0.5 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500" />
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-black/5 dark:border-white/10">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+          {/* ── Main row (compact, 48px — Apple-thin) ── */}
+          <div className="flex items-center gap-3 h-12 sm:h-12">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 sm:gap-6 h-16">
-
-            {/* ── Logo ── */}
-            <div className="flex-shrink-0 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-400/30">
-                <BookOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+            {/* Logo */}
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="flex-shrink-0 flex items-center gap-2 group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] dark:bg-white flex items-center justify-center">
+                <BookOpen
+                  className="w-4 h-4 text-white dark:text-[#1d1d1f]"
+                  strokeWidth={2}
+                />
               </div>
-              <div className="hidden xs:block">
-                <p className="text-base sm:text-lg font-black bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 bg-clip-text text-transparent leading-none tracking-tight">
-                  HASSAN
-                </p>
-                <p className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-[0.18em] leading-none mt-0.5">
-                  Bookshop
-                </p>
-              </div>
-              {/* Mobile-only compact logo */}
-              <p className="xs:hidden text-base font-black bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent leading-none">
-                HASSAN
-              </p>
-            </div>
+              <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
+                Hassan Bookshop
+              </span>
+            </button>
 
-            {/* ── Desktop Search ── */}
-            <div className="hidden md:flex flex-1 max-w-xl" ref={searchRef}>
+            {/* Desktop search */}
+            <div className="hidden md:flex flex-1 max-w-md mx-auto" ref={searchRef}>
               <div className="relative w-full">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b] w-4 h-4 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="Search books, stationery, electronics…"
+                  placeholder="Search products"
                   value={searchTerm}
                   onChange={handleSearchChange}
                   onFocus={() => setShowSearchSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSearchSuggestions(false), 200)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 dark:focus:ring-amber-500 dark:focus:border-amber-500 text-sm outline-none transition-all"
+                  className="w-full pl-9 pr-4 h-9 bg-[#f5f5f7] dark:bg-[#1d1d1f] text-[#1d1d1f] dark:text-white placeholder-[#86868b] rounded-full text-[14px] outline-none focus:ring-2 focus:ring-[#1d1d1f]/15 dark:focus:ring-white/20 transition-all"
                 />
                 <SearchSuggestions
                   searchTerm={searchTerm}
@@ -140,171 +136,189 @@ const Navbar = memo(
               </div>
             </div>
 
-            {/* ── Desktop Actions ── */}
-            <div className="hidden md:flex items-center gap-2 ml-auto">
+            {/* Right actions */}
+            <div className="flex items-center gap-0.5 sm:gap-1 ml-auto">
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 aria-label="Toggle theme"
               >
-                {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
+                {theme === "dark" ? (
+                  <Sun className="w-[18px] h-[18px]" />
+                ) : (
+                  <Moon className="w-[18px] h-[18px]" />
+                )}
               </button>
 
               {/* Cart */}
               <button
                 onClick={onCartClick}
-                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                className="relative w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 aria-label={`Cart: ${cart.totalItems} items`}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-[18px] h-[18px]" />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-br from-amber-500 to-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1 shadow-md shadow-amber-400/40">
+                  <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-[#1d1d1f] dark:bg-white text-white dark:text-[#1d1d1f] text-[10px] font-semibold rounded-full flex items-center justify-center px-1 ring-2 ring-white dark:ring-black">
                     {cart.totalItems > 99 ? "99+" : cart.totalItems}
                   </span>
                 )}
               </button>
 
-              {/* User */}
-              {user ? (
-                <div className="relative">
-                  <button
-                    onClick={toggleUserMenu}
-                    className="flex items-center gap-2 pl-2.5 pr-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
-                  >
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                      <User className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-amber-800 dark:text-amber-300 max-w-[80px] truncate">
-                      {user.email?.split("@")[0]}
-                    </span>
-                  </button>
-
-                  {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 py-2 z-50">
-                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
-                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Signed in as</p>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate mt-0.5">{user.email}</p>
-                      </div>
-                      {onAdminClick && (
+              {/* Desktop user / sign-in */}
+              <div className="hidden md:block">
+                {user ? (
+                  <div className="relative">
+                    <button
+                      onClick={toggleUserMenu}
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                      aria-label="Account"
+                    >
+                      <User className="w-[18px] h-[18px]" />
+                    </button>
+                    {isUserMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#1d1d1f] rounded-2xl shadow-2xl border border-black/5 dark:border-white/10 py-2 z-50">
+                        <div className="px-4 py-3 border-b border-black/5 dark:border-white/10">
+                          <p className="text-[11px] font-medium text-[#86868b] uppercase tracking-wider">
+                            Signed in as
+                          </p>
+                          <p className="text-[14px] font-semibold text-[#1d1d1f] dark:text-white truncate mt-0.5">
+                            {user.email}
+                          </p>
+                        </div>
+                        {onAdminClick && (
+                          <button
+                            onClick={() => { onAdminClick(); setIsUserMenuOpen(false); }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c2e] transition-colors"
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            <span className="font-medium">Admin Panel</span>
+                          </button>
+                        )}
                         <button
-                          onClick={() => { onAdminClick(); setIsUserMenuOpen(false); }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-[#ff3b30] hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c2e] transition-colors"
                         >
-                          <LayoutDashboard className="w-4 h-4" />
-                          <span className="font-semibold">Admin Panel</span>
+                          <LogOut className="w-4 h-4" />
+                          <span className="font-medium">Sign Out</span>
                         </button>
-                      )}
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span className="font-semibold">Sign Out</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={onAuthClick}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold hover:from-amber-600 hover:to-orange-600 shadow-md shadow-amber-400/30 transition-all hover:shadow-lg hover:shadow-amber-400/40 active:scale-[0.97]"
-                >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </button>
-              )}
-            </div>
-
-            {/* ── Mobile: Cart + Hamburger ── */}
-            <div className="md:hidden flex items-center gap-2 ml-auto">
-              <button
-                onClick={onCartClick}
-                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-gradient-to-br from-amber-500 to-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
-                    {cart.totalItems > 99 ? "99+" : cart.totalItems}
-                  </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={onAuthClick}
+                    className="h-9 px-5 rounded-full bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] text-[14px] font-medium transition-colors"
+                  >
+                    Sign in
+                  </button>
                 )}
-              </button>
+              </div>
+
+              {/* Mobile hamburger */}
               <button
                 onClick={toggleMobileMenu}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                aria-label="Toggle mobile menu"
+                className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                aria-label="Menu"
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMobileMenuOpen ? (
+                  <X className="w-[20px] h-[20px]" />
+                ) : (
+                  <Menu className="w-[20px] h-[20px]" />
+                )}
               </button>
             </div>
           </div>
 
-          {/* ── Mobile Search (always visible below header row) ── */}
-          <div className="md:hidden pb-3">
+          {/* ── Mobile search (always visible — mobile-first) ── */}
+          <div className="md:hidden pb-2.5">
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b] w-4 h-4 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search products…"
+                placeholder="Search products"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 h-10 bg-[#f5f5f7] dark:bg-[#1d1d1f] text-[#1d1d1f] dark:text-white placeholder-[#86868b] rounded-full text-[15px] outline-none focus:ring-2 focus:ring-[#1d1d1f]/15 dark:focus:ring-white/20 transition-all"
               />
             </div>
           </div>
         </div>
 
-        {/* ── Mobile Menu ── */}
+        {/* ── Mobile menu (slide-down sheet) ── */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-            <div className="px-4 py-4 space-y-2">
-              {/* Theme */}
-              <button
-                onClick={toggleTheme}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              >
-                {theme === "dark" ? (
-                  <><Sun className="w-4 h-4 text-amber-500" /><span className="font-semibold text-slate-800 dark:text-white text-sm">Light Mode</span></>
-                ) : (
-                  <><Moon className="w-4 h-4 text-slate-600" /><span className="font-semibold text-slate-800 text-sm">Dark Mode</span></>
-                )}
-              </button>
-
-              {/* Auth */}
-              {user ? (
-                <>
-                  <div className="px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
-                    <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold">Signed in as</p>
-                    <p className="text-sm font-bold text-amber-900 dark:text-amber-200 truncate">{user.email}</p>
-                  </div>
-                  {onAdminClick && (
+          <>
+            <div
+              className="md:hidden fixed inset-0 top-0 z-40 bg-black/20 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <div className="md:hidden relative z-50 border-t border-black/5 dark:border-white/10 bg-white dark:bg-black">
+              <div className="px-4 py-4 space-y-2">
+                {/* Account block */}
+                {user ? (
+                  <>
+                    <div className="px-4 py-3 rounded-2xl bg-[#f5f5f7] dark:bg-[#1d1d1f]">
+                      <p className="text-[11px] text-[#86868b] font-medium uppercase tracking-wider">
+                        Signed in as
+                      </p>
+                      <p className="text-[15px] font-semibold text-[#1d1d1f] dark:text-white truncate mt-0.5">
+                        {user.email}
+                      </p>
+                    </div>
+                    {onAdminClick && (
+                      <button
+                        onClick={() => { onAdminClick(); setIsMobileMenuOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#1d1d1f] hover:bg-[#ebebed] dark:hover:bg-[#2c2c2e] transition-colors"
+                      >
+                        <LayoutDashboard className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+                        <span className="font-medium text-[#1d1d1f] dark:text-white text-[15px]">
+                          Admin Panel
+                        </span>
+                      </button>
+                    )}
                     <button
-                      onClick={() => { onAdminClick(); setIsMobileMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                      onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#1d1d1f] hover:bg-[#ebebed] dark:hover:bg-[#2c2c2e] transition-colors"
                     >
-                      <LayoutDashboard className="w-4 h-4 text-amber-600" />
-                      <span className="font-semibold text-slate-800 dark:text-white text-sm">Admin Panel</span>
+                      <LogOut className="w-[18px] h-[18px] text-[#ff3b30]" />
+                      <span className="font-medium text-[#ff3b30] text-[15px]">
+                        Sign Out
+                      </span>
                     </button>
-                  )}
+                  </>
+                ) : (
                   <button
-                    onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-colors"
+                    onClick={() => { onAuthClick(); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center justify-center h-12 rounded-full bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] font-medium text-[15px] transition-colors"
                   >
-                    <LogOut className="w-4 h-4 text-rose-500" />
-                    <span className="font-semibold text-rose-700 dark:text-rose-400 text-sm">Sign Out</span>
+                    Sign in
                   </button>
-                </>
-              ) : (
+                )}
+
+                {/* Theme toggle */}
                 <button
-                  onClick={() => { onAuthClick(); setIsMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm shadow-md shadow-amber-400/30"
+                  onClick={toggleTheme}
+                  className="w-full flex items-center gap-3 px-4 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#1d1d1f] hover:bg-[#ebebed] dark:hover:bg-[#2c2c2e] transition-colors"
                 >
-                  <User className="w-4 h-4" />
-                  Sign In
+                  {theme === "dark" ? (
+                    <>
+                      <Sun className="w-[18px] h-[18px] text-[#1d1d1f] dark:text-white" />
+                      <span className="font-medium text-[#1d1d1f] dark:text-white text-[15px]">
+                        Light Mode
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-[18px] h-[18px] text-[#1d1d1f]" />
+                      <span className="font-medium text-[#1d1d1f] text-[15px]">
+                        Dark Mode
+                      </span>
+                    </>
+                  )}
                 </button>
-              )}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </header>
     );

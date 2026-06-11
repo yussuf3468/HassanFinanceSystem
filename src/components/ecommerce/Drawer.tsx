@@ -54,16 +54,19 @@ export default function Drawer({
           position === "right" ? "right-0" : "left-0"
         } top-0 h-full ${
           sizes[size]
-        } w-full bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col ${slideIn}`}
+        } w-full bg-white dark:bg-black shadow-2xl z-50 flex flex-col ${slideIn}`}
       >
         {title && (
-          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-amber-600 to-yellow-600">
-            <h2 className="text-lg font-bold text-white">{title}</h2>
+          <div className="flex items-center justify-between px-4 h-14 border-b border-black/5 dark:border-white/10 bg-white/80 dark:bg-black/80 backdrop-blur-xl">
+            <h2 className="text-[17px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
+              {title}
+            </h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              aria-label="Close"
+              className="w-9 h-9 flex items-center justify-center text-[#1d1d1f] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         )}

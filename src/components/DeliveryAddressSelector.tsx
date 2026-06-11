@@ -8,7 +8,7 @@ interface DeliveryAddressSelectorProps {
   onDeliveryFeeChange?: (fee: number) => void;
   disabled?: boolean;
   className?: string;
-  dark?: boolean; // use dark styles (for modals/dark panels)
+  dark?: boolean; // kept for API compatibility; styling is now theme-aware
 }
 
 export default function DeliveryAddressSelector({
@@ -17,7 +17,6 @@ export default function DeliveryAddressSelector({
   onDeliveryFeeChange,
   disabled = false,
   className = "",
-  dark = false,
 }: DeliveryAddressSelectorProps) {
   const [selectedArea, setSelectedArea] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -26,44 +25,21 @@ export default function DeliveryAddressSelector({
 
   const findLocationFromValue = (rawValue: string) => {
     const normalized = rawValue.trim().toLowerCase();
-    if (!normalized) {
-      return null;
-    }
+    if (!normalized) return null;
 
     for (const area of EASTLEIGH_LOCATIONS) {
       const match = area.locations.find(
         (location) => location.trim().toLowerCase() === normalized,
       );
-      if (match) {
-        return { area: area.area, location: match };
-      }
+      if (match) return { area: area.area, location: match };
     }
-
     return null;
   };
 
-  // Update delivery fee when location changes
-  // Note: don't include onDeliveryFeeChange in deps to avoid identity-change loops
-  useEffect(() => {
-    if (selectedLocation && onDeliveryFeeChange) {
-      const fee = getDeliveryFee(selectedLocation);
-      onDeliveryFeeChange(fee);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLocation]);
-
-  // Update form value when selections change
-  // Avoid putting onChange in deps; only emit when derived value actually changes
-  useEffect(() => {
-    const nextValue = useCustom ? customAddress : selectedLocation;
-    // Only notify parent if value actually changed to prevent loops
-    if (nextValue !== undefined && nextValue !== value) {
-      onChange(nextValue);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLocation, customAddress, useCustom, value]);
-
-  // Sync internal selector state when parent provides a prefilled value
+  // Sync internal selector state when the parent provides / changes the value.
+  // This is the ONLY effect — emitting onChange happens in the handlers below,
+  // so the two never fight each other (previous bug: an emit-effect and this
+  // sync-effect oscillated, causing rapid flicker).
   useEffect(() => {
     if (!value) {
       setUseCustom(false);
@@ -79,6 +55,7 @@ export default function DeliveryAddressSelector({
       setSelectedArea(locationMatch.area);
       setSelectedLocation(locationMatch.location);
       setCustomAddress("");
+      onDeliveryFeeChange?.(getDeliveryFee(locationMatch.location));
       return;
     }
 
@@ -86,15 +63,19 @@ export default function DeliveryAddressSelector({
     setSelectedArea("");
     setSelectedLocation("");
     setCustomAddress(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const handleAreaChange = (area: string) => {
     setSelectedArea(area);
     setSelectedLocation("");
+    onChange(""); // no specific location chosen yet
   };
 
   const handleLocationChange = (location: string) => {
     setSelectedLocation(location);
+    onChange(location);
+    onDeliveryFeeChange?.(getDeliveryFee(location));
   };
 
   const handleCustomToggle = (custom: boolean) => {
@@ -102,26 +83,36 @@ export default function DeliveryAddressSelector({
     if (custom) {
       setSelectedArea("");
       setSelectedLocation("");
+      onChange(customAddress);
     } else {
       setCustomAddress("");
+      onChange(selectedLocation);
     }
   };
 
+  const handleCustomAddressChange = (next: string) => {
+    setCustomAddress(next);
+    onChange(next);
+  };
+
+  const toggleBase =
+    "px-4 h-11 rounded-full border text-[14px] font-medium transition-colors flex-1";
+  const toggleActive =
+    "bg-[#1d1d1f] dark:bg-white text-white dark:text-[#1d1d1f] border-[#1d1d1f] dark:border-white";
+  const toggleIdle =
+    "bg-white dark:bg-[#2c2c2e] text-[#1d1d1f] dark:text-white border-black/10 dark:border-white/10 hover:border-[#1d1d1f] dark:hover:border-white";
+  const fieldClass =
+    "w-full px-4 h-11 rounded-xl appearance-none bg-white dark:bg-[#2c2c2e] text-[#1d1d1f] dark:text-white border border-black/10 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-[#1d1d1f]/15 dark:focus:ring-white/20 focus:border-[#1d1d1f] dark:focus:border-white transition-all";
+
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2.5">
         <button
           type="button"
           onClick={() => handleCustomToggle(false)}
           disabled={disabled}
-          className={`px-4 py-2 rounded-xl border transition-colors flex-1 ${
-            !useCustom
-              ? dark
-                ? "bg-amber-50 text-slate-800 border-amber-500"
-                : "bg-amber-500 text-slate-900 border-amber-500"
-              : dark
-                ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
-                : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
+          className={`${toggleBase} ${
+            !useCustom ? toggleActive : toggleIdle
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           Eastleigh Locations
@@ -130,14 +121,8 @@ export default function DeliveryAddressSelector({
           type="button"
           onClick={() => handleCustomToggle(true)}
           disabled={disabled}
-          className={`px-4 py-2 rounded-xl border transition-colors flex-1 ${
-            useCustom
-              ? dark
-                ? "bg-amber-50 text-slate-800 border-amber-500"
-                : "bg-amber-500 text-slate-900 border-amber-500"
-              : dark
-                ? "bg-white border-amber-300/70 shadow-amber-100/50/60 shadow-sm hover:border-amber-500"
-                : "bg-white text-slate-700 border-slate-300 hover:border-amber-400"
+          className={`${toggleBase} ${
+            useCustom ? toggleActive : toggleIdle
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           Other Location
@@ -148,158 +133,84 @@ export default function DeliveryAddressSelector({
         <div className="space-y-3">
           {/* Area Selection */}
           <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${
-                dark ? "text-white" : "text-slate-900"
-              }`}
-            >
-              Select Area / Dooro Degaanka
+            <label className="block text-[13px] font-medium mb-1.5 text-[#1d1d1f] dark:text-[#f5f5f7]">
+              Select area
             </label>
             <div className="relative">
               <select
                 value={selectedArea}
                 onChange={(e) => handleAreaChange(e.target.value)}
                 disabled={disabled}
-                className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 appearance-none ${
-                  dark
-                    ? "bg-white text-slate-900 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm focus:ring-amber-500 focus:border-amber-500"
-                    : "bg-white text-slate-900 border border-slate-300 focus:ring-amber-500 focus:border-transparent"
-                }`}
+                className={fieldClass}
               >
-                <option
-                  value=""
-                  className={dark ? "text-slate-900" : undefined}
-                  style={dark ? { color: "#0f172a" } : undefined}
-                >
-                  Choose area...
-                </option>
+                <option value="">Choose area…</option>
                 {EASTLEIGH_LOCATIONS.map((area) => (
-                  <option
-                    key={area.area}
-                    value={area.area}
-                    className={dark ? "text-slate-900" : undefined}
-                    style={dark ? { color: "#0f172a" } : undefined}
-                  >
+                  <option key={area.area} value={area.area}>
                     {area.area}
                   </option>
                 ))}
               </select>
-              <ChevronDown
-                className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 pointer-events-none ${
-                  dark ? "text-slate-700 " : "text-slate-400"
-                }`}
-              />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-[#86868b]" />
             </div>
           </div>
 
           {/* Location Selection */}
           {selectedArea && (
             <div>
-              <label
-                className={`block text-sm font-medium mb-2 ${
-                  dark ? "text-white" : "text-slate-900"
-                }`}
-              >
-                Select Specific Location / Dooro Meesha
+              <label className="block text-[13px] font-medium mb-1.5 text-[#1d1d1f] dark:text-[#f5f5f7]">
+                Select specific location
               </label>
               <div className="relative">
                 <select
                   value={selectedLocation}
                   onChange={(e) => handleLocationChange(e.target.value)}
                   disabled={disabled}
-                  className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 appearance-none ${
-                    dark
-                      ? "bg-white text-slate-900 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm focus:ring-amber-500 focus:border-amber-500"
-                      : "bg-white text-slate-900 border border-slate-300 focus:ring-amber-500 focus:border-transparent"
-                  }`}
+                  className={fieldClass}
                 >
-                  <option
-                    value=""
-                    className={dark ? "text-slate-900" : undefined}
-                    style={dark ? { color: "#0f172a" } : undefined}
-                  >
-                    Choose location...
-                  </option>
+                  <option value="">Choose location…</option>
                   {EASTLEIGH_LOCATIONS.find(
                     (area) => area.area === selectedArea,
                   )?.locations.map((location) => (
-                    <option
-                      key={location}
-                      value={location}
-                      className={dark ? "text-slate-900" : undefined}
-                      style={dark ? { color: "#0f172a" } : undefined}
-                    >
+                    <option key={location} value={location}>
                       {location}
                     </option>
                   ))}
                 </select>
-                <ChevronDown
-                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 pointer-events-none ${
-                    dark ? "text-slate-700 " : "text-slate-400"
-                  }`}
-                />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-[#86868b]" />
               </div>
             </div>
           )}
 
           {/* Delivery Fee Display */}
           {selectedLocation && (
-            <div
-              className={`${
-                dark
-                  ? "bg-emerald-500/10 border border-emerald-400/30"
-                  : "bg-green-50 border border-green-200"
-              } rounded-xl p-3`}
-            >
-              <div className="flex items-center justify-between">
-                <span
-                  className={`text-sm font-medium ${
-                    dark ? "text-emerald-300" : "text-green-800"
-                  }`}
-                >
-                  Delivery Fee / Lacagta Gaarsiin:
-                </span>
-                <span
-                  className={`text-lg font-bold ${
-                    dark ? "text-emerald-300" : "text-green-600"
-                  }`}
-                >
-                  KSH {getDeliveryFee(selectedLocation)}
-                </span>
-              </div>
+            <div className="bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-xl px-4 py-3 flex items-center justify-between">
+              <span className="text-[13px] font-medium text-[#6e6e73] dark:text-[#a1a1a6]">
+                Delivery fee
+              </span>
+              <span className="text-[15px] font-semibold text-[#1d1d1f] dark:text-white tabular-nums">
+                KES {getDeliveryFee(selectedLocation).toLocaleString()}
+              </span>
             </div>
           )}
         </div>
       ) : (
         <div>
-          <label
-            className={`block text-sm font-medium mb-2 ${
-              dark ? "text-white" : "text-slate-900"
-            }`}
-          >
-            Enter Custom Address / Gali Ciwaanka
+          <label className="block text-[13px] font-medium mb-1.5 text-[#1d1d1f] dark:text-[#f5f5f7]">
+            Enter delivery address
           </label>
           <div className="relative">
-            <MapPin
-              className={`absolute left-3 top-3 w-5 h-5 ${
-                dark ? "text-slate-700 " : "text-slate-400"
-              }`}
-            />
+            <MapPin className="absolute left-3.5 top-3.5 w-[18px] h-[18px] text-[#86868b]" />
             <textarea
               value={customAddress}
-              onChange={(e) => setCustomAddress(e.target.value)}
+              onChange={(e) => handleCustomAddressChange(e.target.value)}
               disabled={disabled}
-              placeholder="Enter your full delivery address with clear landmarks..."
-              className={`w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 resize-none ${
-                dark
-                  ? "bg-white text-slate-900 border border-amber-300/70 shadow-amber-100/50/60 shadow-sm placeholder-slate-400 focus:ring-amber-500 focus:border-amber-500"
-                  : "bg-white text-slate-900 border border-slate-300 focus:ring-amber-500 focus:border-transparent"
-              }`}
+              placeholder="Full delivery address with clear landmarks…"
+              className="w-full pl-11 pr-4 py-3 rounded-xl resize-none bg-white dark:bg-[#2c2c2e] text-[#1d1d1f] dark:text-white border border-black/10 dark:border-white/10 placeholder-[#86868b] focus:outline-none focus:ring-2 focus:ring-[#1d1d1f]/15 dark:focus:ring-white/20 focus:border-[#1d1d1f] dark:focus:border-white transition-all"
               rows={3}
             />
           </div>
-          <p className={`text-sm mt-2 ${dark ? "text-slate-700 " : "text-slate-500"}`}>
-            Note: Delivery fee for locations outside Eastleigh will be calculated based on
+          <p className="text-[12px] mt-2 text-[#86868b]">
+            Delivery fee for locations outside Eastleigh is calculated based on
             distance.
           </p>
         </div>

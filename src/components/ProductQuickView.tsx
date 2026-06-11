@@ -72,44 +72,44 @@ const ProductQuickView = memo(function ProductQuickView({
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       <div
-        className="relative bg-white dark:bg-slate-900 w-full sm:max-w-3xl max-h-[95dvh] sm:max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-2xl z-10 border-t sm:border border-slate-200 dark:border-slate-700"
+        className="relative bg-white dark:bg-[#1d1d1f] w-full sm:max-w-3xl max-h-[95dvh] sm:max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-2xl z-10"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-white/95 dark:bg-slate-800/95 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center shadow-md transition-colors"
+          className="absolute top-3 right-3 z-20 w-9 h-9 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-xl hover:bg-white dark:hover:bg-black/70 flex items-center justify-center transition-colors"
         >
-          <X className="w-4 h-4 text-slate-700 dark:text-slate-200" />
+          <X className="w-4 h-4 text-[#1d1d1f] dark:text-white" />
         </button>
 
         <div className="grid grid-cols-1 sm:grid-cols-2">
           {/* ===== Image ===== */}
-          <div className="relative bg-slate-50 dark:bg-slate-800 sm:rounded-l-3xl overflow-hidden min-h-[300px] sm:min-h-[440px]">
+          <div className="relative bg-[#f5f5f7] dark:bg-[#2c2c2e] sm:rounded-l-3xl overflow-hidden min-h-[300px] sm:min-h-[480px]">
             {product.image_url ? (
               <img
                 src={product.image_url}
                 alt={product.name}
-                className="absolute inset-0 w-full h-full object-contain p-6"
+                className="absolute inset-0 w-full h-full object-contain p-8"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
-                <Package className="w-24 h-24 text-slate-300 dark:text-slate-600" />
+                <Package className="w-24 h-24 text-[#d2d2d7] dark:text-[#48484a]" />
               </div>
             )}
 
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {product.featured && (
-                <span className="bg-amber-500 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow uppercase tracking-wider">
+                <span className="bg-white/90 dark:bg-black/60 backdrop-blur-xl text-[#1d1d1f] dark:text-white text-[11px] font-semibold px-2.5 py-1 rounded-full tracking-wide">
                   Featured
                 </span>
               )}
               {isLow && (
-                <span className="bg-rose-500 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow uppercase tracking-wider">
+                <span className="bg-[#1d1d1f]/90 backdrop-blur-xl text-white text-[11px] font-semibold px-2.5 py-1 rounded-full tracking-wide">
                   Only {product.quantity_in_stock} left
                 </span>
               )}
@@ -119,10 +119,10 @@ const ProductQuickView = memo(function ProductQuickView({
               <button
                 type="button"
                 onClick={toggleLike}
-                className={`flex-1 h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 backdrop-blur transition-colors ${
+                className={`flex-1 h-10 rounded-full text-[14px] font-medium flex items-center justify-center gap-1.5 backdrop-blur-xl transition-colors ${
                   liked
                     ? "bg-rose-500 text-white"
-                    : "bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 hover:bg-rose-500 hover:text-white"
+                    : "bg-white/80 dark:bg-black/50 text-[#1d1d1f] dark:text-white hover:bg-white dark:hover:bg-black/70"
                 }`}
               >
                 <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
@@ -131,7 +131,7 @@ const ProductQuickView = memo(function ProductQuickView({
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex-1 h-10 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 hover:bg-amber-500 hover:text-white backdrop-blur transition-colors"
+                className="flex-1 h-10 rounded-full text-[14px] font-medium flex items-center justify-center gap-1.5 bg-white/80 dark:bg-black/50 text-[#1d1d1f] dark:text-white hover:bg-white dark:hover:bg-black/70 backdrop-blur-xl transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 Share
@@ -140,45 +140,39 @@ const ProductQuickView = memo(function ProductQuickView({
           </div>
 
           {/* ===== Details ===== */}
-          <div className="flex flex-col p-5 sm:p-6 gap-4">
+          <div className="flex flex-col p-6 sm:p-7 gap-5">
             <div>
-              <span className="inline-block text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+              <span className="inline-block text-[11px] font-medium uppercase tracking-[0.15em] text-[#86868b] dark:text-[#a1a1a6]">
                 {product.category}
               </span>
-              <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+              <h2 className="mt-1.5 text-[24px] sm:text-[28px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white leading-tight">
                 {product.name}
               </h2>
             </div>
 
             {/* Price */}
-            <div className="bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/40 rounded-2xl p-4">
-              <p className="text-[10px] uppercase tracking-wider font-bold text-amber-700 dark:text-amber-300">
-                Price
-              </p>
-              <div className="mt-0.5 flex items-baseline gap-1.5">
-                <span className="text-sm font-bold text-amber-700 dark:text-amber-300">
-                  KES
-                </span>
-                <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tabular-nums leading-none">
-                  {product.selling_price.toLocaleString()}
+            <div>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[28px] sm:text-[32px] font-semibold text-[#1d1d1f] dark:text-white tabular-nums leading-none">
+                  KES {product.selling_price.toLocaleString()}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+              <p className="text-[13px] text-[#86868b] dark:text-[#a1a1a6] mt-2">
                 Free delivery on orders over KES 2,000
               </p>
             </div>
 
             {/* Stock status */}
             <div
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold ${
+              className={`flex items-center gap-2 text-[13px] font-medium ${
                 isOut
-                  ? "bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40"
-                  : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40"
+                  ? "text-[#ff3b30]"
+                  : "text-[#34c759]"
               }`}
             >
               {isOut ? (
                 <>
-                  <X className="w-4 h-4" /> Out of stock — check back soon
+                  <X className="w-4 h-4" /> Sold out — check back soon
                 </>
               ) : (
                 <>
@@ -190,17 +184,17 @@ const ProductQuickView = memo(function ProductQuickView({
 
             {/* Qty + Add to cart */}
             {!isOut && (
-              <div className="flex items-stretch gap-2">
-                <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
+              <div className="flex items-stretch gap-2.5">
+                <div className="flex items-center bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-full overflow-hidden flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-12 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700"
+                    className="w-11 h-12 flex items-center justify-center text-[#1d1d1f] dark:text-white hover:opacity-60"
                     aria-label="Decrease quantity"
                   >
-                    <Minus className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                    <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center font-black text-slate-900 dark:text-white text-base">
+                  <span className="w-9 text-center font-semibold text-[#1d1d1f] dark:text-white text-[15px] tabular-nums">
                     {quantity}
                   </span>
                   <button
@@ -209,47 +203,44 @@ const ProductQuickView = memo(function ProductQuickView({
                       setQuantity(Math.min(product.quantity_in_stock, quantity + 1))
                     }
                     disabled={quantity >= product.quantity_in_stock}
-                    className="w-10 h-12 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40"
+                    className="w-11 h-12 flex items-center justify-center text-[#1d1d1f] dark:text-white hover:opacity-60 disabled:opacity-40"
                     aria-label="Increase quantity"
                   >
-                    <Plus className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className={`flex-1 h-12 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-colors ${
+                  className={`flex-1 h-12 rounded-full font-medium text-[15px] flex items-center justify-center gap-2 transition-colors ${
                     justAdded
-                      ? "bg-emerald-500 text-white"
-                      : "bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20"
+                      ? "bg-[#34c759] text-white"
+                      : "bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] text-white dark:text-[#1d1d1f]"
                   }`}
                 >
                   {justAdded ? (
                     <>
-                      <Check className="w-4 h-4" /> Added to cart
+                      <Check className="w-4 h-4" /> Added
                     </>
                   ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" />
-                      Add — KES {lineTotal.toLocaleString()}
-                    </>
+                    <>Add for KES {lineTotal.toLocaleString()}</>
                   )}
                 </button>
               </div>
             )}
 
             {/* Tabs */}
-            <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
-              <div className="flex gap-1 mb-3">
+            <div className="border-t border-black/8 dark:border-white/10 pt-5">
+              <div className="flex gap-1 mb-4 bg-[#f5f5f7] dark:bg-[#2c2c2e] p-1 rounded-full">
                 {(["details", "shipping", "returns"] as const).map((tab) => (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
+                    className={`flex-1 py-1.5 rounded-full text-[13px] font-medium capitalize transition-colors ${
                       activeTab === tab
-                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                        : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        ? "bg-white dark:bg-[#48484a] text-[#1d1d1f] dark:text-white shadow-sm"
+                        : "text-[#86868b] dark:text-[#a1a1a6]"
                     }`}
                   >
                     {tab}
@@ -258,11 +249,11 @@ const ProductQuickView = memo(function ProductQuickView({
               </div>
 
               {activeTab === "details" && (
-                <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <div className="space-y-3 text-[14px] text-[#6e6e73] dark:text-[#a1a1a6]">
                   {product.description ? (
                     <p className="leading-relaxed">{product.description}</p>
                   ) : (
-                    <p className="text-[12px] text-slate-400 italic">
+                    <p className="text-[13px] text-[#86868b] italic">
                       No additional details provided.
                     </p>
                   )}
@@ -305,11 +296,11 @@ const ProductQuickView = memo(function ProductQuickView({
 
 function InfoChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-      <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-0.5">
+    <div className="bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-xl p-3">
+      <p className="text-[10px] uppercase tracking-wider text-[#86868b] mb-0.5">
         {label}
       </p>
-      <p className="font-bold text-slate-800 dark:text-white text-xs truncate">
+      <p className="font-medium text-[#1d1d1f] dark:text-white text-[13px] truncate">
         {value}
       </p>
     </div>
@@ -326,11 +317,13 @@ function InfoRow({
   sub: string;
 }) {
   return (
-    <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3">
-      <Icon className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+    <div className="flex items-start gap-3 bg-[#f5f5f7] dark:bg-[#2c2c2e] rounded-xl p-3">
+      <Icon className="w-4 h-4 text-[#1d1d1f] dark:text-white mt-0.5 flex-shrink-0" />
       <div>
-        <p className="font-bold text-slate-800 dark:text-white text-xs">{title}</p>
-        <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>
+        <p className="font-medium text-[#1d1d1f] dark:text-white text-[13px]">
+          {title}
+        </p>
+        <p className="text-[12px] text-[#86868b] mt-0.5">{sub}</p>
       </div>
     </div>
   );
