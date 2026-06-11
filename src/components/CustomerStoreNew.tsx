@@ -8,6 +8,7 @@ import {
 } from "react";
 import {
   ShoppingCart,
+  ShoppingBag,
   Search,
   ArrowRight,
   ShieldCheck,
@@ -19,6 +20,7 @@ import {
   SlidersHorizontal,
   Heart,
   Check,
+  Package,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -31,6 +33,7 @@ import CartSidebar from "./CartSidebar";
 import AuthModal from "./AuthModal";
 import ProductQuickView from "./ProductQuickView";
 import CheckoutModal from "./CheckoutModal";
+import OrderTrackingModal from "./OrderTrackingModal";
 import OptimizedImage from "./OptimizedImage";
 import compactToast from "../utils/compactToast";
 import type { Product } from "../types";
@@ -361,6 +364,10 @@ export default function CustomerStore({
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showTracking, setShowTracking] = useState(false);
+  const [trackingLookup, setTrackingLookup] = useState<{
+    orderNumber?: string;
+  }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null,
   );
@@ -469,6 +476,12 @@ export default function CustomerStore({
     productsTopRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
+  function openTracking() {
+    const lastOrder = localStorage.getItem("lastOrderNumber") || undefined;
+    setTrackingLookup(lastOrder ? { orderNumber: lastOrder } : {});
+    setShowTracking(true);
+  }
+
   // Featured tiles (4 most-popular categories)
   const featuredCategories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -506,7 +519,7 @@ export default function CustomerStore({
         onAuthClick={() => setShowAuth(true)}
         onAdminClick={user ? onAdminClick : undefined}
         products={products}
-        onProductSelect={() => {}}
+        onProductSelect={(product) => setQuickViewProduct(product)}
       />
 
       {/* ===================== HERO (editorial, high-class) ===================== */}
@@ -915,18 +928,28 @@ export default function CustomerStore({
         <div className="border-b border-black/5 dark:border-white/5">
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
             <h3 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
-              Need a hand with your order?
+              Already ordered?
             </h3>
             <p className="text-[15px] mt-2">
-              Speak with a specialist — we reply within minutes.
+              Track your delivery in real time, or talk to our team.
             </p>
-            <a
-              href="tel:+254722979547"
-              className="mt-5 inline-flex items-center gap-1.5 text-[#1d1d1f] dark:text-white text-[15px] font-medium group"
-            >
-              Call +254 722 979 547
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
+            <div className="mt-5 flex items-center justify-center gap-4 flex-wrap">
+              <button
+                type="button"
+                onClick={openTracking}
+                className="h-11 px-6 bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] text-[15px] font-medium rounded-full transition-colors inline-flex items-center gap-2"
+              >
+                <Package className="w-4 h-4" />
+                Track your order
+              </button>
+              <a
+                href="tel:+254722979547"
+                className="inline-flex items-center gap-1.5 text-[#1d1d1f] dark:text-white text-[15px] font-medium group"
+              >
+                Call +254 722 979 547
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
         </div>
 
@@ -1037,7 +1060,7 @@ export default function CustomerStore({
             >
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 rounded-full bg-[#1d1d1f] dark:bg-white flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 text-white dark:text-[#1d1d1f]" />
+                  <ShoppingBag className="w-[18px] h-[18px] text-white dark:text-[#1d1d1f]" strokeWidth={1.75} />
                   <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-white dark:bg-[#1d1d1f] text-[#1d1d1f] dark:text-white text-[11px] font-bold rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#1d1d1f]">
                     {cart.totalItems}
                   </span>
@@ -1092,6 +1115,11 @@ export default function CustomerStore({
         onClose={() => setShowFilters(false)}
         sort={sort}
         onSortChange={(s) => setSort(s)}
+      />
+      <OrderTrackingModal
+        isOpen={showTracking}
+        onClose={() => setShowTracking(false)}
+        initialLookup={trackingLookup}
       />
 
       <ToastContainer

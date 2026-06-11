@@ -271,18 +271,17 @@ const CheckoutModal = memo(({ isOpen, onClose, onOrderComplete }: CheckoutModalP
           total_price: item.product.selling_price * item.quantity,
         }));
 
-        // Success! Show confirmation dialog
+        // Success! Show confirmation dialog immediately — don't make the
+        // customer wait on the admin notification (it runs in the background).
         setCompletedOrder(order);
         setOrderItems(displayOrderItems.length ? displayOrderItems : orderItems);
         setShowConfirmation(true);
+        setIsSubmitting(false);
 
-        // Send admin notification
-        try {
-          await notifyAdminNewOrder(order);
-        } catch (notifError) {
-          console.error("Failed to send admin notification:", notifError);
-          // Don't block the order flow if notification fails
-        }
+        // Fire-and-forget admin notification (never blocks the customer)
+        void notifyAdminNewOrder(order).catch((notifError) =>
+          console.error("Failed to send admin notification:", notifError),
+        );
 
         // Save customer info for next time if enabled
         if (saveInfo) {

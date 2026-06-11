@@ -31,7 +31,7 @@ export default function CartSidebar({
         </div>
 
         {/* Items List */}
-        <div className="flex-1 overflow-y-auto p-4 bg-[#f5f5f7] dark:bg-black">
+        <div className="flex-1 overflow-y-auto scrollbar-hide p-4 bg-[#f5f5f7] dark:bg-black">
           {cart.items.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 bg-white dark:bg-[#1d1d1f] rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">

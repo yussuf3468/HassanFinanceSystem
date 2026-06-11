@@ -309,78 +309,80 @@ const OrderTrackingModal = memo(
     }
 
     return (
-      <div className="fixed inset-0 z-[70] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-amber-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
-          <div className="flex items-center justify-between border-b border-amber-100 bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-5 text-white dark:border-slate-700 dark:from-amber-800 dark:to-slate-800">
+      <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4">
+        <div className="w-full max-w-3xl overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl dark:bg-[#1d1d1f]">
+          <div className="flex items-center justify-between px-6 h-16 border-b border-black/5 dark:border-white/10 bg-white/80 dark:bg-[#1d1d1f]/80 backdrop-blur-xl sticky top-0 z-10">
             <div>
-              <h2 className="text-xl font-bold">Track your order</h2>
-              <p className="text-sm text-amber-50/90 dark:text-slate-300">
-                Use any one option you remember: order number, phone, or email.
+              <h2 className="text-[19px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
+                Track your order
+              </h2>
+              <p className="text-[12px] text-[#86868b] dark:text-[#a1a1a6]">
+                Enter your order number, phone, or email.
               </p>
             </div>
             <button
               onClick={onClose}
-              className="rounded-full p-2 transition-colors hover:bg-white/10"
+              className="w-9 h-9 flex items-center justify-center rounded-full text-[#1d1d1f] dark:text-white transition-colors hover:bg-black/5 dark:hover:bg-white/10"
               aria-label="Close order tracker"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="max-h-[85vh] overflow-y-auto p-6">
+          <div className="max-h-[85vh] overflow-y-auto scrollbar-hide p-6">
             <form
               onSubmit={handleSearch}
-              className="grid gap-4 rounded-2xl border border-amber-100 bg-stone-50 p-4 dark:border-slate-700 dark:bg-slate-900/40 md:grid-cols-[1.3fr_1fr_1fr_auto]"
+              className="grid gap-3 rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] p-4 md:grid-cols-[1.3fr_1fr_1fr_auto]"
             >
               <div className="md:col-span-full">
-                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-900 dark:border-amber-700/70 dark:bg-amber-500/10 dark:text-amber-200">
-                  Choose any one
+                <span className="inline-flex items-center rounded-full bg-[#1d1d1f] dark:bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white dark:text-[#1d1d1f]">
+                  Enter any one
                 </span>
               </div>
               <label className="block text-sm">
-                <span className="mb-2 block font-medium text-slate-700 dark:text-slate-300">
-                  Order Number (Optional)
+                <span className="mb-1.5 block text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  Order number
                 </span>
                 <input
                   value={lookup.orderNumber}
                   onChange={(event) =>
                     handleLookupChange("orderNumber", event.target.value)
                   }
-                  placeholder="Use this if you remember it"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                  placeholder="e.g. ORD-1A2B3C"
+                  className="w-full rounded-xl border border-black/10 bg-white px-4 h-11 text-[15px] text-[#1d1d1f] outline-none transition focus:border-[#1d1d1f] focus:ring-2 focus:ring-[#1d1d1f]/15 dark:border-white/10 dark:bg-[#1d1d1f] dark:text-white dark:focus:border-white dark:focus:ring-white/20 placeholder-[#86868b]"
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-2 block font-medium text-slate-700 dark:text-slate-300">
-                  Phone (Optional)
+                <span className="mb-1.5 block text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  Phone
                 </span>
                 <input
                   value={lookup.phone}
                   onChange={(event) =>
                     handleLookupChange("phone", event.target.value)
                   }
-                  placeholder="Search using your checkout phone"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                  placeholder="Checkout phone"
+                  className="w-full rounded-xl border border-black/10 bg-white px-4 h-11 text-[15px] text-[#1d1d1f] outline-none transition focus:border-[#1d1d1f] focus:ring-2 focus:ring-[#1d1d1f]/15 dark:border-white/10 dark:bg-[#1d1d1f] dark:text-white dark:focus:border-white dark:focus:ring-white/20 placeholder-[#86868b]"
                 />
               </label>
               <label className="block text-sm">
-                <span className="mb-2 block font-medium text-slate-700 dark:text-slate-300">
-                  Email (Optional)
+                <span className="mb-1.5 block text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  Email
                 </span>
                 <input
                   value={lookup.email}
                   onChange={(event) =>
                     handleLookupChange("email", event.target.value)
                   }
-                  placeholder="Search using your checkout email"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                  placeholder="Checkout email"
+                  className="w-full rounded-xl border border-black/10 bg-white px-4 h-11 text-[15px] text-[#1d1d1f] outline-none transition focus:border-[#1d1d1f] focus:ring-2 focus:ring-[#1d1d1f]/15 dark:border-white/10 dark:bg-[#1d1d1f] dark:text-white dark:focus:border-white dark:focus:ring-white/20 placeholder-[#86868b]"
                 />
               </label>
               <div className="flex items-end">
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 font-semibold text-white transition hover:from-amber-600 hover:to-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-full h-11 px-5 bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-[#f5f5f7] text-[15px] font-medium text-white dark:text-[#1d1d1f] transition disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSearching ? (
                     <>
@@ -397,11 +399,10 @@ const OrderTrackingModal = memo(
               </div>
             </form>
 
-            {!trackedOrder && (
-              <div className="mt-5 rounded-2xl border border-dashed border-slate-200 p-5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
-                All three fields are optional individually. Enter whichever one
-                you remember: order number, phone, or email. If you enter more
-                than one, the search will narrow the results.
+            {!trackedOrder && matchedOrders.length === 0 && (
+              <div className="mt-5 rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] p-5 text-[13px] text-[#6e6e73] dark:text-[#a1a1a6]">
+                Enter whichever detail you remember — order number, phone, or
+                email. Adding more than one narrows the search.
               </div>
             )}
 
@@ -416,7 +417,7 @@ const OrderTrackingModal = memo(
                       Select the order you want to track.
                     </p>
                   </div>
-                  <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+                  <span className="rounded-full bg-[#1d1d1f] dark:bg-white px-3 py-1 text-[13px] font-semibold text-white dark:text-[#1d1d1f]">
                     {matchedOrders.length} found
                   </span>
                 </div>
@@ -426,7 +427,7 @@ const OrderTrackingModal = memo(
                     <button
                       key={order.id}
                       onClick={() => handleSelectOrder(order)}
-                      className="w-full rounded-2xl border border-slate-200 p-4 text-left transition hover:border-amber-300 hover:bg-amber-50/60 dark:border-slate-700 dark:hover:border-amber-700 dark:hover:bg-slate-800"
+                      className="w-full rounded-2xl border border-black/10 dark:border-white/10 p-4 text-left transition hover:border-[#1d1d1f] dark:hover:border-white hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c2e]"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -575,27 +576,27 @@ const OrderTrackingModal = memo(
                       </h4>
                       <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
                         <div className="flex items-start gap-3">
-                          <Phone className="mt-0.5 h-4 w-4 text-amber-600" />
+                          <Phone className="mt-0.5 h-4 w-4 text-[#86868b]" />
                           <span>{trackedOrder.customer_phone}</span>
                         </div>
                         {trackedOrder.customer_email && (
                           <div className="flex items-start gap-3">
-                            <Mail className="mt-0.5 h-4 w-4 text-amber-600" />
+                            <Mail className="mt-0.5 h-4 w-4 text-[#86868b]" />
                             <span>{trackedOrder.customer_email}</span>
                           </div>
                         )}
                         <div className="flex items-start gap-3">
-                          <MapPin className="mt-0.5 h-4 w-4 text-amber-600" />
+                          <MapPin className="mt-0.5 h-4 w-4 text-[#86868b]" />
                           <span>{trackedOrder.delivery_address}</span>
                         </div>
                         <div className="flex items-start gap-3">
-                          <Calendar className="mt-0.5 h-4 w-4 text-amber-600" />
+                          <Calendar className="mt-0.5 h-4 w-4 text-[#86868b]" />
                           <span>
                             Placed {formatDateTime(trackedOrder.created_at)}
                           </span>
                         </div>
                         <div className="flex items-start gap-3">
-                          <CreditCard className="mt-0.5 h-4 w-4 text-amber-600" />
+                          <CreditCard className="mt-0.5 h-4 w-4 text-[#86868b]" />
                           <span>
                             {trackedOrder.payment_method} payment,{" "}
                             {trackedOrder.payment_status}
@@ -604,14 +605,14 @@ const OrderTrackingModal = memo(
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-5 shadow-sm dark:border-amber-700 dark:bg-amber-900/20">
+                    <div className="rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] p-5">
                       <div className="flex items-start gap-3">
-                        <Truck className="mt-0.5 h-5 w-5 text-amber-700 dark:text-amber-300" />
+                        <Truck className="mt-0.5 h-5 w-5 text-[#1d1d1f] dark:text-white" />
                         <div>
-                          <h4 className="font-semibold text-slate-900 dark:text-white">
+                          <h4 className="font-semibold text-[#1d1d1f] dark:text-white">
                             Need help?
                           </h4>
-                          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                          <p className="mt-1 text-[13px] text-[#6e6e73] dark:text-[#a1a1a6]">
                             Keep your order number handy if you call the store
                             for an update.
                           </p>

@@ -19,7 +19,8 @@ export async function notifyAdminNewOrder(order: any) {
       });
     }
 
-    // 2. Create admin notification record in database
+    // 2. Create admin notification record in database (this is how the admin
+    //    actually gets notified — it shows up in their dashboard).
     await createAdminNotification({
       type: "new_order",
       title: "New Order Received",
@@ -37,59 +38,15 @@ export async function notifyAdminNewOrder(order: any) {
       priority: "high",
     });
 
-    // 3. Send WhatsApp notification (if configured)
-    await sendWhatsAppNotification(order);
-
-    // 4. Play notification sound
+    // 3. Play notification sound (best-effort; only audible if a tab is focused)
     playNotificationSound();
+
+    // NOTE: We deliberately do NOT auto-open WhatsApp Web here. This code runs
+    // in the *customer's* browser at checkout, so opening a popup to message
+    // the shop's own number was both wrong and the cause of slow/janky submits.
+    // The admin is notified via the database record above.
   } catch (error) {
     console.error("Error sending admin notification:", error);
-  }
-}
-
-/**
- * Send WhatsApp notification - Opens WhatsApp Web with pre-filled message
- * Admin just needs to click "Send"
- */
-async function sendWhatsAppNotification(order: any) {
-  try {
-    const adminPhone = "254722979547"; // Admin WhatsApp number
-    const message =
-      `🛍️ *NEW ORDER RECEIVED*\n\n` +
-      `Order #: *${order.order_number}*\n` +
-      `Customer: ${order.customer_name}\n` +
-      `Phone: ${order.customer_phone}\n` +
-      `Address: ${order.delivery_address}\n` +
-      `Total: *KES ${order.total_amount.toLocaleString()}*\n` +
-      `Payment: ${order.payment_method.toUpperCase()}\n\n` +
-      `📱 Call customer: https://wa.me/${order.customer_phone.replace(
-        /[^0-9]/g,
-        "",
-      )}\n` +
-      `🔗 View order in admin panel`;
-
-    // Auto-open WhatsApp Web with pre-filled message for admin to send
-    // This opens in a new window so admin can send with one click
-    const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(
-      message,
-    )}`;
-
-    // Open in new window/tab
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-
-    // Also store for reference
-    localStorage.setItem(
-      `whatsapp-order-${order.id}`,
-      JSON.stringify({
-        phone: adminPhone,
-        message,
-        sent_at: new Date().toISOString(),
-      }),
-    );
-
-    console.log(`WhatsApp notification opened for order ${order.order_number}`);
-  } catch (error) {
-    console.error("WhatsApp notification error:", error);
   }
 }
 

@@ -1,7 +1,7 @@
 ﻿import { useState, useCallback, useRef, memo } from "react";
 import {
   Search,
-  ShoppingCart,
+  ShoppingBag,
   User,
   Menu,
   X,
@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   LayoutDashboard,
-  BookOpen,
 } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -59,17 +58,6 @@ const Navbar = memo(
       [onSearchChange],
     );
 
-    const highlightProduct = useCallback((productId: string) => {
-      setTimeout(() => {
-        const el = document.querySelector(`[data-product-id="${productId}"]`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-          el.classList.add("ring-highlight");
-          setTimeout(() => el.classList.remove("ring-highlight"), 2000);
-        }
-      }, 300);
-    }, []);
-
     const handleSignOut = useCallback(async () => {
       try {
         await signOut();
@@ -88,20 +76,21 @@ const Navbar = memo(
           {/* ── Main row (compact, 48px — Apple-thin) ── */}
           <div className="flex items-center gap-3 h-12 sm:h-12">
 
-            {/* Logo */}
+            {/* Logo — serif monogram + wordmark */}
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex-shrink-0 flex items-center gap-2 group"
+              className="flex-shrink-0 flex items-center gap-2.5 group"
             >
-              <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] dark:bg-white flex items-center justify-center">
-                <BookOpen
-                  className="w-4 h-4 text-white dark:text-[#1d1d1f]"
-                  strokeWidth={2}
-                />
-              </div>
-              <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
-                Hassan Bookshop
+              <span className="w-7 h-7 rounded-full border border-[#1d1d1f] dark:border-white flex items-center justify-center transition-transform group-active:scale-95">
+                <span className="font-serif text-[15px] leading-none font-semibold text-[#1d1d1f] dark:text-white -mt-px">
+                  H
+                </span>
+              </span>
+              <span className="flex flex-col leading-none">
+                <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f] dark:text-white">
+                  Hassan Bookshop
+                </span>
               </span>
             </button>
 
@@ -123,7 +112,6 @@ const Navbar = memo(
                   products={products}
                   onSelectProduct={(product) => {
                     onProductSelect?.(product);
-                    highlightProduct(product.id);
                     setShowSearchSuggestions(false);
                   }}
                   onSelectSearch={(term) => {
@@ -145,19 +133,19 @@ const Navbar = memo(
                 aria-label="Toggle theme"
               >
                 {theme === "dark" ? (
-                  <Sun className="w-[18px] h-[18px]" />
+                  <Sun className="w-[19px] h-[19px]" strokeWidth={1.75} />
                 ) : (
-                  <Moon className="w-[18px] h-[18px]" />
+                  <Moon className="w-[19px] h-[19px]" strokeWidth={1.75} />
                 )}
               </button>
 
-              {/* Cart */}
+              {/* Bag */}
               <button
                 onClick={onCartClick}
                 className="relative w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                aria-label={`Cart: ${cart.totalItems} items`}
+                aria-label={`Bag: ${cart.totalItems} items`}
               >
-                <ShoppingCart className="w-[18px] h-[18px]" />
+                <ShoppingBag className="w-[19px] h-[19px]" strokeWidth={1.75} />
                 {cart.totalItems > 0 && (
                   <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-[#1d1d1f] dark:bg-white text-white dark:text-[#1d1d1f] text-[10px] font-semibold rounded-full flex items-center justify-center px-1 ring-2 ring-white dark:ring-black">
                     {cart.totalItems > 99 ? "99+" : cart.totalItems}
@@ -174,7 +162,7 @@ const Navbar = memo(
                       className="w-10 h-10 rounded-full flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                       aria-label="Account"
                     >
-                      <User className="w-[18px] h-[18px]" />
+                      <User className="w-[19px] h-[19px]" strokeWidth={1.75} />
                     </button>
                     {isUserMenuOpen && (
                       <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-[#1d1d1f] rounded-2xl shadow-2xl border border-black/5 dark:border-white/10 py-2 z-50">
@@ -222,9 +210,9 @@ const Navbar = memo(
                 aria-label="Menu"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-[20px] h-[20px]" />
+                  <X className="w-[20px] h-[20px]" strokeWidth={1.75} />
                 ) : (
-                  <Menu className="w-[20px] h-[20px]" />
+                  <Menu className="w-[20px] h-[20px]" strokeWidth={1.75} />
                 )}
               </button>
             </div>

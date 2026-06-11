@@ -70,7 +70,7 @@ export default function Drawer({
             </button>
           </div>
         )}
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className="flex-1 overflow-y-auto scrollbar-hide">{children}</div>
       </div>
     </>
   );

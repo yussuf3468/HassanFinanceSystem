@@ -78,7 +78,7 @@ export default function Dialog({
             )}
           </div>
         )}
-        <div className="overflow-y-auto max-h-[calc(95vh-64px)] sm:max-h-[calc(90vh-64px)] bg-white dark:bg-[#1d1d1f] p-5 sm:p-6">
+        <div className="overflow-y-auto scrollbar-hide max-h-[calc(95vh-64px)] sm:max-h-[calc(90vh-64px)] bg-white dark:bg-[#1d1d1f] p-5 sm:p-6">
           {children}
         </div>
       </div>

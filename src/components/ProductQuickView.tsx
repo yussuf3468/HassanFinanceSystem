@@ -75,7 +75,7 @@ const ProductQuickView = memo(function ProductQuickView({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       <div
-        className="relative bg-white dark:bg-[#1d1d1f] w-full sm:max-w-3xl max-h-[95dvh] sm:max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl shadow-2xl z-10"
+        className="relative bg-white dark:bg-[#1d1d1f] w-full sm:max-w-3xl max-h-[95dvh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide rounded-t-3xl sm:rounded-3xl shadow-2xl z-10"
         onClick={(e) => e.stopPropagation()}
       >
         <button
