@@ -1,4 +1,4 @@
-const CACHE_NAME = "lenzro-erp-v1";
+const CACHE_NAME = "lenzro-erp-v2";
 // Precache only stable, top-level assets; Vite will fingerprint JS/CSS
 const ASSETS_TO_CACHE = ["/", "/index.html"];
 

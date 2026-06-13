@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Calendar,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   DollarSign,
   Filter,
@@ -127,6 +129,7 @@ export default function Orders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const [historyEntries, setHistoryEntries] = useState<OrderHistoryEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [adminNote, setAdminNote] = useState("");
@@ -213,6 +216,23 @@ export default function Orders() {
 
     loadHistory(selectedOrderId);
   }, [loadHistory, selectedOrderId]);
+
+  // Lock background scroll while the mobile detail overlay is open
+  // (only below the lg breakpoint, where the overlay actually renders).
+  useEffect(() => {
+    if (!mobileDetailOpen) return;
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileDetailOpen]);
+
+  const openOrder = useCallback((orderId: string) => {
+    setSelectedOrderId(orderId);
+    setMobileDetailOpen(true);
+  }, []);
 
   const filteredOrders = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -409,6 +429,7 @@ export default function Orders() {
         current.filter((order) => order.id !== selectedOrder.id),
       );
       setSelectedOrderId(null);
+      setMobileDetailOpen(false);
       setHistoryEntries([]);
       compactToast.success(`Deleted ${getOrderReference(selectedOrder)}`);
     } catch (error) {
@@ -464,61 +485,61 @@ export default function Orders() {
         </button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <div className="rounded-2xl sm:rounded-3xl border border-amber-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Total orders
           </p>
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-3xl font-black text-slate-900 dark:text-white">
+          <div className="mt-3 sm:mt-4 flex items-center justify-between">
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
               {orderStats.total}
             </p>
-            <div className="rounded-2xl bg-amber-500 p-3 text-white">
-              <Package className="h-5 w-5" />
+            <div className="rounded-xl sm:rounded-2xl bg-amber-500 p-2.5 sm:p-3 text-white">
+              <Package className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Pending + processing
+        <div className="rounded-2xl sm:rounded-3xl border border-amber-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Need action
           </p>
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-3xl font-black text-amber-600 dark:text-amber-400">
+          <div className="mt-3 sm:mt-4 flex items-center justify-between">
+            <p className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">
               {orderStats.pending +
                 orderStats.confirmed +
                 orderStats.processing}
             </p>
-            <div className="rounded-2xl bg-amber-100 p-3 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
-              <Clock3 className="h-5 w-5" />
+            <div className="rounded-xl sm:rounded-2xl bg-amber-100 p-2.5 sm:p-3 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
+              <Clock3 className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Shipped + delivered
+        <div className="rounded-2xl sm:rounded-3xl border border-amber-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Fulfilled
           </p>
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
+          <div className="mt-3 sm:mt-4 flex items-center justify-between">
+            <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
               {orderStats.shipped + orderStats.delivered}
             </p>
-            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200">
-              <Truck className="h-5 w-5" />
+            <div className="rounded-xl sm:rounded-2xl bg-emerald-100 p-2.5 sm:p-3 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200">
+              <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-amber-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Active revenue
+        <div className="rounded-2xl sm:rounded-3xl border border-amber-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Revenue
           </p>
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-2xl font-black text-slate-900 dark:text-white">
+          <div className="mt-3 sm:mt-4 flex items-center justify-between gap-2">
+            <p className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white truncate">
               KES {orderStats.revenue.toLocaleString()}
             </p>
-            <div className="rounded-2xl bg-sky-100 p-3 text-sky-700 dark:bg-sky-900/30 dark:text-sky-200">
-              <DollarSign className="h-5 w-5" />
+            <div className="rounded-xl sm:rounded-2xl bg-sky-100 p-2.5 sm:p-3 text-sky-700 dark:bg-sky-900/30 dark:text-sky-200 flex-shrink-0">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
         </div>
@@ -570,54 +591,54 @@ export default function Orders() {
               return (
                 <button
                   key={order.id}
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className={`w-full rounded-3xl border p-5 text-left transition ${
+                  onClick={() => openOrder(order.id)}
+                  className={`w-full rounded-2xl sm:rounded-3xl border p-4 sm:p-5 text-left transition active:scale-[0.99] ${
                     isSelected
                       ? "border-amber-400 bg-amber-50/70 shadow-md dark:border-amber-700 dark:bg-slate-800"
                       : "border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-amber-700"
                   }`}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                        {getOrderReference(order)}
-                      </p>
-                      <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${getOrderStatusBadgeClass(
+                            order.status,
+                          )}`}
+                        >
+                          {getStatusIcon(order.status)}
+                          {getOrderStatusLabel(order.status)}
+                        </span>
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {getOrderReference(order)}
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                         {order.customer_name}
                       </h3>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                         {formatDateTime(order.created_at)}
                       </p>
                     </div>
 
-                    <div className="text-right">
-                      <span
-                        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold ${getOrderStatusBadgeClass(
-                          order.status,
-                        )}`}
-                      >
-                        {getStatusIcon(order.status)}
-                        {getOrderStatusLabel(order.status)}
-                      </span>
-                      <p className="mt-2 text-lg font-black text-slate-900 dark:text-white">
-                        KES {order.total_amount.toLocaleString()}
-                      </p>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="text-right">
+                        <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white tabular-nums">
+                          KES {order.total_amount.toLocaleString()}
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {order.order_items?.length ?? 0} item
+                          {(order.order_items?.length ?? 0) !== 1 ? "s" : ""} ·{" "}
+                          {order.payment_status}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-slate-300 dark:text-slate-600 lg:hidden" />
                     </div>
                   </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3 text-sm text-slate-600 dark:text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-amber-600" />
-                      <span className="truncate">{order.customer_phone}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-amber-600" />
-                      <span>{order.order_items?.length ?? 0} item(s)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-amber-600" />
-                      <span>{order.payment_status}</span>
-                    </div>
+                  <div className="mt-3 flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                    <Phone className="h-3.5 w-3.5 text-amber-600 flex-shrink-0" />
+                    <span className="truncate">{order.customer_phone}</span>
                   </div>
                 </button>
               );
@@ -625,9 +646,23 @@ export default function Orders() {
           )}
         </div>
 
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div
+          className={`${
+            mobileDetailOpen ? "fixed inset-0 z-50" : "hidden"
+          } lg:static lg:z-auto lg:block lg:sticky lg:top-6 lg:self-start`}
+        >
+          <div className="h-full overflow-y-auto scrollbar-hide bg-slate-100 p-4 dark:bg-slate-950 lg:h-auto lg:overflow-visible lg:!bg-transparent lg:p-0">
           {selectedOrder ? (
-            <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="space-y-4 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+              {/* Mobile back bar */}
+              <button
+                onClick={() => setMobileDetailOpen(false)}
+                className="lg:hidden -ml-1 inline-flex items-center gap-1 text-sm font-semibold text-slate-600 dark:text-slate-300"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                All orders
+              </button>
+
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -841,11 +876,12 @@ export default function Orders() {
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+            <div className="hidden lg:block rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
               Select an order to manage its status, notes, and customer
               timeline.
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>
