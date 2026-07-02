@@ -1,0 +1,334 @@
+/* ═══════════════════════════════════════════════════════════════
+   STOREFRONT DESIGN SYSTEM
+   A self-contained token system for the public commerce experience.
+   Brand color values are injected at runtime from StoreConfig, so
+   the entire look re-skins per merchant without touching CSS.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sf-root {
+  /* Canvas — warm porcelain, never flat white */
+  --sf-bg: #faf8f4;
+  --sf-bg-soft: #f2eee6;
+  --sf-surface: #ffffff;
+  --sf-line: rgba(24, 20, 12, 0.08);
+  --sf-line-strong: rgba(24, 20, 12, 0.16);
+
+  /* Ink — warm near-black, three strengths */
+  --sf-ink: #191511;
+  --sf-ink-soft: #5f584c;
+  --sf-ink-faint: #99917f;
+
+  /* Dark sections (hero, footer, newsletter) */
+  --sf-dark: #12100c;
+  --sf-dark-soft: #1c1913;
+  --sf-dark-line: rgba(250, 248, 244, 0.1);
+  --sf-dark-ink: #f5f2ea;
+  --sf-dark-ink-soft: rgba(245, 242, 234, 0.64);
+
+  /* Brand accents — overridden from StoreConfig at runtime */
+  --sf-accent: #1d5c45;
+  --sf-accent-deep: #123c2d;
+  --sf-accent-ink: #ffffff;
+  --sf-accent-soft: rgba(29, 92, 69, 0.09);
+  --sf-accent-glow: rgba(46, 143, 108, 0.35);
+  --sf-gold: #b9863a;
+  --sf-gold-soft: rgba(185, 134, 58, 0.12);
+
+  /* Type */
+  --sf-font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --sf-font-text: "Inter", -apple-system, "Segoe UI", sans-serif;
+
+  /* Elevation — soft, layered, warm-tinted */
+  --sf-shadow-xs: 0 1px 2px rgba(24, 20, 12, 0.05);
+  --sf-shadow-sm:
+    0 1px 2px rgba(24, 20, 12, 0.04), 0 4px 12px rgba(24, 20, 12, 0.05);
+  --sf-shadow-md:
+    0 2px 4px rgba(24, 20, 12, 0.04), 0 12px 28px rgba(24, 20, 12, 0.09);
+  --sf-shadow-lg:
+    0 4px 8px rgba(24, 20, 12, 0.05), 0 24px 56px rgba(24, 20, 12, 0.14);
+  --sf-shadow-accent: 0 12px 32px var(--sf-accent-glow);
+
+  font-family: var(--sf-font-text);
+  color: var(--sf-ink);
+  background-color: var(--sf-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* ── Typography helpers ─────────────────────────────────────── */
+.sf-display {
+  font-family: var(--sf-font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+  font-feature-settings: normal;
+}
+
+.sf-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.sf-balance {
+  text-wrap: balance;
+}
+
+/* ── Surfaces ───────────────────────────────────────────────── */
+.sf-card {
+  background: var(--sf-surface);
+  border: 1px solid var(--sf-line);
+  box-shadow: var(--sf-shadow-sm);
+}
+
+.sf-glass {
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--sf-shadow-sm);
+}
+
+.sf-glass-dark {
+  background: rgba(18, 16, 12, 0.55);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* Film-grain overlay for dark cinematic sections */
+.sf-grain {
+  position: relative;
+  isolation: isolate;
+}
+.sf-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Aurora lighting for the hero — two drifting radial fields */
+.sf-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.sf-aurora::before,
+.sf-aurora::after {
+  content: "";
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 9999px;
+  filter: blur(90px);
+  will-change: transform;
+}
+.sf-aurora::before {
+  top: -30vmax;
+  right: -18vmax;
+  background: radial-gradient(
+    closest-side,
+    var(--sf-accent-glow),
+    transparent 70%
+  );
+  animation: sf-drift-a 26s ease-in-out infinite alternate;
+}
+.sf-aurora::after {
+  bottom: -34vmax;
+  left: -20vmax;
+  background: radial-gradient(
+    closest-side,
+    rgba(185, 134, 58, 0.22),
+    transparent 70%
+  );
+  animation: sf-drift-b 32s ease-in-out infinite alternate;
+}
+
+@keyframes sf-drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-10vmax, 8vmax, 0) scale(1.15);
+  }
+}
+@keyframes sf-drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(9vmax, -7vmax, 0) scale(0.95);
+  }
+}
+
+/* ── Ticker marquee ─────────────────────────────────────────── */
+.sf-marquee {
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+.sf-marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-width: 100%;
+  animation: sf-marquee 36s linear infinite;
+}
+@keyframes sf-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ── Shimmer for skeletons ──────────────────────────────────── */
+.sf-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--sf-bg-soft);
+}
+.sf-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  animation: sf-shimmer 1.8s ease-in-out infinite;
+}
+@keyframes sf-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Floating product cards in hero ─────────────────────────── */
+@keyframes sf-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.sf-float {
+  animation: sf-float 7s ease-in-out infinite;
+}
+.sf-float-delayed {
+  animation: sf-float 8.5s ease-in-out 1.2s infinite;
+}
+
+/* ── Underline link affordance ──────────────────────────────── */
+.sf-link {
+  position: relative;
+}
+.sf-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sf-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ── Scrollbars & rails ─────────────────────────────────────── */
+.sf-root ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.sf-root ::-webkit-scrollbar-thumb {
+  background: rgba(24, 20, 12, 0.18);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.sf-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sf-no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.sf-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.sf-snap-rail {
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: max(1.25rem, calc((100vw - 80rem) / 2 + 1.5rem));
+}
+.sf-snap-rail > * {
+  scroll-snap-align: start;
+}
+
+/* ── Utility bits ───────────────────────────────────────────── */
+.sf-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.sf-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sf-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus visibility tuned to the palette */
+.sf-root :focus-visible {
+  outline: 2px solid var(--sf-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Motion discipline ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sf-root *,
+  .sf-root *::before,
+  .sf-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

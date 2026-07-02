@@ -1,9 +1,9 @@
-import CustomerStoreNew from "../components/CustomerStoreNew";
+import StorefrontApp from "../storefront/StorefrontApp";
 
 interface StorefrontPageProps {
   onAdminClick: () => void;
 }
 
 export default function StorefrontPage({ onAdminClick }: StorefrontPageProps) {
-  return <CustomerStoreNew onAdminClick={onAdminClick} />;
+  return <StorefrontApp onAdminClick={onAdminClick} />;
 }
