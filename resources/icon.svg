@@ -1,20 +1,26 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hassan Bookshop brand mark: editorial serif H with gold period
+       on the evergreen gradient. Pure paths — no font dependencies. -->
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8B5CF6"/>
-      <stop offset="100%" stop-color="#EC4899"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#236b51"/>
+      <stop offset="100%" stop-color="#123c2d"/>
     </linearGradient>
-    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
+    <radialGradient id="sheen" cx="0.3" cy="0.2" r="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="100%" height="100%" rx="200" fill="#0B0B14"/>
-  <g filter="url(#shadow)">
-    <circle cx="512" cy="420" r="220" fill="url(#g)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#sheen)"/>
+  <g transform="translate(-40 0)" fill="#f5f2ea">
+    <rect x="336" y="290" width="68" height="444"/>
+    <rect x="620" y="290" width="68" height="444"/>
+    <rect x="396" y="486" width="232" height="52"/>
+    <rect x="294" y="290" width="152" height="30" rx="6"/>
+    <rect x="294" y="704" width="152" height="30" rx="6"/>
+    <rect x="578" y="290" width="152" height="30" rx="6"/>
+    <rect x="578" y="704" width="152" height="30" rx="6"/>
+    <circle cx="782" cy="706" r="28" fill="#b9863a"/>
   </g>
-  <g fill="#fff" opacity="0.95" transform="translate(252 560)">
-    <path d="M90 0h60l62 156h-58l-10-28H96L86 156H30L90 0Zm26 86h36l-18-52-18 52Z"/>
-    <rect x="220" y="24" width="320" height="56" rx="28" fill="url(#g)"/>
-  </g>
-  <text x="512" y="920" font-family="Segoe UI, Roboto, Arial" font-weight="700" font-size="120" text-anchor="middle" fill="#ffffff" opacity="0.9">L</text>
 </svg>

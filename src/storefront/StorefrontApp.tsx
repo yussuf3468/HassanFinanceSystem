@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./storefront.css";
@@ -40,6 +40,19 @@ interface StorefrontAppProps {
 }
 
 export default function StorefrontApp({ onAdminClick }: StorefrontAppProps) {
+  // The storefront ships one deliberate palette and ignores the app's
+  // dark-mode preference (like any brand site). Strip the `dark` class
+  // while mounted so shared components render light, and restore it
+  // for the admin side on unmount.
+  useEffect(() => {
+    const root = document.documentElement;
+    const hadDark = root.classList.contains("dark");
+    root.classList.remove("dark");
+    return () => {
+      if (hadDark) root.classList.add("dark");
+    };
+  }, []);
+
   // Inject the merchant palette as CSS variables so the entire
   // design system re-brands from config alone.
   const themeVars = useMemo(

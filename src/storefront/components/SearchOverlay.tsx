@@ -175,7 +175,7 @@ export default function SearchOverlay() {
                 className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-black/5"
                 style={{ color: "var(--sf-ink-soft)" }}
               >
-                <X className="h-4.5 w-4.5" />
+                <X className="h-[18px] w-[18px]" />
               </button>
             </div>
 

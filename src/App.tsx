@@ -3,7 +3,8 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout";
-import { Store, Settings } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AppLoader, ViewLoader } from "./components/BrandLoader";
 import QueryDiagnostics from "./components/QueryDiagnostics";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import StorefrontPage from "./pages/StorefrontPage";
@@ -30,11 +31,7 @@ const OrganizedInventory = lazy(() => import("./components/OrganizedInventory"))
 const BusinessProfitTracker = lazy(() => import("./components/BusinessProfitTracker"));
 
 function ViewFallback() {
-  return (
-    <div className="flex items-center justify-center py-16">
-      <div className="text-sm text-slate-600 dark:text-slate-300">Loading view...</div>
-    </div>
-  );
+  return <ViewLoader />;
 }
 
 function AppContent() {
@@ -82,15 +79,7 @@ function AppContent() {
   }, [user]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl font-semibold text-purple-900">Loading...</p>
-          <p className="text-purple-700">Iska sug - Please wait</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   // Customer view (no authentication required)
@@ -101,18 +90,43 @@ function AppContent() {
   // Admin view (requires authentication)
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 relative">
-        {/* View Toggle Button (match customer/admin toggle style) */}
+      <div
+        className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12"
+        style={{ background: "#12100c" }}
+      >
+        {/* Ambient brand lighting to match the storefront hero */}
+        <div
+          className="pointer-events-none absolute -right-40 -top-40 h-[36rem] w-[36rem] rounded-full"
+          style={{
+            background:
+              "radial-gradient(closest-side, rgba(46,143,108,0.28), transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-48 -left-40 h-[32rem] w-[32rem] rounded-full"
+          style={{
+            background:
+              "radial-gradient(closest-side, rgba(185,134,58,0.18), transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+
+        {/* Back to the public store */}
         <button
           onClick={() => setViewMode("customer")}
-          className="fixed top-4 right-4 z-50 bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2 shadow-lg"
+          className="fixed right-4 top-4 z-50 flex h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold text-white transition-transform hover:scale-105"
+          style={{
+            background: "rgba(255,255,255,0.08)",
+            border: "1px solid rgba(255,255,255,0.16)",
+            backdropFilter: "blur(12px)",
+          }}
         >
-          <Store className="w-4 h-4" />
-          <span className="hidden sm:inline">Customer Store</span>
+          <ArrowLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">Back to store</span>
         </button>
 
-        {/* Centered login container to match app layout */}
-        <div className="w-full max-w-md mx-4">
+        <div className="relative z-10 w-full max-w-md">
           <Suspense fallback={<ViewFallback />}>
             <Login onLogin={() => {}} />
           </Suspense>

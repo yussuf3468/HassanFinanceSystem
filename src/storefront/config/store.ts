@@ -28,11 +28,11 @@ const hassanBookshop: StoreConfig = {
   currency: { code: "KES", symbol: "KSh", locale: "en-KE" },
 
   contact: {
-    phone: "+254 725 828 148",
-    whatsapp: "254725828148",
+    phone: "+254 722 979 547",
+    whatsapp: "254722979547",
     email: "info@hassanbookshop.co.ke",
-    address: "First Avenue, Eastleigh, Nairobi",
-    mapsUrl: "https://maps.google.com/?q=First+Avenue+Eastleigh+Nairobi",
+    address: "2nd Street, 3rd Avenue, Eastleigh, Nairobi",
+    mapsUrl: "https://maps.google.com/?q=2nd+Street+3rd+Avenue+Eastleigh+Nairobi",
     hours: [
       { days: "Monday – Saturday", time: "8:00 AM – 8:00 PM" },
       { days: "Sunday", time: "9:00 AM – 6:00 PM" },
@@ -207,7 +207,7 @@ const hassanBookshop: StoreConfig = {
     eyebrow: "Our story",
     title: "A neighbourhood shop with a big promise",
     paragraphs: [
-      "Hassan Bookshop began as a single shelf of textbooks on First Avenue, Eastleigh. The promise was simple: genuine products, honest prices, and a smile.",
+      "Hassan Bookshop began as a single shelf of textbooks on 3rd Avenue, Eastleigh. The promise was simple: genuine products, honest prices, and a smile.",
       "Today we serve thousands of students, parents, schools and offices across Nairobi — same values, much bigger shelves. When you buy from us, you're buying from neighbours who care whether your term goes well.",
     ],
     stats: [

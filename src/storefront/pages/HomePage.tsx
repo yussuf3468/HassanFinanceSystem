@@ -180,7 +180,7 @@ function Hero({ heroProducts }: { heroProducts: Product[] }) {
       <div className="sf-aurora" />
       {/* Horizon glow at the base */}
       <div
-        className="absolute inset-x-0 bottom-0 h-40"
+        className="absolute inset-x-0 bottom-0 h-24"
         style={{
           background: "linear-gradient(to top, var(--sf-bg), transparent)",
           zIndex: 2,

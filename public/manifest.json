@@ -1,11 +1,11 @@
-{
+﻿{
   "name": "Hassan Bookshop - Trusted Educational Partner in Eastleigh Nairobi Kenya",
   "short_name": "Hassan Bookshop",
   "description": "Hassan Bookshop - Your trusted educational partner in Eastleigh, Nairobi Kenya. Premium quality textbooks, authentic stationery, verified electronics. Secure checkout, reliable delivery.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#faf8f4",
+  "theme_color": "#12100c",
   "orientation": "portrait-primary",
   "icons": [
     {

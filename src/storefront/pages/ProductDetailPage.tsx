@@ -439,7 +439,7 @@ function ProductDetail({
                         {section.title}
                       </span>
                       <ChevronDown
-                        className={`h-4.5 w-4.5 shrink-0 transition-transform duration-300 ${
+                        className={`h-[18px] w-[18px] shrink-0 transition-transform duration-300 ${
                           isOpen ? "rotate-180" : ""
                         }`}
                         style={{ color: "var(--sf-ink-faint)" }}
