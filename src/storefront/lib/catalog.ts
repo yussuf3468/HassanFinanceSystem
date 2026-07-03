@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPublishedProducts } from "../../api";
+import { getPublicCatalog } from "../../api";
 import { storeConfig } from "../config/store";
 import type { CategoryMeta, CollectionMeta } from "../config/types";
 import type { Product } from "../../types";
@@ -61,7 +61,7 @@ export function categoryMetaFor(slug: string): CategoryMeta {
 export function useCatalog() {
   const query = useQuery({
     queryKey: ["storefront-catalog"],
-    queryFn: getPublishedProducts,
+    queryFn: getPublicCatalog,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

@@ -174,7 +174,7 @@ function Hero({ heroProducts }: { heroProducts: Product[] }) {
   return (
     <section
       ref={sectionRef}
-      className="sf-grain relative flex min-h-[92svh] items-center overflow-hidden"
+      className="sf-grain relative overflow-hidden"
       style={{ background: "var(--sf-dark)" }}
     >
       <div className="sf-aurora" />
@@ -187,7 +187,7 @@ function Hero({ heroProducts }: { heroProducts: Product[] }) {
         }}
       />
 
-      <Container className="relative z-[3] grid items-center gap-14 pb-28 pt-32 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
+      <Container className="relative z-[3] grid grid-cols-1 items-center gap-10 pb-20 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:pb-24 lg:pt-28">
         {/* Copy */}
         <motion.div style={reduced ? undefined : { y: copyY, opacity: fade }}>
           <motion.p

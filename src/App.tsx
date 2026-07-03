@@ -2,12 +2,15 @@ import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Layout from "./components/Layout";
 import { ArrowLeft } from "lucide-react";
 import { AppLoader, ViewLoader } from "./components/BrandLoader";
 import QueryDiagnostics from "./components/QueryDiagnostics";
-import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import StorefrontPage from "./pages/StorefrontPage";
+
+// Admin-only chrome stays out of the public bundle — customers never
+// download it.
+const Layout = lazy(() => import("./components/Layout"));
+const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
 
 const Login = lazy(() => import("./components/Login"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -137,6 +140,7 @@ function AppContent() {
 
   return (
     <div className="relative">
+      <Suspense fallback={<AppLoader />}>
       <Layout activeTab={activeTab} onTabChange={setActiveTab}>
         <Suspense fallback={<ViewFallback />}>
           {activeTab === "dashboard" && <Dashboard />}
@@ -163,6 +167,7 @@ function AppContent() {
 
       {/* PWA Install Prompt for iOS and Android */}
       <PWAInstallPrompt />
+      </Suspense>
 
       {/* Dev-only diagnostics (hidden in production) */}
       {!import.meta.env.PROD && <QueryDiagnostics />}

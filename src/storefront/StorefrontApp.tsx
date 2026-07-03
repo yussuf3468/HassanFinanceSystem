@@ -12,22 +12,36 @@ import SearchOverlay from "./components/SearchOverlay";
 import { storeConfig } from "./config/store";
 import { RouteProvider, useRoute } from "./lib/router";
 import { StorefrontUIProvider, useStorefrontUI } from "./lib/ui-context";
-import AboutPage from "./pages/AboutPage";
-import AccountPage from "./pages/AccountPage";
-import CategoriesPage from "./pages/CategoriesPage";
-import CollectionsPage from "./pages/CollectionsPage";
-import ContactPage from "./pages/ContactPage";
 import HomePage from "./pages/HomePage";
-import ProductDetailPage from "./pages/ProductDetailPage";
-import ProductsPage from "./pages/ProductsPage";
-import TrackOrderPage from "./pages/TrackOrderPage";
-import WishlistPage from "./pages/WishlistPage";
 
-// Heavy commerce dialogs load on demand — they reuse the proven
-// checkout / tracking / auth flows shared with the rest of the app.
-const CheckoutModal = lazy(() => import("../components/CheckoutModal"));
+// Only the homepage ships in the first paint; every other page and
+// dialog loads on demand so the public bundle stays light.
+const ProductsPage = lazy(() => import("./pages/ProductsPage"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
+const CollectionsPage = lazy(() => import("./pages/CollectionsPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const WishlistPage = lazy(() => import("./pages/WishlistPage"));
+const TrackOrderPage = lazy(() => import("./pages/TrackOrderPage"));
+const AccountPage = lazy(() => import("./pages/AccountPage"));
+const Checkout = lazy(() => import("./components/Checkout"));
 const OrderTrackingModal = lazy(() => import("../components/OrderTrackingModal"));
 const AuthModal = lazy(() => import("../components/AuthModal"));
+
+function PageFallback() {
+  return (
+    <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 sm:px-8">
+      <div className="sf-shimmer mb-4 h-10 w-56 rounded-2xl" />
+      <div className="sf-shimmer mb-8 h-4 w-80 max-w-full rounded-full" />
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="sf-shimmer aspect-[4/5] rounded-3xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* ═══════════════════════════════════════════════════════════════
    STOREFRONT — the public commerce experience. Fully config-
@@ -74,7 +88,9 @@ export default function StorefrontApp({ onAdminClick }: StorefrontAppProps) {
         <div className="sf-root min-h-screen" style={themeVars}>
           <Header />
           <main>
-            <CurrentPage />
+            <Suspense fallback={<PageFallback />}>
+              <CurrentPage />
+            </Suspense>
           </main>
           <Footer />
           <MobileTabBar />
@@ -138,9 +154,7 @@ function CommerceDialogs() {
   const ui = useStorefrontUI();
   return (
     <Suspense fallback={null}>
-      {ui.checkoutOpen && (
-        <CheckoutModal isOpen={ui.checkoutOpen} onClose={ui.closeCheckout} />
-      )}
+      {ui.checkoutOpen && <Checkout onClose={ui.closeCheckout} />}
       {ui.trackingOpen && (
         <OrderTrackingModal
           isOpen={ui.trackingOpen}

@@ -63,7 +63,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["book", "text", "novel", "revision", "cbc"],
       tagline: "Curriculum titles, revision guides and great reads.",
       image:
-        "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "notebooks",
@@ -71,7 +71,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["note", "exercise", "paper", "diary", "journal"],
       tagline: "Exercise books, journals and everything paper.",
       image:
-        "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "stationery",
@@ -79,7 +79,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["pen", "pencil", "station", "marker", "eraser", "ruler"],
       tagline: "Writing instruments and desk essentials.",
       image:
-        "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "electronics",
@@ -87,7 +87,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["electron", "gadget", "tech", "usb", "phone", "cable"],
       tagline: "Calculators, accessories and smart gadgets.",
       image:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "bags",
@@ -95,7 +95,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["bag", "pack", "carrier"],
       tagline: "School bags and backpacks built to last.",
       image:
-        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "art",
@@ -103,7 +103,7 @@ const hassanBookshop: StoreConfig = {
       keywords: ["art", "paint", "color", "craft", "crayon"],
       tagline: "Colour, create and bring ideas to life.",
       image:
-        "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=640&q=75&auto=format&fit=crop",
     },
     {
       slug: "school",
@@ -111,11 +111,11 @@ const hassanBookshop: StoreConfig = {
       keywords: ["school", "study", "student", "uniform", "geometry"],
       tagline: "Everything on the back-to-school list.",
       image:
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=80&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=640&q=75&auto=format&fit=crop",
     },
   ],
   fallbackCategoryImage:
-    "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1200&q=80&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=640&q=75&auto=format&fit=crop",
 
   collections: [
     {

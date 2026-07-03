@@ -10,6 +10,25 @@ export async function getPublishedProducts() {
   return unwrap(response, []);
 }
 
+/**
+ * Public storefront catalog: only customer-safe columns. Keeps the
+ * payload small (hundreds of rows) and never ships buying_price to
+ * the browser of an anonymous visitor.
+ */
+export async function getPublicCatalog() {
+  const response = await apiClient
+    .from("products")
+    .select(
+      "id,product_id,name,category,image_url,selling_price,quantity_in_stock,reorder_level,published,featured,description,created_at,updated_at",
+    )
+    .eq("published", true)
+    .order("name");
+
+  const rows = unwrap(response, []) as Array<Record<string, unknown>>;
+  // buying_price is intentionally not selected; keep the Product shape.
+  return rows.map((row) => ({ ...row, buying_price: 0 }));
+}
+
 export async function getPublishedProductsInStock() {
   const response = await apiClient
     .from("products")

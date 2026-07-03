@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   base: "/",
   build: {
-    target: "es2015",
+    // Modern browsers + Capacitor WebView all support es2019; the old
+    // es2015 target inflated and slowed every bundle with transpilation.
+    target: "es2019",
     minify: "terser",
     terserOptions: {
       compress: {
