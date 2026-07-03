@@ -285,12 +285,15 @@ export default function Checkout({ onClose }: { onClose: () => void }) {
   return (
     <>
       <motion.div
-        className="fixed inset-0 z-50 overflow-y-auto"
+        // Opacity-only animation: a transform here would become the
+        // containing block for the docked bar and break its position.
+        className="fixed inset-0 z-50 flex flex-col"
         style={{ background: "var(--sf-bg)" }}
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25 }}
       >
+        <div className="min-h-0 flex-1 overflow-y-auto">
         {/* Top bar */}
         <div
           className="sticky top-0 z-10 border-b"
@@ -338,8 +341,8 @@ export default function Checkout({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mx-auto grid w-full max-w-5xl gap-8 px-5 pb-36 pt-8 sm:px-8 lg:grid-cols-[1fr_380px] lg:pb-16">
+        <form id="sf-checkout-form" onSubmit={handleSubmit}>
+          <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-8 px-5 pb-12 pt-8 sm:px-8 lg:grid-cols-[1fr_380px] lg:pb-16">
             {/* ── Left: details ── */}
             <div className="space-y-8">
               {/* Contact */}
@@ -659,7 +662,7 @@ export default function Checkout({ onClose }: { onClose: () => void }) {
                 <button
                   type="submit"
                   disabled={isSubmitting || cart.items.length === 0}
-                  className="mt-5 hidden h-13 min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 lg:flex"
+                  className="mt-5 hidden min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 lg:flex"
                   style={{
                     background: "var(--sf-accent)",
                     color: "var(--sf-accent-ink)",
@@ -690,39 +693,39 @@ export default function Checkout({ onClose }: { onClose: () => void }) {
             </aside>
           </div>
 
-          {/* Mobile sticky submit bar */}
-          <div
-            className="sf-safe-bottom fixed inset-x-0 bottom-0 z-10 border-t p-4 lg:hidden"
+        </form>
+        </div>
+
+        {/* Docked submit bar (mobile) — a static flex-column child, so it
+            can never drift with scrolling or animated ancestors. */}
+        <div
+          className="sf-safe-bottom border-t p-4 lg:hidden"
+          style={{
+            background: "rgba(250, 248, 244, 0.95)",
+            borderColor: "var(--sf-line)",
+          }}
+        >
+          <button
+            type="submit"
+            form="sf-checkout-form"
+            disabled={isSubmitting || cart.items.length === 0}
+            className="flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all disabled:opacity-50"
             style={{
-              background: "rgba(250, 248, 244, 0.92)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              borderColor: "var(--sf-line)",
+              background: "var(--sf-accent)",
+              color: "var(--sf-accent-ink)",
+              boxShadow: "var(--sf-shadow-accent)",
             }}
           >
-            <button
-              type="submit"
-              disabled={isSubmitting || cart.items.length === 0}
-              className="flex h-13 min-h-[52px] w-full items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all disabled:opacity-50"
-              style={{
-                background: "var(--sf-accent)",
-                color: "var(--sf-accent-ink)",
-                boxShadow: "var(--sf-shadow-accent)",
-              }}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Placing order…
-                </>
-              ) : (
-                <>
-                  Place order · {formatMoney(total)}
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Placing order…
+              </>
+            ) : (
+              <>Place order · {formatMoney(total)}</>
+            )}
+          </button>
+        </div>
       </motion.div>
 
       {/* Success — reuses the proven confirmation with tracking links */}
