@@ -24,10 +24,14 @@ import {
   processStockReceipt,
 } from "../api/salesApi";
 import { createProduct, updateProductStock } from "../api/productsApi";
+import { createCustomerCredit } from "../api/creditsApi";
+import { useCustomerCredits } from "../hooks/useSupabaseQuery";
+import { getCurrentDateForInput } from "../utils/dateFormatter";
 import type { Product } from "../types";
 import { invalidateAfterSale } from "../utils/cacheInvalidation";
 import { StockReceiveModal } from "./StockReceiveModal";
 import POSReceipt, { type ReceiptData } from "./POSReceipt";
+import CustomerCombobox from "./CustomerCombobox";
 
 interface POSSaleFormProps {
   products: Product[];
@@ -46,7 +50,7 @@ interface CartItem {
 }
 
 const PAYMENT_METHODS = ["Cash", "Mpesa", "Till Number", "Card", "Bank Transfer"];
-const STAFF_MEMBERS = ["Khalid", "Yussuf", "Zakaria"];
+const STAFF_MEMBERS = ["Khalid", "Yussuf", "Abdijabar"];
 
 const LS_CASHIER = "pos.cashier";
 const LS_PAYMENT = "pos.payment";
@@ -57,6 +61,7 @@ export default function POSSaleForm({
   onSuccess,
 }: POSSaleFormProps) {
   const queryClient = useQueryClient();
+  const { data: creditCustomersRaw = [] } = useCustomerCredits();
 
   // === Persistent staff/payment defaults ===
   const [soldBy, setSoldBy] = useState<string>(
@@ -81,8 +86,34 @@ export default function POSSaleForm({
   // === Optional extras (collapsed) ===
   const [showExtras, setShowExtras] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  // Saved customer's phone ("" = Walk-in). When set, the sale is on credit and
+  // its total is added to that customer's balance in Customer Credit.
+  const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("paid");
   const [amountPaid, setAmountPaid] = useState("");
+  const savedCustomers = useMemo(() => {
+    const map = new Map<string, { name: string; phone: string }>();
+    for (const c of creditCustomersRaw as Array<{
+      customer_name: string;
+      customer_phone: string;
+    }>) {
+      const phone = String(c.customer_phone || "").trim();
+      if (!phone || map.has(phone)) continue;
+      map.set(phone, { name: c.customer_name, phone });
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [creditCustomersRaw]);
+  const isCreditSale = customerPhone.trim() !== "";
+  function handleSelectCustomer(phone: string) {
+    if (!phone) {
+      setCustomerPhone("");
+      setCustomerName("");
+      return;
+    }
+    const c = savedCustomers.find((s) => s.phone === phone);
+    setCustomerPhone(phone);
+    setCustomerName(c?.name || "");
+  }
   const [overallDiscountType, setOverallDiscountType] = useState<DiscountType>("none");
   const [overallDiscountValue, setOverallDiscountValue] = useState("");
 
@@ -442,8 +473,15 @@ export default function POSSaleForm({
     setSubmitting(true);
     const transactionId = crypto.randomUUID();
     const totalBeforeOverall = computed.reduce((s, c) => s + c.final_total, 0);
-    const finalAmountPaid =
-      paymentStatus === "paid"
+    // Credit sale (saved customer selected) → recorded unpaid; total is added to
+    // their Customer Credit balance after the sale.
+    const effectiveCustomerName = customerName || "Walk-in Customer";
+    const effectivePaymentStatus: PaymentStatus = isCreditSale
+      ? "not_paid"
+      : paymentStatus;
+    const finalAmountPaid = isCreditSale
+      ? 0
+      : paymentStatus === "paid"
         ? total
         : paymentStatus === "not_paid"
           ? 0
@@ -469,8 +507,8 @@ export default function POSSaleForm({
           profit: lineFinalProfit,
           payment_method: paymentMethod,
           sold_by: soldBy,
-          customer_name: customerName || "Walk-in Customer",
-          payment_status: paymentStatus,
+          customer_name: effectiveCustomerName,
+          payment_status: effectivePaymentStatus,
           amount_paid: finalAmountPaid,
           discount_amount: c.discount_amount,
           discount_percentage,
@@ -486,8 +524,8 @@ export default function POSSaleForm({
         transactionId,
         sold_by: soldBy,
         payment_method: paymentMethod,
-        customer_name: customerName || "Walk-in Customer",
-        payment_status: paymentStatus,
+        customer_name: effectiveCustomerName,
+        payment_status: effectivePaymentStatus,
         amount_paid: finalAmountPaid,
         created_at: new Date(),
         items: computed.map((c) => ({
@@ -511,6 +549,23 @@ export default function POSSaleForm({
         balance_due: total - finalAmountPaid,
       };
 
+      // Credit sale → add the total to the selected customer's balance.
+      if (isCreditSale) {
+        const due = new Date();
+        due.setDate(due.getDate() + 30);
+        await createCustomerCredit({
+          customer_name: effectiveCustomerName,
+          customer_phone: customerPhone.trim(),
+          total_amount: total,
+          credit_date: getCurrentDateForInput(),
+          due_date: due.toISOString().slice(0, 10),
+          status: "active",
+          notes: `Sale on credit — transaction ${transactionId}`,
+        });
+        await queryClient.invalidateQueries({ queryKey: ["customer-credits"] });
+        await queryClient.invalidateQueries({ queryKey: ["credit-payments"] });
+      }
+
       setReceipt(receiptData);
       await invalidateAfterSale(queryClient);
     } catch (err) {
@@ -524,6 +579,7 @@ export default function POSSaleForm({
   function startNewSale() {
     setCart([]);
     setCustomerName("");
+    setCustomerPhone("");
     setPaymentStatus("paid");
     setAmountPaid("");
     setOverallDiscountType("none");
@@ -588,6 +644,7 @@ export default function POSSaleForm({
     setSoldBy(d.soldBy);
     setPaymentMethod(d.paymentMethod);
     setCustomerName(d.customerName);
+    setCustomerPhone(""); // drafts reload as Walk-in unless re-selected
     setPaymentStatus(d.paymentStatus);
     setAmountPaid(d.amountPaid);
     setOverallDiscountType(d.overallDiscountType);
@@ -1034,12 +1091,11 @@ export default function POSSaleForm({
                 </button>
                 {showExtras && (
                   <div className="mt-2 space-y-2">
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Customer name (optional)"
-                      className="w-full h-9 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-emerald-500"
+                    <CustomerCombobox
+                      customers={savedCustomers}
+                      selectedPhone={customerPhone}
+                      selectedName={customerName}
+                      onSelect={handleSelectCustomer}
                     />
                     <div className="grid grid-cols-3 gap-1.5">
                       <select
@@ -1066,33 +1122,43 @@ export default function POSSaleForm({
                         className="col-span-2 h-9 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white disabled:opacity-40 outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(["paid", "partial", "not_paid"] as PaymentStatus[]).map(
-                        (s) => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => setPaymentStatus(s)}
-                            className={`h-9 rounded-lg text-xs font-bold capitalize border ${
-                              paymentStatus === s
-                                ? "bg-emerald-600 text-white border-emerald-600"
-                                : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600"
-                            }`}
-                          >
-                            {s === "not_paid" ? "Not paid" : s}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                    {paymentStatus === "partial" && (
-                      <input
-                        type="number"
-                        min={0}
-                        value={amountPaid}
-                        onChange={(e) => setAmountPaid(e.target.value)}
-                        placeholder="Amount paid now (KES)"
-                        className="w-full h-9 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
+                    {isCreditSale ? (
+                      <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-2 text-xs text-amber-800 dark:text-amber-300">
+                        On credit — the total is added to{" "}
+                        <strong>{customerName}</strong>'s balance in Customer
+                        Credit.
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {(
+                            ["paid", "partial", "not_paid"] as PaymentStatus[]
+                          ).map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setPaymentStatus(s)}
+                              className={`h-9 rounded-lg text-xs font-bold capitalize border ${
+                                paymentStatus === s
+                                  ? "bg-emerald-600 text-white border-emerald-600"
+                                  : "bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600"
+                              }`}
+                            >
+                              {s === "not_paid" ? "Not paid" : s}
+                            </button>
+                          ))}
+                        </div>
+                        {paymentStatus === "partial" && (
+                          <input
+                            type="number"
+                            min={0}
+                            value={amountPaid}
+                            onChange={(e) => setAmountPaid(e.target.value)}
+                            placeholder="Amount paid now (KES)"
+                            className="w-full h-9 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                 )}

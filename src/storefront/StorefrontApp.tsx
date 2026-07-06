@@ -31,10 +31,10 @@ const AuthModal = lazy(() => import("../components/AuthModal"));
 
 function PageFallback() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 sm:px-8">
+    <div className="mx-auto w-full max-w-7xl px-5 pb-16 pt-28 sm:px-8 2xl:max-w-[1600px]">
       <div className="sf-shimmer mb-4 h-10 w-56 rounded-2xl" />
       <div className="sf-shimmer mb-8 h-4 w-80 max-w-full rounded-full" />
-      <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 2xl:grid-cols-5">
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="sf-shimmer aspect-[4/5] rounded-3xl" />
         ))}

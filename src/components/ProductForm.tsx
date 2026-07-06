@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { X, Upload } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { X, Upload, ImageIcon, Loader2, Check, Package, Tag, Banknote, Boxes, FileText } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   uploadProductImage,
@@ -20,6 +20,7 @@ const categories = [
   "Backpacks",
   "Bottles",
   "Electronics",
+  "Toys",
   "Pens",
   "Notebooks",
   "Pencils",
@@ -48,6 +49,12 @@ const categories = [
   "Cello Tape",
 ];
 
+const inputClass =
+  "w-full px-3.5 py-2.5 bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-slate-600 rounded-lg text-[15px] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/60 focus:border-emerald-500 dark:focus:border-emerald-500";
+
+const labelClass =
+  "flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5";
+
 export default function ProductForm({
   product,
   onClose,
@@ -57,7 +64,7 @@ export default function ProductForm({
   const [formData, setFormData] = useState({
     product_id: "",
     name: "",
-    category: "Electronics",
+    category: categories[0],
     image_url: "",
     buying_price: "",
     selling_price: "",
@@ -83,9 +90,28 @@ export default function ProductForm({
         description: product.description || "",
       });
     }
-    // Scroll to top for better UX when modal opens
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [product]);
+
+  // Close on Escape for accessibility.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  // Live preview: freshly picked file wins over a pasted URL.
+  const previewUrl = useMemo(() => {
+    if (imageFile) return URL.createObjectURL(imageFile);
+    return formData.image_url || null;
+  }, [imageFile, formData.image_url]);
+
+  useEffect(() => {
+    return () => {
+      if (imageFile && previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [imageFile, previewUrl]);
 
   async function uploadImage(file: File): Promise<string | null> {
     try {
@@ -107,7 +133,6 @@ export default function ProductForm({
     try {
       let imageUrl = formData.image_url;
 
-      // Upload new image if one was selected
       if (imageFile) {
         const uploadedUrl = await uploadImage(imageFile);
         if (uploadedUrl) {
@@ -133,29 +158,55 @@ export default function ProductForm({
         await createProduct(data);
       }
 
-      // ✅ Invalidate product caches to update inventory lists
       await invalidateProductCaches(queryClient);
 
       onSuccess();
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Failed to save product");
+      const message =
+        error instanceof Error ? error.message : "Failed to save product";
+      alert(
+        message.includes("Plan limit")
+          ? message
+          : `Failed to save product: ${message}`,
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
+  const margin =
+    parseFloat(formData.selling_price) - parseFloat(formData.buying_price);
+  const showMargin =
+    !Number.isNaN(margin) &&
+    formData.buying_price !== "" &&
+    formData.selling_price !== "";
+
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 overflow-y-auto">
-      <div className="min-h-screen py-4 px-4 flex justify-center">
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-2xl w-full h-fit my-4 max-h-[90vh] overflow-y-auto border-2 border-slate-100 dark:border-slate-700">
-          <div className="flex items-center justify-between p-5 sm:p-6 border-b-2 border-amber-100 dark:border-amber-800 sticky top-0 bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-amber-900/20 dark:via-slate-800 dark:to-amber-900/20 z-10 shadow-sm">
-            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              {product ? "✏️ Edit Product" : "➕ Add New Product"}
-            </h3>
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 overflow-y-auto"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="min-h-full flex items-start sm:items-center justify-center p-3 sm:p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                {product ? "Edit Product" : "Add New Product"}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {product
+                  ? "Update the details of this product"
+                  : "Fill in the details to add a product to your inventory"}
+              </p>
+            </div>
             <button
               onClick={onClose}
-              className="p-2.5 hover:bg-amber-100 dark:hover:bg-amber-800/40 rounded-xl transition-all hover:scale-110 active:scale-95 text-slate-700 dark:text-slate-300 border border-transparent hover:border-amber-200 dark:hover:border-amber-700"
+              aria-label="Close"
+              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -163,13 +214,14 @@ export default function ProductForm({
 
           <form
             onSubmit={handleSubmit}
-            className="p-5 sm:p-7 space-y-5 sm:space-y-6 bg-gradient-to-br from-white via-slate-50/30 to-white dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800"
+            className="px-5 sm:px-6 py-5 max-h-[calc(100vh-10rem)] overflow-y-auto scrollbar-hide"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {/* ── Basics ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">🆔</span>
-                  Product ID *
+                <label className={labelClass}>
+                  <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Product ID <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -178,15 +230,15 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, product_id: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
-                  placeholder="BOOK001"
+                  className={inputClass}
+                  placeholder="BK-001"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">📦</span>
-                  Product Name *
+                <label className={labelClass}>
+                  <Package className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Product Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -195,15 +247,15 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
-                  placeholder="Enter product name"
+                  className={inputClass}
+                  placeholder="e.g. Oxford English Dictionary"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">📂</span>
-                  Category *
+              <div className="sm:col-span-2">
+                <label className={labelClass}>
+                  <Boxes className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Category <span className="text-rose-500">*</span>
                 </label>
                 <select
                   required
@@ -211,94 +263,83 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
+                  className={inputClass}
                 >
                   {categories.map((cat) => (
-                    <option
-                      key={cat}
-                      value={cat}
-                      className="bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
-                    >
+                    <option key={cat} value={cat}>
                       {cat}
                     </option>
                   ))}
                 </select>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">🖼️</span>
-                  Product Image
-                </label>
-                <div className="space-y-3">
+            {/* ── Image ── */}
+            <div className="mt-5">
+              <label className={labelClass}>
+                <ImageIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                Product Image
+              </label>
+              <div className="flex gap-4">
+                {/* Preview */}
+                <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/40 overflow-hidden flex items-center justify-center">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Product preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-2.5">
+                  <label className="flex items-center justify-center gap-2 w-full px-4 py-2.5 border border-dashed border-emerald-400/70 dark:border-emerald-600 rounded-lg cursor-pointer text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                    <Upload className="w-4 h-4" />
+                    {imageFile ? "Change image" : "Upload image"}
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setImageFile(file);
+                          setFormData({ ...formData, image_url: "" });
+                        }
+                      }}
+                    />
+                  </label>
                   <input
                     type="url"
                     value={formData.image_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, image_url: e.target.value })
-                    }
-                    className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
-                    placeholder="Or paste image URL: https://example.com/image.jpg"
+                    onChange={(e) => {
+                      setFormData({ ...formData, image_url: e.target.value });
+                      if (e.target.value) setImageFile(null);
+                    }}
+                    className={inputClass}
+                    placeholder="or paste an image URL"
                   />
-                  <div className="text-center text-slate-500 dark:text-slate-400 font-medium text-sm">
-                    OR
-                  </div>
-                  <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-amber-300 dark:border-amber-600 rounded-2xl cursor-pointer bg-gradient-to-br from-amber-50/50 to-white dark:from-amber-900/10 dark:to-slate-800 hover:from-amber-100/50 hover:to-amber-50/30 dark:hover:from-amber-900/20 dark:hover:to-slate-700 transition-all hover:border-amber-400 dark:hover:border-amber-500 group">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <div className="p-3 bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-800/40 dark:to-amber-900/20 rounded-xl mb-3 group-hover:scale-110 transition-transform">
-                          <Upload className="w-7 h-7 text-amber-600 dark:text-amber-400" />
-                        </div>
-                        <p className="mb-2 text-sm text-slate-700 dark:text-slate-300 font-semibold">
-                          <span className="font-semibold">Click to upload</span>{" "}
-                          product image
-                        </p>
-                        <p className="text-xs text-slate-600 dark:text-slate-400">
-                          PNG, JPG or WEBP (MAX. 5MB)
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setImageFile(file);
-                            // Clear URL if file is selected
-                            setFormData({ ...formData, image_url: "" });
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
                   {imageFile && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
-                      <span className="text-green-600 dark:text-green-400">
-                        ✓
-                      </span>
-                      <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                        Selected: {imageFile.name}
-                      </p>
-                    </div>
+                    <p className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
+                      <Check className="w-3.5 h-3.5" />
+                      {imageFile.name}
+                    </p>
                   )}
-                  {uploading && (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
-                      <span className="text-amber-600 dark:text-amber-400">
-                        ⏳
-                      </span>
-                      <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">
-                        Uploading image...
-                      </p>
-                    </div>
-                  )}
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    PNG, JPG or WEBP, up to 5 MB
+                  </p>
                 </div>
               </div>
+            </div>
 
+            {/* ── Pricing & stock ── */}
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">💰</span>
-                  Qiimaha Iibsiga - Buying Price (KES) *
+                <label className={labelClass}>
+                  <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Buying Price (KES) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -309,15 +350,15 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, buying_price: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
+                  className={inputClass}
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400">💵</span>
-                  Qiimaha Iibka - Selling Price (KES) *
+                <label className={labelClass}>
+                  <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Selling Price (KES) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -328,15 +369,26 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, selling_price: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
+                  className={inputClass}
                   placeholder="0.00"
                 />
+                {showMargin && (
+                  <p
+                    className={`mt-1 text-xs font-medium ${
+                      margin >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-rose-600 dark:text-rose-400"
+                    }`}
+                  >
+                    Profit per unit: KES {margin.toLocaleString()}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600">📊</span>
-                  Quantity in Stock *
+                <label className={labelClass}>
+                  <Boxes className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Quantity in Stock <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -349,15 +401,15 @@ export default function ProductForm({
                       quantity_in_stock: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
+                  className={inputClass}
                   placeholder="0"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-                  <span className="text-amber-600">🔔</span>
-                  Reorder Level *
+                <label className={labelClass}>
+                  <Boxes className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  Reorder Level <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -367,54 +419,59 @@ export default function ProductForm({
                   onChange={(e) =>
                     setFormData({ ...formData, reorder_level: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
+                  className={inputClass}
                   placeholder="5"
                 />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  You'll be alerted when stock falls to this level
+                </p>
               </div>
             </div>
 
-            {/* Full-width Product Description Field */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
-                <span className="text-amber-600">📝</span>
-                Product Description
+            {/* ── Description ── */}
+            <div className="mt-5">
+              <label className={labelClass}>
+                <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                rows={4}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-600 focus:border-amber-500 dark:focus:border-amber-600 resize-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all shadow-sm hover:border-amber-300 dark:hover:border-amber-600"
-                placeholder="e.g., Sold in packets of 10, Bulk item, Premium quality, etc."
+                rows={3}
+                className={`${inputClass} resize-none`}
+                placeholder="e.g. 320-page hardcover, KLB revision guide for Form 4"
               />
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Add details like package size, special features, or
-                clarifications for customers
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Shown to customers on the storefront product page
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t-2 border-amber-100 dark:border-amber-800">
+            {/* ── Actions ── */}
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-8 py-3 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-500 transition-all font-semibold hover:scale-105 active:scale-95 shadow-sm"
+                className="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
-                ✖️ Cancel
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="w-full sm:w-auto min-h-[48px] px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 dark:hover:from-amber-700 dark:hover:to-amber-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95 hover:scale-105 font-bold border-2 border-amber-400 dark:border-amber-500"
-                style={{ WebkitTapHighlightColor: "rgba(245,158,11,0.4)" }}
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting
-                  ? "⏳ Saving..."
-                  : uploading
-                  ? "📤 Uploading..."
-                  : product
-                  ? "✓ Update Product"
-                  : "➕ Add Product"}
+                {(submitting || uploading) && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
+                {uploading
+                  ? "Uploading image…"
+                  : submitting
+                    ? "Saving…"
+                    : product
+                      ? "Update Product"
+                      : "Add Product"}
               </button>
             </div>
           </form>

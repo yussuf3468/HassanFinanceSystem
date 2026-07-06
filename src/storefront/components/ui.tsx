@@ -16,7 +16,9 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div className={`mx-auto w-full max-w-7xl px-5 sm:px-8 ${className}`}>
+    <div
+      className={`mx-auto w-full max-w-7xl px-5 sm:px-8 2xl:max-w-[1600px] ${className}`}
+    >
       {children}
     </div>
   );
@@ -263,7 +265,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 2xl:grid-cols-5">
       {Array.from({ length: count }).map((_, i) => (
         <ProductCardSkeleton key={i} />
       ))}

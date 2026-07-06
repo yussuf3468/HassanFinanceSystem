@@ -26,6 +26,7 @@ import {
   MoreHorizontal,
   ChevronDown,
   Store,
+  Crown,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -69,14 +70,14 @@ const NAV_GROUPS: NavGroup[] = [
         adminOnly: true,
         mobilePrimary: true,
       },
-      {
-        id: "staff-dashboard",
-        label: "My Sales",
-        sublabel: "Iibkayga",
-        icon: TrendingUp,
-        staffOnly: true,
-        mobilePrimary: true,
-      },
+      // {
+      //   id: "staff-dashboard",
+      //   label: "My Sales",
+      //   sublabel: "Iibkayga",
+      //   icon: TrendingUp,
+      //   staffOnly: true,
+      //   mobilePrimary: true,
+      // },
       {
         id: "sales",
         label: "New Sale",
@@ -91,10 +92,10 @@ const NAV_GROUPS: NavGroup[] = [
         icon: Receipt,
       },
       {
-        id: "returns",
-        label: "Returns",
-        sublabel: "Soo celinta",
-        icon: RotateCcw,
+        id: "cyber-services",
+        label: "Cyber Services",
+        sublabel: "Adeegyada cyber-ka",
+        icon: Monitor,
       },
     ],
   },
@@ -132,12 +133,12 @@ const NAV_GROUPS: NavGroup[] = [
         badge: "pendingOrders",
         mobilePrimary: true,
       },
-      {
-        id: "customer-balances",
-        label: "Customer Balances",
-        sublabel: "Baaqiyada macaamiisha",
-        icon: Users,
-      },
+      // {
+      //   id: "customer-balances",
+      //   label: "Customer Balances",
+      //   sublabel: "Baaqiyada macaamiisha",
+      //   icon: Users,
+      // },
       {
         id: "customer-credit",
         label: "Customer Credit",
@@ -186,10 +187,17 @@ const NAV_GROUPS: NavGroup[] = [
     label: "More",
     items: [
       {
-        id: "cyber-services",
-        label: "Cyber Services",
-        sublabel: "Adeegyada cyber-ka",
-        icon: Monitor,
+        id: "subscription",
+        label: "Subscription",
+        sublabel: "Qorshaha & lacag-bixinta",
+        icon: Crown,
+        adminOnly: true,
+      },
+      {
+        id: "returns",
+        label: "Returns",
+        sublabel: "Soo celinta",
+        icon: RotateCcw,
       },
       {
         id: "reports",

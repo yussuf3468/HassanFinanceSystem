@@ -114,7 +114,7 @@ export default function WishlistPage() {
             }
           />
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 2xl:grid-cols-5">
             {saved.map((product, index) => (
               <Reveal key={product.id} delay={Math.min(index * 0.05, 0.25)}>
                 <ProductCard product={product} priority={index < 4} />

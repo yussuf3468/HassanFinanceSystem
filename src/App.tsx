@@ -32,6 +32,7 @@ const CyberServices = lazy(() => import("./components/CyberServices"));
 const StaffDashboard = lazy(() => import("./components/StaffDashboard"));
 const OrganizedInventory = lazy(() => import("./components/OrganizedInventory"));
 const BusinessProfitTracker = lazy(() => import("./components/BusinessProfitTracker"));
+const Subscription = lazy(() => import("./components/Subscription"));
 
 function ViewFallback() {
   return <ViewLoader />;
@@ -162,6 +163,7 @@ function AppContent() {
           {activeTab === "customer-credit" && <CustomerCredit />}
           {activeTab === "cyber-services" && <CyberServices />}
           {activeTab === "business-profit" && <BusinessProfitTracker />}
+          {activeTab === "subscription" && <Subscription />}
         </Suspense>
       </Layout>
 

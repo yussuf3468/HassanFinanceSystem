@@ -357,7 +357,7 @@ function ProductDetail({
                 type="button"
                 onClick={handleAdd}
                 disabled={outOfStock}
-                className="flex h-13 min-h-[52px] flex-1 items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-40"
+                className="flex min-h-[52px] flex-1 items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-40"
                 style={{
                   background: added ? "var(--sf-accent-deep)" : "var(--sf-accent)",
                   color: "var(--sf-accent-ink)",
@@ -379,7 +379,7 @@ function ProductDetail({
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  className="flex h-13 min-h-[52px] flex-1 items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5"
+                  className="flex min-h-[52px] flex-1 items-center justify-center gap-2.5 rounded-full text-[15px] font-semibold transition-all duration-300 hover:-translate-y-0.5"
                   style={{
                     border: "1.5px solid var(--sf-ink)",
                     color: "var(--sf-ink)",

@@ -15,6 +15,8 @@ import {
   getCreditPayments,
   getSalesTotalsFromRpc,
   getFinancialTotalsFromRpc,
+  getStoreSubscription,
+  type StoreSubscription,
 } from "../api";
 
 /**
@@ -87,6 +89,14 @@ export function useProducts() {
   return useSupabaseQueryDirect<Product[]>(
     "products",
     async () => (await getProducts()) as unknown as Product[],
+  );
+}
+
+/** Current subscription plan (singleton). Cached; refreshes on demand. */
+export function useStoreSubscription() {
+  return useSupabaseQueryDirect<StoreSubscription | null>(
+    "store-subscription",
+    getStoreSubscription,
   );
 }
 

@@ -116,7 +116,7 @@ export default function HomePage() {
           {isLoading ? (
             <ProductGridSkeleton count={8} />
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 2xl:grid-cols-5">
               {(featured.length > 0 ? featured : latest.slice(0, 8)).map(
                 (product, index) => (
                   <Reveal key={product.id} delay={Math.min(index * 0.06, 0.3)}>

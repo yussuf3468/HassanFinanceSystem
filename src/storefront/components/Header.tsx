@@ -53,7 +53,7 @@ export default function Header() {
           : { background: "transparent" }
       }
     >
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-5 sm:h-[72px] sm:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-5 sm:h-[72px] sm:px-8 2xl:max-w-[1600px]">
         {/* Logo */}
         <Link to="/" className="flex min-w-0 items-center gap-3">
           <span

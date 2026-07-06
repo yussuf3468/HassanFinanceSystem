@@ -13,8 +13,12 @@ import {
   Tag,
   TrendingUp,
   FileText,
+  LayoutGrid,
+  List,
+  Crown,
 } from "lucide-react";
-import { useProducts } from "../hooks/useSupabaseQuery";
+import { useProducts, useStoreSubscription } from "../hooks/useSupabaseQuery";
+import { getPlan } from "../config/subscriptionPlans";
 import { deleteProductWithRelations } from "../api";
 import type { Product } from "../types";
 import ProductForm from "./ProductForm";
@@ -25,6 +29,10 @@ import { formatDate } from "../utils/dateFormatter";
 
 export default function Inventory() {
   const { data: products = [], isLoading: loading, refetch } = useProducts();
+  const { data: subscription } = useStoreSubscription();
+  const plan = getPlan(subscription?.plan);
+  const atPlanLimit =
+    plan.productLimit !== null && products.length >= plan.productLimit;
   const [showForm, setShowForm] = useState(false);
   const [showReceive, setShowReceive] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
@@ -33,6 +41,16 @@ export default function Inventory() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  // View mode: "list" (table on desktop, cards on mobile) or "grid" (visual cards)
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    const saved = localStorage.getItem("inventory_viewMode");
+    return saved === "grid" ? "grid" : "list";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("inventory_viewMode", viewMode);
+  }, [viewMode]);
 
   // Persist viewingProduct in sessionStorage
   const [viewingProduct, setViewingProduct] = useState<Product | null>(() => {
@@ -74,7 +92,7 @@ export default function Inventory() {
     const product = products.find((p) => p.id === id);
     if (!product) return;
 
-    const deleteMessage = `Haqii inaad doonaysid inaad tirtirto "${product.name}"?\n\nTani waxay u baahan tahay:\n1. Tirtirka dhammaan iibkii (sales) ee ku saabsan alaabtan\n2. Tirtirka dhammaan order items ee ku saabsan alaabtan\n3. Tirtirka alaabta (product) guud ahaan\n\nAre you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete ALL order items for this product\n3. Delete the product completely\n\nThis action cannot be undone!`;
+    const deleteMessage = `Are you sure you want to delete "${product.name}"?\n\nThis will:\n1. Delete ALL sales records for this product\n2. Delete ALL order items for this product\n3. Delete the product completely\n\nThis action cannot be undone!`;
 
     if (!confirm(deleteMessage)) return;
 
@@ -133,40 +151,105 @@ export default function Inventory() {
             Inventory Management
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mt-0.5 text-xs sm:text-sm">
-            Manage your bookstore products
+            Manage your products, stock and pricing
           </p>
         </div>
 
-        {/* Mobile First: Stack all buttons vertically on mobile, then horizontal on larger screens */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        {/* Toolbar: one primary action (Add Product), two secondary. */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-2.5">
+          <button
+            onClick={() => setShowForm(true)}
+            disabled={atPlanLimit}
+            title={
+              atPlanLimit
+                ? `Your ${plan.name} plan is limited to ${plan.productLimit} products`
+                : "Add a new product"
+            }
+            className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Product</span>
+          </button>
           <button
             onClick={() => setShowReceive(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 text-white px-5 py-3 rounded-xl hover:from-emerald-600 hover:to-emerald-700 dark:hover:from-emerald-700 dark:hover:to-emerald-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-emerald-400 dark:border-emerald-500"
             title="Record a new stock receipt"
+            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-colors w-full sm:w-auto"
           >
-            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Alaab timid - Receive Stock</span>
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Receive Stock</span>
           </button>
           <button
             onClick={() => setShowAudit(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 dark:hover:from-amber-700 dark:hover:to-amber-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400 dark:border-amber-500"
             title="View stock movement history"
+            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-colors w-full sm:w-auto"
           >
-            <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Raadraac</span>
+            <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span>Stock History</span>
           </button>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 text-white px-5 py-3 rounded-xl hover:from-amber-600 hover:to-amber-700 dark:hover:from-amber-700 dark:hover:to-amber-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm sm:text-base w-full sm:w-auto sm:flex-1 border-2 border-amber-400 dark:border-amber-500"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Add Product</span>
-          </button>
+        </div>
+
+        {/* Plan limit banner */}
+        {atPlanLimit && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+            <div className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
+              <Crown className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>
+                You've reached the {plan.name} plan limit of{" "}
+                <strong>{plan.productLimit} products</strong>. Upgrade your
+                plan to add more.
+              </span>
+            </div>
+            <button
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("app:navigate-tab", {
+                    detail: "subscription",
+                  }),
+                )
+              }
+              className="shrink-0 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors shadow-sm"
+            >
+              View plans
+            </button>
+          </div>
+        )}
+
+        {/* View toggle */}
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {sortedProducts.length} product{sortedProducts.length !== 1 ? "s" : ""}
+          </p>
+          <div className="inline-flex items-center rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 p-1 shadow-sm">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                viewMode === "list"
+                  ? "bg-amber-500 text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+              title="List view"
+            >
+              <List className="w-4 h-4" />
+              <span className="hidden sm:inline">List</span>
+            </button>
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                viewMode === "grid"
+                  ? "bg-amber-500 text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+              title="Grid view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Grid</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Desktop Table View */}
-      <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-200">
+      {/* Desktop Table View (list mode) */}
+      <div className={`${viewMode === "list" ? "hidden lg:block" : "hidden"} bg-white dark:bg-slate-800 rounded-2xl shadow-lg border-2 border-slate-100 dark:border-slate-700 overflow-hidden transition-colors duration-200`}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 border-b-2 border-amber-100 dark:border-amber-900/30">
@@ -178,10 +261,10 @@ export default function Inventory() {
                   Category
                 </th>
                 <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Qiimaha Iibsiga - Buying Price
+                  Buying Price
                 </th>
                 <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Qiimaha Iibka - Selling Price
+                  Selling Price
                 </th>
                 <th className="px-4 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Stock
@@ -261,8 +344,8 @@ export default function Inventory() {
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
                               isLowStock
-                                ? "bg-red-50 text-red-700 border border-red-300"
-                                : "bg-emerald-50 text-emerald-700 border border-emerald-300"
+                                ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700"
+                                : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
                             }`}
                           >
                             {product.quantity_in_stock}
@@ -306,10 +389,10 @@ export default function Inventory() {
         </div>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="lg:hidden space-y-4">
+      {/* Mobile Card View (list mode) */}
+      <div className={viewMode === "list" ? "lg:hidden space-y-4" : "hidden"}>
         {paginatedProducts.length === 0 ? (
-          <div className="text-center py-12 text-slate-600">
+          <div className="text-center py-12 text-slate-600 dark:text-slate-400">
             <Package className="w-12 h-12 mx-auto mb-4 text-slate-400" />
             <p>No products found. Add your first product to get started!</p>
           </div>
@@ -320,7 +403,7 @@ export default function Inventory() {
             return (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl shadow-md border-2 border-slate-100 p-4 hover:border-amber-300 transition-all hover:shadow-lg"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-md border-2 border-slate-100 dark:border-slate-700 p-4 hover:border-amber-300 dark:hover:border-amber-600 transition-all hover:shadow-lg"
               >
                 <div className="flex items-start space-x-4">
                   {product.image_url ? (
@@ -331,14 +414,14 @@ export default function Inventory() {
                       <OptimizedImage
                         src={product.image_url}
                         alt={product.name}
-                        className="w-16 h-16 object-cover rounded-2xl border-2 border-amber-300/70 shadow-amber-100/50/60 shadow-sm"
+                        className="w-16 h-16 object-cover rounded-2xl border-2 border-amber-300/70 shadow-sm"
                         preset="thumbnail"
                       />
                     </button>
                   ) : (
                     <button
                       onClick={() => handleView(product)}
-                      className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center hover:bg-amber-100 transition-colors border-2 border-slate-200"
+                      className="w-16 h-16 bg-slate-50 dark:bg-slate-700 rounded-xl flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors border-2 border-slate-200 dark:border-slate-600"
                     >
                       <Package className="w-7 h-7 text-slate-400" />
                     </button>
@@ -348,14 +431,14 @@ export default function Inventory() {
                       <div>
                         <button
                           onClick={() => handleView(product)}
-                          className="font-semibold text-slate-900 hover:text-amber-400 transition-colors text-left"
+                          className="font-semibold text-slate-900 dark:text-white hover:text-amber-500 dark:hover:text-amber-400 transition-colors text-left"
                         >
                           {product.name}
                         </button>
-                        <p className="text-sm text-slate-700 ">
+                        <p className="text-sm text-slate-700 dark:text-slate-300">
                           ID: {product.product_id}
                         </p>
-                        <p className="text-sm text-slate-700 ">
+                        <p className="text-sm text-slate-700 dark:text-slate-300">
                           {product.category}
                         </p>
                       </div>
@@ -384,25 +467,25 @@ export default function Inventory() {
 
                     <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
                       <div>
-                        <p className="text-slate-500">Buy Price</p>
-                        <p className="font-bold text-slate-900">
+                        <p className="text-slate-500 dark:text-slate-400">Buy Price</p>
+                        <p className="font-bold text-slate-900 dark:text-white">
                           KES {product.buying_price}
                         </p>
                       </div>
                       <div>
-                        <p className="text-slate-500">Sell Price</p>
-                        <p className="font-medium text-slate-700">
+                        <p className="text-slate-500 dark:text-slate-400">Sell Price</p>
+                        <p className="font-medium text-slate-700 dark:text-slate-300">
                           KES {product.selling_price}
                         </p>
                       </div>
                       <div>
-                        <p className="text-slate-500">Stock</p>
+                        <p className="text-slate-500 dark:text-slate-400">Stock</p>
                         <div className="flex items-center space-x-1">
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                               isLowStock
-                                ? "bg-red-50 text-red-700 border border-red-300"
-                                : "bg-emerald-50 text-emerald-700 border border-emerald-300"
+                                ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700"
+                                : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
                             }`}
                           >
                             {product.quantity_in_stock}
@@ -421,10 +504,116 @@ export default function Inventory() {
         )}
       </div>
 
+      {/* Grid View */}
+      {viewMode === "grid" && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+          {paginatedProducts.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-slate-600 dark:text-slate-400">
+              <Package className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+              <p>No products found. Add your first product to get started!</p>
+            </div>
+          ) : (
+            paginatedProducts.map((product) => {
+              const isLowStock =
+                product.quantity_in_stock <= product.reorder_level;
+              const outOfStock = product.quantity_in_stock <= 0;
+              return (
+                <div
+                  key={product.id}
+                  className="group bg-white dark:bg-slate-800 rounded-2xl shadow-sm border-2 border-slate-100 dark:border-slate-700 overflow-hidden hover:border-amber-300 dark:hover:border-amber-600 hover:shadow-lg transition-all"
+                >
+                  {/* Image — object-contain on a neutral panel keeps every
+                      product photo fully visible and uniform across the row */}
+                  <button
+                    onClick={() => handleView(product)}
+                    className="relative block w-full aspect-square bg-white dark:bg-slate-900 overflow-hidden"
+                  >
+                    {product.image_url ? (
+                      <OptimizedImage
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
+                        fallbackClassName="w-full h-full"
+                        preset="product"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800">
+                        <Package className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                      </div>
+                    )}
+                    {/* Stock badge — frosted pill stays legible over any image */}
+                    {outOfStock ? (
+                      <span className="absolute left-2 top-2 inline-flex items-center rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                        Out of stock
+                      </span>
+                    ) : (
+                      <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm ring-1 ring-black/5 backdrop-blur-sm">
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            isLowStock ? "bg-amber-500" : "bg-emerald-500"
+                          }`}
+                        />
+                        {product.quantity_in_stock} in stock
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Body */}
+                  <div className="p-3">
+                    <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide truncate">
+                      {product.category}
+                    </p>
+                    <button
+                      onClick={() => handleView(product)}
+                      className="mt-0.5 block w-full text-left font-semibold text-sm text-slate-900 dark:text-white leading-snug line-clamp-2 min-h-[2.5em] hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                    >
+                      {product.name}
+                    </button>
+                    <div className="mt-1.5 flex items-baseline justify-between gap-2">
+                      <p className="font-bold text-slate-900 dark:text-white">
+                        KES {product.selling_price.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Buy: {product.buying_price.toLocaleString()}
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 dark:border-slate-700 pt-2">
+                      <button
+                        onClick={() => handleView(product)}
+                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
       {/* Pagination Controls */}
       {sortedProducts.length > 0 && (
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border-2 border-slate-100 shadow-sm rounded-xl">
-          <div className="text-sm text-slate-700">
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-sm rounded-xl">
+          <div className="text-sm text-slate-700 dark:text-slate-300">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, sortedProducts.length)} of{" "}
             {sortedProducts.length} products
@@ -437,35 +626,24 @@ export default function Inventory() {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-              style={{
-                colorScheme: "light",
-              }}
+              className="px-3 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
-              <option value={25} className="bg-white text-slate-900">
-                25 per page
-              </option>
-              <option value={50} className="bg-white text-slate-900">
-                50 per page
-              </option>
-              <option value={100} className="bg-white text-slate-900">
-                100 per page
-              </option>
-              <option value={200} className="bg-white text-slate-900">
-                200 per page
-              </option>
+              <option value={25}>25 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+              <option value={200}>200 per page</option>
             </select>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
 
-              <span className="px-3 py-2 text-sm text-slate-700 font-semibold">
+              <span className="px-3 py-2 text-sm text-slate-700 dark:text-slate-300 font-semibold">
                 Page {currentPage} of {totalPages}
               </span>
 
@@ -474,7 +652,7 @@ export default function Inventory() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-slate-900 text-sm hover:bg-amber-50 hover:border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm hover:bg-amber-50 dark:hover:bg-slate-600 hover:border-amber-300 dark:hover:border-slate-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -595,20 +773,20 @@ export default function Inventory() {
                     </div>
 
                     {/* Profit Margin */}
-                    <div className="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300">
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-2xl border-2 border-amber-300 dark:border-amber-700">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-amber-700 mb-1">
+                          <h4 className="font-semibold text-amber-700 dark:text-amber-300 mb-1">
                             Profit Margin
                           </h4>
-                          <p className="text-2xl font-bold text-amber-700">
+                          <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
                             KES{" "}
                             {(
                               viewingProduct.selling_price -
                               viewingProduct.buying_price
                             ).toLocaleString()}
                           </p>
-                          <p className="text-sm text-amber-600">
+                          <p className="text-sm text-amber-600 dark:text-amber-400">
                             {(
                               ((viewingProduct.selling_price -
                                 viewingProduct.buying_price) /
@@ -619,7 +797,7 @@ export default function Inventory() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-amber-600">
+                          <p className="text-sm text-amber-600 dark:text-amber-400">
                             Per unit profit
                           </p>
                         </div>
@@ -660,24 +838,24 @@ export default function Inventory() {
                     </div>
 
                     {/* Stock Status */}
-                    <div className="p-4 rounded-2xl border-2 border-dashed border-amber-300">
+                    <div className="p-4 rounded-2xl border-2 border-dashed border-amber-300 dark:border-amber-700">
                       {viewingProduct.quantity_in_stock <=
                       viewingProduct.reorder_level ? (
-                        <div className="flex items-center space-x-3 text-red-700">
+                        <div className="flex items-center space-x-3 text-red-700 dark:text-red-400">
                           <AlertCircle className="w-6 h-6" />
                           <div>
                             <p className="font-semibold">Low Stock Alert!</p>
-                            <p className="text-sm text-red-600">
+                            <p className="text-sm text-red-600 dark:text-red-400">
                               This product needs to be restocked soon.
                             </p>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center space-x-3 text-emerald-700">
+                        <div className="flex items-center space-x-3 text-emerald-700 dark:text-emerald-400">
                           <Package className="w-6 h-6" />
                           <div>
                             <p className="font-semibold">Stock Level: Good</p>
-                            <p className="text-sm text-emerald-600">
+                            <p className="text-sm text-emerald-600 dark:text-emerald-400">
                               Product is well stocked.
                             </p>
                           </div>
@@ -727,7 +905,7 @@ export default function Inventory() {
                       </button>
                       <button
                         onClick={handleCloseView}
-                        className="flex items-center justify-center space-x-2 bg-white text-slate-700 px-6 py-3 rounded-xl hover:bg-slate-50 transition-colors border-2 border-slate-200 hover:border-slate-300 hover:scale-105 active:scale-95"
+                        className="flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors border-2 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:scale-105 active:scale-95"
                       >
                         <X className="w-5 h-5" />
                         <span>Close</span>

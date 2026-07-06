@@ -10,6 +10,30 @@ export async function getPublishedProducts() {
   return unwrap(response, []);
 }
 
+export interface StoreSubscription {
+  plan: string;
+  renews_at: string | null;
+  updated_at: string | null;
+}
+
+/**
+ * The store's current subscription (singleton row). Returns null if the
+ * table/migration isn't present yet so the UI falls back to the Free plan.
+ */
+export async function getStoreSubscription(): Promise<StoreSubscription | null> {
+  const response = await (apiClient as any)
+    .from("store_subscription")
+    .select("plan, renews_at, updated_at")
+    .limit(1)
+    .maybeSingle();
+
+  if (response.error) {
+    console.warn("Subscription lookup failed, defaulting to Free plan:", response.error.message);
+    return null;
+  }
+  return (response.data as StoreSubscription | null) ?? null;
+}
+
 /**
  * Public storefront catalog: only customer-safe columns. Keeps the
  * payload small (hundreds of rows) and never ships buying_price to

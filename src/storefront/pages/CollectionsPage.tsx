@@ -229,7 +229,7 @@ function CollectionDetail({ slug }: { slug: string }) {
             action={<SolidButton to="/products">Browse all products</SolidButton>}
           />
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 2xl:grid-cols-5">
             {items.map((product, index) => (
               <Reveal key={product.id} delay={Math.min(index * 0.05, 0.25)}>
                 <ProductCard product={product} priority={index < 4} />
