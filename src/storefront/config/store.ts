@@ -28,14 +28,13 @@ const hassanBookshop: StoreConfig = {
   currency: { code: "KES", symbol: "KSh", locale: "en-KE" },
 
   contact: {
-    phone: "+254 722 979 547",
+    phone: "+254 722 979 547 / +254 111 887 793",
     whatsapp: "254722979547",
-    email: "info@hassanbookshop.co.ke",
+    email: "yussufh080@gmail.com",
     address: "2nd Street, 3rd Avenue, Eastleigh, Nairobi",
     mapsUrl: "https://maps.google.com/?q=2nd+Street+3rd+Avenue+Eastleigh+Nairobi",
     hours: [
-      { days: "Monday – Saturday", time: "8:00 AM – 8:00 PM" },
-      { days: "Sunday", time: "9:00 AM – 6:00 PM" },
+      { days: "Monday – Sunday", time: "8:00 AM – 11:00 PM" },
     ],
   },
 

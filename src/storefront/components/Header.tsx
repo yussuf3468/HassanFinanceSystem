@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, Search, ShoppingBag, UserRound } from "lucide-react";
+import { Heart, Lock, Search, ShoppingBag, UserRound } from "lucide-react";
 import { useCart } from "../../contexts/CartContext";
 import { storeConfig } from "../config/store";
 import { useWishlist } from "../lib/prefs";
@@ -144,7 +144,6 @@ export default function Header() {
           >
             <UserRound className="h-[19px] w-[19px]" />
           </Link>
-
           <button
             type="button"
             onClick={ui.openCart}
@@ -161,6 +160,15 @@ export default function Header() {
                 {totalItems}
               </span>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={ui.onAdminClick}
+            aria-label="Staff portal"
+            className="hidden h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 hover:scale-110 sm:flex"
+            style={{ color: inkColor }}
+          >
+            <Lock className="h-[19px] w-[19px]" />
           </button>
         </div>
       </div>
